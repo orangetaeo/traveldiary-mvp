@@ -4,13 +4,15 @@
 
 ## 읽는 순서
 
-1. **[01-vision.md](./01-vision.md)** — 우리가 무엇을 만드는가, 왜 만드는가
-2. **[02-magic-moments.md](./02-magic-moments.md)** — 사용자가 "이 앱은 다르네"라고 느끼는 4개 순간
+1. **[01-vision.md](./01-vision.md)** — 우리가 무엇을 만드는가, 왜 만드는가 (v1)
+2. **[02-magic-moments.md](./02-magic-moments.md)** — 매직 모먼트 (v1 M1~M4)
 3. **[03-style-system.md](./03-style-system.md)** — 컬러·타이포·컴포넌트·인터랙션 룰
 4. **[04-data-model.md](./04-data-model.md)** — 데이터 구조·DB 스키마 방향
-5. **[05-roadmap.md](./05-roadmap.md)** — MVP 우선순위, 12개월 로드맵
+5. **[05-roadmap.md](./05-roadmap.md)** — MVP 우선순위, 12개월 로드맵 (v2 포인터 포함)
 6. **[06-ai-collaboration.md](./06-ai-collaboration.md)** — VSCode + AI 도구 협업 가이드
 7. **[07-railway-deploy.md](./07-railway-deploy.md)** — Railway 배포 (시드니 사이트와 분리)
+8. **[09-vision-v2.md](./09-vision-v2.md)** ⭐ — **v2 비전 (Accepted 2026-04-29)** — M5~M8 추가, Tier 분류, 사이클 5b~12 로드맵
+9. **[sydney-pattern-inventory.md](./sydney-pattern-inventory.md)** — 시드니 사이트 패턴 추출 (갭 분석 베이스라인)
 
 ## 화면별 명세
 
@@ -37,7 +39,12 @@
 - [ADR-015](./adr/ADR-015-translate-static-menu-seed.md) — 사이클 4 카메라 번역 정적 메뉴 시드
 - [ADR-016](./adr/ADR-016-cycle-5a-railway-deploy-demo.md) — 사이클 5a Railway 데모 모드 배포
 
-## 회의록
+## 회의록 (사이클 6 추가)
+
+- [2026-04-29 사이클 6 합의 (견적 기획 v2)](./meetings/2026-04-29-cycle-6.md)
+- [2026-04-29 사이클 6 회고](./meetings/2026-04-29-cycle-6-retrospective.md)
+
+## 이전 회의록
 
 - [2026-04-29 사이클 1 합의문](./meetings/2026-04-29-cycle-1.md)
 - [2026-04-29 사이클 1 다중 검증 리포트](./meetings/2026-04-29-cycle-1-verification.md)
