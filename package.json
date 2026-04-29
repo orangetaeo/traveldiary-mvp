@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "start": "sh -c 'if [ -n \"$DATABASE_URL\" ]; then npx prisma migrate deploy; fi && next start'",
+    "start": "sh ./scripts/start.sh",
     "lint": "next lint",
     "postinstall": "prisma generate || true",
     "db:migrate": "prisma migrate dev",
