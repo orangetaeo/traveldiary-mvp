@@ -205,7 +205,8 @@
 | 2 — M3 Live Replan | ✅ 2026-04-29 완료 | replan 엔진·바텀 시트·ImpactDisplay·ADR-012 |
 | 3 — M2 D-Day 모드 전환 | ✅ 2026-04-29 완료 | /travel/[id]·CSS 변수·ADR-014 |
 | 4 — M4 카메라 번역 | ✅ 2026-04-29 완료 | /translate·정적 메뉴 시드·다국어 알레르기·ADR-015 |
-| 5 — Railway 배포 + 외부 API + mutation/DB | ⏳ 대기 | Prisma adapter (ADR-013)·Vision/Claude·Geolocation·writeAuditLog 실호출 |
+| 5a — Railway 외부 노출 (데모) | ✅ 2026-04-29 완료 | https://traveldiary-mvp-production.up.railway.app · ADR-016 |
+| 5b — mutation/DB/외부 API | ⏳ 대기 | Prisma adapter (ADR-013)·Vision/Claude·Geolocation·writeAuditLog 실호출 |
 
 ---
 

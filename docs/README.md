@@ -35,6 +35,7 @@
 - [ADR-012](./adr/ADR-012-replan-client-state-simulation.md) — 사이클 2 Live Replan 클라이언트 시뮬레이션
 - [ADR-014](./adr/ADR-014-mode-transition-demo-toggle.md) — 사이클 3 모드 전환 데모 토글
 - [ADR-015](./adr/ADR-015-translate-static-menu-seed.md) — 사이클 4 카메라 번역 정적 메뉴 시드
+- [ADR-016](./adr/ADR-016-cycle-5a-railway-deploy-demo.md) — 사이클 5a Railway 데모 모드 배포
 
 ## 회의록
 
@@ -50,6 +51,9 @@
 - [2026-04-29 사이클 4 합의문](./meetings/2026-04-29-cycle-4.md)
 - [2026-04-29 사이클 4 검증](./meetings/2026-04-29-cycle-4-verification.md)
 - [2026-04-29 사이클 4 회고](./meetings/2026-04-29-cycle-4-retrospective.md)
+- [2026-04-29 사이클 5a 합의문](./meetings/2026-04-29-cycle-5a.md)
+- [2026-04-29 사이클 5a 검증](./meetings/2026-04-29-cycle-5a-verification.md)
+- [2026-04-29 사이클 5a 회고](./meetings/2026-04-29-cycle-5a-retrospective.md)
 
 ## AI 도구와 협업 시
 

@@ -134,6 +134,8 @@ claude
 
 ## 5. 배포 — Railway
 
+**🌐 라이브 URL**: https://traveldiary-mvp-production.up.railway.app (사이클 5a 데모 모드)
+
 시드니 사이트와 별개의 새 Railway 프로젝트로 배포합니다.
 
 ### 처음 한 번만
