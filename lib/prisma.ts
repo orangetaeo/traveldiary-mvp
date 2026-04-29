@@ -1,25 +1,39 @@
 /**
- * Prisma Client 핸들 — 사이클 1 한정 데모 모드.
+ * Prisma Client — Prisma 7 driver adapter (ADR-013).
  *
- * Prisma 7은 schema의 datasource.url을 더 이상 지원하지 않고
- * driver adapter(@prisma/adapter-pg 등)를 통한 인스턴스화를 요구한다 — ADR-011.
+ * 정책:
+ *   - DATABASE_URL 있음 → PrismaPg adapter로 실 인스턴스 생성.
+ *   - DATABASE_URL 없음 → null. 페이지·Server Action은 시드 fallback (ADR-009).
  *
- * 사이클 1은 ADR-010(의존성 무추가) 정책을 지키기 위해
- *   - 타입만 import,
- *   - 인스턴스는 null,
- *   - 변경 API는 시드 read-only 시연이라 mutation 0건
- * 으로 운영한다.
- *
- * 사이클 2(첫 mutation)에서 adapter ADR과 함께 정식 인스턴스화한다.
+ * Next.js dev hot-reload 안전성 위해 globalThis에 캐싱.
  */
 
-import type { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 declare global {
   // eslint-disable-next-line no-var
-  var __prisma: PrismaClient | undefined;
+  var __prisma: PrismaClient | null | undefined;
 }
 
-export const prisma: PrismaClient | null = globalThis.__prisma ?? null;
+function createClient(): PrismaClient | null {
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[prisma] DATABASE_URL 미설정 — 데모 모드");
+    }
+    return null;
+  }
+
+  const adapter = new PrismaPg({ connectionString: url });
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
+  });
+}
+
+const cached = globalThis.__prisma;
+export const prisma: PrismaClient | null =
+  cached !== undefined ? cached : (globalThis.__prisma = createClient());
 
 export const isDbConnected: boolean = prisma !== null;

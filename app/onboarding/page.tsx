@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { createTripFromOnboarding } from "@/actions/trip";
 
 /**
  * 온보딩 4단계
@@ -62,10 +63,24 @@ export default function OnboardingPage() {
     );
   };
 
+  const [isPending, startTransition] = useTransition();
+
   const handleFinish = () => {
-    // 실제로는 서버에 trip draft 저장 후 일정 생성 페이지로
-    // MVP에서는 일단 라우팅만
-    router.push("/itinerary/creating");
+    startTransition(async () => {
+      const result = await createTripFromOnboarding({
+        destination,
+        destinationCode: destinationToCode(destination),
+        nights,
+        companion,
+        preferences: {
+          vibes,
+          pace: paceLabelToCode(pace),
+          excludes,
+        },
+        startDate: "2026-05-14",
+      });
+      router.push(`/itinerary/creating?trip=${result.id}`);
+    });
   };
 
   const stepTitle = { 1: "시작", 2: "목적지", 3: "기간·일행", 4: "취향" }[step];
@@ -121,6 +136,7 @@ export default function OnboardingPage() {
             toggleExclude={toggleExclude}
             onBack={() => setStep(3)}
             onFinish={handleFinish}
+            isPending={isPending}
           />
         )}
       </div>
@@ -367,6 +383,7 @@ function Step4({
   toggleExclude,
   onBack,
   onFinish,
+  isPending,
 }: {
   vibes: string[];
   toggleVibe: (v: string) => void;
@@ -376,6 +393,7 @@ function Step4({
   toggleExclude: (e: string) => void;
   onBack: () => void;
   onFinish: () => void;
+  isPending: boolean;
 }) {
   return (
     <>
@@ -431,18 +449,30 @@ function Step4({
         <button
           className="text-xs text-ink-soft px-3 py-3"
           onClick={onFinish}
+          disabled={isPending}
         >
           건너뛰기
         </button>
         <button
-          className="flex-1 bg-ink text-white py-3.5 rounded-md text-sm font-medium"
+          className="flex-1 bg-ink text-white py-3.5 rounded-md text-sm font-medium disabled:opacity-60"
           onClick={onFinish}
+          disabled={isPending}
         >
-          일정 만들기 →
+          {isPending ? "일정 만드는 중…" : "일정 만들기 →"}
         </button>
       </div>
     </>
   );
+}
+
+function destinationToCode(name: string): string {
+  return ({ "푸꾸옥": "PQC", "다낭": "DAD", "도쿄": "TYO", "방콕": "BKK" } as Record<string, string>)[name] ?? "PQC";
+}
+
+function paceLabelToCode(label: string): "relaxed" | "balanced" | "packed" {
+  if (label === "여유롭게") return "relaxed";
+  if (label === "최대한 많이") return "packed";
+  return "balanced";
 }
 
 function Chip({

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { CategoryBadge } from "@/components/itinerary/CategoryBadge";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { getDemoItem, getDemoTrip } from "@/lib/seed";
+import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 
 /**
  * 일정 상세 화면 (LEVEL 1) — M1 추천 근거 패널의 메인 시연 화면
@@ -16,13 +17,16 @@ import { getDemoItem, getDemoTrip } from "@/lib/seed";
  * 차별 포인트 (docs/02-magic-moments.md M1):
  *   트리플·Layla는 결과만 보여줌. 우리는 근거를 노출 → 통제권 → 락인.
  */
-export default function ItineraryItemPage({
+export default async function ItineraryItemPage({
   params,
 }: {
   params: { id: string; itemId: string };
 }) {
-  const item = getDemoItem(params.id, params.itemId);
-  const bundle = getDemoTrip(params.id);
+  const dbBundle = await fetchTripFromDb(params.id);
+  const bundle = dbBundle ?? getDemoTrip(params.id);
+  const item =
+    bundle?.items.find((it) => it.id === params.itemId) ??
+    getDemoItem(params.id, params.itemId);
   if (!item || !bundle) notFound();
 
   const flexibilityBadge = (() => {

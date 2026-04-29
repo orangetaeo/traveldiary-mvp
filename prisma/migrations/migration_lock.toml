@@ -1,0 +1,4 @@
+# 이 파일은 Prisma migrate가 자동 관리합니다.
+# 수동 편집은 권장하지 않습니다.
+
+provider = "postgresql"

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 
 /**
@@ -38,7 +38,17 @@ const STEPS = [
 const STEP_MS = 2800;
 
 export default function ItineraryCreatingPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen p-5" />}>
+      <ItineraryCreatingInner />
+    </Suspense>
+  );
+}
+
+function ItineraryCreatingInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tripId = searchParams.get("trip") ?? DEMO_TRIP_ID;
   const [active, setActive] = useState(0);
   const [done, setDone] = useState(false);
 
@@ -46,13 +56,13 @@ export default function ItineraryCreatingPage() {
     if (active >= STEPS.length) {
       setDone(true);
       const t = setTimeout(() => {
-        router.push(`/itinerary/${DEMO_TRIP_ID}`);
+        router.push(`/itinerary/${tripId}`);
       }, 600);
       return () => clearTimeout(t);
     }
     const t = setTimeout(() => setActive((a) => a + 1), STEP_MS);
     return () => clearTimeout(t);
-  }, [active, router]);
+  }, [active, router, tripId]);
 
   const progress = Math.min(100, Math.round((active / STEPS.length) * 100));
 

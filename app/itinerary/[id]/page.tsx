@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { ItineraryView } from "@/components/itinerary/ItineraryView";
 import { getDemoTrip } from "@/lib/seed";
+import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 
 /**
  * 일정 전체 화면 (LEVEL 1)
@@ -17,8 +18,9 @@ import { getDemoTrip } from "@/lib/seed";
  * 데이터: 서버에서 시드 import → 클라이언트 ItineraryView에 전달.
  * Replan으로 인한 변경은 클라이언트 상태로만 — ADR-012.
  */
-export default function ItineraryPage({ params }: { params: { id: string } }) {
-  const bundle = getDemoTrip(params.id);
+export default async function ItineraryPage({ params }: { params: { id: string } }) {
+  // DB-우선 조회. 없으면 시드 fallback (ADR-009/013).
+  const bundle = (await fetchTripFromDb(params.id)) ?? getDemoTrip(params.id);
   if (!bundle) notFound();
 
   const { trip, items } = bundle;
