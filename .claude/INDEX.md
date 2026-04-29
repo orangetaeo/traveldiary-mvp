@@ -206,7 +206,16 @@
 | 3 — M2 D-Day 모드 전환 | ✅ 2026-04-29 완료 | /travel/[id]·CSS 변수·ADR-014 |
 | 4 — M4 카메라 번역 | ✅ 2026-04-29 완료 | /translate·정적 메뉴 시드·다국어 알레르기·ADR-015 |
 | 5a — Railway 외부 노출 (데모) | ✅ 2026-04-29 완료 | https://traveldiary-mvp-production.up.railway.app · ADR-016 |
-| 5b — mutation/DB/외부 API | ⏳ 대기 | Prisma adapter (ADR-013)·Vision/Claude·Geolocation·writeAuditLog 실호출 |
+| **6 — 견적 기획 v2** | ✅ 2026-04-29 완료 | docs/09-vision-v2.md Accepted · M5~M8 추가 · 7개 결정 |
+| 5b-1 — Prisma adapter + DB + 첫 mutation | ⏳ 다음 사이클 | ADR-013 |
+| 5b-2 — Geolocation + M2 자동 + Privacy | ⏳ | ADR-017 |
+| 5b-3 — 외부 API (Vision·Claude·Naver) | ⏳ | ADR-018·019 |
+| 7 — Place 모델 + 이미지 + Maps deeplink | ⏳ | A1·A3·D1 |
+| 8 — M5 City 데이터 풀 + 다낭 시드 | ⏳ | M5 |
+| 9 — M6 체크리스트 + 비용 관리 | ⏳ | M6 |
+| 10 — UX 보강 (드래그·검색·자유 추가) | ⏳ | A2·A4·A5 |
+| 11 — M7 공유 + 동기화 키 + 카카오 OAuth | ⏳ | M7 |
+| 12 — M8 OTA 가격 비교 + 어필리에이트 | ⏳ | M8 (수익 모델) |
 
 ---
 
