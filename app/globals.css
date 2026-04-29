@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 모드별 강조색 — data-travel-mode 속성으로 전환 (S-04 / ADR-014) */
+    --color-mode-primary: #5B4BC4; /* pre-travel: 보라 */
+  }
+
+  [data-travel-mode="in-travel"] {
+    --color-mode-primary: #FF6B47; /* 코랄 */
+  }
+
+  [data-travel-mode="post-travel"] {
+    --color-mode-primary: #1D7F5C; /* 그린 */
+  }
+
+  html, body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #F4F1EB;
+    color: #1A1F26;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  button {
+    font-family: inherit;
+  }
+}
+
+@layer components {
+  /* 모바일 최적화 — 380px 컨테이너에 맞춤 */
+  .mobile-container {
+    max-width: 420px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: white;
+  }
+
+  /* 모드 강조색을 토큰 클래스로 — 인라인 스타일 회피 */
+  .text-mode-primary { color: var(--color-mode-primary); }
+  .bg-mode-primary { background-color: var(--color-mode-primary); }
+  .border-mode-primary { border-color: var(--color-mode-primary); }
+}

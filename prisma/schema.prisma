@@ -1,0 +1,198 @@
+// TravelDiary — Prisma Schema (사이클 1 / 0001_init_pqc)
+// 결정: ADR-004 (Prisma 7 + PostgreSQL), ADR-006 (DAG 인접 리스트), ADR-009 (푸꾸옥 시드)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ═══════════════════════════════════════════
+// USER
+// ═══════════════════════════════════════════
+
+model User {
+  id          String   @id @default(cuid())
+
+  email       String?  @unique
+  kakaoId     String?  @unique
+  name        String?
+
+  preferences Json?
+
+  trips       Trip[]
+  members     TripMember[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+}
+
+// ═══════════════════════════════════════════
+// TRIP
+// ═══════════════════════════════════════════
+
+model Trip {
+  id              String   @id @default(cuid())
+  ownerId         String
+  owner           User     @relation(fields: [ownerId], references: [id])
+
+  destination     String
+  destinationCode String
+  startDate       DateTime
+  nights          Int
+
+  companion       String
+  preferences     Json
+
+  status          String   @default("draft")
+  currentMode     String   @default("pre-travel")
+
+  items           ItineraryItem[]
+  members         TripMember[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  @@index([ownerId, status])
+  @@index([startDate])
+  @@index([destinationCode])
+  @@index([deletedAt])
+}
+
+// ═══════════════════════════════════════════
+// ITINERARY ITEM (DAG 노드)
+// ═══════════════════════════════════════════
+
+model ItineraryItem {
+  id              String   @id @default(cuid())
+  tripId          String
+  trip            Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  dayIndex        Int
+  scheduledAt     DateTime
+  durationMinutes Int
+
+  flexibility     String
+  priority        Int
+  flexMinutes     Int      @default(0)
+
+  name            String
+  category        String
+
+  locationLat     Float
+  locationLng     Float
+  locationAddress String
+
+  estimatedPrice  Json?
+  bookingStatus   Json?
+
+  evidence        Json
+
+  dependents      ItineraryDependency[] @relation("dependency")
+  dependencies    ItineraryDependency[] @relation("dependent")
+
+  validations     ValidationResult[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([tripId, dayIndex])
+  @@index([tripId, scheduledAt])
+  @@index([category])
+}
+
+model ItineraryDependency {
+  id           String        @id @default(cuid())
+  dependentId  String
+  dependencyId String
+  dependent    ItineraryItem @relation("dependent", fields: [dependentId], references: [id], onDelete: Cascade)
+  dependency   ItineraryItem @relation("dependency", fields: [dependencyId], references: [id], onDelete: Cascade)
+
+  @@unique([dependentId, dependencyId])
+  @@index([dependencyId])
+}
+
+// ═══════════════════════════════════════════
+// VALIDATION (5단계 검증 결과 — 환각 차단)
+// ═══════════════════════════════════════════
+
+model ValidationResult {
+  id                String        @id @default(cuid())
+  itemId            String
+  item              ItineraryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  placeExists       Boolean
+  operatingStatus   String
+  bookingRequired   Boolean
+  distanceVerified  Boolean
+  priceVerified     Boolean
+
+  validatedAt       DateTime      @default(now())
+
+  @@index([itemId, validatedAt])
+}
+
+// ═══════════════════════════════════════════
+// COLLABORATION
+// ═══════════════════════════════════════════
+
+model TripMember {
+  id        String   @id @default(cuid())
+  tripId    String
+  userId    String
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  role      String
+  joinedAt  DateTime @default(now())
+
+  @@unique([tripId, userId])
+  @@index([userId])
+}
+
+// ═══════════════════════════════════════════
+// AUDIT LOG (S-13 절대 규칙)
+// ═══════════════════════════════════════════
+
+model AuditLog {
+  id         String   @id @default(cuid())
+
+  actorId    String?
+  action     String
+  resource   String
+  resourceId String
+
+  before     Json?
+  after      Json?
+  metadata   Json?
+
+  createdAt  DateTime @default(now())
+
+  @@index([resource, resourceId])
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+}
+
+// ═══════════════════════════════════════════
+// EVIDENCE CACHE (Phase 1 외부 API 호출 비용 절감)
+// ═══════════════════════════════════════════
+
+model EvidenceCache {
+  id           String   @id @default(cuid())
+  placeId      String
+  platform     String
+
+  data         Json
+
+  fetchedAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  @@unique([placeId, platform])
+  @@index([expiresAt])
+}
