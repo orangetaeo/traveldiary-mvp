@@ -2,10 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
-import { CategoryBadge } from "@/components/itinerary/CategoryBadge";
-import { TravelHeader } from "./TravelHeader";
+import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { dayProgress } from "@/lib/mode-transition";
 import type { ItineraryItem, Trip } from "@/lib/types";
 
@@ -15,33 +12,33 @@ interface TravelHomeProps {
 }
 
 /**
- * 여행 중 홈 (M2 매직 모먼트 시연 화면) — LEVEL 1.
+ * 여행 중 홈 (M2) — Stitch #2 매핑 (Home (On-trip) - Pretendard).
  *
- * 데모 정책 (ADR-014):
- *   - 사용자가 /itinerary/[id]에서 "여행 중 모드" 버튼을 눌렀을 때 진입.
- *   - travelDay는 Day 1로 고정해 시연 (실 자동 전환은 사이클 5).
- *   - 시계는 실시간이지만 진행률은 시드 시각 기준이라 demo Day 1 중 일부만 매칭.
+ * 사이클 5b 옵션 C (2026-04-30): Stitch HTML → React 변환.
  *
- * UI 룰 (T17 / docs/02-magic-moments.md M2):
- *   - 강조 색 = 코랄 (data-travel-mode="in-travel" → --color-mode-primary)
- *   - FAB 등장 (카메라 번역·주변 검색)
- *   - 헤더 "DAY n · HH:MM"
+ * 디자인:
+ * - 상단 GPS 배너 (success 톤)
+ * - TopAppBar (DAY n · HH:MM, 코랄 강조)
+ * - Live Header (펄스 점 + 다음 일정 안내)
+ * - Stats Grid (진행률 / 위치 / 예산)
+ * - Vertical Timeline (Past 완료 / Current featured / Future 예정)
+ * - FAB Stack (검색·카메라)
+ *
+ * 강조 색은 globals.css의 `--color-mode-primary` (data-travel-mode="in-travel" → 코랄).
  */
 export function TravelHome({ trip, items }: TravelHomeProps) {
-  // 데모: Day 1로 고정. 사이클 5에서 calculateTravelDay(trip.startDate)로 교체.
+  // 데모: Day 1 고정. 사이클 5에서 calculateTravelDay(trip.startDate)로 교체.
   const travelDay = 1;
   const dayIndex = travelDay - 1;
 
   const [now, setNow] = useState<Date | null>(null);
 
-  // Day 1의 첫 일정을 "기준 시각"으로 잡아 진행률 시연.
-  // 실 운영 시 Date()로 대체 — 사이클 5.
+  // 데모 now: Day 1 첫 항목 종료 + 30분 → 진행률 시연
   const demoNow = useMemo(() => {
     const today = items
       .filter((it) => it.dayIndex === dayIndex)
       .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
     if (today.length === 0) return null;
-    // 진행률을 보여주려고 첫 항목 종료 직후 시점을 데모 now로 사용.
     const first = new Date(today[0].scheduledAt);
     first.setUTCMinutes(first.getUTCMinutes() + today[0].durationMinutes + 30);
     return first;
@@ -56,153 +53,298 @@ export function TravelHome({ trip, items }: TravelHomeProps) {
   const referenceNow = demoNow ?? now ?? new Date();
   const { done, total, current, next } = dayProgress(items, dayIndex, referenceNow);
 
-  return (
-    <div data-travel-mode="in-travel" className="min-h-screen flex flex-col">
-      <TravelHeader travelDay={travelDay} destination={trip.destination} />
+  const dayItems = items
+    .filter((it) => it.dayIndex === dayIndex)
+    .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
+  const currentId = current?.id;
+  const nextId = next?.id;
+  const pastItems = dayItems.filter((it) => {
+    const end = new Date(it.scheduledAt);
+    end.setUTCMinutes(end.getUTCMinutes() + it.durationMinutes);
+    return end <= referenceNow && it.id !== currentId;
+  });
+  const futureItems = dayItems.filter((it) => {
+    const start = new Date(it.scheduledAt);
+    return start > referenceNow && it.id !== currentId && it.id !== nextId;
+  });
 
-      {/* 진행률 + 데모 안내 */}
-      <section className="px-5 py-4 border-b border-divider">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-[10px] font-medium text-ink-soft tracking-wider">
-            오늘 진행률
-          </p>
-          <Badge tone="amber">데모</Badge>
-        </div>
-        <div className="flex items-baseline gap-2 mb-1.5">
-          <span className="text-[24px] font-medium tabular-nums text-mode-primary">
-            {done}
-          </span>
-          <span className="text-[14px] text-ink-soft">/ {total}곳 완료</span>
-        </div>
-        <div className="h-[6px] bg-surface-soft rounded-full overflow-hidden">
-          <div
-            className="h-full bg-mode-primary rounded-full transition-all"
-            style={{ width: total === 0 ? "0%" : `${Math.round((done / total) * 100)}%` }}
-          />
-        </div>
-      </section>
+  const time = now
+    ? `${String(now.getHours()).padStart(2, "0")}:${String(
+        now.getMinutes()
+      ).padStart(2, "0")}`
+    : "--:--";
+  const progressPercent = total === 0 ? 0 : Math.round((done / total) * 100);
 
-      {/* 현재 일정 */}
-      <section className="px-4 pt-4">
-        <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-          {current ? "지금 진행 중" : "다음으로 시작할 항목"}
-        </p>
-        {(current ?? next) ? (
-          <CurrentCard item={(current ?? next)!} highlight={!!current} />
-        ) : (
-          <Card variant="plain">
-            <p className="text-[13px] text-ink-soft text-center py-4">
-              오늘 일정이 모두 끝났어요
-            </p>
-          </Card>
-        )}
-      </section>
-
-      {/* 다음 일정 (current가 있을 때만 별도 표시) */}
-      {current && next && (
-        <section className="px-4 pt-3">
-          <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-            다음
-          </p>
-          <NextCard item={next} />
-        </section>
-      )}
-
-      <div className="flex-1" />
-
-      {/* 푸터 + 일정 전체로 돌아가기 */}
-      <footer className="border-t border-divider p-4 flex items-center justify-between">
-        <Link
-          href={`/itinerary/${trip.id}`}
-          className="text-[12px] text-ink-soft hover:text-ink"
-        >
-          ‹ 일정 전체
-        </Link>
-        <p className="text-[11px] text-ink-mute">
-          ADR-014 · 데모 토글
-        </p>
-      </footer>
-
-      {/* FAB — 코랄 강조 (모바일 우하단 고정). 사이클 4 카메라 번역 활성화. */}
-      <Fab tripId={trip.id} />
-    </div>
-  );
-}
-
-// ── 현재 일정 카드 (코랄 강조) ──
-
-function CurrentCard({ item, highlight }: { item: ItineraryItem; highlight: boolean }) {
   return (
     <div
-      className={`rounded-lg p-4 bg-surface-card border-2 ${
-        highlight ? "border-mode-primary" : "border-divider"
-      }`}
+      data-travel-mode="in-travel"
+      className="min-h-screen bg-surface-soft text-ink pb-32"
     >
-      <div className="flex items-start justify-between gap-3 mb-1.5">
-        <div className="flex items-baseline gap-2 min-w-0">
-          {highlight && (
-            <span
-              className="w-1.5 h-1.5 rounded-full bg-mode-primary animate-pulse shrink-0"
-              aria-hidden="true"
-            />
-          )}
-          <span className="text-[14px] font-medium tabular-nums">
-            {formatTime(item.scheduledAt)}
-          </span>
-          <span className="text-[11px] text-ink-mute">
-            {item.durationMinutes}분
-          </span>
-        </div>
-        <CategoryBadge category={item.category} />
-      </div>
-      <h3 className="text-[16px] font-medium leading-tight mb-1">{item.name}</h3>
-      <p className="text-[12px] text-ink-soft truncate">
-        {item.location.address}
-      </p>
-      {item.evidence.reasons[0] && (
-        <p className="text-[11px] text-purple-deep mt-2 line-clamp-1">
-          ▾ {item.evidence.reasons[0]}
+      {/* GPS Banner */}
+      <div className="w-full bg-success-soft px-td-md py-td-xs flex justify-between items-center sticky top-0 z-50">
+        <p className="text-td-meta text-success-deep">
+          GPS 확인 — {trip.destination} 도착, 여행 중 모드 전환됨.
         </p>
-      )}
+        <span
+          className="material-symbols-outlined text-[16px] text-success-deep"
+          aria-hidden
+        >
+          check
+        </span>
+      </div>
+
+      {/* TopAppBar */}
+      <header className="flex justify-between items-center w-full px-td-md h-14 sticky top-[28px] z-40 bg-surface-card border-b border-divider">
+        <div className="flex items-center">
+          <span
+            className="material-symbols-outlined mr-2 text-mode-primary"
+            aria-hidden
+          >
+            location_on
+          </span>
+          <h1 className="text-td-body font-bold tracking-tight text-mode-primary">
+            DAY {travelDay} · <span className="tabular-nums">{time}</span>
+          </h1>
+        </div>
+        <div className="flex items-center gap-td-sm">
+          <Link
+            href={`/itinerary/${trip.id}`}
+            aria-label="일정 전체"
+            className="text-ink-soft hover:text-ink p-1 rounded-full"
+          >
+            <span className="material-symbols-outlined">calendar_month</span>
+          </Link>
+          <button
+            type="button"
+            aria-label="알림"
+            className="text-ink-soft hover:text-ink p-1 rounded-full"
+          >
+            <span className="material-symbols-outlined">notifications</span>
+          </button>
+        </div>
+      </header>
+
+      <main className="px-td-md mt-td-md space-y-td-md">
+        {/* Live Header */}
+        <section className="space-y-td-xxs">
+          <div className="flex items-center gap-td-xs">
+            <span
+              className="w-2 h-2 rounded-full bg-mode-primary animate-pulse"
+              aria-hidden
+            />
+            <h2 className="text-td-title text-ink">
+              DAY {travelDay} · <span className="tabular-nums">{time}</span>
+            </h2>
+          </div>
+          <p className="text-td-body text-ink-soft">
+            {next
+              ? `다음: ${displayName(next.name)} · ${minutesUntil(
+                  next.scheduledAt,
+                  referenceNow
+                )}분 후`
+              : current
+              ? "현재 진행 중"
+              : "오늘 일정이 모두 끝났어요"}
+          </p>
+        </section>
+
+        {/* Stats Grid */}
+        <section className="grid grid-cols-2 gap-td-xs">
+          <div className="col-span-2 bg-surface-card p-td-sm rounded-xl border border-divider">
+            <div className="flex justify-between items-end mb-td-xs">
+              <span className="text-td-meta text-ink-soft">
+                진행률 {done}/{total}
+              </span>
+              <span className="text-td-caption text-mode-primary font-bold">
+                {progressPercent}% 완료
+              </span>
+            </div>
+            <div className="w-full bg-surface-soft rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-mode-primary h-full transition-all duration-500 progress-bar"
+                data-progress={progressPercent}
+              />
+            </div>
+          </div>
+
+          <div className="bg-surface-card p-td-sm rounded-xl border border-divider flex flex-col gap-td-xxs">
+            <div className="flex items-center gap-1 text-ink-soft">
+              <span
+                className="material-symbols-outlined text-[14px]"
+                aria-hidden
+              >
+                location_on
+              </span>
+              <span className="text-td-meta">현재 위치</span>
+            </div>
+            <p className="text-td-body font-medium">{trip.destination}</p>
+          </div>
+
+          <div className="bg-surface-card p-td-sm rounded-xl border border-divider flex flex-col gap-td-xxs">
+            <div className="flex items-center gap-1 text-ink-soft">
+              <span
+                className="material-symbols-outlined text-[14px]"
+                aria-hidden
+              >
+                account_balance_wallet
+              </span>
+              <span className="text-td-meta">예산 사용</span>
+            </div>
+            <p className="text-td-body font-medium">
+              {progressPercent}% · 정상
+            </p>
+          </div>
+        </section>
+
+        {/* Vertical Timeline */}
+        <section className="relative">
+          <div
+            className="absolute left-[11px] top-4 bottom-4 w-[2px] bg-divider"
+            aria-hidden
+          />
+          <div className="space-y-td-md relative">
+            {pastItems.map((item) => (
+              <PastTimelineItem key={item.id} item={item} />
+            ))}
+
+            {current && <CurrentTimelineItem item={current} tripId={trip.id} />}
+
+            {next && current && (
+              <FutureTimelineItem item={next} label="다음 일정" />
+            )}
+            {next && !current && (
+              <CurrentTimelineItem item={next} tripId={trip.id} />
+            )}
+
+            {futureItems.map((item) => (
+              <FutureTimelineItem key={item.id} item={item} />
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* FAB Stack */}
+      <div className="fixed bottom-20 right-td-md flex flex-col gap-td-xs items-center z-50 max-w-[420px] left-1/2 -translate-x-1/2 pointer-events-none">
+        <div className="ml-auto flex flex-col gap-td-xs pointer-events-auto pr-td-md">
+          <button
+            type="button"
+            aria-label="주변 검색"
+            className="w-12 h-12 rounded-full bg-surface-card border border-divider shadow-lg flex items-center justify-center active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined text-ink">search</span>
+          </button>
+          <Link
+            href={`/translate?trip=${trip.id}`}
+            aria-label="카메라 번역"
+            className="w-14 h-14 rounded-full bg-mode-primary text-white shadow-xl flex items-center justify-center active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined">photo_camera</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full px-td-md py-td-sm bg-surface-card/90 backdrop-blur-md border-t border-divider z-40 flex justify-between items-center">
+        <Link
+          href={`/itinerary/${trip.id}`}
+          className="text-td-meta text-ink-soft hover:text-ink flex items-center gap-1"
+        >
+          <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+          일정 전체
+        </Link>
+        <p className="text-td-caption text-ink-mute">ADR-014 · 데모 토글</p>
+      </div>
     </div>
   );
 }
 
-function NextCard({ item }: { item: ItineraryItem }) {
+function PastTimelineItem({ item }: { item: ItineraryItem }) {
+  const time = formatTime(item.scheduledAt);
   return (
-    <Card variant="plain">
-      <div className="flex items-baseline gap-2 mb-1">
-        <span className="text-[12px] tabular-nums text-ink-soft">
-          {formatTime(item.scheduledAt)}
-        </span>
-        <CategoryBadge category={item.category} />
+    <div className="flex gap-td-sm">
+      <div className="relative z-10">
+        <div className="w-6 h-6 rounded-full bg-success-soft flex items-center justify-center">
+          <span className="material-symbols-outlined filled text-[14px] text-success-deep">
+            check_circle
+          </span>
+        </div>
       </div>
-      <p className="text-[14px] font-medium">{item.name}</p>
-    </Card>
+      <div className="flex-1 bg-surface-card p-td-sm rounded-lg border border-divider opacity-60">
+        <p className="text-td-meta text-ink-soft">{time} — 완료됨</p>
+        <h3 className="text-td-body font-medium mt-td-xxs">
+          {displayName(item.name)}
+        </h3>
+      </div>
+    </div>
   );
 }
 
-// ── FAB ──
-
-function Fab({ tripId }: { tripId: string }) {
+function CurrentTimelineItem({
+  item,
+  tripId,
+}: {
+  item: ItineraryItem;
+  tripId: string;
+}) {
   return (
-    <div className="fixed bottom-6 right-[max(1rem,calc(50vw-210px+1rem))] z-30 flex flex-col gap-2 items-end">
-      <button
-        type="button"
-        className="w-11 h-11 rounded-full bg-surface-card border border-divider text-ink-soft text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled
-        aria-label="주변 검색 (사이클 5 활성화)"
-        title="주변 검색 (사이클 5)"
-      >
-        🔍
-      </button>
-      <Link
-        href={`/translate?trip=${tripId}`}
-        className="w-14 h-14 rounded-full bg-mode-primary text-white text-lg shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
-        aria-label="카메라 번역"
-      >
-        📷
-      </Link>
+    <div className="flex gap-td-sm">
+      <div className="relative z-10">
+        <div className="w-6 h-6 rounded-full bg-accent-soft flex items-center justify-center ring-4 ring-accent-soft/40">
+          <div className="w-2.5 h-2.5 rounded-full bg-mode-primary" />
+        </div>
+      </div>
+      <div className="flex-1 bg-surface-card p-td-md rounded-xl border-l-4 border-mode-primary border-y border-r border-divider shadow-md">
+        <div className="flex justify-between items-start mb-td-xs">
+          <span className="bg-accent-soft text-accent-deep px-2 py-0.5 rounded-full text-td-caption font-bold uppercase tracking-wider">
+            지금
+          </span>
+          <span className="text-td-meta text-mode-primary font-semibold">
+            현재 체류 중
+          </span>
+        </div>
+        <h3 className="text-td-card-title text-ink mb-td-xxs">
+          {displayName(item.name)}
+        </h3>
+        <p className="text-td-body text-ink-soft mb-td-sm">
+          {item.evidence.reasons[0] ?? "현재 진행 중인 일정입니다."}
+        </p>
+        {item.evidence.reasons.length > 0 && (
+          <div className="mb-td-sm">
+            <EvidencePanel evidence={item.evidence} />
+          </div>
+        )}
+        <Link
+          href={`/itinerary/${tripId}/item/${item.id}`}
+          className="block text-center bg-mode-primary text-white py-2 rounded-md text-td-meta font-semibold hover:opacity-90 transition-opacity"
+        >
+          상세 보기
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function FutureTimelineItem({
+  item,
+  label,
+}: {
+  item: ItineraryItem;
+  label?: string;
+}) {
+  const time = formatTime(item.scheduledAt);
+  return (
+    <div className="flex gap-td-sm">
+      <div className="relative z-10">
+        <div className="w-6 h-6 rounded-full bg-surface-soft flex items-center justify-center border border-divider">
+          <div className="w-2 h-2 rounded-full bg-ink-mute" />
+        </div>
+      </div>
+      <div className="flex-1 bg-surface-card p-td-sm rounded-xl border border-divider shadow-sm">
+        <p className="text-td-meta text-ink-soft mb-td-xxs">
+          {time} — {label ?? "예정"}
+        </p>
+        <h3 className="text-td-body font-medium">{displayName(item.name)}</h3>
+      </div>
     </div>
   );
 }
@@ -210,5 +352,16 @@ function Fab({ tripId }: { tripId: string }) {
 function formatTime(iso: string): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "";
-  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(
+    d.getUTCMinutes()
+  ).padStart(2, "0")}`;
+}
+
+function minutesUntil(iso: string, now: Date): number {
+  const d = new Date(iso);
+  return Math.max(0, Math.round((d.getTime() - now.getTime()) / 60_000));
+}
+
+function displayName(name: string): string {
+  return name.replace(/\s*\([^)]+\)\s*$/, "");
 }
