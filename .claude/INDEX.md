@@ -207,9 +207,12 @@
 | 4 — M4 카메라 번역 | ✅ 2026-04-29 완료 | /translate·정적 메뉴 시드·다국어 알레르기·ADR-015 |
 | 5a — Railway 외부 노출 (데모) | ✅ 2026-04-29 완료 | https://traveldiary-mvp-production.up.railway.app · ADR-016 |
 | **6 — 견적 기획 v2** | ✅ 2026-04-29 완료 | docs/09-vision-v2.md Accepted · M5~M8 추가 · 7개 결정 |
-| 5b-1 — Prisma adapter + DB + 첫 mutation | ⏳ 다음 사이클 | ADR-013 |
-| 5b-2 — Geolocation + M2 자동 + Privacy | ⏳ | ADR-017 |
-| 5b-3 — 외부 API (Vision·Claude·Naver) | ⏳ | ADR-018·019 |
+| 5b-1 — Prisma adapter + DB + 첫 mutation | ✅ 2026-04-30 완료 | ADR-013 · createTripFromOnboarding |
+| 5b 옵션 C — Stitch 디자인 매핑 | ✅ 2026-04-30 완료 | 11개 한국어 화면 코드 매핑 |
+| 5b-2 — commitReplan + setTripMode + 낙관적 동시성 | ✅ 2026-04-30 완료 | discriminated union return · expectedTripUpdatedAt |
+| 5b-3 — Google Places + EvidenceCache | ⏳ | ADR-018 |
+| 5b-4 — Geolocation + M2 자동 + Privacy | ⏳ | ADR-017 |
+| 5b-5 — Vision·Claude·Naver 외부 API | ⏳ | ADR-019·020 |
 | 7 — Place 모델 + 이미지 + Maps deeplink | ⏳ | A1·A3·D1 |
 | 8 — M5 City 데이터 풀 + 다낭 시드 | ⏳ | M5 |
 | 9 — M6 체크리스트 + 비용 관리 | ⏳ | M6 |
