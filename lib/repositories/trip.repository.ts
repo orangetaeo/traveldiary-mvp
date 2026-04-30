@@ -286,6 +286,100 @@ export async function updateTripMode(
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// MUTATIONS — 사이클 10 (A2 reorder + A5 add)
+// ═══════════════════════════════════════════════════════════════════
+
+export interface AddItineraryItemInput {
+  tripId: string;
+  dayIndex: number;
+  scheduledAt: string;          // ISO datetime
+  durationMinutes: number;
+  flexibility: ItineraryItem["flexibility"];
+  priority: ItineraryItem["priority"];
+  flexMinutes: number;
+  name: string;
+  category: ItineraryItem["category"];
+  location: { lat: number; lng: number; address: string };
+  estimatedPrice?: { amount: number; currency: string };
+}
+
+export async function addItineraryItem(
+  input: AddItineraryItemInput,
+): Promise<ItineraryItem | null> {
+  if (!prisma) return null;
+  try {
+    const evidence = {
+      reasons: ["사용자가 직접 추가한 일정입니다"],
+      sources: [],
+      verifiedAt: new Date().toISOString(),
+    };
+    const row = await prisma.itineraryItem.create({
+      data: {
+        tripId: input.tripId,
+        dayIndex: input.dayIndex,
+        scheduledAt: new Date(input.scheduledAt),
+        durationMinutes: input.durationMinutes,
+        flexibility: input.flexibility,
+        priority: input.priority,
+        flexMinutes: input.flexMinutes,
+        name: input.name,
+        category: input.category,
+        locationLat: input.location.lat,
+        locationLng: input.location.lng,
+        locationAddress: input.location.address,
+        estimatedPrice: (input.estimatedPrice ?? null) as never,
+        evidence: evidence as never,
+      },
+      include: { dependencies: { select: { dependencyId: true } } },
+    });
+    // Trip.updatedAt no-op write (5b-2 패턴 — 낙관적 동시성 신호)
+    await prisma.trip.update({
+      where: { id: input.tripId },
+      data: { status: undefined },
+    }).catch(() => undefined);
+    return rowToItineraryItem(row);
+  } catch (err) {
+    console.error("[trip.repository] addItineraryItem failed", err);
+    return null;
+  }
+}
+
+export interface ReorderItineraryItemsInput {
+  tripId: string;
+  changes: Array<{ id: string; scheduledAt: string }>;
+}
+
+export async function reorderItineraryItems(
+  input: ReorderItineraryItemsInput,
+): Promise<{ tripUpdatedAt: string } | null> {
+  if (!prisma) return null;
+  try {
+    return await prisma.$transaction(async (tx) => {
+      for (const change of input.changes) {
+        await tx.itineraryItem.update({
+          where: { id: change.id },
+          data: { scheduledAt: new Date(change.scheduledAt) },
+        });
+      }
+      const trip = await tx.trip.findUnique({ where: { id: input.tripId } });
+      if (!trip) return null;
+      const updated = await tx.trip.update({
+        where: { id: input.tripId },
+        data: { status: trip.status },  // updatedAt 자동 갱신용 no-op
+      });
+      return { tripUpdatedAt: updated.updatedAt.toISOString() };
+    });
+  } catch (err) {
+    console.error("[trip.repository] reorderItineraryItems failed", err);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 행 → 도메인 객체 변환
+// ═══════════════════════════════════════════════════════════════════
+
 function rowToItineraryItem(row: DbItemRow): ItineraryItem {
   return {
     id: row.id,
