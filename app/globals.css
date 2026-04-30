@@ -4,22 +4,23 @@
 
 @layer base {
   :root {
-    /* 모드별 강조색 — data-travel-mode 속성으로 전환 (S-04 / ADR-014) */
-    --color-mode-primary: #5B4BC4; /* pre-travel: 보라 */
+    /* 모드별 강조색 — data-travel-mode 속성으로 전환 (S-04 / ADR-014)
+       Stitch 디자인 시스템 정렬 (2026-04-30, 옵션 B) */
+    --color-mode-primary: #7C3AED; /* pre-travel: 보라 — Stitch primary */
   }
 
   [data-travel-mode="in-travel"] {
-    --color-mode-primary: #FF6B47; /* 코랄 */
+    --color-mode-primary: #F97316; /* 코랄 — Stitch secondary */
   }
 
   [data-travel-mode="post-travel"] {
-    --color-mode-primary: #1D7F5C; /* 그린 */
+    --color-mode-primary: #1D7F5C; /* 그린 — 완료 (Stitch에 별도 토큰 없음, 기존 유지) */
   }
 
   html, body {
     font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #F4F1EB;
-    color: #1A1F26;
+    background: #F8FAFC; /* Stitch surface — slate-50 (기존 베이지 #F4F1EB에서 정렬) */
+    color: #0F172A;       /* Stitch on-surface — slate-900 */
     -webkit-font-smoothing: antialiased;
   }
 
@@ -46,4 +47,33 @@
   .text-mode-primary { color: var(--color-mode-primary); }
   .bg-mode-primary { background-color: var(--color-mode-primary); }
   .border-mode-primary { border-color: var(--color-mode-primary); }
+
+  /* Material Symbols filled variant — 인라인 스타일 회피 */
+  .material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  /* Hero 카테고리 아이콘 — 큰 사이즈 */
+  .material-symbols-outlined.hero-icon {
+    font-size: 120px;
+  }
+
+  /* 진행률 바 — data-progress 속성 기반 (인라인 스타일 회피) */
+  .progress-bar {
+    width: 0%;
+  }
+  .progress-bar[data-progress="0"] { width: 0%; }
+  .progress-bar[data-progress="10"] { width: 10%; }
+  .progress-bar[data-progress="20"] { width: 20%; }
+  .progress-bar[data-progress="25"] { width: 25%; }
+  .progress-bar[data-progress="30"] { width: 30%; }
+  .progress-bar[data-progress="40"] { width: 40%; }
+  .progress-bar[data-progress="50"] { width: 50%; }
+  .progress-bar[data-progress="60"] { width: 60%; }
+  .progress-bar[data-progress="67"] { width: 67%; }
+  .progress-bar[data-progress="70"] { width: 70%; }
+  .progress-bar[data-progress="75"] { width: 75%; }
+  .progress-bar[data-progress="80"] { width: 80%; }
+  .progress-bar[data-progress="90"] { width: 90%; }
+  .progress-bar[data-progress="100"] { width: 100%; }
 }
