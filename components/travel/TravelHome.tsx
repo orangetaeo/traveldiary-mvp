@@ -4,12 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { dayProgress } from "@/lib/mode-transition";
-import type { ItineraryItem, Trip } from "@/lib/types";
+import type { City, ItineraryItem, Trip } from "@/lib/types";
 import { AutoModeDetector } from "./AutoModeDetector";
+import { CityContextStrip } from "@/components/city/CityContextStrip";
 
 interface TravelHomeProps {
   trip: Trip;
   items: ItineraryItem[];
+  /** 사이클 8 M5: 도시별 큐레이션 데이터. 미존재 도시면 null. */
+  city?: City | null;
 }
 
 /**
@@ -27,7 +30,7 @@ interface TravelHomeProps {
  *
  * 강조 색은 globals.css의 `--color-mode-primary` (data-travel-mode="in-travel" → 코랄).
  */
-export function TravelHome({ trip, items }: TravelHomeProps) {
+export function TravelHome({ trip, items, city }: TravelHomeProps) {
   // 데모: Day 1 고정. 사이클 5에서 calculateTravelDay(trip.startDate)로 교체.
   const travelDay = 1;
   const dayIndex = travelDay - 1;
@@ -228,6 +231,13 @@ export function TravelHome({ trip, items }: TravelHomeProps) {
       {trip.currentMode !== "in-travel" && (
         <div className="mt-td-md">
           <AutoModeDetector trip={trip} />
+        </div>
+      )}
+
+      {/* M5 City Context Strip — currentMode === "in-travel" 시에만 (사이클 8) */}
+      {trip.currentMode === "in-travel" && city && (
+        <div className="mt-td-md">
+          <CityContextStrip city={city} />
         </div>
       )}
 
