@@ -399,6 +399,7 @@ function rowToItineraryItem(row: DbItemRow): ItineraryItem {
     },
     estimatedPrice: (row.estimatedPrice ?? undefined) as ItineraryItem["estimatedPrice"],
     evidence: row.evidence as unknown as ItineraryItem["evidence"],
+    photos: row.photos.length > 0 ? row.photos : undefined,
     dependencies: row.dependencies.map((d) => d.dependencyId),
   };
 }

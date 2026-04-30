@@ -547,6 +547,10 @@ export const phuQuocItinerary: ItineraryItem[] = plan.map((slot, idx) => {
     location: place.location,
     estimatedPrice: place.estimatedPrice,
     evidence: place.evidence,
+    photos: [
+      `https://picsum.photos/seed/${place.id}/800/500`,
+      `https://picsum.photos/seed/${place.id}-2/800/500`,
+    ],
     dependencies,
   };
 });

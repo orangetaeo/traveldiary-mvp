@@ -96,6 +96,9 @@ model ItineraryItem {
 
   evidence        Json
 
+  /** 사이클 7 (ADR-023) — 외부 이미지 URL 배열, 0~5장 권장 */
+  photos          String[] @default([])
+
   dependents      ItineraryDependency[] @relation("dependency")
   dependencies    ItineraryDependency[] @relation("dependent")
 

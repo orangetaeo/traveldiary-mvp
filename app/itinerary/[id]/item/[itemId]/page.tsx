@@ -16,6 +16,11 @@ import { getDemoItem, getDemoTrip } from "@/lib/seed";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 import { verifyPlaceAction } from "@/actions/place";
 import type { VerifyPlaceResult } from "@/lib/services/place-verification";
+import {
+  googleMapsUrl,
+  uberUrl,
+  grabUrl,
+} from "@/lib/utils/deeplinks";
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: "음식점",
@@ -91,17 +96,27 @@ export default async function ItineraryItemPage({
       </header>
 
       <main className="max-w-xl mx-auto">
-        {/* Hero — 카테고리 그라디언트 + 큰 아이콘 */}
-        <section className={`relative h-56 w-full overflow-hidden ${heroGradient}`}>
-          <div className="absolute inset-0 flex items-center justify-center opacity-25">
-            <span
-              className="material-symbols-outlined hero-icon filled text-white"
-              aria-hidden
-            >
-              {categoryIcon}
-            </span>
-          </div>
-          <div className="absolute bottom-0 left-0 w-full p-td-md bg-gradient-to-t from-black/60 to-transparent">
+        {/* Hero — 사진 우선, 없으면 카테고리 그라디언트 (ADR-023) */}
+        <section className={`relative h-56 w-full overflow-hidden ${item.photos?.[0] ? "bg-ink" : heroGradient}`}>
+          {item.photos?.[0] ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={item.photos[0]}
+              alt={ko}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="eager"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center opacity-25">
+              <span
+                className="material-symbols-outlined hero-icon filled text-white"
+                aria-hidden
+              >
+                {categoryIcon}
+              </span>
+            </div>
+          )}
+          <div className="absolute bottom-0 left-0 w-full p-td-md bg-gradient-to-t from-black/70 to-transparent">
             <div className="inline-flex items-center gap-td-xxs px-2 py-1 bg-white/20 backdrop-blur-md rounded-lg mb-td-xs">
               <span className="material-symbols-outlined text-[14px] text-white" aria-hidden>
                 {categoryIcon}
@@ -119,6 +134,24 @@ export default async function ItineraryItemPage({
             </p>
           </div>
         </section>
+
+        {/* 추가 사진 갤러리 (photos 2장 이상일 때만) */}
+        {item.photos && item.photos.length > 1 && (
+          <section className="px-td-md pt-td-sm">
+            <div className="flex gap-td-xs overflow-x-auto hide-scrollbar -mx-td-md px-td-md">
+              {item.photos.slice(1).map((url, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={i}
+                  src={url}
+                  alt={`${ko} 사진 ${i + 2}`}
+                  className="flex-shrink-0 h-24 w-32 object-cover rounded-lg"
+                  loading="lazy"
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Verification & Alerts */}
         <section className="px-td-md py-td-sm space-y-td-xs">
@@ -205,6 +238,63 @@ export default async function ItineraryItemPage({
             </div>
           </div>
         </section>
+
+        {/* 길찾기 deeplink (사이클 7 D1·D2) */}
+        {item.location.lat !== 0 && item.location.lng !== 0 && (
+          <section className="px-td-md py-td-sm">
+            <h3 className="text-td-card-title text-ink mb-td-sm">길찾기</h3>
+            <div className="grid grid-cols-3 gap-td-sm">
+              <a
+                href={googleMapsUrl(item.location, ko)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-purple/40 transition-colors"
+              >
+                <span
+                  className="material-symbols-outlined text-purple text-[24px]"
+                  aria-hidden
+                >
+                  map
+                </span>
+                <span className="text-td-caption text-ink font-semibold">
+                  Google Maps
+                </span>
+              </a>
+              <a
+                href={uberUrl(item.location, ko)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-ink/30 transition-colors"
+              >
+                <span
+                  className="material-symbols-outlined text-ink text-[24px]"
+                  aria-hidden
+                >
+                  local_taxi
+                </span>
+                <span className="text-td-caption text-ink font-semibold">
+                  Uber
+                </span>
+              </a>
+              <a
+                href={grabUrl(item.location, ko)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-success/40 transition-colors"
+              >
+                <span
+                  className="material-symbols-outlined text-success text-[24px]"
+                  aria-hidden
+                >
+                  directions_car
+                </span>
+                <span className="text-td-caption text-ink font-semibold">
+                  Grab
+                </span>
+              </a>
+            </div>
+          </section>
+        )}
       </main>
 
       {/* Bottom Action Bar (Fixed) */}

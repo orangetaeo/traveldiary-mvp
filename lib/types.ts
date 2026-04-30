@@ -83,6 +83,9 @@ export interface ItineraryItem {
   // 추천 근거 — 우리의 정체성
   evidence: Evidence;
 
+  // 사이클 7 (ADR-023) — 외부 이미지 URL 0~5장
+  photos?: string[];
+
   // 그래프 구조
   dependencies: string[];      // 선행 노드 ID들
 }
