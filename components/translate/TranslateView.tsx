@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { Badge } from "@/components/ui/Badge";
 import {
   ALLERGEN_CHIPS,
@@ -13,6 +13,7 @@ import {
   phuQuocMenu,
   type MenuItem,
 } from "@/lib/seed/menu-phu-quoc";
+import { translateMenuPhotoAction } from "@/actions/translate";
 
 /**
  * 카메라 번역 (M4) — Stitch #9 + #10 매핑.
@@ -52,6 +53,67 @@ function CapturingView({
   tripId?: string;
   onShutter: () => void;
 }) {
+  // 사이클 5b-5 (ADR-019): 파일 업로드 → Vision OCR + Claude 번역
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [toast, setToast] = useState<string | null>(null);
+
+  function showToast(msg: string, ms = 5000) {
+    setToast(msg);
+    setTimeout(() => setToast(null), ms);
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      showToast("이미지가 너무 큽니다 (10MB 이내).");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      // "data:image/jpeg;base64,..." → base64만 추출
+      const base64 = dataUrl.split(",")[1] ?? "";
+      if (!base64) {
+        showToast("이미지를 읽지 못했어요.");
+        return;
+      }
+
+      startTransition(async () => {
+        const result = await translateMenuPhotoAction({
+          imageBase64: base64,
+          contextId: tripId,
+        });
+
+        if (result.mode === "demo") {
+          showToast("API 키 미설정 — 정적 시드로 시연됩니다.");
+          onShutter(); // 정적 시드 ResultsView로
+        } else if (result.mode === "ok") {
+          showToast(
+            `✅ 실 번역 ${result.items.length}건 (OCR ${
+              result.ocrCached ? "캐시" : "신선"
+            } · Claude ${result.claudeCached ? "캐시" : "신선"} · ${
+              result.totalMs
+            }ms)`,
+          );
+          // 5b-5에선 결과를 sessionStorage에 저장 → 사이클 5b-5.5에서 ResultsView 통합
+          sessionStorage.setItem(
+            "td-menu-translation",
+            JSON.stringify(result.items),
+          );
+          onShutter();
+        } else if (result.mode === "no_text") {
+          showToast("이미지에서 텍스트를 찾지 못했어요.");
+        } else {
+          showToast(`실패: ${result.stage} ${result.code} (${result.message ?? ""})`);
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
   return (
     <div className="min-h-screen bg-ink text-white flex flex-col relative overflow-hidden">
       {/* TopAppBar */}
@@ -113,16 +175,34 @@ function CapturingView({
           </button>
           <button
             type="button"
-            onClick={onShutter}
-            className="flex items-center gap-td-xxs text-white/90 hover:text-white transition-colors"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isPending}
+            className="flex items-center gap-td-xxs text-white/90 hover:text-white transition-colors disabled:opacity-60"
           >
             <span className="material-symbols-outlined text-[20px]">photo_library</span>
             <span className="text-td-meta font-semibold uppercase tracking-wide">
-              갤러리에서 선택 (데모)
+              {isPending ? "번역 중…" : "갤러리에서 사진 선택"}
             </span>
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="hidden"
+            aria-label="메뉴 사진 업로드"
+          />
         </div>
       </main>
+
+      {toast && (
+        <div
+          className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 bg-ink text-white text-td-meta px-4 py-3 rounded-2xl shadow-2xl max-w-[90vw] text-center"
+          role="status"
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
