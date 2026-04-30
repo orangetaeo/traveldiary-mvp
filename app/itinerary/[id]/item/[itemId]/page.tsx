@@ -22,10 +22,7 @@ import {
   grabUrl,
 } from "@/lib/utils/deeplinks";
 import { OtaCompareSection } from "@/components/itinerary/OtaCompareSection";
-import {
-  findOffersForItem,
-  findOffersByKeyword,
-} from "@/lib/seed/ota-offers";
+import { aggregateOffersForItem } from "@/lib/services/ota-aggregator";
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: "음식점",
@@ -77,11 +74,9 @@ export default async function ItineraryItemPage({
     location: { lat: item.location.lat, lng: item.location.lng },
   });
 
-  // OTA Offer 매칭 (M8, ADR-025). 매칭 없으면 섹션 미노출.
-  const otaOffers =
-    findOffersForItem(item.id).length > 0
-      ? findOffersForItem(item.id)
-      : findOffersByKeyword(item.name);
+  // OTA Offer 매칭 (M8, 사이클 12a 시드 + 12b 실 API aggregator, ADR-027).
+  // 모든 OTA 키 미설정 → 시드만 (12a 회귀 0). 일부 설정 → 해당 OTA만 실 API.
+  const otaOffers = await aggregateOffersForItem(item);
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-32">
