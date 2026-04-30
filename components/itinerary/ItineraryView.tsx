@@ -20,6 +20,7 @@ import {
   reorderItineraryItems,
 } from "@/actions/itinerary";
 import { AddItemModal } from "./AddItemModal";
+import { ShareModal } from "@/components/share/ShareModal";
 
 interface ItineraryViewProps {
   trip: Trip;
@@ -52,6 +53,8 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
   const [addOpen, setAddOpen] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  // 사이클 11a — M7 공유
+  const [shareOpen, setShareOpen] = useState(false);
 
   const days = useMemo(
     () => groupByDay(items, trip.nights + 1),
@@ -514,6 +517,26 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
             </Link>
           </div>
         </div>
+
+        {/* M7 공유 진입점 (사이클 11a, ADR-024) */}
+        <div className="bg-surface-card border border-divider rounded-xl p-td-md">
+          <p className="text-td-body font-semibold text-ink mb-td-xs">
+            함께 보기 (M7)
+          </p>
+          <p className="text-td-meta text-ink-soft mb-td-sm">
+            친구·가족에게 보기 전용 링크로 공유. OAuth 없이 URL만 알면 OK.
+          </p>
+          <button
+            type="button"
+            onClick={() => setShareOpen(true)}
+            className="inline-flex items-center gap-1.5 text-td-meta font-semibold text-success-deep border border-success/40 rounded-md px-3 py-2 transition-colors hover:bg-success-soft"
+          >
+            <span className="material-symbols-outlined text-[18px]" aria-hidden>
+              share
+            </span>
+            공유 링크 생성
+          </button>
+        </div>
       </section>
 
       <ReplanModal
@@ -532,6 +555,12 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
         onClose={() => setAddOpen(false)}
         onSubmit={handleAddItem}
         isPending={isPending}
+      />
+
+      <ShareModal
+        open={shareOpen}
+        tripId={trip.id}
+        onClose={() => setShareOpen(false)}
       />
 
       {toast && (

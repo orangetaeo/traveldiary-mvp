@@ -28,6 +28,10 @@ export type AuditAction =
   | "cost.add"
   | "cost.update"
   | "cost.delete"
+  // M7 (사이클 11a, ADR-024)
+  | "share.create"
+  | "share.revoke"
+  | "share.access"
   | "auth.login"
   | "auth.logout";
 

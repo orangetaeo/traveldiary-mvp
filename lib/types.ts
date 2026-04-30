@@ -165,6 +165,23 @@ export interface TripMember {
   joinedAt: string;
 }
 
+// ═══════════════════════════════════════════════════════════
+// SHARE LINK (M7 — 사이클 11a, ADR-024)
+// ═══════════════════════════════════════════════════════════
+
+export type SharePermission = "view" | "edit";
+
+export interface ShareLink {
+  id: string;
+  tripId: string;
+  syncKey: string;
+  permission: SharePermission;
+  expiresAt?: string;
+  createdBy?: string;
+  createdAt: string;
+  revokedAt?: string;
+}
+
 export interface Vote {
   id: string;
   tripId: string;
