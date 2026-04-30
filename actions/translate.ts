@@ -8,6 +8,7 @@
  */
 
 import { writeAuditLog } from "@/lib/audit-log";
+import { getActorId } from "@/lib/auth/session";
 import {
   translateMenuPhoto,
   type MenuTranslationOutcome,
@@ -32,7 +33,7 @@ export async function translateMenuPhotoAction(
 
   if (shouldAudit) {
     await writeAuditLog({
-      actorId: null,
+      actorId: await getActorId(),
       action: "evidence.gathered",
       resource: "MenuTranslation",
       resourceId: input.contextId ?? "unknown",

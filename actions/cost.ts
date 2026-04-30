@@ -16,6 +16,7 @@ import {
 } from "@/lib/repositories/cost.repository";
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
+import { getActorId } from "@/lib/auth/session";
 import type { CostEntry } from "@/lib/types";
 
 export type CostActionResult<T = unknown> =
@@ -38,7 +39,7 @@ export async function addCost(
   if (!created) return { ok: false, code: "internal" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "cost.add",
     resource: "CostEntry",
     resourceId: created.id,
@@ -72,7 +73,7 @@ export async function updateCost(input: {
   if (result === "not_found") return { ok: false, code: "not_found" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "cost.update",
     resource: "CostEntry",
     resourceId: input.data.id,
@@ -110,7 +111,7 @@ export async function deleteCost(input: {
   if (result === "not_found") return { ok: false, code: "not_found" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "cost.delete",
     resource: "CostEntry",
     resourceId: input.id,

@@ -7,6 +7,7 @@
 
 import { writeAuditLog } from "@/lib/audit-log";
 import { buildAffiliateUrl } from "@/lib/utils/affiliate";
+import { getActorId } from "@/lib/auth/session";
 import type { OtaProvider } from "@/lib/types";
 
 export interface TrackAffiliateClickInput {
@@ -30,7 +31,7 @@ export async function trackAffiliateClick(
   const { url, tracked } = buildAffiliateUrl(input.ota, input.baseUrl);
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "affiliate.click",
     resource: "OtaOffer",
     resourceId: input.offerId,

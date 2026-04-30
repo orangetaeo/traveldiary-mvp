@@ -21,6 +21,7 @@ import {
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { DEFAULT_CHECKLIST_TEMPLATE } from "@/lib/seed/checklist-template";
+import { getActorId } from "@/lib/auth/session";
 import type { ChecklistItem } from "@/lib/types";
 
 export type ChecklistActionResult<T = unknown> =
@@ -43,7 +44,7 @@ export async function addChecklistItem(
   if (!created) return { ok: false, code: "internal" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "checklist.add",
     resource: "ChecklistItem",
     resourceId: created.id,
@@ -86,7 +87,7 @@ export async function addFromTemplate(input: {
   // 일괄 audit log — fresh fetch만 기록 (5b-3 답습)
   for (const item of created) {
     await writeAuditLog({
-      actorId: null,
+      actorId: await getActorId(),
       action: "checklist.add",
       resource: "ChecklistItem",
       resourceId: item.id,
@@ -121,7 +122,7 @@ export async function toggleChecklist(input: {
   if (result === "not_found") return { ok: false, code: "not_found" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "checklist.toggle",
     resource: "ChecklistItem",
     resourceId: input.itemId,
@@ -151,7 +152,7 @@ export async function deleteChecklist(input: {
   if (result === "not_found") return { ok: false, code: "not_found" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "checklist.delete",
     resource: "ChecklistItem",
     resourceId: input.itemId,

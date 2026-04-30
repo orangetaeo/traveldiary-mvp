@@ -18,6 +18,7 @@ import {
 } from "@/lib/repositories/trip.repository";
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
+import { getActorId } from "@/lib/auth/session";
 import type { ItineraryItem } from "@/lib/types";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -40,7 +41,7 @@ export async function addItineraryItem(
   if (!created) return { ok: false, code: "internal" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "itinerary.create",
     resource: "ItineraryItem",
     resourceId: created.id,
@@ -89,7 +90,7 @@ export async function reorderItineraryItems(
   if (result === null) return { ok: false, code: "internal" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "itinerary.reorder",
     resource: "Trip",
     resourceId: input.tripId,

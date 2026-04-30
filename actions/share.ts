@@ -12,6 +12,7 @@ import {
 } from "@/lib/repositories/share.repository";
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
+import { getActorId } from "@/lib/auth/session";
 import type { ShareLink } from "@/lib/types";
 
 export interface CreateShareLinkInput {
@@ -49,11 +50,12 @@ export async function createShareLinkAction(
     syncKey,
     permission: "view",
     expiresAt,
+    createdBy: await getActorId(),
   });
   if (!link) return { ok: false, code: "internal" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "share.create",
     resource: "ShareLink",
     resourceId: link.id,

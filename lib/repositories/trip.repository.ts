@@ -67,13 +67,24 @@ export interface CreateTripInput {
 
 export async function createTripWithSeedItinerary(
   input: CreateTripInput,
+  ownerId: string = SYSTEM_OWNER_ID,
 ): Promise<TripBundle | null> {
   if (!prisma) return null;
 
   const result = await prisma.$transaction(async (tx) => {
+    // 11b: ownerId의 User row 보장 (SYSTEM_OWNER_ID 또는 OAuth user.id 모두 idempotent)
+    await tx.user.upsert({
+      where: { id: ownerId },
+      create: {
+        id: ownerId,
+        name: ownerId === SYSTEM_OWNER_ID ? "System Demo User" : null,
+      },
+      update: {},
+    });
+
     const trip = await tx.trip.create({
       data: {
-        ownerId: SYSTEM_OWNER_ID,
+        ownerId,
         destination: input.destination,
         destinationCode: input.destinationCode,
         startDate: new Date(`${input.startDate}T00:00:00Z`),

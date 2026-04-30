@@ -19,6 +19,7 @@ import {
 } from "@/lib/repositories/trip.repository";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { isDbConnected } from "@/lib/prisma";
+import { getActorId, getOwnerId } from "@/lib/auth/session";
 import type { TravelMode } from "@/lib/types";
 
 export interface CreateTripResult {
@@ -34,14 +35,17 @@ export async function createTripFromOnboarding(
     return { id: DEMO_TRIP_ID, demo: true };
   }
 
-  const bundle = await createTripWithSeedItinerary(input);
+  // 사이클 11b: 인증 시 user.id, 미인증 시 SYSTEM_OWNER_ID
+  const ownerId = await getOwnerId();
+
+  const bundle = await createTripWithSeedItinerary(input, ownerId);
   if (!bundle) {
     // DB 연결 실패 — 데모로 fallback (사용자에겐 동일 화면 노출)
     return { id: DEMO_TRIP_ID, demo: true };
   }
 
   await writeAuditLog({
-    actorId: null,
+    actorId: ownerId,
     action: "trip.create",
     resource: "Trip",
     resourceId: bundle.trip.id,
@@ -98,7 +102,7 @@ export async function setTripMode(
   if (result === "conflict") return { ok: false, code: "conflict" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "trip.mode_transition",
     resource: "Trip",
     resourceId: input.tripId,

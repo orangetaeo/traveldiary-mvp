@@ -19,6 +19,7 @@ import {
 import { generateReplanOptions, type ReplanTrigger } from "@/lib/replan";
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
+import { getActorId } from "@/lib/auth/session";
 
 export type ReplanOptionId = "option-recommend" | "option-safe" | "option-force";
 
@@ -77,7 +78,7 @@ export async function commitReplan(
   if (txResult === "conflict") return { ok: false, code: "conflict" };
 
   await writeAuditLog({
-    actorId: null,
+    actorId: await getActorId(),
     action: "replan.commit",
     resource: "Trip",
     resourceId: input.tripId,

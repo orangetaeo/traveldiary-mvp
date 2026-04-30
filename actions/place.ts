@@ -14,6 +14,7 @@
 
 import { writeAuditLog } from "@/lib/audit-log";
 import { verifyPlace, type VerifyPlaceResult } from "@/lib/services/place-verification";
+import { getActorId } from "@/lib/auth/session";
 
 export interface VerifyPlaceActionInput {
   itemId: string;
@@ -36,7 +37,7 @@ export async function verifyPlaceAction(
 
   if (isFreshFetch) {
     await writeAuditLog({
-      actorId: null,
+      actorId: await getActorId(),
       action: "evidence.gathered",
       resource: "ItineraryItem",
       resourceId: input.itemId,
@@ -63,7 +64,7 @@ export async function verifyPlaceAction(
     });
   } else if (result.mode === "error") {
     await writeAuditLog({
-      actorId: null,
+      actorId: await getActorId(),
       action: "evidence.gathered",
       resource: "ItineraryItem",
       resourceId: input.itemId,

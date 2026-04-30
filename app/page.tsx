@@ -14,6 +14,11 @@ import { Badge } from "@/components/ui/Badge";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { phuQuocTrip, phuQuocItinerary } from "@/lib/seed/phu-quoc";
 import { listDemoItemsByDay, DEMO_TRIP_ID } from "@/lib/seed";
+import { LoginButton } from "@/components/auth/LoginButton";
+import { getCurrentUserId } from "@/lib/auth/session";
+import { kakaoAvailable } from "@/lib/auth/kakao";
+import { jwtAvailable } from "@/lib/auth/jwt";
+import { prisma } from "@/lib/prisma";
 
 const TODAY_ISO = "2026-04-30"; // SSR 안정성: Date.now() 대신 고정값
 
@@ -45,11 +50,22 @@ function splitName(name: string): { ko: string; en: string } {
   return { ko: name, en: "" };
 }
 
-export default function HomePage() {
+export default async function HomePage() {
   const days = listDemoItemsByDay(DEMO_TRIP_ID);
   const day1Items = days[0] ?? [];
   const totalItems = phuQuocItinerary.length;
   const dDayNum = dDay(phuQuocTrip.startDate, TODAY_ISO);
+
+  // 사이클 11b — 로그인 상태 + OAuth 가용성 확인
+  const oauthAvailable = kakaoAvailable() && jwtAvailable();
+  const currentUserId = oauthAvailable ? await getCurrentUserId() : null;
+  const currentUser =
+    currentUserId && prisma
+      ? await prisma.user.findUnique({
+          where: { id: currentUserId },
+          select: { id: true, name: true },
+        })
+      : null;
 
   // Stitch 디자인의 두 번째 카드(featured = AI 추천 최적) — Day 1에서 가장 의미 있는 항목
   const featuredId = "pq-item-1"; // 즈엉동 야시장
@@ -70,13 +86,11 @@ export default function HomePage() {
           </button>
           <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
-        <button
-          type="button"
-          className="hover:bg-surface-soft transition-colors p-2 rounded-full"
-          aria-label="알림"
-        >
-          <span className="material-symbols-outlined text-ink">notifications</span>
-        </button>
+        <LoginButton
+          currentUserId={currentUserId}
+          currentUserName={currentUser?.name}
+          oauthAvailable={oauthAvailable}
+        />
       </header>
 
       <main className="px-td-md pt-td-lg">
