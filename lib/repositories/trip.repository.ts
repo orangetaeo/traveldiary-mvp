@@ -167,7 +167,123 @@ function rowToTrip(row: DbTripRow): Trip {
     createdAt: row.createdAt.toISOString(),
     status: row.status as Trip["status"],
     currentMode: row.currentMode as Trip["currentMode"],
+    updatedAt: row.updatedAt.toISOString(),
   };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MUTATIONS — 사이클 5b-2
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Replan 옵션 적용 — 변경된 ItineraryItem.scheduledAt만 batch update.
+ * 낙관적 동시성: expectedTripUpdatedAt 불일치 시 "conflict" 반환.
+ * Trip.updatedAt도 같은 트랜잭션에서 갱신 (변경 신호).
+ */
+export interface CommitReplanInTransactionInput {
+  tripId: string;
+  changedItems: Array<{ id: string; scheduledAt: string }>;
+  expectedTripUpdatedAt?: string;
+}
+
+export type CommitReplanInTransactionResult =
+  | "conflict"
+  | { tripUpdatedAt: string }
+  | null;
+
+export async function commitReplanInTransaction(
+  input: CommitReplanInTransactionInput,
+): Promise<CommitReplanInTransactionResult> {
+  if (!prisma) return null;
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const trip = await tx.trip.findFirst({
+        where: { id: input.tripId, deletedAt: null },
+      });
+      if (!trip) return null;
+
+      if (
+        input.expectedTripUpdatedAt &&
+        trip.updatedAt.toISOString() !== input.expectedTripUpdatedAt
+      ) {
+        return "conflict" as const;
+      }
+
+      for (const changed of input.changedItems) {
+        await tx.itineraryItem.update({
+          where: { id: changed.id },
+          data: { scheduledAt: new Date(changed.scheduledAt) },
+        });
+      }
+
+      const updated = await tx.trip.update({
+        where: { id: input.tripId },
+        data: { status: trip.status }, // updatedAt 자동 갱신용 no-op write
+      });
+
+      return { tripUpdatedAt: updated.updatedAt.toISOString() };
+    });
+  } catch (err) {
+    console.error("[trip.repository] commitReplanInTransaction failed", err);
+    return null;
+  }
+}
+
+/**
+ * Trip.currentMode 갱신 — 단일 컬럼.
+ * 낙관적 동시성. before/after 함께 반환 (audit log 원천 데이터).
+ */
+export interface UpdateTripModeInput {
+  tripId: string;
+  mode: string;
+  expectedTripUpdatedAt?: string;
+}
+
+export type UpdateTripModeResult =
+  | "conflict"
+  | {
+      before: { currentMode: string };
+      after: { currentMode: string; tripUpdatedAt: string };
+    }
+  | null;
+
+export async function updateTripMode(
+  input: UpdateTripModeInput,
+): Promise<UpdateTripModeResult> {
+  if (!prisma) return null;
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const trip = await tx.trip.findFirst({
+        where: { id: input.tripId, deletedAt: null },
+      });
+      if (!trip) return null;
+
+      if (
+        input.expectedTripUpdatedAt &&
+        trip.updatedAt.toISOString() !== input.expectedTripUpdatedAt
+      ) {
+        return "conflict" as const;
+      }
+
+      const after = await tx.trip.update({
+        where: { id: input.tripId },
+        data: { currentMode: input.mode },
+      });
+
+      return {
+        before: { currentMode: trip.currentMode },
+        after: {
+          currentMode: after.currentMode,
+          tripUpdatedAt: after.updatedAt.toISOString(),
+        },
+      };
+    });
+  } catch (err) {
+    console.error("[trip.repository] updateTripMode failed", err);
+    return null;
+  }
 }
 
 function rowToItineraryItem(row: DbItemRow): ItineraryItem {

@@ -31,6 +31,7 @@ export interface Trip {
   createdAt: string;
   status: TripStatus;
   currentMode?: TravelMode;
+  updatedAt?: string;         // ISO datetime — 낙관적 동시성 (사이클 5b-2)
 }
 
 // ═══════════════════════════════════════════════════════════
