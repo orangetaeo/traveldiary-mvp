@@ -169,3 +169,79 @@ export interface Vote {
   options: { label: string; voters: string[] }[];
   decidedAt?: string;
 }
+
+// ═══════════════════════════════════════════════════════════
+// CITY (M5 — v2 비전 §4. 사이클 8 — 시드만, Prisma 영속화는 후속)
+// ═══════════════════════════════════════════════════════════
+
+export interface EmergencyContact {
+  label: string;       // "한국 대사관 (호치민)"
+  phone: string;       // "+84 28 3822 5757"
+  hours?: string;      // "평일 08:30~17:00"
+  notes?: string;      // "한국어 가능"
+  category: "embassy" | "police" | "ambulance" | "fire" | "translator" | "card_lost";
+}
+
+export interface PaymentInfo {
+  currency: string;    // "VND"
+  currencySymbol: string; // "₫"
+  /** 1 KRW 당 현지 통화 양 (대략) */
+  approxKrwRate: number;   // 1 KRW ≈ 18 VND
+  cardAcceptance: "high" | "medium" | "low";
+  cardNotes?: string;  // "관광지 외엔 현금 위주"
+  atmAvailable: boolean;
+  tipExpected: boolean;
+  tipNotes?: string;
+}
+
+export interface TransportInfo {
+  primary: "grab" | "metro" | "taxi" | "uber" | "walk";
+  primaryNotes: string;     // "그랩이 압도적. 미터기 택시는 우회 위험"
+  airportToCity?: { method: string; durationMin: number; priceKrw?: number };
+  walkability: "high" | "medium" | "low";
+}
+
+export interface SituationalPhrase {
+  situation: "greeting" | "menu" | "price" | "help" | "thanks" | "checkout" | "drink" | "slow" | "spicy" | "vegetarian";
+  korean: string;       // "도와주세요"
+  local: string;        // "Giúp tôi với" (베트남어)
+  pronunciation?: string; // "지웁 또이 버이"
+}
+
+export interface CuratedGuide {
+  id: string;
+  title: string;       // "푸꾸옥 야시장 첫날 밤"
+  subtitle?: string;   // "도착하자마자 가야 하는 5곳"
+  hero?: { emoji?: string; gradient?: string };
+  sections: { heading: string; body: string; tip?: string }[];
+}
+
+export interface City {
+  code: string;                       // "PQC"
+  slug: string;                       // "phu-quoc" (URL slug)
+  name: string;                       // "푸꾸옥"
+  country: string;                    // "베트남"
+  countryCode: string;                // "VN"
+  /** 사이클 8 MVP 필드 — 나머지는 후속 */
+  emergencyContacts: EmergencyContact[];
+  payment: PaymentInfo;
+  transport: TransportInfo;
+  phrases: SituationalPhrase[];
+  curatedGuides: CuratedGuide[];
+  /** v2 §4 후속 필드 (사이클 8.5+에서 채움) — 옵션 */
+  utilities?: {
+    voltage: string;           // "220V"
+    plugType: string;          // "C/F/I"
+    simAvailable: boolean;
+  };
+  visa?: {
+    visaFreeDays?: number;     // 한국인 무비자
+    eVisaRequired: boolean;
+    notes?: string;
+  };
+  weather?: {
+    season: string;
+    avgTempC?: { min: number; max: number };
+    notes?: string;
+  };
+}

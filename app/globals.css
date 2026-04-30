@@ -76,4 +76,8 @@
   .progress-bar[data-progress="80"] { width: 80%; }
   .progress-bar[data-progress="90"] { width: 90%; }
   .progress-bar[data-progress="100"] { width: 100%; }
+
+  /* 가로 스크롤 영역 스크롤바 숨김 (CityContextStrip 등) */
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
