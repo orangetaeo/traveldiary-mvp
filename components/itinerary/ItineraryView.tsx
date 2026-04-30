@@ -15,6 +15,11 @@ import {
 import type { ItineraryItem, ReplanOption, Trip } from "@/lib/types";
 import { commitReplan, type ReplanOptionId } from "@/actions/replan";
 import { setTripMode } from "@/actions/trip";
+import {
+  addItineraryItem,
+  reorderItineraryItems,
+} from "@/actions/itinerary";
+import { AddItemModal } from "./AddItemModal";
 
 interface ItineraryViewProps {
   trip: Trip;
@@ -43,6 +48,10 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
   const [appliedLabel, setAppliedLabel] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  // 사이클 10 — A2 드래그 + A5 자유 추가
+  const [addOpen, setAddOpen] = useState(false);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const days = useMemo(
     () => groupByDay(items, trip.nights + 1),
@@ -120,6 +129,144 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
     setTimeout(() => setToast(null), 3000);
   }
 
+  // ── 사이클 10 — A2 드래그 정렬 ──────────────────────────────────────
+  function handleDragStart(e: React.DragEvent, id: string) {
+    setDraggingId(id);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", id);
+  }
+
+  function handleDragOver(e: React.DragEvent, id: string) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (id !== dragOverId) setDragOverId(id);
+  }
+
+  function handleDragLeave() {
+    setDragOverId(null);
+  }
+
+  function handleDragEnd() {
+    setDraggingId(null);
+    setDragOverId(null);
+  }
+
+  function handleDrop(e: React.DragEvent, targetId: string) {
+    e.preventDefault();
+    setDragOverId(null);
+
+    const sourceId = draggingId ?? e.dataTransfer.getData("text/plain");
+    setDraggingId(null);
+    if (!sourceId || sourceId === targetId) return;
+
+    const source = items.find((it) => it.id === sourceId);
+    const target = items.find((it) => it.id === targetId);
+    if (!source || !target) return;
+    if (source.dayIndex !== target.dayIndex) {
+      setToast("같은 Day 내에서만 순서를 바꿀 수 있어요.");
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+
+    // 두 카드의 scheduledAt swap (durationMinutes·dependencies 그대로)
+    const newItems = items.map((it) => {
+      if (it.id === sourceId) return { ...it, scheduledAt: target.scheduledAt };
+      if (it.id === targetId) return { ...it, scheduledAt: source.scheduledAt };
+      return it;
+    });
+    setItems(newItems);
+
+    // Server Action — 변경된 두 항목만 batch update
+    startTransition(async () => {
+      const result = await reorderItineraryItems({
+        tripId: trip.id,
+        changes: [
+          { id: sourceId, scheduledAt: target.scheduledAt },
+          { id: targetId, scheduledAt: source.scheduledAt },
+        ],
+      });
+      if (!result.ok) {
+        // 롤백
+        setItems(items);
+        setToast(`정렬 실패: ${result.code}`);
+        setTimeout(() => setToast(null), 3000);
+        return;
+      }
+      if (result.demo) {
+        setToast("순서 변경 (데모 시뮬)");
+      } else {
+        setToast(`순서 변경됨 — ${result.changedCount}건 영속화`);
+        router.refresh();
+      }
+      setTimeout(() => setToast(null), 3000);
+    });
+  }
+
+  // ── 사이클 10 — A5 자유 추가 ────────────────────────────────────────
+  function handleAddItem(input: {
+    dayIndex: number;
+    scheduledAt: string;
+    durationMinutes: number;
+    flexibility: ItineraryItem["flexibility"];
+    name: string;
+    category: ItineraryItem["category"];
+  }) {
+    setAddOpen(false);
+    startTransition(async () => {
+      const result = await addItineraryItem({
+        tripId: trip.id,
+        dayIndex: input.dayIndex,
+        scheduledAt: input.scheduledAt,
+        durationMinutes: input.durationMinutes,
+        flexibility: input.flexibility,
+        priority: 3,
+        flexMinutes: 30,
+        name: input.name,
+        category: input.category,
+        // 사용자 추가 일정은 위치 미상 — trip 기본 좌표 (cycle 10 단순화)
+        location: { lat: 0, lng: 0, address: "사용자 추가" },
+      });
+
+      if (!result.ok) {
+        setToast(`추가 실패: ${result.code}`);
+        setTimeout(() => setToast(null), 3000);
+        return;
+      }
+
+      if (result.demo) {
+        // 데모 시뮬 — 클라이언트에 즉시 반영
+        const now = new Date().toISOString();
+        const simulated: ItineraryItem = {
+          id: `demo-${Date.now()}`,
+          tripId: trip.id,
+          dayIndex: input.dayIndex,
+          scheduledAt: input.scheduledAt,
+          durationMinutes: input.durationMinutes,
+          flexibility: input.flexibility,
+          priority: 3,
+          flexMinutes: 30,
+          name: input.name,
+          category: input.category,
+          location: { lat: 0, lng: 0, address: "사용자 추가" },
+          evidence: {
+            reasons: ["사용자가 직접 추가한 일정입니다"],
+            sources: [],
+            verifiedAt: now,
+          },
+          dependencies: [],
+        };
+        setItems((prev) => [...prev, simulated]);
+        setActiveDay(input.dayIndex);
+        setToast(`'${input.name}' 추가 (데모 시뮬)`);
+      } else {
+        setToast(`'${input.name}' 추가됨 (DB 영속화)`);
+        setActiveDay(input.dayIndex);
+        router.refresh();
+      }
+      setTimeout(() => setToast(null), 3000);
+    });
+  }
+
   function handleEnterTravelMode() {
     startTransition(async () => {
       const result = await setTripMode({
@@ -145,30 +292,40 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
 
   return (
     <>
-      {/* Day Tabs */}
-      <nav
-        className="flex gap-td-xs mb-td-md overflow-x-auto pb-2 px-td-md"
-        aria-label="여행 일자"
-      >
-        {Array.from({ length: trip.nights + 1 }, (_, i) => i).map((d) => {
-          const active = d === activeDay;
-          return (
-            <button
-              key={d}
-              type="button"
-              onClick={() => setActiveDay(d)}
-              className={`px-td-md py-td-xs rounded-full text-td-meta whitespace-nowrap transition-colors ${
-                active
-                  ? "bg-mode-primary text-white shadow-sm"
-                  : "bg-surface-card text-ink-soft border border-divider hover:bg-surface-soft"
-              }`}
-              aria-current={active ? "page" : undefined}
-            >
-              Day {d + 1}
-            </button>
-          );
-        })}
-      </nav>
+      {/* Day Tabs + 자유 추가 버튼 (A5) */}
+      <div className="flex items-center gap-td-xs mb-td-md px-td-md">
+        <nav
+          className="flex-1 flex gap-td-xs overflow-x-auto pb-2 hide-scrollbar"
+          aria-label="여행 일자"
+        >
+          {Array.from({ length: trip.nights + 1 }, (_, i) => i).map((d) => {
+            const active = d === activeDay;
+            return (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setActiveDay(d)}
+                className={`px-td-md py-td-xs rounded-full text-td-meta whitespace-nowrap transition-colors ${
+                  active
+                    ? "bg-mode-primary text-white shadow-sm"
+                    : "bg-surface-card text-ink-soft border border-divider hover:bg-surface-soft"
+                }`}
+                aria-current={active ? "page" : undefined}
+              >
+                Day {d + 1}
+              </button>
+            );
+          })}
+        </nav>
+        <button
+          type="button"
+          onClick={() => setAddOpen(true)}
+          aria-label="일정 추가"
+          className="flex-shrink-0 w-9 h-9 rounded-full bg-purple text-white flex items-center justify-center shadow-sm hover:opacity-90 active:scale-95 transition-all"
+        >
+          <span className="material-symbols-outlined text-[20px]">add</span>
+        </button>
+      </div>
 
       {/* Timeline */}
       <div className="relative space-y-td-md px-td-md">
@@ -197,8 +354,22 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
           const { ko, en } = splitName(item.name);
           const icon = CATEGORY_ICON[item.category] ?? "place";
 
+          const isDragging = item.id === draggingId;
+          const isDragOver = item.id === dragOverId;
+
           return (
-            <div key={item.id} className="relative pl-td-lg">
+            <div
+              key={item.id}
+              className={`relative pl-td-lg transition-opacity ${
+                isDragging ? "opacity-40" : ""
+              }`}
+              draggable
+              onDragStart={(e) => handleDragStart(e, item.id)}
+              onDragOver={(e) => handleDragOver(e, item.id)}
+              onDragLeave={handleDragLeave}
+              onDragEnd={handleDragEnd}
+              onDrop={(e) => handleDrop(e, item.id)}
+            >
               {/* Dot — featured는 mode-primary로 자동 swap */}
               <div
                 className={`absolute left-0 top-6 w-8 h-8 rounded-full flex items-center justify-center z-10 ${
@@ -218,6 +389,8 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
                 className={`!p-td-md ${
                   isFeatured
                     ? "shadow-md !border-mode-primary border-2"
+                    : isDragOver
+                    ? "shadow-md !border-purple border-2"
                     : "shadow-sm"
                 }`}
               >
@@ -350,6 +523,15 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
         results={replanResults}
         onApply={handleApply}
         onClose={() => setReplanOpen(false)}
+      />
+
+      <AddItemModal
+        open={addOpen}
+        trip={trip}
+        defaultDayIndex={activeDay}
+        onClose={() => setAddOpen(false)}
+        onSubmit={handleAddItem}
+        isPending={isPending}
       />
 
       {toast && (
