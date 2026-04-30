@@ -70,6 +70,8 @@ export interface SetTripModeInput {
   tripId: string;
   mode: TravelMode;
   expectedTripUpdatedAt?: string;
+  /** 5b-4 추가 — audit log metadata에 반영. "geolocation"은 좌표 미포함 (ADR-017 §C). */
+  trigger?: "manual" | "geolocation";
 }
 
 export type SetTripModeResult =
@@ -103,7 +105,7 @@ export async function setTripMode(
     before: { mode: result.before.currentMode },
     after: { mode: result.after.currentMode },
     metadata: {
-      trigger: "manual",
+      trigger: input.trigger ?? "manual",
       source: "web",
     },
   });
