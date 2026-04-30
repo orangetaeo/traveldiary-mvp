@@ -14,6 +14,8 @@ import Link from "next/link";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { getDemoItem, getDemoTrip } from "@/lib/seed";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
+import { verifyPlaceAction } from "@/actions/place";
+import type { VerifyPlaceResult } from "@/lib/services/place-verification";
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: "음식점",
@@ -56,6 +58,14 @@ export default async function ItineraryItemPage({
   const naverSource = item.evidence.sources.find((s) => s.platform === "naver");
   const verifiedReviews = naverSource?.reviewCount ?? 0;
   const priceLevel = priceLevelOf(item.estimatedPrice?.amount);
+
+  // Google Places 검증 (ADR-018, S-03 1~2단계). 페이지 진입 시 자동 호출.
+  // API 키 미설정 또는 DB 미연결 시 즉시 demo 반환 → 회귀 안전.
+  const googleResult = await verifyPlaceAction({
+    itemId: item.id,
+    name: ko,
+    location: { lat: item.location.lat, lng: item.location.lng },
+  });
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-32">
@@ -112,10 +122,11 @@ export default async function ItineraryItemPage({
 
         {/* Verification & Alerts */}
         <section className="px-td-md py-td-sm space-y-td-xs">
+          {/* 시드/Naver 후기 검증 — M1 정체성 */}
           <div className="flex items-center gap-td-xs p-td-sm bg-success-soft border border-success-soft rounded-xl">
             <span className="material-symbols-outlined filled text-success-deep">check_circle</span>
             <span className="text-td-body text-success-deep">
-              검증 완료 · 영업 중
+              추천 근거 검증 완료
               {verifiedReviews > 0 && (
                 <>
                   {" "}
@@ -124,6 +135,10 @@ export default async function ItineraryItemPage({
               )}
             </span>
           </div>
+
+          {/* Google Places 검증 (5b-3, S-03 1~2단계) */}
+          <GoogleVerificationBadge result={googleResult} />
+
           {warning && (
             <div className="flex items-start gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-xl">
               <span className="material-symbols-outlined filled text-danger">warning</span>
@@ -218,6 +233,73 @@ function Mini({ label, value }: { label: string; value: string }) {
       <p className="text-td-meta text-ink font-medium mt-0.5">{value}</p>
     </div>
   );
+}
+
+/**
+ * Google Places 검증 배지 — ADR-018.
+ * 모든 모드(demo/verified/not_found/error)에서 회귀 안전.
+ */
+function GoogleVerificationBadge({ result }: { result: VerifyPlaceResult }) {
+  if (result.mode === "demo") {
+    return (
+      <div className="flex items-center gap-td-xs p-td-sm bg-surface-soft border border-divider rounded-xl">
+        <span className="material-symbols-outlined text-ink-mute" aria-hidden>
+          help_outline
+        </span>
+        <span className="text-td-meta text-ink-soft">
+          Google 검증 미실행 (데모 모드)
+        </span>
+      </div>
+    );
+  }
+
+  if (result.mode === "verified") {
+    const isOpen = result.operatingStatus === "open";
+    const tone = isOpen
+      ? "bg-purple-soft border-purple-soft text-purple-deep"
+      : "bg-amber-soft border-amber-soft text-amber-deep";
+    return (
+      <div className={`flex items-center gap-td-xs p-td-sm border rounded-xl ${tone}`}>
+        <span className="material-symbols-outlined filled" aria-hidden>
+          {isOpen ? "verified" : "schedule"}
+        </span>
+        <span className="text-td-body">
+          Google 검증 — {isOpen ? "운영 중" : "현재 운영 외 시간"}
+          {typeof result.rating === "number" && (
+            <>
+              {" "}· ★ <span className="font-bold tabular-nums">
+                {result.rating.toFixed(1)}
+              </span>
+              {typeof result.userRatingsTotal === "number" && result.userRatingsTotal > 0 && (
+                <>
+                  {" "}
+                  <span className="text-td-caption opacity-80">
+                    ({result.userRatingsTotal.toLocaleString()}건)
+                  </span>
+                </>
+              )}
+            </>
+          )}
+        </span>
+      </div>
+    );
+  }
+
+  if (result.mode === "not_found") {
+    return (
+      <div className="flex items-center gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-xl">
+        <span className="material-symbols-outlined filled text-danger" aria-hidden>
+          error
+        </span>
+        <span className="text-td-body text-danger-deep">
+          Google에서 장소를 찾지 못했어요. 사용자 검토 권장.
+        </span>
+      </div>
+    );
+  }
+
+  // mode: "error" — 무표시 (회귀 안전. 시드 evidence가 fallback)
+  return null;
 }
 
 function splitName(name: string): { ko: string; en: string } {
