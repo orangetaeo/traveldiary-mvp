@@ -4,6 +4,11 @@
 
 코드: `lib/design-tokens.ts`, `tailwind.config.ts`에 동기화됨.
 
+> **2026-04-30 옵션 B 정렬**: Stitch (TravelDiary Narrative) 디자인 시스템과 헥스값 정렬 완료.
+> - Primary `#7C3AED` (Purple) · Secondary `#F97316` (Coral) · Tertiary `#F59E0B` (Amber)
+> - Surface `#F8FAFC` (slate-50) — 기존 베이지 `#F4F1EB`에서 변경
+> - Stitch 매핑: [10-stitch-mapping.md](./10-stitch-mapping.md)
+
 ---
 
 ## 1. 컬러 — 5색 + 회색
@@ -32,7 +37,7 @@
 | 크기 | 용도 | 예시 |
 |------|------|------|
 | 22px / Medium | 화면 헤더 | "13:42", "푸꾸옥 3박 4일" |
-| 16~18px / Medium | 카드 메인 제목 | "스시 다이" |
+| 18px / Medium | 카드 메인 제목 | "스시 다이" |
 | 14px / Regular | 항목 제목, 본문 | 일반 텍스트 |
 | 12px / Regular | 보조 정보 | "네이버 후기 92%", 부제 |
 | 11px / Regular | 라벨, 캡션 | 시간, 거리 |

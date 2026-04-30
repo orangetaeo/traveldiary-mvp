@@ -250,7 +250,31 @@ await prisma.itineraryDependency.create({
 });
 ```
 
-## Prisma 7 클라이언트 인스턴스화 (ADR-011)
+## Prisma 7 datasource 위치 변경 (ADR-011 + 사이클 5b-1)
+
+> **Prisma 6 → 7 핵심 차이**: schema의 `datasource db { url }`이 미지원. **두 곳에 적어야 함**:
+> 1. **`prisma.config.ts`** — migrate / introspect CLI용 (없으면 P0?? 에러)
+> 2. **PrismaClient 생성자 (driver adapter)** — 런타임용
+
+### prisma.config.ts (CLI용)
+
+```typescript
+import "dotenv/config";
+import { defineConfig } from "prisma/config";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  datasource: {
+    url: process.env.DATABASE_URL,
+  },
+});
+```
+
+→ 빠지면 `prisma migrate deploy` 시 **"The datasource.url property is required in your Prisma config file"** 에러.
+
+### lib/prisma.ts (런타임용)
+
+
 
 ```typescript
 // lib/prisma.ts (사이클 2 mutation 도입 시점)

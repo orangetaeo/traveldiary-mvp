@@ -8,83 +8,66 @@
 
 > **모든 색상·간격·반경은 토큰에서.**
 > 하드코딩 hex 또는 px 발견 시 T13 코드 리뷰에서 즉시 반려.
+>
+> **2026-04-30 옵션 B**: Stitch (TravelDiary Narrative) 디자인 시스템 정렬.
 
-### 색상 토큰
+### 색상 토큰 (Stitch 정렬)
 
 ```typescript
-// lib/design-tokens.ts (개념)
+// lib/design-tokens.ts 발췌
 
 export const colors = {
+  ink: { DEFAULT: '#0F172A', soft: '#64748B', mute: '#8B8F98' }, // slate-900/500
+
   // 모드별 강조
-  modePrimary: {
-    pre: '#8B5CF6',   // 보라
-    in: '#F97316',    // 코랄
-    post: '#22C55E',  // 그린
-  },
-  
-  // 의미적
-  positive: '#22C55E',
-  negative: '#EF4444',
-  neutral: '#6B7280',
-  warning: '#F59E0B',
-  
-  // 텍스트
-  text: {
-    primary: '#111827',
-    secondary: '#4B5563',
-    muted: '#9CA3AF',
-    inverse: '#FFFFFF',
-  },
-  
-  // 배경
-  bg: {
-    base: '#FFFFFF',
-    subtle: '#F9FAFB',
-    raised: '#F3F4F6',
-  },
-  
-  // 보더
-  border: {
-    subtle: '#E5E7EB',
-    strong: '#D1D5DB',
-  },
+  purple:  { DEFAULT: '#7C3AED', soft: '#EDE0FF', deep: '#5A00C6' }, // pre-trip · AI 추천
+  accent:  { DEFAULT: '#F97316', soft: '#FFDBCA', deep: '#9D4300' }, // in-trip · 진행 (코랄)
+  amber:   { DEFAULT: '#F59E0B', soft: '#FFDDB8', deep: '#704500' }, // 주의·사회 증거
+  danger:  { DEFAULT: '#BA1A1A', soft: '#FFDAD6', deep: '#93000A' }, // 알레르기
+  success: { DEFAULT: '#1D7F5C', soft: '#E1F5EC', deep: '#085041' }, // post-trip · 완료
+
+  surface: { card: '#FFFFFF', soft: '#F8FAFC', dark: '#0F1419' },     // slate-50
+  divider: '#E2E8F0',                                                  // slate-200
 } as const;
 ```
 
-### 간격 토큰
+### 간격 토큰 (Stitch 정렬)
 
 ```typescript
-export const space = {
-  xs: '4px',
-  sm: '8px',
-  md: '16px',
-  lg: '24px',
-  xl: '32px',
-  xxl: '48px',
+export const spacing = {
+  xxs: 4,   // 같은 의미 단위 안
+  xs:  8,   // 같은 그룹 안
+  sm:  12,  // 카드 안 섹션 사이
+  md:  16,  // 카드 사이
+  lg:  24,  // 큰 섹션 사이
 } as const;
+
+// Tailwind 클래스: p-td-xs, gap-td-md 등 (td- prefix로 기본 spacing과 분리)
 ```
 
-### 반경 토큰
+### 반경 토큰 (Stitch ROUND_FOUR)
 
 ```typescript
 export const radius = {
-  sm: '4px',
-  md: '8px',
-  card: '12px',
-  pill: '9999px',
+  sm: 4,    // 0.25rem 기본
+  md: 8,    // 0.5rem 카드·시트
+  lg: 12,
+  pill: 999,
 } as const;
 ```
 
-### 타이포그래피
+### 타이포그래피 (Stitch 정렬, 5단)
 
 ```typescript
 export const typography = {
-  display: { size: '32px', weight: 700, lineHeight: 1.2 },
-  heading: { size: '20px', weight: 600, lineHeight: 1.3 },
-  body: { size: '16px', weight: 400, lineHeight: 1.5 },
-  small: { size: '14px', weight: 400, lineHeight: 1.4 },
-  caption: { size: '12px', weight: 500, lineHeight: 1.3 },
+  h1:       { size: 22, weight: 500, lineHeight: 28 }, // 화면 헤더 — Stitch title
+  h2:       { size: 18, weight: 500, lineHeight: 24 }, // 카드 제목 — Stitch card-title
+  body:     { size: 14, weight: 400, lineHeight: 20 }, // 본문 — Stitch body
+  caption:  { size: 12, weight: 400, lineHeight: 16 }, // 메타 — Stitch meta
+  micro:    { size: 11, weight: 400, lineHeight: 14 }, // 캡션 — Stitch caption (letter-spacing 0.02em)
 } as const;
+
+// Tailwind 클래스: text-td-title, text-td-card-title, text-td-body, text-td-meta, text-td-caption
 ```
 
 ## 화면 LEVEL (정성도 가이드)
@@ -103,30 +86,26 @@ export const typography = {
 🟢 LEVEL 3: 기본 컴포넌트로 빠르게 만듦, 검증만
 ```
 
-## 모드 전환 색상 (M2 통합)
+## 모드 전환 색상 (M2 통합 — Stitch 정렬)
 
 ```css
 :root {
-  --color-primary: var(--color-mode-pre); /* 기본 — pre */
-}
-
-[data-travel-mode="pre-travel"] {
-  --color-primary: #8B5CF6;
+  --color-mode-primary: #7C3AED; /* 기본 pre-travel — 보라 (Stitch primary) */
 }
 
 [data-travel-mode="in-travel"] {
-  --color-primary: #F97316;
+  --color-mode-primary: #F97316; /* 코랄 — Stitch secondary */
 }
 
 [data-travel-mode="post-travel"] {
-  --color-primary: #22C55E;
+  --color-mode-primary: #1D7F5C; /* 그린 — 완료 */
 }
 ```
 
 ```tsx
-// 사용
+// 사용 — globals.css에 정의된 .bg-mode-primary 등 토큰 클래스 활용
 <div data-travel-mode={mode}>
-  <button className="bg-[var(--color-primary)]">시작</button>
+  <button className="bg-mode-primary text-white">시작</button>
 </div>
 ```
 
@@ -284,8 +263,8 @@ interface ImpactPanelProps {
 ## 안티 패턴 (T13 리뷰에서 잡음)
 
 ```
-❌ #FF6B47, #8B5CF6 등 hex 하드코딩
-✅ var(--color-primary), tailwind 토큰 클래스
+❌ #F97316, #7C3AED 등 hex 하드코딩
+✅ var(--color-mode-primary), tailwind 토큰 클래스 (bg-purple, bg-accent 등)
 
 ❌ 16px, 24px 등 px 하드코딩 (간격)
 ✅ space.md, space.lg 또는 tailwind 클래스
