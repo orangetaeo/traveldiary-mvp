@@ -214,7 +214,8 @@
 | 5b-4 — Geolocation + M2 자동 + Privacy | ✅ 2026-04-30 완료 | ADR-017 · 좌표 서버 미전송 · 명시적 사용자 트리거 |
 | 5b-5 — Vision·Claude·Naver 외부 API | ⏳ | ADR-019·020 |
 | 7 — Place 모델 + 이미지 + Maps deeplink | ⏳ | A1·A3·D1 |
-| 8 — M5 City 데이터 풀 + 다낭 시드 | ⏳ | M5 |
+| 8 — M5 City 데이터 모델 + 푸꾸옥 | ✅ 2026-04-30 완료 | Stitch #19/#20 매핑 · 시드만 · 다낭은 8.5+ |
+| 8.5 — 다낭 시드 + visa/utilities/weather 필드 + Prisma City | ⏳ | 후속 |
 | 9 — M6 체크리스트 + 비용 관리 | ⏳ | M6 |
 | 10 — UX 보강 (드래그·검색·자유 추가) | ⏳ | A2·A4·A5 |
 | 11 — M7 공유 + 동기화 키 + 카카오 OAuth | ⏳ | M7 |
