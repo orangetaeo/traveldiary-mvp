@@ -1,22 +1,41 @@
+/**
+ * Item Detail (Place Detail & Evidence) — Stitch #5 + #6 매핑
+ *
+ * Stitch screens:
+ *   #5 14215a0f6a68497cb2bd4db33ed40eef (Place Detail & Evidence)
+ *   #6 128c4b1eea194bd4bd13b75c1ba500e4 (Item Detail - Pretendard)
+ *
+ * Magic Moment: M1 추천 근거 패널 — 우리 정체성의 핵심 화면.
+ * 사이클 5b 옵션 C (2026-04-30): Stitch HTML 통합 → React 변환.
+ */
+
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
-import { CategoryBadge } from "@/components/itinerary/CategoryBadge";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { getDemoItem, getDemoTrip } from "@/lib/seed";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 
-/**
- * 일정 상세 화면 (LEVEL 1) — M1 추천 근거 패널의 메인 시연 화면
- *
- * 사용자 흐름:
- *   /itinerary/[id] → 카드 탭 → 이 화면
- *   → "왜 이걸 골랐나" 패널 펼침 → 근거 + 출처 + 경고 확인
- *
- * 차별 포인트 (docs/02-magic-moments.md M1):
- *   트리플·Layla는 결과만 보여줌. 우리는 근거를 노출 → 통제권 → 락인.
- */
+const CATEGORY_LABEL: Record<string, string> = {
+  food: "음식점",
+  spot: "관광",
+  shopping: "쇼핑",
+  rest: "휴식",
+};
+
+const CATEGORY_ICON: Record<string, string> = {
+  food: "restaurant",
+  spot: "photo_camera",
+  shopping: "shopping_bag",
+  rest: "bed",
+};
+
+const CATEGORY_GRADIENT: Record<string, string> = {
+  food: "bg-gradient-to-br from-accent to-amber-deep",
+  spot: "bg-gradient-to-br from-purple to-purple-deep",
+  shopping: "bg-gradient-to-br from-amber to-accent-deep",
+  rest: "bg-gradient-to-br from-success-deep to-purple-deep",
+};
+
 export default async function ItineraryItemPage({
   params,
 }: {
@@ -29,108 +48,214 @@ export default async function ItineraryItemPage({
     getDemoItem(params.id, params.itemId);
   if (!item || !bundle) notFound();
 
-  const flexibilityBadge = (() => {
-    if (item.flexibility === "booked")
-      return <Badge tone="success">예약 완료</Badge>;
-    if (item.flexibility === "fixed")
-      return <Badge tone="neutral">고정</Badge>;
-    return <Badge tone="info">유연</Badge>;
-  })();
+  const { ko, en } = splitName(item.name);
+  const categoryLabel = CATEGORY_LABEL[item.category] ?? item.category;
+  const categoryIcon = CATEGORY_ICON[item.category] ?? "place";
+  const heroGradient = CATEGORY_GRADIENT[item.category] ?? CATEGORY_GRADIENT.spot;
+  const warning = item.evidence.warnings?.[0];
+  const naverSource = item.evidence.sources.find((s) => s.platform === "naver");
+  const verifiedReviews = naverSource?.reviewCount ?? 0;
+  const priceLevel = priceLevelOf(item.estimatedPrice?.amount);
 
   return (
-    <main className="min-h-screen flex flex-col">
-      <header className="px-5 pt-5 pb-3 border-b border-divider">
-        <Link
-          href={`/itinerary/${params.id}`}
-          className="text-[12px] text-ink-soft hover:text-ink inline-block mb-2"
-        >
-          ‹ 일정으로
-        </Link>
-
-        <div className="flex items-center justify-between gap-3 mb-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-[15px] font-medium tabular-nums">
-              {formatTime(item.scheduledAt)}
-            </span>
-            <span className="text-[12px] text-ink-mute">
-              {item.durationMinutes}분 · Day {item.dayIndex + 1}
-            </span>
-          </div>
-          <div className="flex gap-1.5 shrink-0">
-            <CategoryBadge category={item.category} />
-            {flexibilityBadge}
-          </div>
+    <div className="min-h-screen bg-surface-soft text-ink pb-32">
+      {/* TopAppBar */}
+      <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
+        <div className="flex items-center gap-td-sm">
+          <Link
+            href={`/itinerary/${params.id}`}
+            aria-label="뒤로"
+            className="p-2 rounded-full hover:bg-surface-soft transition-colors"
+          >
+            <span className="material-symbols-outlined text-ink">arrow_back</span>
+          </Link>
+          <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
-
-        <h1 className="text-[20px] font-medium leading-tight">{item.name}</h1>
+        <button
+          type="button"
+          aria-label="알림"
+          className="p-2 rounded-full hover:bg-surface-soft transition-colors"
+        >
+          <span className="material-symbols-outlined text-purple">notifications</span>
+        </button>
       </header>
 
-      <div className="px-4 py-4 space-y-3 flex-1">
-        {/* 위치 */}
-        <Card variant="raised">
-          <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-1">
-            위치
-          </p>
-          <p className="text-[13px] mb-1">{item.location.address}</p>
-          <p className="text-[11px] text-ink-mute tabular-nums">
-            {item.location.lat.toFixed(4)}, {item.location.lng.toFixed(4)}
-          </p>
-        </Card>
-
-        {/* 가격 */}
-        {item.estimatedPrice && item.estimatedPrice.amount > 0 && (
-          <Card variant="raised">
-            <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-1">
-              예상 비용 (1인)
-            </p>
-            <p className="text-[15px] font-medium tabular-nums">
-              {item.estimatedPrice.amount.toLocaleString()} {item.estimatedPrice.currency}
-            </p>
-          </Card>
-        )}
-
-        {/* 추천 근거 패널 — M1 핵심 */}
-        <EvidencePanel evidence={item.evidence} defaultOpen />
-
-        {/* 우선순위·유연성 */}
-        <Card variant="plain">
-          <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-            Live Replan 정보
-          </p>
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <Mini label="우선순위" value={`${item.priority}/5`} />
-            <Mini label="유연성" value={flexibilityKr(item.flexibility)} />
-            <Mini
-              label="이동 가능"
-              value={item.flexMinutes > 0 ? `±${item.flexMinutes}분` : "—"}
-            />
+      <main className="max-w-xl mx-auto">
+        {/* Hero — 카테고리 그라디언트 + 큰 아이콘 */}
+        <section className={`relative h-56 w-full overflow-hidden ${heroGradient}`}>
+          <div className="absolute inset-0 flex items-center justify-center opacity-25">
+            <span
+              className="material-symbols-outlined hero-icon filled text-white"
+              aria-hidden
+            >
+              {categoryIcon}
+            </span>
           </div>
-        </Card>
+          <div className="absolute bottom-0 left-0 w-full p-td-md bg-gradient-to-t from-black/60 to-transparent">
+            <div className="inline-flex items-center gap-td-xxs px-2 py-1 bg-white/20 backdrop-blur-md rounded-lg mb-td-xs">
+              <span className="material-symbols-outlined text-[14px] text-white" aria-hidden>
+                {categoryIcon}
+              </span>
+              <span className="text-td-meta text-white">{categoryLabel}</span>
+            </div>
+            <h2 className="text-td-title text-white leading-tight">
+              {ko}
+              {en && (
+                <span className="text-td-meta font-normal opacity-90 ml-2">({en})</span>
+              )}
+            </h2>
+            <p className="text-td-caption text-white/80 mt-td-xxs">
+              Day {item.dayIndex + 1} · {formatTime(item.scheduledAt)}
+            </p>
+          </div>
+        </section>
+
+        {/* Verification & Alerts */}
+        <section className="px-td-md py-td-sm space-y-td-xs">
+          <div className="flex items-center gap-td-xs p-td-sm bg-success-soft border border-success-soft rounded-xl">
+            <span className="material-symbols-outlined filled text-success-deep">check_circle</span>
+            <span className="text-td-body text-success-deep">
+              검증 완료 · 영업 중
+              {verifiedReviews > 0 && (
+                <>
+                  {" "}
+                  · 후기 <span className="font-bold">{verifiedReviews.toLocaleString()}건</span>
+                </>
+              )}
+            </span>
+          </div>
+          {warning && (
+            <div className="flex items-start gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-xl">
+              <span className="material-symbols-outlined filled text-danger">warning</span>
+              <div className="flex flex-col">
+                <span className="text-td-body text-danger-deep font-semibold">주의</span>
+                <span className="text-td-caption text-danger-deep">{warning}</span>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* EvidencePanel — M1 정체성 (펼친 상태) */}
+        <section className="px-td-md py-td-sm">
+          <EvidencePanel evidence={item.evidence} defaultOpen />
+        </section>
+
+        {/* Details Grid */}
+        <section className="px-td-md py-td-sm grid grid-cols-2 gap-td-sm">
+          <div className="p-td-sm border border-divider rounded-xl bg-surface-card">
+            <p className="text-td-caption text-ink-soft mb-td-xxs uppercase">소요 시간</p>
+            <div className="flex items-center gap-td-xxs">
+              <div className="w-2 h-2 rounded-full bg-amber" aria-hidden />
+              <p className="text-td-card-title text-ink">
+                {durationLabel(item.durationMinutes)}
+              </p>
+            </div>
+          </div>
+          <div className="p-td-sm border border-divider rounded-xl bg-surface-card">
+            <p className="text-td-caption text-ink-soft mb-td-xxs uppercase">비용 수준</p>
+            <div className="flex items-center gap-td-xxs">
+              <div className={`w-2 h-2 rounded-full ${priceLevel.dotClass}`} aria-hidden />
+              <p className="text-td-card-title text-ink">
+                {priceLevel.label}
+                {item.estimatedPrice && item.estimatedPrice.amount > 0 && (
+                  <span className="text-td-caption text-ink-soft ml-1">
+                    · {item.estimatedPrice.amount.toLocaleString()} {item.estimatedPrice.currency}
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* 위치 (full row) */}
+          <div className="col-span-2 p-td-sm border border-divider rounded-xl bg-surface-card">
+            <p className="text-td-caption text-ink-soft mb-td-xxs uppercase">위치</p>
+            <p className="text-td-body text-ink">{item.location.address}</p>
+            <p className="text-td-caption text-ink-mute mt-td-xxs tabular-nums">
+              {item.location.lat.toFixed(4)}, {item.location.lng.toFixed(4)}
+            </p>
+          </div>
+
+          {/* Live Replan 정보 (full row) */}
+          <div className="col-span-2 p-td-sm border border-divider rounded-xl bg-surface-card">
+            <p className="text-td-caption text-ink-soft mb-td-xs uppercase">
+              Live Replan 정보
+            </p>
+            <div className="grid grid-cols-3 gap-td-xs text-center">
+              <Mini label="우선순위" value={`${item.priority}/5`} />
+              <Mini label="유연성" value={flexibilityKr(item.flexibility)} />
+              <Mini
+                label="이동 가능"
+                value={item.flexMinutes > 0 ? `±${item.flexMinutes}분` : "—"}
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Bottom Action Bar (Fixed) */}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full p-td-md bg-surface-card/90 backdrop-blur-md border-t border-divider z-50 flex gap-td-sm">
+        <Link
+          href={`/itinerary/${params.id}`}
+          className="flex-1 py-3 border border-divider rounded-xl text-td-body text-ink font-semibold text-center hover:bg-surface-soft transition-colors"
+        >
+          대안 보기
+        </Link>
+        <button
+          type="button"
+          className="flex-[2] py-3 bg-purple text-white rounded-xl text-td-body font-bold hover:opacity-90 active:scale-95 transition-all shadow-lg"
+        >
+          이 일정 유지
+        </button>
       </div>
-    </main>
+    </div>
   );
 }
 
 function Mini({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] text-ink-mute">{label}</p>
-      <p className="text-[12px] font-medium mt-0.5">{value}</p>
+      <p className="text-td-caption text-ink-mute">{label}</p>
+      <p className="text-td-meta text-ink font-medium mt-0.5">{value}</p>
     </div>
   );
+}
+
+function splitName(name: string): { ko: string; en: string } {
+  const m = name.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+  if (m) return { ko: m[1].trim(), en: m[2].trim() };
+  return { ko: name, en: "" };
 }
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "";
-  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(
+    d.getUTCMinutes()
+  ).padStart(2, "0")}`;
+}
+
+function durationLabel(minutes: number): string {
+  if (minutes < 60) return `${minutes}분`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}시간 ${m}분` : `${h}시간`;
+}
+
+function priceLevelOf(amount: number | undefined): {
+  label: string;
+  dotClass: string;
+} {
+  if (!amount || amount === 0) return { label: "무료", dotClass: "bg-success" };
+  if (amount < 200000) return { label: "낮음", dotClass: "bg-success" };
+  if (amount < 600000) return { label: "보통", dotClass: "bg-amber" };
+  return { label: "높음", dotClass: "bg-accent" };
 }
 
 function flexibilityKr(f: string): string {
   switch (f) {
-    case "fixed": return "고정";
-    case "booked": return "예약됨";
+    case "fixed":    return "고정";
+    case "booked":   return "예약";
     case "flexible": return "유연";
-    default: return f;
+    default:         return f;
   }
 }

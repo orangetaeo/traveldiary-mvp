@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/ui/Button";
 import { ImpactDisplay } from "./ImpactDisplay";
 import type { ItineraryItem, ReplanOption } from "@/lib/types";
 import type { ReplanTrigger } from "@/lib/replan";
@@ -15,13 +14,35 @@ interface ReplanModalProps {
   onClose: () => void;
 }
 
+const LABEL_STYLE: Record<string, string> = {
+  추천: "bg-purple-soft text-purple-deep",
+  안전: "bg-success-soft text-success-deep",
+  강행: "bg-amber-soft text-amber-deep",
+};
+
+const HOVER_BORDER: Record<string, string> = {
+  추천: "hover:border-purple",
+  안전: "hover:border-success",
+  강행: "hover:border-amber",
+};
+
+const RADIO_HOVER: Record<string, string> = {
+  추천: "group-hover:text-purple",
+  안전: "group-hover:text-success",
+  강행: "group-hover:text-amber",
+};
+
 /**
- * Live Replan 바텀 시트 모달 (T17 / S-12).
+ * Live Replan 바텀 시트 모달 — Stitch #8 매핑.
  *
- * - 바텀 시트, max-height 80vh
- * - 백드롭 클릭 / ESC / X 버튼 → 닫힘
- * - 3옵션 카드 — 라벨/제목/설명/ImpactDisplay/적용 버튼
- * - "AI는 결정하지 않는다" 원칙 — 강조 옵션 없음, 모두 동등.
+ * Stitch screen: 66a10354826a42cbb537d440e4c2e39f (Live Replan Modal - Pretendard)
+ * 사이클 5b 옵션 C (2026-04-30): Stitch HTML → React 변환.
+ *
+ * 디자인 룰 (T17 / S-12 / S-06):
+ *   - 바텀 시트, max-height 85vh, drag handle
+ *   - 백드롭 클릭 / ESC → 닫힘
+ *   - 3옵션 카드 — 추천(보라) / 안전(초록) / 강행(앰버)
+ *   - "AI는 결정하지 않는다" 원칙 — 카드 hover 시에만 강조
  */
 export function ReplanModal({
   open,
@@ -48,67 +69,95 @@ export function ReplanModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="replan-title"
     >
       <div
-        className="w-full max-w-[420px] bg-surface-card rounded-t-2xl max-h-[80vh] flex flex-col"
+        className="relative w-full max-w-[420px] bg-surface-card rounded-t-[24px] shadow-2xl flex flex-col max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-divider">
-          <div className="min-w-0">
-            <p className="text-[10px] font-medium text-accent tracking-widest mb-0.5">
-              LIVE REPLAN · 데모 시뮬레이션
-            </p>
-            <h2 id="replan-title" className="text-[17px] font-medium leading-tight">
-              {triggerLabel(trigger, triggerItem.name)}
-            </h2>
-          </div>
-          <button
-            className="text-ink-mute hover:text-ink shrink-0 text-lg leading-none px-1"
-            onClick={onClose}
-            aria-label="닫기"
-          >
-            ×
-          </button>
-        </header>
-
-        <div className="px-4 py-4 space-y-3 overflow-y-auto">
-          {results.map(({ option, itemsAfter }) => (
-            <article
-              key={option.id}
-              className="border border-divider rounded-lg p-4 bg-surface-card"
-            >
-              <div className="flex items-baseline justify-between mb-1">
-                <h3 className="text-[15px] font-medium">{option.title}</h3>
-                <span className="text-[11px] text-ink-soft">{option.label}</span>
-              </div>
-              <p className="text-[12px] text-ink-soft mb-3">
-                {option.description}
-              </p>
-
-              <div className="bg-surface-soft rounded-md p-3 mb-3">
-                <ImpactDisplay impacts={option.impacts} />
-              </div>
-
-              <Button
-                variant={option.id === "option-recommend" ? "primary" : "secondary"}
-                size="sm"
-                fullWidth
-                onClick={() => onApply(itemsAfter, option)}
-              >
-                이 옵션 적용
-              </Button>
-            </article>
-          ))}
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-2 shrink-0">
+          <div className="w-10 h-1 rounded-full bg-divider" aria-hidden />
         </div>
 
-        <footer className="px-5 py-3 border-t border-divider">
-          <p className="text-[11px] text-ink-mute text-center">
-            AI는 결정하지 않습니다. 옵션을 보고 직접 선택하세요.
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="닫기"
+          className="absolute top-3 right-3 text-ink-soft hover:text-ink p-1 rounded-full hover:bg-surface-soft z-10"
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
+
+        {/* Header */}
+        <header className="px-td-lg pt-td-xs pb-td-md space-y-td-xxs shrink-0">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-amber text-white text-td-caption font-bold">
+            {triggerLabel(trigger, triggerItem.name)}
+          </div>
+          <h2
+            id="replan-title"
+            className="text-td-card-title text-ink font-semibold"
+          >
+            일정을 어떻게 조정할까요?
+          </h2>
+          <p className="text-td-caption text-ink-soft">
+            AI는 결정하지 않습니다. 옵션만 제시합니다.
+          </p>
+        </header>
+
+        {/* Option cards */}
+        <div className="flex-1 overflow-y-auto px-td-md pb-td-md space-y-td-sm">
+          {results.map(({ option, itemsAfter }) => {
+            const labelStyle =
+              LABEL_STYLE[option.label] ?? LABEL_STYLE["추천"];
+            const hoverBorder =
+              HOVER_BORDER[option.label] ?? HOVER_BORDER["추천"];
+            const radioHover =
+              RADIO_HOVER[option.label] ?? RADIO_HOVER["추천"];
+
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => onApply(itemsAfter, option)}
+                className={`group block w-full text-left p-td-md bg-surface-card border border-divider rounded-xl shadow-sm ${hoverBorder} transition-colors`}
+              >
+                <div className="flex justify-between items-start mb-td-xs">
+                  <span
+                    className={`px-2 py-0.5 rounded-lg text-td-caption font-bold ${labelStyle}`}
+                  >
+                    {option.label}
+                  </span>
+                  <span
+                    className={`material-symbols-outlined text-ink-mute ${radioHover}`}
+                    aria-hidden
+                  >
+                    radio_button_unchecked
+                  </span>
+                </div>
+                <h3 className="text-td-body font-bold text-ink mb-td-xxs">
+                  {option.title}
+                </h3>
+                <p className="text-td-meta text-ink-soft mb-td-sm">
+                  {option.description}
+                </p>
+                <div className="pt-td-sm border-t border-divider">
+                  <ImpactDisplay impacts={option.impacts} />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Footer note */}
+        <footer className="border-t border-divider px-td-md py-td-sm shrink-0">
+          <p className="text-td-caption text-ink-mute text-center">
+            카드를 탭하면 즉시 적용됩니다 (데모 시뮬레이션)
           </p>
         </footer>
       </div>
@@ -118,7 +167,7 @@ export function ReplanModal({
 
 function triggerLabel(trigger: ReplanTrigger, itemName: string): string {
   switch (trigger.type) {
-    case "delay":     return `${itemName} ${trigger.minutes}분 지연`;
+    case "delay":     return `${itemName} ${trigger.minutes}분 지연 감지`;
     case "weather":   return `${itemName} 악천후 (${trigger.condition})`;
     case "wait_time": return `${itemName} 웨이팅 ${trigger.minutes}분`;
     case "manual":    return `${itemName} ${trigger.minutes}분 조정 요청`;
