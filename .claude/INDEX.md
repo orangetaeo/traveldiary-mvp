@@ -212,12 +212,16 @@
 | 5b-2 — commitReplan + setTripMode + 낙관적 동시성 | ✅ 2026-04-30 완료 | discriminated union return · expectedTripUpdatedAt |
 | 5b-3 — Google Places + EvidenceCache | ✅ 2026-04-30 완료 | ADR-018 · 검증 1~2단계 · server-only · 캐시 우선 |
 | 5b-4 — Geolocation + M2 자동 + Privacy | ✅ 2026-04-30 완료 | ADR-017 · 좌표 서버 미전송 · 명시적 사용자 트리거 |
-| 5b-5 — Vision·Claude·Naver 외부 API | ⏳ | ADR-019·020 |
-| 7 — Place 모델 + 이미지 + Maps deeplink | ⏳ | A1·A3·D1 |
+| 5b-5 — Vision OCR + Claude API (M4 실 동작) | ✅ 2026-04-30 완료 | ADR-019 · 사용자 액션 2건 (옵션) · Naver는 5b-6 |
+| 7 — ItineraryItem.photos + Maps/Uber/Grab deeplink | ✅ 2026-04-30 완료 | ADR-023 · 마이그레이션 0003 · A1 인라인 지도는 7.5+ |
 | 8 — M5 City 데이터 모델 + 푸꾸옥 | ✅ 2026-04-30 완료 | Stitch #19/#20 매핑 · 시드만 · 다낭은 8.5+ |
-| 8.5 — 다낭 시드 + visa/utilities/weather 필드 + Prisma City | ⏳ | 후속 |
+| 8.5 — 다낭 시드 + visa/utilities/weather (Prisma City는 보류) | ✅ 2026-04-30 완료 | 베트남 2도시 |
 | 9 — M6 체크리스트 + 비용 관리 | ✅ 2026-04-30 완료 | ADR-022 · 마이그레이션 0002 · 이중통화 |
 | 10 — UX 보강 (A2 드래그 + A5 자유 추가) | ✅ 2026-04-30 완료 | HTML5 native drag · 의존성 0 · A4 검색은 11+ |
+| 11a — M7 ShareLink (OAuth 없이) | ✅ 2026-04-30 완료 | ADR-024 · 마이그레이션 0004 · 시드니 패턴 |
+| 11b — 카카오 OAuth (인증 전환점) | ⏳ | 사용자 직접 액션 큰 부담 (콘솔/redirect/JWT secret) |
+| 12a — M8 OTA 가격 비교 시드 + 어필리에이트 패턴 | ✅ 2026-04-30 완료 | ADR-025 · Klook/KKday/Agoda |
+| 12b — 실 OTA API + 어필리에이트 계약 활성 | ⏳ | 사용자 직접 액션 (계약 + ID 발급) |
 | 11 — M7 공유 + 동기화 키 + 카카오 OAuth | ⏳ | M7 |
 | 12 — M8 OTA 가격 비교 + 어필리에이트 | ⏳ | M8 (수익 모델) |
 
