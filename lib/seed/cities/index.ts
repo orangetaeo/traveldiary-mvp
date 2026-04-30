@@ -7,11 +7,11 @@
 
 import type { City } from "../../types";
 import { phuQuocCity } from "./phu-quoc";
+import { daNangCity } from "./da-nang";
 
 const CITIES: Record<string, City> = {
   [phuQuocCity.slug]: phuQuocCity,
-  // 사이클 8.5+에서 다낭 추가:
-  // [daNangCity.slug]: daNangCity,
+  [daNangCity.slug]: daNangCity,
 };
 
 export const DEMO_CITY_SLUG = phuQuocCity.slug;

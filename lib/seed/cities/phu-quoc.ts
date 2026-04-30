@@ -125,6 +125,23 @@ export const phuQuocCity: City = {
     },
   ],
 
+  // ── 후속 필드 (사이클 8.5 보강) ─────────────────────────────────────
+  utilities: {
+    voltage: "220V",
+    plugType: "A/C/G",
+    simAvailable: true,
+  },
+  visa: {
+    visaFreeDays: 45,
+    eVisaRequired: false,
+    notes: "한국 여권 무비자 45일 (2026년 기준)",
+  },
+  weather: {
+    season: "건기 (11~4월, 베스트) · 우기 (5~10월)",
+    avgTempC: { min: 24, max: 32 },
+    notes: "5~10월 스콜성 비 잦음. 11~3월이 일출/해변 베스트",
+  },
+
   // ── 시그니처 가이드 (1건) ────────────────────────────────────────────
   curatedGuides: [
     {
