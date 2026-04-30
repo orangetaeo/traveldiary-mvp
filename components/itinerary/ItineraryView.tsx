@@ -311,6 +311,36 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
             </button>
           </div>
         )}
+
+        {/* M6 진입점 (사이클 9, ADR-022) */}
+        <div className="bg-surface-card border border-divider rounded-xl p-td-md">
+          <p className="text-td-body font-semibold text-ink mb-td-xs">
+            여행 도구 (M6)
+          </p>
+          <p className="text-td-meta text-ink-soft mb-td-sm">
+            D-Day 체크리스트와 비용 관리를 한 곳에서. 자동 환율 변환 포함.
+          </p>
+          <div className="grid grid-cols-2 gap-td-sm">
+            <Link
+              href={`/checklist/${trip.id}`}
+              className="flex items-center gap-1.5 text-td-meta font-semibold text-purple-deep border border-purple/40 rounded-md px-3 py-2 transition-colors hover:bg-purple-soft"
+            >
+              <span className="material-symbols-outlined text-[18px]" aria-hidden>
+                checklist
+              </span>
+              체크리스트
+            </Link>
+            <Link
+              href={`/cost/${trip.id}`}
+              className="flex items-center gap-1.5 text-td-meta font-semibold text-amber-deep border border-amber/40 rounded-md px-3 py-2 transition-colors hover:bg-amber-soft"
+            >
+              <span className="material-symbols-outlined text-[18px]" aria-hidden>
+                account_balance_wallet
+              </span>
+              비용 관리
+            </Link>
+          </div>
+        </div>
       </section>
 
       <ReplanModal
