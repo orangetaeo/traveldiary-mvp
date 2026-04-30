@@ -54,6 +54,8 @@ model Trip {
 
   items           ItineraryItem[]
   members         TripMember[]
+  checklistItems  ChecklistItem[]
+  costEntries     CostEntry[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -177,6 +179,63 @@ model AuditLog {
   @@index([resource, resourceId])
   @@index([actorId, createdAt])
   @@index([action, createdAt])
+}
+
+// ═══════════════════════════════════════════
+// M6 — CHECKLIST (사이클 9, ADR-022)
+// ═══════════════════════════════════════════
+
+model ChecklistItem {
+  id          String   @id @default(cuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  /** "documents" | "clothing" | "electronics" | "forbidden" | "declarable" | "custom" */
+  category    String
+  text        String
+  /** "D-30" | "D-14" | "D-7" | "D-1" | "during" | "after" */
+  dDayBucket  String
+  done        Boolean  @default(false)
+  /** 도시별 특이사항 (시드 City와 결합 시 표시) */
+  cityNote    String?
+  /** 같은 dDayBucket 내 정렬 */
+  sortOrder   Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tripId, dDayBucket])
+  @@index([tripId, done])
+}
+
+// ═══════════════════════════════════════════
+// M6 — COST (사이클 9, ADR-022)
+// ═══════════════════════════════════════════
+
+model CostEntry {
+  id          String   @id @default(cuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  date        DateTime
+  label       String
+
+  amountKrw   Int
+  /** { value: number, currency: string } — 환율 산출은 city.payment.approxKrwRate */
+  amountLocal Json?
+
+  /** "paid" | "booked" | "planned" */
+  status      String   @default("planned")
+  /** "food" | "transport" | "accommodation" | "shopping" | "activity" | "other" 또는 자유 */
+  category    String?
+  /** ["userId-1", ...] — 사이클 11 OAuth 후 활성. 9에선 빈 배열 또는 null */
+  splitWith   Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tripId, date])
+  @@index([tripId, status])
 }
 
 // ═══════════════════════════════════════════

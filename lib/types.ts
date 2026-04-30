@@ -171,6 +171,64 @@ export interface Vote {
 }
 
 // ═══════════════════════════════════════════════════════════
+// M6 — CHECKLIST + COST (사이클 9, ADR-022)
+// ═══════════════════════════════════════════════════════════
+
+export type ChecklistCategory =
+  | "documents"
+  | "clothing"
+  | "electronics"
+  | "forbidden"
+  | "declarable"
+  | "custom";
+
+export type DDayBucket = "D-30" | "D-14" | "D-7" | "D-1" | "during" | "after";
+
+export interface ChecklistItem {
+  id: string;
+  tripId: string;
+  category: ChecklistCategory;
+  text: string;
+  dDayBucket: DDayBucket;
+  done: boolean;
+  cityNote?: string;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Trip 생성 후 사용자가 "기본 템플릿 추가" 클릭 시 ChecklistItem으로 변환 */
+export interface ChecklistTemplate {
+  category: ChecklistCategory;
+  text: string;
+  dDayBucket: DDayBucket;
+  cityNote?: string;
+}
+
+export type CostStatus = "paid" | "booked" | "planned";
+export type CostCategory =
+  | "food"
+  | "transport"
+  | "accommodation"
+  | "shopping"
+  | "activity"
+  | "other";
+
+export interface CostEntry {
+  id: string;
+  tripId: string;
+  date: string;        // ISO date
+  label: string;
+  amountKrw: number;
+  amountLocal?: { value: number; currency: string };
+  status: CostStatus;
+  category?: string;   // CostCategory 또는 자유 입력
+  splitWith?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ═══════════════════════════════════════════════════════════
 // CITY (M5 — v2 비전 §4. 사이클 8 — 시드만, Prisma 영속화는 후속)
 // ═══════════════════════════════════════════════════════════
 

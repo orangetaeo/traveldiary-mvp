@@ -20,6 +20,14 @@ export type AuditAction =
   | "replan.commit"
   | "evidence.gathered"
   | "validation.completed"
+  // M6 (사이클 9, ADR-022)
+  | "checklist.add"
+  | "checklist.update"
+  | "checklist.delete"
+  | "checklist.toggle"
+  | "cost.add"
+  | "cost.update"
+  | "cost.delete"
   | "auth.login"
   | "auth.logout";
 
