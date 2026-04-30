@@ -211,7 +211,7 @@
 | 5b 옵션 C — Stitch 디자인 매핑 | ✅ 2026-04-30 완료 | 11개 한국어 화면 코드 매핑 |
 | 5b-2 — commitReplan + setTripMode + 낙관적 동시성 | ✅ 2026-04-30 완료 | discriminated union return · expectedTripUpdatedAt |
 | 5b-3 — Google Places + EvidenceCache | ✅ 2026-04-30 완료 | ADR-018 · 검증 1~2단계 · server-only · 캐시 우선 |
-| 5b-4 — Geolocation + M2 자동 + Privacy | ⏳ | ADR-017 |
+| 5b-4 — Geolocation + M2 자동 + Privacy | ✅ 2026-04-30 완료 | ADR-017 · 좌표 서버 미전송 · 명시적 사용자 트리거 |
 | 5b-5 — Vision·Claude·Naver 외부 API | ⏳ | ADR-019·020 |
 | 7 — Place 모델 + 이미지 + Maps deeplink | ⏳ | A1·A3·D1 |
 | 8 — M5 City 데이터 풀 + 다낭 시드 | ⏳ | M5 |
