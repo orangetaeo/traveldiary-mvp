@@ -166,6 +166,26 @@ export interface TripMember {
 }
 
 // ═══════════════════════════════════════════════════════════
+// OTA OFFER (M8 — 사이클 12a, ADR-025)
+// ═══════════════════════════════════════════════════════════
+
+export type OtaProvider = "klook" | "kkday" | "agoda";
+
+export interface OtaOffer {
+  id: string;
+  /** ItineraryItem 매칭 키 — `place.id` 또는 별도 태그 */
+  matchTag: string;
+  ota: OtaProvider;
+  title: string;
+  priceKrw: number;
+  originalPriceKrw?: number;
+  rating?: number;
+  reviewCount?: number;
+  /** OTA의 product/page URL (어필리에이트 wrapper 이전 base URL) */
+  url: string;
+}
+
+// ═══════════════════════════════════════════════════════════
 // SHARE LINK (M7 — 사이클 11a, ADR-024)
 // ═══════════════════════════════════════════════════════════
 

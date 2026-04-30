@@ -21,6 +21,11 @@ import {
   uberUrl,
   grabUrl,
 } from "@/lib/utils/deeplinks";
+import { OtaCompareSection } from "@/components/itinerary/OtaCompareSection";
+import {
+  findOffersForItem,
+  findOffersByKeyword,
+} from "@/lib/seed/ota-offers";
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: "음식점",
@@ -71,6 +76,12 @@ export default async function ItineraryItemPage({
     name: ko,
     location: { lat: item.location.lat, lng: item.location.lng },
   });
+
+  // OTA Offer 매칭 (M8, ADR-025). 매칭 없으면 섹션 미노출.
+  const otaOffers =
+    findOffersForItem(item.id).length > 0
+      ? findOffersForItem(item.id)
+      : findOffersByKeyword(item.name);
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-32">
@@ -238,6 +249,11 @@ export default async function ItineraryItemPage({
             </div>
           </div>
         </section>
+
+        {/* OTA 가격 비교 (M8, 사이클 12a) */}
+        {otaOffers.length > 0 && (
+          <OtaCompareSection itemId={item.id} offers={otaOffers} />
+        )}
 
         {/* 길찾기 deeplink (사이클 7 D1·D2) */}
         {item.location.lat !== 0 && item.location.lng !== 0 && (

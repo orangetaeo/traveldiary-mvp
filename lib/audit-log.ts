@@ -32,6 +32,8 @@ export type AuditAction =
   | "share.create"
   | "share.revoke"
   | "share.access"
+  // M8 (사이클 12a, ADR-025)
+  | "affiliate.click"
   | "auth.login"
   | "auth.logout";
 
