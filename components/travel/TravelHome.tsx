@@ -5,6 +5,7 @@ import Link from "next/link";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { dayProgress } from "@/lib/mode-transition";
 import type { ItineraryItem, Trip } from "@/lib/types";
+import { AutoModeDetector } from "./AutoModeDetector";
 
 interface TravelHomeProps {
   trip: Trip;
@@ -222,6 +223,13 @@ export function TravelHome({ trip, items }: TravelHomeProps) {
           </div>
         </section>
       </main>
+
+      {/* M2 자동 모드 전환 — currentMode가 아직 in-travel이 아닐 때만 노출 (ADR-017) */}
+      {trip.currentMode !== "in-travel" && (
+        <div className="mt-td-md">
+          <AutoModeDetector trip={trip} />
+        </div>
+      )}
 
       {/* FAB Stack */}
       <div className="fixed bottom-20 right-td-md flex flex-col gap-td-xs items-center z-50 max-w-[420px] left-1/2 -translate-x-1/2 pointer-events-none">
