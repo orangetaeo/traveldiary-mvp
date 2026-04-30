@@ -114,13 +114,13 @@
 
 | 코드 페이지 | Stitch 화면 (정답 한국어) | M# | 사이클 | variant 분기 |
 |------------|--------------------------|----|-------|------------|
-| [app/page.tsx](../app/page.tsx) | #3 Home (Pre-trip) - Pretendard | — | 5b | — |
+| [app/page.tsx](../app/page.tsx) | #3 Home (Pre-trip) - Pretendard ✅ | — | 5b | 적용 완료 (2026-04-30) |
 | [app/onboarding/page.tsx](../app/onboarding/page.tsx) | (Stitch에 없음) | — | — | Stitch 신규 설계 필요 |
 | [app/itinerary/creating/page.tsx](../app/itinerary/creating/page.tsx) | (Stitch에 없음) | — | — | 로딩 화면 — Stitch 신규 설계 필요 |
-| [app/itinerary/[id]/page.tsx](../app/itinerary/[id]/page.tsx) | #7 Itinerary Home / #8 Itinerary (On-trip) | — | 5b | mode prop으로 분기 |
-| [app/itinerary/[id]/item/[itemId]/page.tsx](../app/itinerary/[id]/item/[itemId]/page.tsx) | #11 Item Detail - Pretendard / #12 Item Detail (OTA) | M1 / M8 | 5b / 12 | M8 단계에서 OTA 탭 추가 |
-| [app/travel/[id]/page.tsx](../app/travel/[id]/page.tsx) | #5 Home (On-trip) - Pretendard | M2 | 5b | City Strip(#19) 컴포넌트로 푸터 결합 |
-| [app/translate/page.tsx](../app/translate/page.tsx) | #16 Capturing-Pretendard → #18 Results-Pretendard | M4 | 5b | 2-step state 분기 |
+| [app/itinerary/[id]/page.tsx](../app/itinerary/[id]/page.tsx) | #7 Itinerary Home / #8 Itinerary (On-trip) ✅ | — | 5b | data-travel-mode로 자동 색 swap (2026-04-30) |
+| [app/itinerary/[id]/item/[itemId]/page.tsx](../app/itinerary/[id]/item/[itemId]/page.tsx) | #9 Place Detail & Evidence + #11 Item Detail Pretendard ✅ | M1 | 5b | 통합 적용 (2026-04-30). M8 OTA는 사이클 12 |
+| [app/travel/[id]/page.tsx](../app/travel/[id]/page.tsx) | #5 Home (On-trip) - Pretendard ✅ | M2 | 5b | 적용 완료 (2026-04-30). City Strip은 사이클 8 |
+| [app/translate/page.tsx](../app/translate/page.tsx) | #16 Capturing-Pretendard → #18 Results-Pretendard ✅ | M4 | 5b | 2-step useState 분기 (2026-04-30) |
 
 ### 3.2 신규 페이지 (Stitch 청사진 → 코드 백지)
 
@@ -133,7 +133,7 @@
 
 | 컴포넌트 (제안 경로) | Stitch 화면 | 사용처 | 사이클 |
 |--------------------|-------------|--------|-------|
-| `components/replan/LiveReplanModal.tsx` | #14 Live Replan Modal - Pretendard | `/itinerary/[id]`, `/travel/[id]` | 이미 #2 cycle 시뮬, M3 정식 구현은 5b |
+| `components/itinerary/ReplanModal.tsx` ✅ | #14 Live Replan Modal - Pretendard | `/itinerary/[id]`, `/travel/[id]` | Stitch 디자인 적용 (2026-04-30). M3 mutation은 사이클 5b |
 | `components/city/CityContextStrip.tsx` | #19 City Context Strip (On-trip) | `/travel/[id]` 푸터 | **8** |
 
 ---
@@ -216,3 +216,6 @@
 | 일자 | 사이클 | 변경 |
 |------|-------|------|
 | 2026-04-30 | 5b 준비 | 최초 작성 (옵션 A) — Stitch 22개 화면 인벤토리 + 코드 매핑 + 토큰 갭 |
+| 2026-04-30 | 5b | 옵션 B 완료 — 디자인 토큰 정렬 (lib/design-tokens.ts, tailwind.config.ts, globals.css 등) |
+| 2026-04-30 | 5b | 옵션 C #1 Home (Pre-trip) 적용 — app/page.tsx Stitch 디자인 변환, Material Symbols CDN 추가 |
+| 2026-04-30 | 5b | 옵션 C #2~#10 일괄 적용 — Item Detail / Itinerary / Travel On-trip / Translate 2-step / Replan Modal. Stitch 22개 중 11개 한국어 정답 화면이 모두 코드에 매핑 (#7 OTA, #11 Share는 사이클 12/11 보류) |
