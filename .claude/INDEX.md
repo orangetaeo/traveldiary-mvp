@@ -224,8 +224,7 @@
 | 11b — 카카오 OAuth + actorId 본격 | ✅ 2026-04-30 완료 | ADR-026 · jose 의존성 1개 · 14 mutation actorId 도입 |
 | 12a — M8 OTA 가격 비교 시드 + 어필리에이트 패턴 | ✅ 2026-04-30 완료 | ADR-025 · Klook/KKday/Agoda |
 | 12b — 실 OTA API 인프라 + aggregator | ✅ 2026-04-30 완료 | ADR-027 · 시드 fallback · 어필리에이트 계약 후 활성 |
-| 11 — M7 공유 + 동기화 키 + 카카오 OAuth | ⏳ | M7 |
-| 12 — M8 OTA 가격 비교 + 어필리에이트 | ⏳ | M8 (수익 모델) |
+| 후속 일괄 (5b-6.5 / 5b-5.5 / 7.5+ / 11c / 12c) | ✅ 2026-04-30 완료 | Naver UI 통합 · Translate Live · Maps directions+Geo · 카카오 email + ShareLink edit · /admin/affiliate |
 
 ---
 
