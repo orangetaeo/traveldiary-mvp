@@ -80,9 +80,24 @@ export default async function ItineraryItemPage({
     location: { lat: item.location.lat, lng: item.location.lng },
   });
 
-  // 5단계 검증 종합 (사이클 L+N · ADR-029) — 1·2·3·5단계 종합 + DB 영속화.
+  // 다음 일정 lookup (사이클 M · ADR-030) — 같은 dayIndex 안에서 scheduledAt 기준 다음 노드.
+  // 마지막 일정·미지정이면 null → distance.status = "no_next" (검증 면제).
+  const sameDay = bundle.items
+    .filter((it) => it.dayIndex === item.dayIndex)
+    .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
+  const idx = sameDay.findIndex((it) => it.id === item.id);
+  const nextItem =
+    idx >= 0 && idx + 1 < sameDay.length
+      ? {
+          scheduledAt: sameDay[idx + 1].scheduledAt,
+          location: sameDay[idx + 1].location,
+        }
+      : null;
+
+  // 5단계 검증 종합 (사이클 L+N · ADR-029 + 사이클 M · ADR-030)
+  // 1·2·3·4·5단계 종합 + DB 영속화.
   // R1 후속 부채 메모: googleResult와 일부 중복 호출되나 24h 캐시로 dedupe (사이클 후속 통합 예정).
-  const validationResult = await validateItemAction({ item });
+  const validationResult = await validateItemAction({ item, nextItem });
 
   // OTA Offer 매칭 (M8, 사이클 12a 시드 + 12b 실 API aggregator, ADR-027).
   // 모든 OTA 키 미설정 → 시드만 (12a 회귀 0). 일부 설정 → 해당 OTA만 실 API.

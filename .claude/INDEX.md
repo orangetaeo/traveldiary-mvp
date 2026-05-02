@@ -228,6 +228,8 @@
 | v2 출시 준비 (A~K 11 작업) | ✅ 2026-04-30 완료 | 권한 검증 · 보안 헤더 · migration 0005~0006 · 방콕/도쿄 · Vote · OG · 카카오맵 · 정산 · README · 체크리스트 · Playwright |
 | **L+N — 5단계 검증 3·5단계 (booking + price)** | ✅ 2026-05-02 완료 | ADR-029 · vitest 도입(38건 PASS) · ValidationResult 첫 영속화 · Google Places types · OTA aggregator 가격 비교(±20%) · matchTag·통화환산 fix · 사용자 액션 0 |
 | **B+D — 시드 보정 + ValidationBadges UI** | ✅ 2026-05-02 완료 | 야시장 550k VND·사오비치 950k VND·사파리 OTA 3건 추가 · 도달률 17→42% · ValidationBadges 컴포넌트 7 status × 디자인 토큰 · vitest 40건 · booking 키워드 보강(사파리·사오비치·데이투어) |
+| **M — 5단계 검증 4단계 distanceVerified** | ✅ 2026-05-02 완료 | ADR-030 · Google Directions + Haversine fallback · DistanceBadge 6 status · 차별화 축 2 인프라 65→85% · vitest +23건 (총 63) · 마이그레이션 0 · 사용자 액션 1건 (선택) |
+| **C — 다낭/방콕/도쿄 OTA 인프라 시드** | ✅ 2026-05-02 완료 | OTA Offer 18건 (도시당 6) · matchTag 도시 prefix 표준(pq/dn/bk/ty) · findOffersByKeyword 다국가 한·영 분기 · vitest +24건 (총 87) · itinerary 시드는 별도 사이클로 분리 |
 
 ---
 

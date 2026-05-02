@@ -1,12 +1,13 @@
 /**
- * Validation Badges — 사이클 D (ADR-029 UI 통합).
+ * Validation Badges — 사이클 D (ADR-029 UI 통합) + 사이클 M (ADR-030 distance).
  *
  * validateItemAction의 ValidateItemResult를 일정 상세 페이지에 노출.
  * - booking 뱃지 (3·required: true/false)
+ * - distance 뱃지 (4·status 6종) — 사이클 M
  * - price 뱃지 (5·status 7종)
  *
  * 정책 (T17 디자인 합의):
- * - no_estimate / no_offers는 숨김 (다른 섹션이 처리, 노이즈 방지)
+ * - no_estimate / no_offers / no_next / missing_location은 숨김 (노이즈 방지)
  * - required:false는 meta 톤 (위계 낮음)
  * - 데모 모드/forbidden/not_found는 명시적 노출
  *
@@ -18,6 +19,7 @@ import type { ValidateItemResult } from "@/actions/place";
 type ValidateOk = Extract<ValidateItemResult, { mode: "ok" }>;
 type BookingResult = ValidateOk["booking"];
 type PriceResult = ValidateOk["price"];
+type DistanceResult = ValidateOk["distance"];
 
 export interface ValidationBadgesProps {
   result: ValidateItemResult;
@@ -49,6 +51,7 @@ export function ValidationBadges({ result }: ValidationBadgesProps) {
   return (
     <>
       <BookingBadge booking={result.booking} />
+      <DistanceBadge distance={result.distance} />
       <PriceBadge price={result.price} />
     </>
   );
@@ -96,6 +99,118 @@ function BookingBadge({ booking }: { booking: BookingResult }) {
       </div>
     </div>
   );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Distance 뱃지 (사이클 M · 4단계 distanceVerified)
+// ═══════════════════════════════════════════════════════════════════
+
+function DistanceBadge({ distance }: { distance: DistanceResult }) {
+  // 정보 가치 0인 status는 숨김 (T17 합의)
+  // - no_next: 마지막 일정 (검증 대상 없음)
+  // - missing_location: 좌표 누락 (다른 화면에서 처리)
+  if (distance.status === "no_next" || distance.status === "missing_location") {
+    return null;
+  }
+
+  if (distance.status === "verified") {
+    return (
+      <div
+        role="status"
+        aria-label={`이동 검증: 일치 (${distance.travelMinutes}분)`}
+        className="flex items-start gap-td-xs p-td-sm bg-success-soft border border-success-soft rounded-xl"
+      >
+        <span
+          className="material-symbols-outlined filled text-success-deep"
+          aria-hidden
+        >
+          directions
+        </span>
+        <div className="flex flex-col">
+          <span className="text-td-body text-success-deep font-semibold">
+            이동 검증 완료
+          </span>
+          <span className="text-td-caption text-success-deep/80">
+            {distance.reason}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (distance.status === "warn") {
+    return (
+      <div
+        role="status"
+        aria-label="이동 정보: 빠듯"
+        className="flex items-start gap-td-xs p-td-sm bg-amber-soft border border-amber-soft rounded-xl"
+      >
+        <span
+          className="material-symbols-outlined filled text-amber-deep"
+          aria-hidden
+        >
+          schedule
+        </span>
+        <div className="flex flex-col">
+          <span className="text-td-body text-amber-deep font-semibold">
+            이동시간 빠듯
+          </span>
+          <span className="text-td-caption text-amber-deep/80">
+            {distance.reason}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (distance.status === "mismatch") {
+    return (
+      <div
+        role="status"
+        aria-label="이동 정보: 부족"
+        className="flex items-start gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-xl border-l-4"
+      >
+        <span
+          className="material-symbols-outlined filled text-danger"
+          aria-hidden
+        >
+          running_with_errors
+        </span>
+        <div className="flex flex-col">
+          <span className="text-td-body text-danger-deep font-semibold">
+            이동시간 부족 — 일정 조정 필요
+          </span>
+          <span className="text-td-caption text-danger-deep/80">
+            {distance.reason}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (distance.status === "demo") {
+    return (
+      <div
+        role="status"
+        aria-label="이동 정보: 추정"
+        className="flex items-start gap-td-xs p-td-sm bg-surface-soft border border-divider rounded-xl"
+      >
+        <span className="material-symbols-outlined text-ink-mute" aria-hidden>
+          near_me
+        </span>
+        <div className="flex flex-col">
+          <span className="text-td-meta text-ink-soft font-medium">
+            이동시간 추정
+          </span>
+          <span className="text-td-caption text-ink-mute">
+            {distance.reason}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 // ═══════════════════════════════════════════════════════════════════

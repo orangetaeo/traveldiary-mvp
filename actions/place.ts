@@ -25,6 +25,11 @@ import {
   type PriceVerificationOutput,
 } from "@/lib/services/price-verification";
 import {
+  verifyItemDistance,
+  type NextItemInput,
+} from "@/lib/services/distance-verification";
+import type { DistanceVerificationOutput } from "@/lib/services/distance-rules";
+import {
   canValidateItem,
   createValidation,
   getRecentValidation,
@@ -101,8 +106,8 @@ export async function verifyPlaceAction(
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// validateItemAction — 사이클 L+N (ADR-029)
-// 1·2단계 (place) + 3단계 (booking) + 5단계 (price) 종합
+// validateItemAction — 사이클 L+N (ADR-029) + 사이클 M (ADR-030)
+// 1·2단계 (place) + 3단계 (booking) + 4단계 (distance) + 5단계 (price) 종합
 // ═══════════════════════════════════════════════════════════════════
 
 export type ValidateItemResult =
@@ -113,8 +118,8 @@ export type ValidateItemResult =
       operatingStatus: "open" | "closed" | "demo";
       booking: BookingRuleOutput;
       price: PriceVerificationOutput;
-      /** distanceVerified는 사이클 M까지 false 고정 */
-      distanceVerified: false;
+      /** 사이클 M (ADR-030) — 4단계 distanceVerified */
+      distance: DistanceVerificationOutput;
       /** DB save 성공 시 row id, 실패/데모 시 null */
       validationId: string | null;
       validatedAt: string;
@@ -124,12 +129,17 @@ export type ValidateItemResult =
 
 export interface ValidateItemActionInput {
   item: ItineraryItem;
+  /**
+   * 같은 dayIndex 안에서 scheduledAt 기준 다음 일정.
+   * 마지막 일정·미지정이면 null → distance.status = "no_next".
+   */
+  nextItem?: NextItemInput;
 }
 
 export async function validateItemAction(
   input: ValidateItemActionInput,
 ): Promise<ValidateItemResult> {
-  const { item } = input;
+  const { item, nextItem = null } = input;
   const actorId = await getActorId();
 
   // ── 권한 검증 (canReadTrip만 — T14 권장)
@@ -165,7 +175,18 @@ export async function validateItemAction(
         medianOtaPriceKrw: null,
         otaSourceCount: 0,
       },
-      distanceVerified: false,
+      distance: {
+        // T13 리뷰: priceVerified와 같은 한계 — DB는 boolean만 저장.
+        // 보수적 fallback: false면 "warn" (이전 검증이 빠듯/부족 어느 쪽이었는지 미상).
+        status: cached.distanceVerified ? "verified" : "warn",
+        verified: cached.distanceVerified,
+        reason: "24h 캐시 hit",
+        travelMinutes: null,
+        gapMinutes: null,
+        distanceKm: null,
+        mode: null,
+        source: "none",
+      },
       validationId: cached.id,
       validatedAt: cached.validatedAt.toISOString(),
     };
@@ -237,13 +258,31 @@ export async function validateItemAction(
     };
   }
 
+  // ── 4단계: distanceVerified (사이클 M, ADR-030)
+  let distance: DistanceVerificationOutput;
+  try {
+    distance = await verifyItemDistance({ item, nextItem });
+  } catch (err) {
+    console.error("[validateItemAction] distance verify failed", err);
+    distance = {
+      status: "missing_location",
+      verified: false,
+      reason: "이동 검증 실패",
+      travelMinutes: null,
+      gapMinutes: null,
+      distanceKm: null,
+      mode: null,
+      source: "none",
+    };
+  }
+
   // ── DB 저장 (prisma 미연결이면 null)
   const saved: ValidationResultRow | null = await createValidation({
     itemId: item.id,
     placeExists,
     operatingStatus,
     bookingRequired: booking.required,
-    distanceVerified: false,
+    distanceVerified: distance.verified,
     priceVerified: price.verified,
   });
 
@@ -258,7 +297,7 @@ export async function validateItemAction(
       placeExists,
       operatingStatus,
       bookingRequired: booking.required,
-      distanceVerified: false,
+      distanceVerified: distance.verified,
       priceVerified: price.verified,
     },
     metadata: {
@@ -271,6 +310,12 @@ export async function validateItemAction(
       priceDeltaPct: price.deltaPct,
       medianOtaPriceKrw: price.medianOtaPriceKrw,
       otaSourceCount: price.otaSourceCount,
+      distanceStatus: distance.status,
+      distanceSource: distance.source,
+      distanceTravelMinutes: distance.travelMinutes,
+      distanceGapMinutes: distance.gapMinutes,
+      distanceKm: distance.distanceKm,
+      distanceMode: distance.mode,
       placeMode: placeResult.mode,
       cacheHit: false,
     },
@@ -283,7 +328,7 @@ export async function validateItemAction(
     operatingStatus,
     booking,
     price,
-    distanceVerified: false,
+    distance,
     validationId: saved?.id ?? null,
     validatedAt: (saved?.validatedAt ?? new Date()).toISOString(),
   };
