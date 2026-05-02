@@ -34,6 +34,7 @@ const DETAILS_FIELDS = [
   "opening_hours",
   "rating",
   "user_ratings_total",
+  "types",
 ].join(",");
 
 // ═══════════════════════════════════════════════════════════════════
@@ -48,6 +49,7 @@ export interface PlaceDetails {
   openNow?: boolean;
   rating?: number;
   userRatingsTotal?: number;
+  types?: string[];
 }
 
 export type FindPlaceOutcome =
@@ -206,6 +208,7 @@ export async function getPlaceDetails(
         opening_hours?: { open_now?: boolean };
         rating?: number;
         user_ratings_total?: number;
+        types?: string[];
       };
       error_message?: string;
     };
@@ -220,6 +223,7 @@ export async function getPlaceDetails(
         openNow: r.opening_hours?.open_now,
         rating: r.rating,
         userRatingsTotal: r.user_ratings_total,
+        types: r.types,
       };
       await setEvidenceCache({
         placeId,

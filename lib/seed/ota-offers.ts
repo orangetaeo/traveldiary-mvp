@@ -9,9 +9,10 @@ import type { OtaOffer } from "../types";
 
 export const phuQuocOtaOffers: OtaOffer[] = [
   // ── 케이블카 (Sun World) ────────────────────────────────────────────
+  // matchTag = phuQuocPlaces[].id 와 정확 일치해야 findOffersForItem이 작동 (T12 fix)
   {
-    id: "klook-pq-cable-car",
-    matchTag: "pq-spot-cable-car",
+    id: "klook-pq-cablecar",
+    matchTag: "pq-spot-cablecar",
     ota: "klook",
     title: "푸꾸옥 케이블카 왕복권 (혼통섬)",
     priceKrw: 36000,
@@ -21,8 +22,8 @@ export const phuQuocOtaOffers: OtaOffer[] = [
     url: "https://www.klook.com/activity/9999-phu-quoc-cable-car",
   },
   {
-    id: "kkday-pq-cable-car",
-    matchTag: "pq-spot-cable-car",
+    id: "kkday-pq-cablecar",
+    matchTag: "pq-spot-cablecar",
     ota: "kkday",
     title: "Sun World Hon Thom 케이블카",
     priceKrw: 38000,
@@ -31,8 +32,8 @@ export const phuQuocOtaOffers: OtaOffer[] = [
     url: "https://www.kkday.com/product/12345-phu-quoc-cable-car",
   },
   {
-    id: "agoda-pq-cable-car",
-    matchTag: "pq-spot-cable-car",
+    id: "agoda-pq-cablecar",
+    matchTag: "pq-spot-cablecar",
     ota: "agoda",
     title: "Hon Thom Cable Car Pass",
     priceKrw: 39500,
@@ -43,8 +44,8 @@ export const phuQuocOtaOffers: OtaOffer[] = [
 
   // ── 사오비치 데이투어 ───────────────────────────────────────────────
   {
-    id: "klook-pq-sao-beach",
-    matchTag: "pq-spot-sao-beach",
+    id: "klook-pq-saobeach",
+    matchTag: "pq-spot-saobeach",
     ota: "klook",
     title: "사오비치 + 남부 어촌 데이투어",
     priceKrw: 52000,
@@ -54,8 +55,8 @@ export const phuQuocOtaOffers: OtaOffer[] = [
     url: "https://www.klook.com/activity/9100-phu-quoc-sao-beach-tour",
   },
   {
-    id: "kkday-pq-sao-beach",
-    matchTag: "pq-spot-sao-beach",
+    id: "kkday-pq-saobeach",
+    matchTag: "pq-spot-saobeach",
     ota: "kkday",
     title: "사오비치 + 남부 명소 8시간",
     priceKrw: 54000,
@@ -152,8 +153,8 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
   const lower = name.toLowerCase();
   const matched = new Set<string>();
 
-  if (lower.includes("케이블카") || lower.includes("cable")) matched.add("pq-spot-cable-car");
-  if (lower.includes("사오비치") || lower.includes("sao beach")) matched.add("pq-spot-sao-beach");
+  if (lower.includes("케이블카") || lower.includes("cable")) matched.add("pq-spot-cablecar");
+  if (lower.includes("사오비치") || lower.includes("sao beach")) matched.add("pq-spot-saobeach");
   if (lower.includes("야시장") || lower.includes("night market")) matched.add("pq-food-night-market");
   if (lower.includes("vinwonder") || lower.includes("빈원더")) matched.add("pq-spot-vinwonders");
   if (lower.includes("스노클") || lower.includes("snorkel") || lower.includes("어드벤처")) {

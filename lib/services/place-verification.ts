@@ -24,6 +24,7 @@ export type VerifyPlaceResult =
       placeId: string;
       rating?: number;
       userRatingsTotal?: number;
+      types?: string[];
       cached: boolean;
       fetchDurationMs: number;
     }
@@ -81,6 +82,7 @@ export async function verifyPlace(
     placeId: details.details.placeId,
     rating: details.details.rating,
     userRatingsTotal: details.details.userRatingsTotal,
+    types: details.details.types,
     cached: find.cached && details.cached,
     fetchDurationMs: Date.now() - startedAt,
   };

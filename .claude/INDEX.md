@@ -226,6 +226,7 @@
 | 12b — 실 OTA API 인프라 + aggregator | ✅ 2026-04-30 완료 | ADR-027 · 시드 fallback · 어필리에이트 계약 후 활성 |
 | 후속 일괄 (5b-6.5 / 5b-5.5 / 7.5+ / 11c / 12c) | ✅ 2026-04-30 완료 | Naver UI 통합 · Translate Live · Maps directions+Geo · 카카오 email + ShareLink edit · /admin/affiliate |
 | v2 출시 준비 (A~K 11 작업) | ✅ 2026-04-30 완료 | 권한 검증 · 보안 헤더 · migration 0005~0006 · 방콕/도쿄 · Vote · OG · 카카오맵 · 정산 · README · 체크리스트 · Playwright |
+| **L+N — 5단계 검증 3·5단계 (booking + price)** | ✅ 2026-05-02 완료 | ADR-029 · vitest 도입(38건 PASS) · ValidationResult 첫 영속화 · Google Places types · OTA aggregator 가격 비교(±20%) · matchTag·통화환산 fix · 사용자 액션 0 |
 
 ---
 
