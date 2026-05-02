@@ -28,8 +28,8 @@ describe("OTA seed — 도시별 무결성", () => {
     }
   });
 
-  it("다낭 모든 행 matchTag prefix='dn-'", () => {
-    expect(daNangOtaOffers.length).toBe(6);
+  it("다낭 모든 행 matchTag prefix='dn-' (사이클 D 후 15건)", () => {
+    expect(daNangOtaOffers.length).toBe(15);
     for (const offer of daNangOtaOffers) {
       expect(offer.matchTag.startsWith("dn-")).toBe(true);
     }
@@ -192,7 +192,7 @@ describe("allOtaOffers 통합 풀", () => {
     );
   });
 
-  it("사이클 C 후 신규 시드 = 18건 (도시당 6)", () => {
-    expect(daNangOtaOffers.length + bangkokOtaOffers.length + tokyoOtaOffers.length).toBe(18);
+  it("사이클 C+D 후 신규 시드 = 27건 (다낭 15 + 방콕 6 + 도쿄 6)", () => {
+    expect(daNangOtaOffers.length + bangkokOtaOffers.length + tokyoOtaOffers.length).toBe(27);
   });
 });

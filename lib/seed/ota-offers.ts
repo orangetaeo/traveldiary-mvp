@@ -246,6 +246,107 @@ export const daNangOtaOffers: OtaOffer[] = [
     reviewCount: 312,
     url: "https://www.kkday.com/product/44003-my-khe-beach",
   },
+  // single_source 회피 — klook 추가 (사이클 D 부수)
+  {
+    id: "klook-dn-mykheBeach",
+    matchTag: "dn-spot-mykheBeach",
+    ota: "klook",
+    title: "미케비치 워터스포츠 데이패스",
+    priceKrw: 39000,
+    originalPriceKrw: 45000,
+    rating: 4.6,
+    reviewCount: 521,
+    url: "https://www.klook.com/activity/4500-my-khe-beach",
+  },
+
+  // ── 한시장 푸드 워킹투어 (사이클 D 신규) ───────────────────────────
+  {
+    id: "klook-dn-hanmarket",
+    matchTag: "dn-food-hanmarket",
+    ota: "klook",
+    title: "다낭 한시장 푸드 워킹투어 (한국어 가이드)",
+    priceKrw: 31000,
+    originalPriceKrw: 38000,
+    rating: 4.7,
+    reviewCount: 689,
+    url: "https://www.klook.com/activity/4600-han-market-food-tour",
+  },
+  {
+    id: "kkday-dn-hanmarket",
+    matchTag: "dn-food-hanmarket",
+    ota: "kkday",
+    title: "Han Market Street Food Tour",
+    priceKrw: 33000,
+    rating: 4.5,
+    reviewCount: 282,
+    url: "https://www.kkday.com/product/4601-han-market",
+  },
+
+  // ── 미선유적 데이투어 (사이클 D 신규) ──────────────────────────────
+  {
+    id: "klook-dn-mySon",
+    matchTag: "dn-spot-mySon",
+    ota: "klook",
+    title: "미선 유적지 + 호이안 콤보 데이투어 (한국어)",
+    priceKrw: 47000,
+    originalPriceKrw: 58000,
+    rating: 4.7,
+    reviewCount: 1420,
+    url: "https://www.klook.com/activity/4700-my-son-sanctuary",
+  },
+  {
+    id: "kkday-dn-mySon",
+    matchTag: "dn-spot-mySon",
+    ota: "kkday",
+    title: "My Son Half-Day Tour with Lunch",
+    priceKrw: 49000,
+    rating: 4.6,
+    reviewCount: 642,
+    url: "https://www.kkday.com/product/4701-my-son",
+  },
+  {
+    id: "agoda-dn-mySon",
+    matchTag: "dn-spot-mySon",
+    ota: "agoda",
+    title: "My Son UNESCO Heritage Tour",
+    priceKrw: 52000,
+    rating: 4.5,
+    reviewCount: 218,
+    url: "https://www.agoda.com/activities/da-nang/my-son",
+  },
+
+  // ── 응우한선 (Marble Mountains) (사이클 D 신규) ──────────────────────
+  {
+    id: "klook-dn-marble",
+    matchTag: "dn-spot-marble",
+    ota: "klook",
+    title: "응우한선(대리석산) 입장권 + 영선동굴 가이드",
+    priceKrw: 25000,
+    originalPriceKrw: 32000,
+    rating: 4.7,
+    reviewCount: 921,
+    url: "https://www.klook.com/activity/4800-marble-mountains",
+  },
+  {
+    id: "kkday-dn-marble",
+    matchTag: "dn-spot-marble",
+    ota: "kkday",
+    title: "Marble Mountains Half-Day Tour",
+    priceKrw: 26500,
+    rating: 4.6,
+    reviewCount: 412,
+    url: "https://www.kkday.com/product/4801-marble-mountains",
+  },
+  {
+    id: "agoda-dn-marble",
+    matchTag: "dn-spot-marble",
+    ota: "agoda",
+    title: "Ngu Hanh Son Day Pass + Elevator",
+    priceKrw: 28000,
+    rating: 4.5,
+    reviewCount: 189,
+    url: "https://www.agoda.com/activities/da-nang/marble-mountains",
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════
@@ -451,13 +552,24 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
   if (lower.includes("사파리") || lower.includes("safari"))
     matched.add("pq-spot-safari");
 
-  // ── 다낭 (사이클 C)
+  // ── 다낭 (사이클 C + D)
   if (lower.includes("바나힐") || lower.includes("ba na"))
     matched.add("dn-spot-banaHills");
   if (lower.includes("호이안") || lower.includes("hoi an"))
     matched.add("dn-spot-hoianTour");
   if (lower.includes("미케") || lower.includes("my khe"))
     matched.add("dn-spot-mykheBeach");
+  if (lower.includes("한시장") || lower.includes("han market"))
+    matched.add("dn-food-hanmarket");
+  if (lower.includes("미선") || lower.includes("my son"))
+    matched.add("dn-spot-mySon");
+  if (
+    lower.includes("응우한선") ||
+    lower.includes("대리석산") ||
+    lower.includes("marble mountain")
+  ) {
+    matched.add("dn-spot-marble");
+  }
 
   // ── 방콕 (사이클 C)
   if (

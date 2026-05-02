@@ -3,23 +3,26 @@
  *
  * Phase 0 (사이클 1): DATABASE_URL이 비었거나 마이그레이션이 없을 때
  * 화면이 직접 import해서 시드 데이터를 렌더한다 — ADR-009.
+ *
+ * 사이클 D: 다낭 데모 trip 추가. trip ID로 분기.
  */
 
 import type { ItineraryItem, Trip } from "../types";
 import { phuQuocItinerary, phuQuocTrip } from "./phu-quoc";
+import { daNangItinerary, daNangTrip } from "./da-nang";
 
 export interface DemoTripBundle {
   trip: Trip;
   items: ItineraryItem[];
 }
 
-const bundle: DemoTripBundle = {
-  trip: phuQuocTrip,
-  items: phuQuocItinerary,
-};
+const bundles: DemoTripBundle[] = [
+  { trip: phuQuocTrip, items: phuQuocItinerary },
+  { trip: daNangTrip, items: daNangItinerary },
+];
 
 export function getDemoTrip(tripId: string): DemoTripBundle | null {
-  return tripId === bundle.trip.id ? bundle : null;
+  return bundles.find((b) => b.trip.id === tripId) ?? null;
 }
 
 export function getDemoItem(tripId: string, itemId: string): ItineraryItem | null {
@@ -41,4 +44,10 @@ export function listDemoItemsByDay(tripId: string): ItineraryItem[][] {
   return days;
 }
 
-export const DEMO_TRIP_ID = bundle.trip.id;
+/** 모든 데모 trip 목록 (랜딩/리스트 화면용) */
+export function listDemoTrips(): DemoTripBundle[] {
+  return bundles;
+}
+
+export const DEMO_TRIP_ID = phuQuocTrip.id;
+export const DEMO_TRIP_IDS = bundles.map((b) => b.trip.id);

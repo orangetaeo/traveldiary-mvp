@@ -13,7 +13,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { phuQuocTrip, phuQuocItinerary } from "@/lib/seed/phu-quoc";
-import { listDemoItemsByDay, DEMO_TRIP_ID } from "@/lib/seed";
+import { listDemoItemsByDay, listDemoTrips, DEMO_TRIP_ID } from "@/lib/seed";
 import { LoginButton } from "@/components/auth/LoginButton";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { kakaoAvailable } from "@/lib/auth/kakao";
@@ -230,6 +230,32 @@ export default async function HomePage() {
             );
           })}
         </div>
+
+        {/* 다른 도시 둘러보기 (사이클 D) */}
+        <section className="px-td-md pt-td-lg pb-td-md">
+          <h2 className="text-td-card-title text-ink mb-td-sm">다른 도시 둘러보기</h2>
+          <div className="grid grid-cols-2 gap-td-sm">
+            {listDemoTrips()
+              .filter((b) => b.trip.id !== DEMO_TRIP_ID)
+              .map((b) => (
+                <Link
+                  key={b.trip.id}
+                  href={`/itinerary/${b.trip.id}`}
+                  className="block p-td-sm bg-surface-card border border-divider rounded-xl hover:border-purple/40 transition-colors"
+                >
+                  <p className="text-td-meta text-ink-soft uppercase tabular-nums">
+                    {b.trip.destinationCode}
+                  </p>
+                  <p className="text-td-card-title text-ink mt-td-xxs">
+                    {b.trip.destination}
+                  </p>
+                  <p className="text-td-caption text-ink-mute mt-td-xxs">
+                    {b.trip.nights}박 {b.trip.nights + 1}일 · {b.items.length} 일정
+                  </p>
+                </Link>
+              ))}
+          </div>
+        </section>
       </main>
 
       {/* FAB — Pre-trip 모드에서도 검색·번역 빠른 진입 */}
