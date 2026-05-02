@@ -4,15 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { dayProgress } from "@/lib/mode-transition";
-import type { City, ItineraryItem, Trip } from "@/lib/types";
+import type { ItineraryItem, ResolvedCity, Trip } from "@/lib/types";
 import { AutoModeDetector } from "./AutoModeDetector";
 import { CityContextStrip } from "@/components/city/CityContextStrip";
 
 interface TravelHomeProps {
   trip: Trip;
   items: ItineraryItem[];
-  /** 사이클 8 M5: 도시별 큐레이션 데이터. 미존재 도시면 null. */
-  city?: City | null;
+  /** 사이클 8 M5: 도시별 큐레이션 데이터. 미존재 도시면 null. 사이클 H: ResolvedCity (country merged) */
+  city?: ResolvedCity | null;
 }
 
 /**

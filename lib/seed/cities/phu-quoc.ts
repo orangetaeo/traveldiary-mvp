@@ -1,11 +1,9 @@
 /**
  * 푸꾸옥(Phú Quốc) City 시드 — 사이클 8 M5 (ADR 없음, 5b-2 정책 답습).
  *
- * MVP 필드 채움: emergencyContacts, payment, transport, phrases, curatedGuides 1건.
- * 후속 필드(utilities, visa, weather)는 사이클 8.5+에서.
- *
- * 콘텐츠는 한국인 자유여행자 시각으로 큐레이션. 단순 정보 나열이 아닌
- * "처음 가도 안전하게" 우선순위 설정.
+ * 사이클 H (ADR-032): country 단위 데이터(phrases·utilities·visa·payment 일부·
+ * 영사 콜센터·카드 분실·국가 경찰/응급)를 lib/constants/countries.ts로 정규화.
+ * 도시 차별화 항목(영사관·추천 병원·환율·결제 메모·교통·기후·큐레이션)만 city에 유지.
  */
 
 import type { City } from "../../types";
@@ -17,47 +15,26 @@ export const phuQuocCity: City = {
   country: "베트남",
   countryCode: "VN",
 
-  // ── 응급 연락처 (T16 검증) ──────────────────────────────────────────
+  // ── 응급 연락처 (도시별 영사관 + 추천 병원만; 국가 경찰/응급·영사콜센터·
+  //    카드 분실은 country/GLOBAL로 정규화)
   emergencyContacts: [
     {
-      label: "주 호치민 대한민국 총영사관",
+      label: "주 호치민 대한민국 총영사관 (푸꾸옥 관할)",
       phone: "+84 28 3822 5757",
       hours: "평일 08:30~17:00 (한국시간 +0)",
       notes: "한국어 가능. 야간/주말은 +84 90 940 1500 긴급 라인",
       category: "embassy",
     },
     {
-      label: "베트남 경찰",
-      phone: "113",
-      notes: "영어 제한적. 호텔 도움 받을 것",
-      category: "police",
-    },
-    {
-      label: "베트남 응급 의료",
-      phone: "115",
-      notes: "현지 병원 — 빈멕(Vinmec) 푸꾸옥 추천",
+      label: "추천 병원 — 빈멕(Vinmec) 푸꾸옥",
+      phone: "+84 297 3985 588",
+      notes: "한국어 가능 의료진. 24시간 응급실. 일반 응급 115와 별도 직통",
       category: "ambulance",
-    },
-    {
-      label: "한국어 통역 서비스 (영사 콜센터)",
-      phone: "+82 2 3210 0404",
-      hours: "24시간",
-      notes: "외교부 무료. 통신비만 부담",
-      category: "translator",
-    },
-    {
-      label: "신용카드 분실 (KB·신한·삼성·현대)",
-      phone: "+82 2 1577 0000",
-      notes: "한국 카드사 통합 콜센터. 24시간",
-      category: "card_lost",
     },
   ],
 
-  // ── 결제 ─────────────────────────────────────────────────────────────
+  // ── 결제 (도시 차별화 항목만; currency/symbol/rate는 country로 정규화) ──
   payment: {
-    currency: "VND",
-    currencySymbol: "₫",
-    approxKrwRate: 18, // 1 KRW ≈ 18 VND (변동)
     cardAcceptance: "medium",
     cardNotes:
       "리조트·고급 식당·대형 마트는 카드 OK. 야시장·로컬 식당·그랩은 현금 필수.",
@@ -79,63 +56,9 @@ export const phuQuocCity: City = {
     walkability: "low",
   },
 
-  // ── 상황별 한마디 (B8) ────────────────────────────────────────────────
-  phrases: [
-    {
-      situation: "greeting",
-      korean: "안녕하세요",
-      local: "Xin chào",
-      pronunciation: "신짜오",
-    },
-    {
-      situation: "thanks",
-      korean: "감사합니다",
-      local: "Cảm ơn",
-      pronunciation: "깜언",
-    },
-    {
-      situation: "checkout",
-      korean: "계산할게요",
-      local: "Tính tiền",
-      pronunciation: "띤 띠엔",
-    },
-    {
-      situation: "price",
-      korean: "얼마예요?",
-      local: "Bao nhiêu tiền?",
-      pronunciation: "바오 니에우 띠엔",
-    },
-    {
-      situation: "help",
-      korean: "도와주세요",
-      local: "Giúp tôi với",
-      pronunciation: "지웁 또이 버이",
-    },
-    {
-      situation: "slow",
-      korean: "천천히 말씀해 주세요",
-      local: "Xin nói chậm",
-      pronunciation: "신 노이 짬",
-    },
-    {
-      situation: "spicy",
-      korean: "맵지 않게 해주세요",
-      local: "Không cay",
-      pronunciation: "콩 까이",
-    },
-  ],
+  // phrases는 country.defaultPhrases(베트남어 7개)로 정규화 (resolveCity merge)
 
-  // ── 후속 필드 (사이클 8.5 보강) ─────────────────────────────────────
-  utilities: {
-    voltage: "220V",
-    plugType: "A/C/G",
-    simAvailable: true,
-  },
-  visa: {
-    visaFreeDays: 45,
-    eVisaRequired: false,
-    notes: "한국 여권 무비자 45일 (2026년 기준)",
-  },
+  // ── 도시별 기후 (country로 옮기지 않음 — 베트남 북부/중부/남부 다름) ───
   weather: {
     season: "건기 (11~4월, 베스트) · 우기 (5~10월)",
     avgTempC: { min: 24, max: 32 },

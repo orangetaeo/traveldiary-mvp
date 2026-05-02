@@ -13,9 +13,9 @@
  */
 
 import Link from "next/link";
-import type { City } from "@/lib/types";
+import type { ResolvedCity } from "@/lib/types";
 
-export function CityContextStrip({ city }: { city: City }) {
+export function CityContextStrip({ city }: { city: ResolvedCity }) {
   const ambulance = city.emergencyContacts.find((c) => c.category === "ambulance");
   const embassy = city.emergencyContacts.find((c) => c.category === "embassy");
   const krwPerLocal = (1 / city.payment.approxKrwRate).toFixed(3);

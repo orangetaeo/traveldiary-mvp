@@ -10,6 +10,9 @@
 import type { ItineraryItem, Trip } from "../types";
 import { phuQuocItinerary, phuQuocTrip } from "./phu-quoc";
 import { daNangItinerary, daNangTrip } from "./da-nang";
+import { hoChiMinhItinerary, hoChiMinhTrip } from "./ho-chi-minh";
+import { hanoiItinerary, hanoiTrip } from "./hanoi";
+import { nhaTrangItinerary, nhaTrangTrip } from "./nha-trang";
 
 export interface DemoTripBundle {
   trip: Trip;
@@ -19,6 +22,9 @@ export interface DemoTripBundle {
 const bundles: DemoTripBundle[] = [
   { trip: phuQuocTrip, items: phuQuocItinerary },
   { trip: daNangTrip, items: daNangItinerary },
+  { trip: hoChiMinhTrip, items: hoChiMinhItinerary },
+  { trip: hanoiTrip, items: hanoiItinerary },
+  { trip: nhaTrangTrip, items: nhaTrangItinerary },
 ];
 
 export function getDemoTrip(tripId: string): DemoTripBundle | null {

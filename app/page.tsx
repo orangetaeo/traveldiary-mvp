@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/Badge";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { phuQuocTrip, phuQuocItinerary } from "@/lib/seed/phu-quoc";
 import { listDemoItemsByDay, listDemoTrips, DEMO_TRIP_ID } from "@/lib/seed";
+import { getCityByCode, isVietnamCity } from "@/lib/seed/cities";
 import { LoginButton } from "@/components/auth/LoginButton";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { kakaoAvailable } from "@/lib/auth/kakao";
@@ -237,6 +238,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 gap-td-sm">
             {listDemoTrips()
               .filter((b) => b.trip.id !== DEMO_TRIP_ID)
+              .filter((b) => isVietnamCity(getCityByCode(b.trip.destinationCode)))
               .map((b) => (
                 <Link
                   key={b.trip.id}

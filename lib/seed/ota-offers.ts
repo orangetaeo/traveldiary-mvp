@@ -501,6 +501,414 @@ export const tokyoOtaOffers: OtaOffer[] = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════
+// 호치민 (SGN, VND) — 사이클 G-1
+// ═══════════════════════════════════════════════════════════════════
+
+export const hoChiMinhOtaOffers: OtaOffer[] = [
+  // ── 메콩델타 미토 데이투어 ───────────────────────────────────────
+  {
+    id: "klook-hcm-mekong",
+    matchTag: "hcm-spot-mekong",
+    ota: "klook",
+    title: "메콩델타 미토 1일 투어 (한국어 가이드)",
+    priceKrw: 35000,
+    originalPriceKrw: 42000,
+    rating: 4.6,
+    reviewCount: 2840,
+    url: "https://www.klook.com/activity/4040-mekong-delta-tour",
+  },
+  {
+    id: "kkday-hcm-mekong",
+    matchTag: "hcm-spot-mekong",
+    ota: "kkday",
+    title: "Mekong Delta My Tho Day Tour",
+    priceKrw: 38000,
+    rating: 4.5,
+    reviewCount: 1230,
+    url: "https://www.kkday.com/product/44002-mekong-delta",
+  },
+  {
+    id: "agoda-hcm-mekong",
+    matchTag: "hcm-spot-mekong",
+    ota: "agoda",
+    title: "My Tho Mekong Delta Full Day",
+    priceKrw: 40000,
+    rating: 4.4,
+    reviewCount: 612,
+    url: "https://www.agoda.com/activities/ho-chi-minh/mekong-delta",
+  },
+
+  // ── 사이공 강 디너 크루즈 ──────────────────────────────────────────
+  {
+    id: "klook-hcm-dinnerCruise",
+    matchTag: "hcm-food-dinnerCruise",
+    ota: "klook",
+    title: "사이공 강 디너 크루즈 + 베트남 전통 공연",
+    priceKrw: 65000,
+    originalPriceKrw: 78000,
+    rating: 4.5,
+    reviewCount: 1820,
+    url: "https://www.klook.com/activity/4050-saigon-dinner-cruise",
+  },
+  {
+    id: "kkday-hcm-dinnerCruise",
+    matchTag: "hcm-food-dinnerCruise",
+    ota: "kkday",
+    title: "Saigon River Dinner Cruise (Indochina Queen)",
+    priceKrw: 68000,
+    rating: 4.4,
+    reviewCount: 924,
+    url: "https://www.kkday.com/product/44003-saigon-dinner-cruise",
+  },
+
+  // ── 통일궁 + 전쟁박물관 콤보 ───────────────────────────────────────
+  {
+    id: "klook-hcm-warMuseum",
+    matchTag: "hcm-spot-warMuseum",
+    ota: "klook",
+    title: "통일궁 + 전쟁박물관 콤보 입장권",
+    priceKrw: 18000,
+    rating: 4.6,
+    reviewCount: 1240,
+    url: "https://www.klook.com/activity/4060-reunification-palace",
+  },
+  {
+    id: "kkday-hcm-warMuseum",
+    matchTag: "hcm-spot-warMuseum",
+    ota: "kkday",
+    title: "Reunification Palace + War Remnants Museum",
+    priceKrw: 19000,
+    rating: 4.5,
+    reviewCount: 682,
+    url: "https://www.kkday.com/product/44004-war-museum",
+  },
+
+  // ── 시클로 시내투어 ────────────────────────────────────────────────
+  {
+    id: "klook-hcm-cyclo",
+    matchTag: "hcm-spot-cyclo",
+    ota: "klook",
+    title: "호치민 1군 시클로 2시간 투어 (한국어)",
+    priceKrw: 22000,
+    originalPriceKrw: 28000,
+    rating: 4.5,
+    reviewCount: 928,
+    url: "https://www.klook.com/activity/4070-cyclo-tour",
+  },
+  {
+    id: "kkday-hcm-cyclo",
+    matchTag: "hcm-spot-cyclo",
+    ota: "kkday",
+    title: "Saigon Cyclo City Tour 2H",
+    priceKrw: 24000,
+    rating: 4.4,
+    reviewCount: 412,
+    url: "https://www.kkday.com/product/44005-cyclo-tour",
+  },
+  {
+    id: "agoda-hcm-cyclo",
+    matchTag: "hcm-spot-cyclo",
+    ota: "agoda",
+    title: "Ho Chi Minh Cyclo Tour",
+    priceKrw: 25000,
+    rating: 4.3,
+    reviewCount: 218,
+    url: "https://www.agoda.com/activities/ho-chi-minh/cyclo",
+  },
+
+  // ── 벤탄 푸드 워킹투어 ────────────────────────────────────────────
+  {
+    id: "klook-hcm-streetFood",
+    matchTag: "hcm-food-streetFood",
+    ota: "klook",
+    title: "벤탄시장 푸드 워킹투어 (한국어)",
+    priceKrw: 28000,
+    originalPriceKrw: 34000,
+    rating: 4.7,
+    reviewCount: 1420,
+    url: "https://www.klook.com/activity/4080-ben-thanh-food-tour",
+  },
+  {
+    id: "kkday-hcm-streetFood",
+    matchTag: "hcm-food-streetFood",
+    ota: "kkday",
+    title: "Ben Thanh Street Food Walking Tour",
+    priceKrw: 30000,
+    rating: 4.6,
+    reviewCount: 624,
+    url: "https://www.kkday.com/product/44006-ben-thanh-food",
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// 하노이 (HAN, VND) — 사이클 G-2
+// ═══════════════════════════════════════════════════════════════════
+
+export const hanoiOtaOffers: OtaOffer[] = [
+  // ── 하롱베이 데이투어 ─────────────────────────────────────────────
+  {
+    id: "klook-han-halong",
+    matchTag: "han-spot-halong",
+    ota: "klook",
+    title: "하롱베이 1일 크루즈 (한국어 가이드 + 카약)",
+    priceKrw: 55000,
+    originalPriceKrw: 68000,
+    rating: 4.6,
+    reviewCount: 4280,
+    url: "https://www.klook.com/activity/5050-halong-bay-day-cruise",
+  },
+  {
+    id: "kkday-han-halong",
+    matchTag: "han-spot-halong",
+    ota: "kkday",
+    title: "Ha Long Bay Day Cruise from Hanoi",
+    priceKrw: 58000,
+    rating: 4.5,
+    reviewCount: 1820,
+    url: "https://www.kkday.com/product/55001-halong-bay",
+  },
+  {
+    id: "agoda-han-halong",
+    matchTag: "han-spot-halong",
+    ota: "agoda",
+    title: "Halong Bay Full Day from Hanoi",
+    priceKrw: 60000,
+    rating: 4.4,
+    reviewCount: 924,
+    url: "https://www.agoda.com/activities/hanoi/halong-bay",
+  },
+
+  // ── 닌빈 짱안 + 호아루 데이투어 ─────────────────────────────────
+  {
+    id: "klook-han-ninhBinh",
+    matchTag: "han-spot-ninhBinh",
+    ota: "klook",
+    title: "닌빈 짱안 + 호아루 1일 투어 (한국어)",
+    priceKrw: 42000,
+    originalPriceKrw: 52000,
+    rating: 4.7,
+    reviewCount: 2240,
+    url: "https://www.klook.com/activity/5060-ninh-binh-tour",
+  },
+  {
+    id: "kkday-han-ninhBinh",
+    matchTag: "han-spot-ninhBinh",
+    ota: "kkday",
+    title: "Trang An Boat + Hoa Lu Ancient Capital",
+    priceKrw: 45000,
+    rating: 4.6,
+    reviewCount: 928,
+    url: "https://www.kkday.com/product/55002-ninh-binh",
+  },
+
+  // ── 호치민 영묘 + 문묘 시티투어 ─────────────────────────────────
+  {
+    id: "klook-han-cityTour",
+    matchTag: "han-spot-cityTour",
+    ota: "klook",
+    title: "하노이 시티투어 (영묘 + 문묘 + 한기둥 사원)",
+    priceKrw: 25000,
+    rating: 4.5,
+    reviewCount: 1180,
+    url: "https://www.klook.com/activity/5070-hanoi-city-tour",
+  },
+  {
+    id: "kkday-han-cityTour",
+    matchTag: "han-spot-cityTour",
+    ota: "kkday",
+    title: "Hanoi Half Day Old Quarter + Mausoleum",
+    priceKrw: 27000,
+    rating: 4.4,
+    reviewCount: 612,
+    url: "https://www.kkday.com/product/55003-hanoi-city",
+  },
+
+  // ── 구시가지 푸드 워킹투어 ────────────────────────────────────────
+  {
+    id: "klook-han-streetFoodTour",
+    matchTag: "han-food-streetFoodTour",
+    ota: "klook",
+    title: "하노이 구시가지 36거리 푸드투어 (한국어)",
+    priceKrw: 32000,
+    originalPriceKrw: 38000,
+    rating: 4.7,
+    reviewCount: 1620,
+    url: "https://www.klook.com/activity/5080-hanoi-street-food",
+  },
+  {
+    id: "kkday-han-streetFoodTour",
+    matchTag: "han-food-streetFoodTour",
+    ota: "kkday",
+    title: "Hanoi Old Quarter Street Food Walking Tour",
+    priceKrw: 34000,
+    rating: 4.6,
+    reviewCount: 728,
+    url: "https://www.kkday.com/product/55004-hanoi-food",
+  },
+
+  // ── 탕롱 수상인형극 ───────────────────────────────────────────────
+  {
+    id: "klook-han-waterPuppet",
+    matchTag: "han-spot-waterPuppet",
+    ota: "klook",
+    title: "탕롱 수상인형극 입장권",
+    priceKrw: 12000,
+    rating: 4.4,
+    reviewCount: 3420,
+    url: "https://www.klook.com/activity/5090-thang-long-water-puppet",
+  },
+  {
+    id: "kkday-han-waterPuppet",
+    matchTag: "han-spot-waterPuppet",
+    ota: "kkday",
+    title: "Thang Long Water Puppet Show Ticket",
+    priceKrw: 13000,
+    rating: 4.3,
+    reviewCount: 1240,
+    url: "https://www.kkday.com/product/55005-water-puppet",
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// 나트랑 (NHA / CXR, VND) — 사이클 G-4
+// ═══════════════════════════════════════════════════════════════════
+
+export const nhaTrangOtaOffers: OtaOffer[] = [
+  // ── 빈원더스 나트랑 ──────────────────────────────────────────────
+  {
+    id: "klook-nh-vinwonders",
+    matchTag: "nh-spot-vinwonders",
+    ota: "klook",
+    title: "빈원더스 나트랑 + 케이블카 통합권",
+    priceKrw: 65000,
+    originalPriceKrw: 78000,
+    rating: 4.7,
+    reviewCount: 4820,
+    url: "https://www.klook.com/activity/6010-vinwonders-nha-trang",
+  },
+  {
+    id: "kkday-nh-vinwonders",
+    matchTag: "nh-spot-vinwonders",
+    ota: "kkday",
+    title: "Vinwonders Nha Trang + Cable Car",
+    priceKrw: 68000,
+    rating: 4.6,
+    reviewCount: 1840,
+    url: "https://www.kkday.com/product/66001-vinwonders-nha-trang",
+  },
+  {
+    id: "agoda-nh-vinwonders",
+    matchTag: "nh-spot-vinwonders",
+    ota: "agoda",
+    title: "Vinpearl Land Day Pass",
+    priceKrw: 70000,
+    rating: 4.5,
+    reviewCount: 928,
+    url: "https://www.agoda.com/activities/nha-trang/vinwonders",
+  },
+
+  // ── 4섬 스노클링 데이투어 ─────────────────────────────────────────
+  {
+    id: "klook-nh-snorkeling",
+    matchTag: "nh-spot-snorkeling",
+    ota: "klook",
+    title: "혼문 4섬 스노클링 + 보트 디스코 (한국어)",
+    priceKrw: 28000,
+    originalPriceKrw: 35000,
+    rating: 4.5,
+    reviewCount: 2820,
+    url: "https://www.klook.com/activity/6020-4-island-snorkeling",
+  },
+  {
+    id: "kkday-nh-snorkeling",
+    matchTag: "nh-spot-snorkeling",
+    ota: "kkday",
+    title: "Nha Trang 4 Islands Day Tour",
+    priceKrw: 30000,
+    rating: 4.4,
+    reviewCount: 1240,
+    url: "https://www.kkday.com/product/66002-4-island-tour",
+  },
+  {
+    id: "agoda-nh-snorkeling",
+    matchTag: "nh-spot-snorkeling",
+    ota: "agoda",
+    title: "4 Islands Snorkeling Tour",
+    priceKrw: 32000,
+    rating: 4.3,
+    reviewCount: 624,
+    url: "https://www.agoda.com/activities/nha-trang/4-islands",
+  },
+
+  // ── Thap Ba 머드 스파 ────────────────────────────────────────────
+  {
+    id: "klook-nh-mudSpa",
+    matchTag: "nh-spot-mudSpa",
+    ota: "klook",
+    title: "Thap Ba 머드 스파 + 미네랄 풀 (개인탕)",
+    priceKrw: 18000,
+    rating: 4.5,
+    reviewCount: 3420,
+    url: "https://www.klook.com/activity/6030-thap-ba-mud-spa",
+  },
+  {
+    id: "kkday-nh-mudSpa",
+    matchTag: "nh-spot-mudSpa",
+    ota: "kkday",
+    title: "Thap Ba Hot Springs Mud Bath",
+    priceKrw: 19000,
+    rating: 4.4,
+    reviewCount: 1280,
+    url: "https://www.kkday.com/product/66003-thap-ba-spa",
+  },
+
+  // ── 야시장 시푸드 푸드투어 ────────────────────────────────────────
+  {
+    id: "klook-nh-streetFood",
+    matchTag: "nh-food-streetFood",
+    ota: "klook",
+    title: "나트랑 시푸드 야시장 푸드투어 (한국어)",
+    priceKrw: 32000,
+    originalPriceKrw: 38000,
+    rating: 4.6,
+    reviewCount: 1680,
+    url: "https://www.klook.com/activity/6040-nha-trang-food-tour",
+  },
+  {
+    id: "kkday-nh-streetFood",
+    matchTag: "nh-food-streetFood",
+    ota: "kkday",
+    title: "Nha Trang Seafood Night Market Tour",
+    priceKrw: 34000,
+    rating: 4.5,
+    reviewCount: 728,
+    url: "https://www.kkday.com/product/66004-nha-trang-food",
+  },
+
+  // ── 폰가나가르 + 스톤성당 시티투어 ───────────────────────────────
+  {
+    id: "klook-nh-cityTour",
+    matchTag: "nh-spot-cityTour",
+    ota: "klook",
+    title: "나트랑 시티투어 (폰가나가르 + 스톤성당)",
+    priceKrw: 22000,
+    rating: 4.5,
+    reviewCount: 1180,
+    url: "https://www.klook.com/activity/6050-nha-trang-city-tour",
+  },
+  {
+    id: "kkday-nh-cityTour",
+    matchTag: "nh-spot-cityTour",
+    ota: "kkday",
+    title: "Nha Trang Half Day City Tour",
+    priceKrw: 24000,
+    rating: 4.4,
+    reviewCount: 612,
+    url: "https://www.kkday.com/product/66005-city-tour",
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
 // 통합 풀 — 모든 도시 OTA Offer (호출처는 항상 이걸 통해 매칭)
 // ═══════════════════════════════════════════════════════════════════
 
@@ -509,6 +917,9 @@ export const allOtaOffers: OtaOffer[] = [
   ...daNangOtaOffers,
   ...bangkokOtaOffers,
   ...tokyoOtaOffers,
+  ...hoChiMinhOtaOffers,
+  ...hanoiOtaOffers,
+  ...nhaTrangOtaOffers,
 ];
 
 /**
@@ -534,23 +945,40 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
   const matched = new Set<string>();
 
   // ── 푸꾸옥 (사이클 12a)
-  if (lower.includes("케이블카") || lower.includes("cable car"))
-    matched.add("pq-spot-cablecar");
+  // 사이클 G-4: vinwonder/snorkel/야시장/케이블카는 나트랑과 충돌 → 도시 게이트 도입
   if (lower.includes("사오비치") || lower.includes("sao beach"))
     matched.add("pq-spot-saobeach");
-  if (lower.includes("야시장") || lower.includes("night market"))
-    matched.add("pq-food-night-market");
-  if (lower.includes("vinwonder") || lower.includes("빈원더"))
-    matched.add("pq-spot-vinwonders");
+  if (lower.includes("사파리") || lower.includes("safari"))
+    matched.add("pq-spot-safari");
+  // 도시 게이트가 필요한 키워드 — 도시 키워드 명시 시만
+  const isPhuQuocCtx =
+    lower.includes("푸꾸옥") || lower.includes("phu quoc");
+  const isNhaTrangCtx =
+    lower.includes("나트랑") ||
+    lower.includes("냐짱") ||
+    lower.includes("nha trang");
+  if (lower.includes("케이블카") || lower.includes("cable car")) {
+    if (isPhuQuocCtx) matched.add("pq-spot-cablecar");
+    // 나트랑 빈원더스 케이블카는 빈원더스 시드에 통합 (별도 시드 없음)
+  }
+  if (lower.includes("야시장") || lower.includes("night market")) {
+    if (isPhuQuocCtx) matched.add("pq-food-night-market");
+    if (isNhaTrangCtx) matched.add("nh-food-streetFood");
+    // 어느 쪽도 명시 안 된 모호한 입력은 매칭 X (오탐 방지)
+  }
+  if (lower.includes("vinwonder") || lower.includes("빈원더")) {
+    if (isPhuQuocCtx) matched.add("pq-spot-vinwonders");
+    if (isNhaTrangCtx) matched.add("nh-spot-vinwonders");
+  }
   if (
     lower.includes("스노클") ||
     lower.includes("snorkel") ||
     lower.includes("어드벤처")
   ) {
-    matched.add("pq-spot-snorkeling");
+    if (isPhuQuocCtx) matched.add("pq-spot-snorkeling");
+    if (isNhaTrangCtx) matched.add("nh-spot-snorkeling");
+    // "어드벤처" 단독은 맥락 부족 — 도시 키워드 필수
   }
-  if (lower.includes("사파리") || lower.includes("safari"))
-    matched.add("pq-spot-safari");
 
   // ── 다낭 (사이클 C + D)
   if (lower.includes("바나힐") || lower.includes("ba na"))
@@ -572,14 +1000,9 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
   }
 
   // ── 방콕 (사이클 C)
-  if (
-    lower.includes("차오프라야") ||
-    lower.includes("chao phraya") ||
-    lower.includes("디너 크루즈") ||
-    lower.includes("dinner cruise")
-  ) {
+  // 사이클 G-1: dinner cruise는 호치민과 키워드 충돌 → 도시 게이트 도입
+  if (lower.includes("차오프라야") || lower.includes("chao phraya"))
     matched.add("bk-food-dinnerCruise");
-  }
   if (lower.includes("아유타야") || lower.includes("ayutthaya"))
     matched.add("bk-spot-ayutthaya");
   if (
@@ -612,6 +1035,125 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
     lower.includes("hakone")
   ) {
     matched.add("ty-spot-fujiTour");
+  }
+
+  // ── 호치민 (사이클 G-1)
+  if (lower.includes("메콩") || lower.includes("mekong"))
+    matched.add("hcm-spot-mekong");
+  if (lower.includes("indochina queen") || lower.includes("사이공 강 디너"))
+    matched.add("hcm-food-dinnerCruise");
+  if (
+    lower.includes("통일궁") ||
+    lower.includes("전쟁 박물관") ||
+    lower.includes("전쟁박물관") ||
+    lower.includes("reunification") ||
+    lower.includes("war remnants")
+  ) {
+    matched.add("hcm-spot-warMuseum");
+  }
+  if (lower.includes("시클로") || lower.includes("cyclo"))
+    matched.add("hcm-spot-cyclo");
+  if (
+    lower.includes("벤탄") ||
+    lower.includes("ben thanh") ||
+    lower.includes("benthanh")
+  ) {
+    matched.add("hcm-food-streetFood");
+  }
+
+  // ── 일반 "디너 크루즈" + 도시 키워드 (방콕/호치민 공통 fallback)
+  if (lower.includes("디너 크루즈") || lower.includes("dinner cruise")) {
+    if (lower.includes("방콕") || lower.includes("bangkok"))
+      matched.add("bk-food-dinnerCruise");
+    if (
+      lower.includes("사이공") ||
+      lower.includes("호치민") ||
+      lower.includes("saigon")
+    ) {
+      matched.add("hcm-food-dinnerCruise");
+    }
+  }
+
+  // ── 나트랑 (사이클 G-4)
+  // vinwonder/snorkel/야시장은 위 푸꾸옥 블록에서 도시 게이트로 처리.
+  // 여기서는 나트랑 고유 키워드만.
+  if (
+    lower.includes("머드 스파") ||
+    lower.includes("머드스파") ||
+    lower.includes("thap ba") ||
+    lower.includes("mud spa") ||
+    lower.includes("mud bath")
+  ) {
+    matched.add("nh-spot-mudSpa");
+  }
+  if (
+    lower.includes("폰가나가르") ||
+    lower.includes("ponagar") ||
+    lower.includes("스톤 카테드랄") ||
+    lower.includes("스톤 성당") ||
+    lower.includes("스톤성당")
+  ) {
+    matched.add("nh-spot-cityTour");
+  }
+  if (
+    lower.includes("4섬") ||
+    lower.includes("4 island") ||
+    lower.includes("four island") ||
+    lower.includes("혼문") ||
+    lower.includes("hon mun")
+  ) {
+    matched.add("nh-spot-snorkeling");
+  }
+  if (
+    lower.includes("시푸드 야시장") ||
+    lower.includes("seafood night market") ||
+    lower.includes("cho dem")
+  ) {
+    matched.add("nh-food-streetFood");
+  }
+
+  // ── 하노이 (사이클 G-2)
+  if (
+    lower.includes("하롱") ||
+    lower.includes("ha long") ||
+    lower.includes("halong")
+  ) {
+    matched.add("han-spot-halong");
+  }
+  if (
+    lower.includes("닌빈") ||
+    lower.includes("짱안") ||
+    lower.includes("호아루") ||
+    lower.includes("ninh binh") ||
+    lower.includes("trang an") ||
+    lower.includes("hoa lu")
+  ) {
+    matched.add("han-spot-ninhBinh");
+  }
+  if (
+    lower.includes("호치민 영묘") ||
+    lower.includes("문묘") ||
+    lower.includes("한기둥") ||
+    lower.includes("ho chi minh mausoleum") ||
+    lower.includes("temple of literature")
+  ) {
+    matched.add("han-spot-cityTour");
+  }
+  // "구시가지" 단독은 호텔/체크인 등에 오탐 → "36거리" 또는 "old quarter" 또는 "푸드 워킹"
+  if (
+    lower.includes("36거리") ||
+    lower.includes("old quarter") ||
+    lower.includes("푸드 워킹")
+  ) {
+    matched.add("han-food-streetFoodTour");
+  }
+  if (
+    lower.includes("수상인형") ||
+    lower.includes("탕롱") ||
+    lower.includes("water puppet") ||
+    lower.includes("thang long")
+  ) {
+    matched.add("han-spot-waterPuppet");
   }
 
   return allOtaOffers.filter((o) => matched.has(o.matchTag));

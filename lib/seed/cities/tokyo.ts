@@ -1,6 +1,9 @@
 /**
  * 도쿄(Tokyo, 일본) City 시드 — 사이클 D.
  * 한국인이 가장 많이 가는 일본 도시.
+ *
+ * 사이클 H (ADR-032): country 정규화 적용. 도시 차별화 항목만 유지.
+ * 사이클 F (V3) 정책으로 사용자 노출은 차단(/city/[slug]에서 ComingSoonCity).
  */
 
 import type { City } from "../../types";
@@ -21,36 +24,14 @@ export const tokyoCity: City = {
       category: "embassy",
     },
     {
-      label: "일본 경찰",
-      phone: "110",
-      notes: "영어 일부 가능. 외국인 상담은 #9110",
-      category: "police",
-    },
-    {
-      label: "일본 응급 (구급차)",
-      phone: "119",
-      notes: "구급+소방 통합. 한국어 통역 연결 요청",
+      label: "추천 병원 — St. Luke's International / Tokyo Medical",
+      phone: "+81 3 3541 5151",
+      notes: "St. Luke's는 영어 가능. 한국어는 통역 서비스 호출",
       category: "ambulance",
-    },
-    {
-      label: "한국어 통역 (영사 콜센터)",
-      phone: "+82 2 3210 0404",
-      hours: "24시간",
-      notes: "외교부 무료. 통신비만 부담",
-      category: "translator",
-    },
-    {
-      label: "신용카드 분실 (한국 카드사)",
-      phone: "+82 2 1577 0000",
-      notes: "24시간",
-      category: "card_lost",
     },
   ],
 
   payment: {
-    currency: "JPY",
-    currencySymbol: "¥",
-    approxKrwRate: 0.11, // 1 KRW ≈ 0.11 JPY (1 JPY ≈ 9원)
     cardAcceptance: "high",
     cardNotes:
       "편의점·체인 식당·교통 IC 카드 모두 OK. 작은 식당·재래시장은 현금. 7-Eleven ATM은 한국 카드 인출 가능",
@@ -71,50 +52,7 @@ export const tokyoCity: City = {
     walkability: "high",
   },
 
-  phrases: [
-    {
-      situation: "greeting",
-      korean: "안녕하세요",
-      local: "こんにちは",
-      pronunciation: "콘니치와",
-    },
-    {
-      situation: "thanks",
-      korean: "감사합니다",
-      local: "ありがとうございます",
-      pronunciation: "아리가또 고자이마스",
-    },
-    {
-      situation: "checkout",
-      korean: "계산할게요",
-      local: "お会計お願いします",
-      pronunciation: "오카이케 오네가이시마스",
-    },
-    {
-      situation: "price",
-      korean: "얼마예요?",
-      local: "いくらですか",
-      pronunciation: "이쿠라데스카",
-    },
-    {
-      situation: "help",
-      korean: "도와주세요",
-      local: "助けてください",
-      pronunciation: "타스케테 쿠다사이",
-    },
-    {
-      situation: "slow",
-      korean: "천천히 말씀해 주세요",
-      local: "ゆっくり話してください",
-      pronunciation: "윳쿠리 하나시테 쿠다사이",
-    },
-    {
-      situation: "vegetarian",
-      korean: "고기·생선 빼주세요",
-      local: "肉と魚を抜いてください",
-      pronunciation: "니쿠토 사카나오 누이테 쿠다사이",
-    },
-  ],
+  // phrases·utilities·visa는 country로 정규화
 
   curatedGuides: [
     {
@@ -145,18 +83,6 @@ export const tokyoCity: City = {
       ],
     },
   ],
-
-  utilities: {
-    voltage: "100V",
-    plugType: "A",
-    simAvailable: true,
-  },
-
-  visa: {
-    visaFreeDays: 90,
-    eVisaRequired: false,
-    notes: "한국 여권 무비자 90일 (2026년 기준)",
-  },
 
   weather: {
     season: "봄 (3~5월, 벚꽃) · 여름 (6~8월, 습) · 가을 (9~11월, 베스트) · 겨울 (12~2월, 건조)",

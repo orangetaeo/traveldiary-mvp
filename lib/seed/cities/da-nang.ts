@@ -1,8 +1,8 @@
 /**
  * 다낭(Đà Nẵng) City 시드 — 사이클 8.5 (M5 보강).
  *
- * 한국인이 가장 많이 가는 베트남 도시 중 하나. 호이안·후에 인근.
- * 푸꾸옥 시드 패턴 답습. MVP 필드 + visa/utilities/weather 채움.
+ * 사이클 H (ADR-032): country 단위 데이터를 lib/constants/countries.ts로 정규화.
+ * 도시 차별화 항목만 유지 (영사관·추천 병원·환율 메모·교통·기후·큐레이션).
  */
 
 import type { City } from "../../types";
@@ -14,7 +14,7 @@ export const daNangCity: City = {
   country: "베트남",
   countryCode: "VN",
 
-  // ── 응급 연락처 ────────────────────────────────────────────────────
+  // ── 응급 연락처 (도시 차별화만) ────────────────────────────────────
   emergencyContacts: [
     {
       label: "주 다낭 대한민국 총영사관",
@@ -24,37 +24,15 @@ export const daNangCity: City = {
       category: "embassy",
     },
     {
-      label: "베트남 경찰",
-      phone: "113",
-      notes: "영어 제한적",
-      category: "police",
-    },
-    {
-      label: "베트남 응급 의료",
-      phone: "115",
-      notes: "Vinmec 다낭, Family Hospital 추천",
+      label: "추천 병원 — Vinmec 다낭 / Family Hospital",
+      phone: "+84 236 3711 111",
+      notes: "한국어 가능 의료진. Vinmec 24시간 응급실",
       category: "ambulance",
-    },
-    {
-      label: "한국어 통역 서비스 (영사 콜센터)",
-      phone: "+82 2 3210 0404",
-      hours: "24시간",
-      notes: "외교부 무료. 통신비만 부담",
-      category: "translator",
-    },
-    {
-      label: "신용카드 분실 (KB·신한·삼성·현대)",
-      phone: "+82 2 1577 0000",
-      notes: "한국 카드사 통합 콜센터. 24시간",
-      category: "card_lost",
     },
   ],
 
-  // ── 결제 ─────────────────────────────────────────────────────────────
+  // ── 결제 (도시 차별화) ──────────────────────────────────────────────
   payment: {
-    currency: "VND",
-    currencySymbol: "₫",
-    approxKrwRate: 18,
     cardAcceptance: "medium",
     cardNotes:
       "리조트·대형 식당·쇼핑몰은 카드 OK. 야시장·로컬 식당·그랩은 현금 필수.",
@@ -76,51 +54,14 @@ export const daNangCity: City = {
     walkability: "medium",
   },
 
-  // ── 상황별 한마디 ────────────────────────────────────────────────────
-  phrases: [
-    {
-      situation: "greeting",
-      korean: "안녕하세요",
-      local: "Xin chào",
-      pronunciation: "신짜오",
-    },
-    {
-      situation: "thanks",
-      korean: "감사합니다",
-      local: "Cảm ơn",
-      pronunciation: "깜언",
-    },
-    {
-      situation: "checkout",
-      korean: "계산할게요",
-      local: "Tính tiền",
-      pronunciation: "띤 띠엔",
-    },
-    {
-      situation: "price",
-      korean: "얼마예요?",
-      local: "Bao nhiêu tiền?",
-      pronunciation: "바오 니에우 띠엔",
-    },
-    {
-      situation: "help",
-      korean: "도와주세요",
-      local: "Giúp tôi với",
-      pronunciation: "지웁 또이 버이",
-    },
-    {
-      situation: "slow",
-      korean: "천천히 말씀해 주세요",
-      local: "Xin nói chậm",
-      pronunciation: "신 노이 짬",
-    },
-    {
-      situation: "spicy",
-      korean: "맵지 않게 해주세요",
-      local: "Không cay",
-      pronunciation: "콩 까이",
-    },
-  ],
+  // phrases·utilities·visa는 country로 정규화 (resolveCity merge)
+
+  // ── 도시별 기후 ──────────────────────────────────────────────────────
+  weather: {
+    season: "건기 (1~7월) · 우기 (8~12월)",
+    avgTempC: { min: 22, max: 33 },
+    notes: "9~11월 태풍 가능. 4~5월이 베스트 시즌",
+  },
 
   // ── 시그니처 가이드 ──────────────────────────────────────────────────
   curatedGuides: [
@@ -147,23 +88,4 @@ export const daNangCity: City = {
       ],
     },
   ],
-
-  // ── 후속 필드 (사이클 8.5 신규 채움) ────────────────────────────────
-  utilities: {
-    voltage: "220V",
-    plugType: "A/C/G",
-    simAvailable: true,
-  },
-
-  visa: {
-    visaFreeDays: 45,
-    eVisaRequired: false,
-    notes: "한국 여권 무비자 45일 (2026년 기준)",
-  },
-
-  weather: {
-    season: "건기 (1~7월) · 우기 (8~12월)",
-    avgTempC: { min: 22, max: 33 },
-    notes: "9~11월 태풍 가능. 4~5월이 베스트 시즌",
-  },
 };

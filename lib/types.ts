@@ -289,10 +289,11 @@ export interface EmergencyContact {
 }
 
 export interface PaymentInfo {
-  currency: string;    // "VND"
-  currencySymbol: string; // "₫"
+  /** 사이클 H (ADR-032): currency/symbol/approxKrwRate는 country로 정규화 → optional. resolveCity()가 country.paymentDefaults에서 채움 */
+  currency?: string;    // "VND"
+  currencySymbol?: string; // "₫"
   /** 1 KRW 당 현지 통화 양 (대략) */
-  approxKrwRate: number;   // 1 KRW ≈ 18 VND
+  approxKrwRate?: number;   // 1 KRW ≈ 18 VND
   cardAcceptance: "high" | "medium" | "low";
   cardNotes?: string;  // "관광지 외엔 현금 위주"
   atmAvailable: boolean;
@@ -332,9 +333,10 @@ export interface City {
   emergencyContacts: EmergencyContact[];
   payment: PaymentInfo;
   transport: TransportInfo;
-  phrases: SituationalPhrase[];
+  /** 사이클 H (ADR-032): country로 정규화 → optional. resolveCity()가 country.defaultPhrases에서 채움 */
+  phrases?: SituationalPhrase[];
   curatedGuides: CuratedGuide[];
-  /** v2 §4 후속 필드 (사이클 8.5+에서 채움) — 옵션 */
+  /** v2 §4 후속 필드. 사이클 H 이후 utilities/visa는 country로 fallback (시드에서 생략 가능) */
   utilities?: {
     voltage: string;           // "220V"
     plugType: string;          // "C/F/I"
@@ -350,4 +352,46 @@ export interface City {
     avgTempC?: { min: number; max: number };
     notes?: string;
   };
+}
+
+/**
+ * 사이클 H (ADR-032): resolveCity()가 반환하는 merge 결과.
+ * country 정규화로 비워둔 city 필드가 country에서 채워진 상태.
+ * 화면(/city/[slug]/page.tsx)은 항상 이 타입으로 받음 — narrowing 부담 없음.
+ */
+export interface ResolvedCity extends Omit<City, "payment" | "phrases"> {
+  payment: PaymentInfo & {
+    currency: string;
+    currencySymbol: string;
+    approxKrwRate: number;
+  };
+  phrases: SituationalPhrase[];
+}
+
+// ═══════════════════════════════════════════════════════════
+// COUNTRY (사이클 H — ADR-032)
+// ═══════════════════════════════════════════════════════════
+
+export interface Country {
+  code: string;                              // "VN"
+  name: string;                              // "베트남"
+  defaultPhrases: SituationalPhrase[];       // 베트남어 7개 (도시 공통)
+  paymentDefaults: {
+    currency: string;
+    currencySymbol: string;
+    /** 1 KRW 당 현지 통화 양 */
+    approxKrwRate: number;
+  };
+  utilities: {
+    voltage: string;
+    plugType: string;
+    simAvailable: boolean;
+  };
+  visa: {
+    visaFreeDays?: number;
+    eVisaRequired: boolean;
+    notes?: string;
+  };
+  /** 국가 단위 응급 (예: 베트남 경찰 113, 응급 115) — 도시별 영사관과 별개 */
+  countryEmergencyContacts: EmergencyContact[];
 }

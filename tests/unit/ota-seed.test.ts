@@ -11,6 +11,9 @@ import {
   daNangOtaOffers,
   bangkokOtaOffers,
   tokyoOtaOffers,
+  hoChiMinhOtaOffers,
+  hanoiOtaOffers,
+  nhaTrangOtaOffers,
   allOtaOffers,
   findOffersForItem,
   findOffersByKeyword,
@@ -169,7 +172,8 @@ describe("findOffersByKeyword — 다국가 fuzzy 매칭", () => {
   });
 
   it("푸꾸옥 + 다낭 키워드 동시 → 양쪽 다 매칭 (회귀 안전)", () => {
-    const offers = findOffersByKeyword("케이블카 바나힐");
+    // 사이클 G-4: 케이블카는 도시 게이트 도입 → 푸꾸옥 ctx 명시 필요
+    const offers = findOffersByKeyword("푸꾸옥 케이블카 바나힐");
     const cities = new Set(
       offers.map((o) => o.matchTag.split("-")[0]),
     );
@@ -183,16 +187,40 @@ describe("findOffersByKeyword — 다국가 fuzzy 매칭", () => {
 // ═══════════════════════════════════════════════════════════════════
 
 describe("allOtaOffers 통합 풀", () => {
-  it("푸꾸옥 + 다낭 + 방콕 + 도쿄 = 누적 합", () => {
+  it("모든 도시 합산 = allOtaOffers.length", () => {
     expect(allOtaOffers.length).toBe(
       phuQuocOtaOffers.length +
         daNangOtaOffers.length +
         bangkokOtaOffers.length +
-        tokyoOtaOffers.length,
+        tokyoOtaOffers.length +
+        hoChiMinhOtaOffers.length +
+        hanoiOtaOffers.length +
+        nhaTrangOtaOffers.length,
     );
   });
 
   it("사이클 C+D 후 신규 시드 = 27건 (다낭 15 + 방콕 6 + 도쿄 6)", () => {
     expect(daNangOtaOffers.length + bangkokOtaOffers.length + tokyoOtaOffers.length).toBe(27);
+  });
+
+  it("호치민 모든 행 matchTag prefix='hcm-' (사이클 G-1)", () => {
+    expect(hoChiMinhOtaOffers.length).toBe(12);
+    for (const offer of hoChiMinhOtaOffers) {
+      expect(offer.matchTag.startsWith("hcm-")).toBe(true);
+    }
+  });
+
+  it("하노이 모든 행 matchTag prefix='han-' (사이클 G-2)", () => {
+    expect(hanoiOtaOffers.length).toBe(11);
+    for (const offer of hanoiOtaOffers) {
+      expect(offer.matchTag.startsWith("han-")).toBe(true);
+    }
+  });
+
+  it("나트랑 모든 행 matchTag prefix='nh-' (사이클 G-4)", () => {
+    expect(nhaTrangOtaOffers.length).toBe(12);
+    for (const offer of nhaTrangOtaOffers) {
+      expect(offer.matchTag.startsWith("nh-")).toBe(true);
+    }
   });
 });

@@ -7,7 +7,7 @@ import { CostView } from "@/components/cost/CostView";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 import { listCostByTrip } from "@/lib/repositories/cost.repository";
 import { getDemoTrip, DEMO_TRIP_ID } from "@/lib/seed";
-import { getCityByCode } from "@/lib/seed/cities";
+import { resolveCityByCode } from "@/lib/seed/cities";
 
 export default async function CostPage({
   params,
@@ -23,7 +23,8 @@ export default async function CostPage({
       ? []
       : (await listCostByTrip(params.tripId)) ?? [];
 
-  const city = getCityByCode(trip.destinationCode);
+  // 사이클 H (ADR-032): resolveCityByCode로 country 정규화 데이터 merge → fallback 불필요
+  const city = resolveCityByCode(trip.destinationCode);
 
   return (
     <CostView

@@ -1,0 +1,254 @@
+/**
+ * 나트랑 시드 단위 테스트 — 사이클 G-4 (V1).
+ *
+ * feedback_city_seed_pattern 답습 + 푸꾸옥과 키워드 충돌 회귀 (vinwonder·snorkel·야시장·케이블카).
+ * - 12 일정 / 3박 4일
+ * - OTA 매칭 5건 — verified 100%
+ * - 도시 게이트 키워드 분기 (도시 ctx 명시 시만 hit)
+ */
+
+import { describe, it, expect } from "vitest";
+import {
+  nhaTrangTrip,
+  nhaTrangItinerary,
+  NHA_TRANG_TRIP_ID,
+} from "@/lib/seed/nha-trang";
+import { findOffersForItem, findOffersByKeyword } from "@/lib/seed/ota-offers";
+import { comparePriceVerification, toKrw } from "@/lib/services/price-verification";
+import { getDemoTrip, listDemoTrips } from "@/lib/seed";
+
+// ═══════════════════════════════════════════════════════════════════
+// 무결성
+// ═══════════════════════════════════════════════════════════════════
+
+describe("nhaTrang 시드 — 무결성", () => {
+  it("trip 메타 — NHA 베트남, 3박, draft", () => {
+    expect(nhaTrangTrip.destinationCode).toBe("NHA");
+    expect(nhaTrangTrip.nights).toBe(3);
+    expect(nhaTrangTrip.status).toBe("draft");
+    expect(nhaTrangTrip.id).toBe(NHA_TRANG_TRIP_ID);
+    expect(nhaTrangTrip.destination).toBe("나트랑");
+  });
+
+  it("itinerary 12 일정 (Day 0~3)", () => {
+    expect(nhaTrangItinerary.length).toBe(12);
+    const days = new Set(nhaTrangItinerary.map((it) => it.dayIndex));
+    expect(days).toEqual(new Set([0, 1, 2, 3]));
+  });
+
+  it("모든 일정의 tripId = NHA_TRANG_TRIP_ID", () => {
+    for (const it of nhaTrangItinerary) {
+      expect(it.tripId).toBe(NHA_TRANG_TRIP_ID);
+    }
+  });
+
+  it("같은 day 안에서 scheduledAt 오름차순", () => {
+    for (let dayIdx = 0; dayIdx <= 3; dayIdx++) {
+      const dayItems = nhaTrangItinerary
+        .filter((it) => it.dayIndex === dayIdx)
+        .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
+      const original = nhaTrangItinerary.filter((it) => it.dayIndex === dayIdx);
+      expect(original.map((it) => it.id)).toEqual(dayItems.map((it) => it.id));
+    }
+  });
+
+  it("좌표 모두 (0,0) 아님", () => {
+    for (const it of nhaTrangItinerary) {
+      expect(it.location.lat !== 0 || it.location.lng !== 0).toBe(true);
+    }
+  });
+
+  it("DAG dependencies — day 경계 무의존성", () => {
+    expect(nhaTrangItinerary[0].dependencies).toEqual([]);
+    expect(nhaTrangItinerary[1].dependencies).toEqual(["nh-item-0"]);
+    expect(nhaTrangItinerary[3].dependencies).toEqual([]); // Day 1 첫번째
+    expect(nhaTrangItinerary[6].dependencies).toEqual([]); // Day 2 첫번째
+    expect(nhaTrangItinerary[8].dependencies).toEqual([]); // Day 3 첫번째
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 데모 trip 진입 — 회귀
+// ═══════════════════════════════════════════════════════════════════
+
+describe("나트랑 데모 trip — getDemoTrip 진입", () => {
+  it("getDemoTrip(NHA_TRANG_TRIP_ID) → 12 일정 번들", () => {
+    const bundle = getDemoTrip(NHA_TRANG_TRIP_ID);
+    expect(bundle).not.toBeNull();
+    expect(bundle?.trip.destinationCode).toBe("NHA");
+    expect(bundle?.items.length).toBe(12);
+  });
+
+  it("listDemoTrips → 베트남 도시 trip 모두 노출 (G-4 후 5개)", () => {
+    const trips = listDemoTrips();
+    expect(trips.length).toBeGreaterThanOrEqual(5);
+    const codes = trips.map((b) => b.trip.destinationCode);
+    expect(codes).toContain("PQC");
+    expect(codes).toContain("DAD");
+    expect(codes).toContain("SGN");
+    expect(codes).toContain("HAN");
+    expect(codes).toContain("NHA");
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 도달률 측정
+// ═══════════════════════════════════════════════════════════════════
+
+function getOffersForItem(item: { id: string; name: string }) {
+  const exact = findOffersForItem(item.id);
+  if (exact.length > 0) return exact;
+  return findOffersByKeyword(item.name);
+}
+
+describe("나트랑 도달률 — OTA 매칭 + verified", () => {
+  // OTA 매칭 가능 일정 5건 (plan 순서)
+  // nh-item-2: streetFood / 3: cityTour / 5: vinwonders / 6: snorkeling / 9: mudSpa
+  const expectedItemIds = [
+    "nh-item-2",
+    "nh-item-3",
+    "nh-item-5",
+    "nh-item-6",
+    "nh-item-9",
+  ];
+
+  it("OTA 매칭 가능 일정 = 5건", () => {
+    const matched = nhaTrangItinerary.filter(
+      (it) => getOffersForItem(it).length > 0,
+    );
+    expect(matched.length).toBe(5);
+    expect(new Set(matched.map((it) => it.id))).toEqual(new Set(expectedItemIds));
+  });
+
+  it("나트랑 12 일정 분모 도달률 ≈ 41.7% (5/12)", () => {
+    const matched = nhaTrangItinerary.filter(
+      (it) => getOffersForItem(it).length > 0,
+    );
+    expect(matched.length / nhaTrangItinerary.length).toBeCloseTo(5 / 12, 3);
+  });
+
+  it.each(
+    expectedItemIds.map((id) => ({ id })),
+  )("$id — comparePriceVerification → verified", ({ id }) => {
+    const item = nhaTrangItinerary.find((it) => it.id === id);
+    expect(item).toBeDefined();
+    if (!item) return;
+
+    const offers = getOffersForItem(item);
+    expect(offers.length).toBeGreaterThanOrEqual(2);
+
+    const krw = item.estimatedPrice
+      ? toKrw(item.estimatedPrice.amount, item.estimatedPrice.currency)
+      : undefined;
+    expect(krw).not.toBeNull();
+
+    const result = comparePriceVerification({
+      estimatedPriceKrw: krw ?? undefined,
+      offers,
+    });
+    expect(result.status).toBe("verified");
+    expect(result.verified).toBe(true);
+    expect(Math.abs(result.deltaPct ?? 0)).toBeLessThanOrEqual(20);
+  });
+
+  it("검증 가능 일정 분모 도달률 = 100% (5/5)", () => {
+    const verifiedCount = expectedItemIds
+      .map((id) => {
+        const item = nhaTrangItinerary.find((it) => it.id === id);
+        if (!item) return false;
+        const offers = getOffersForItem(item);
+        const krw = item.estimatedPrice
+          ? toKrw(item.estimatedPrice.amount, item.estimatedPrice.currency)
+          : undefined;
+        const result = comparePriceVerification({
+          estimatedPriceKrw: krw ?? undefined,
+          offers,
+        });
+        return result.status === "verified";
+      })
+      .filter(Boolean).length;
+    expect(verifiedCount).toBe(5);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 도시 게이트 키워드 분기 회귀 — 푸꾸옥 vs 나트랑
+// ═══════════════════════════════════════════════════════════════════
+
+describe("나트랑 ↔ 푸꾸옥 키워드 충돌 회피", () => {
+  it("'빈원더 나트랑' → 나트랑만 (푸꾸옥 X)", () => {
+    const offers = findOffersByKeyword("빈원더 나트랑 케이블카");
+    expect(offers.some((o) => o.matchTag === "nh-spot-vinwonders")).toBe(true);
+    expect(offers.some((o) => o.matchTag === "pq-spot-vinwonders")).toBe(false);
+  });
+
+  it("'빈원더 푸꾸옥' → 푸꾸옥만 (나트랑 X)", () => {
+    const offers = findOffersByKeyword("푸꾸옥 빈원더스 입장권");
+    expect(offers.some((o) => o.matchTag === "pq-spot-vinwonders")).toBe(true);
+    expect(offers.some((o) => o.matchTag === "nh-spot-vinwonders")).toBe(false);
+  });
+
+  it("'빈원더' 단독(도시 ctx 없음) → 매칭 X (모호한 입력 회피)", () => {
+    const offers = findOffersByKeyword("빈원더 입장권");
+    expect(offers.some((o) => o.matchTag === "pq-spot-vinwonders")).toBe(false);
+    expect(offers.some((o) => o.matchTag === "nh-spot-vinwonders")).toBe(false);
+  });
+
+  it("'스노클링 나트랑' → 나트랑만", () => {
+    const offers = findOffersByKeyword("나트랑 스노클링 데이투어");
+    expect(offers.some((o) => o.matchTag === "nh-spot-snorkeling")).toBe(true);
+    expect(offers.some((o) => o.matchTag === "pq-spot-snorkeling")).toBe(false);
+  });
+
+  it("'스노클링 푸꾸옥' → 푸꾸옥만", () => {
+    const offers = findOffersByKeyword("푸꾸옥 스노클링");
+    expect(offers.some((o) => o.matchTag === "pq-spot-snorkeling")).toBe(true);
+    expect(offers.some((o) => o.matchTag === "nh-spot-snorkeling")).toBe(false);
+  });
+
+  it("'야시장 나트랑' → 나트랑만 (시푸드 야시장 푸드투어 매칭)", () => {
+    const offers = findOffersByKeyword("나트랑 야시장 시푸드");
+    expect(offers.some((o) => o.matchTag === "nh-food-streetFood")).toBe(true);
+    expect(offers.some((o) => o.matchTag === "pq-food-night-market")).toBe(false);
+  });
+
+  it("'케이블카 나트랑' → 나트랑 빈원더스 케이블카는 별도 OTA 시드 없음(빈원더 통합) → pq 매칭 X", () => {
+    const offers = findOffersByKeyword("나트랑 케이블카");
+    expect(offers.some((o) => o.matchTag === "pq-spot-cablecar")).toBe(false);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// 나트랑 고유 키워드 (충돌 없음)
+// ═══════════════════════════════════════════════════════════════════
+
+describe("나트랑 고유 키워드 매칭", () => {
+  it("'머드스파' / 'Thap Ba' → nh-spot-mudSpa", () => {
+    expect(
+      findOffersByKeyword("Thap Ba 머드 스파").some(
+        (o) => o.matchTag === "nh-spot-mudSpa",
+      ),
+    ).toBe(true);
+  });
+
+  it("'폰가나가르' / '스톤성당' → nh-spot-cityTour", () => {
+    expect(
+      findOffersByKeyword("폰가나가르 참 타워").some(
+        (o) => o.matchTag === "nh-spot-cityTour",
+      ),
+    ).toBe(true);
+    expect(
+      findOffersByKeyword("스톤 성당 시티투어").some(
+        (o) => o.matchTag === "nh-spot-cityTour",
+      ),
+    ).toBe(true);
+  });
+
+  it("'4섬' / '혼문' → nh-spot-snorkeling (도시 ctx 없어도 OK)", () => {
+    expect(
+      findOffersByKeyword("혼문 4섬 보트 투어").some(
+        (o) => o.matchTag === "nh-spot-snorkeling",
+      ),
+    ).toBe(true);
+  });
+});
