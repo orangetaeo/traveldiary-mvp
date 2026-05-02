@@ -20,6 +20,8 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
   const [demo, setDemo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  // 사이클 11c — permission 토글 (view 기본 / edit는 OAuth 전제)
+  const [permission, setPermission] = useState<"view" | "edit">("view");
 
   useEffect(() => {
     if (!open) return;
@@ -39,10 +41,14 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
     };
   }, [open, onClose]);
 
-  useEffect(() => {
-    if (!open || shareUrl) return;
+  function regenerate(perm: "view" | "edit") {
+    setShareUrl(null);
+    setDemo(false);
+    setError(null);
+    setCopied(false);
+    setPermission(perm);
     startTransition(async () => {
-      const result = await createShareLinkAction({ tripId });
+      const result = await createShareLinkAction({ tripId, permission: perm });
       if (!result.ok) {
         setError(`링크 생성 실패: ${result.code}`);
         return;
@@ -53,6 +59,11 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
       setShareUrl(`${origin}/share/${key}`);
       setDemo(result.demo);
     });
+  }
+
+  useEffect(() => {
+    if (!open || shareUrl) return;
+    regenerate(permission);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -107,6 +118,36 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
         </header>
 
         <div className="px-td-md pb-td-md space-y-td-sm">
+          {/* 11c: permission 토글 */}
+          <div className="flex gap-td-xs" role="radiogroup" aria-label="권한">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={permission === "view" ? "true" : "false"}
+              onClick={() => permission !== "view" && regenerate("view")}
+              className={`flex-1 px-td-sm py-2 rounded-lg text-td-meta font-semibold border transition-colors ${
+                permission === "view"
+                  ? "bg-purple-soft border-purple text-purple-deep"
+                  : "border-divider text-ink-soft hover:border-purple/40"
+              }`}
+            >
+              보기 전용
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={permission === "edit" ? "true" : "false"}
+              onClick={() => permission !== "edit" && regenerate("edit")}
+              className={`flex-1 px-td-sm py-2 rounded-lg text-td-meta font-semibold border transition-colors ${
+                permission === "edit"
+                  ? "bg-amber-soft border-amber text-amber-deep"
+                  : "border-divider text-ink-soft hover:border-amber/40"
+              }`}
+            >
+              편집 가능
+            </button>
+          </div>
+
           {isPending && !shareUrl && (
             <div className="text-td-body text-ink-soft text-center py-td-lg">
               링크 생성 중…

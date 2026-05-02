@@ -18,6 +18,8 @@ import type { ShareLink } from "@/lib/types";
 export interface CreateShareLinkInput {
   tripId: string;
   expiresInDays?: number; // 기본 30
+  /** 사이클 11c — view (기본) 또는 edit (편집 가능) */
+  permission?: "view" | "edit";
 }
 
 export type CreateShareLinkResult =
@@ -48,7 +50,7 @@ export async function createShareLinkAction(
   const link = await createShareLinkRow({
     tripId: input.tripId,
     syncKey,
-    permission: "view",
+    permission: input.permission ?? "view",
     expiresAt,
     createdBy: await getActorId(),
   });

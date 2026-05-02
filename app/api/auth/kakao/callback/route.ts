@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
   const user = await upsertKakaoUser({
     kakaoId: exchange.user.kakaoId,
     nickname: exchange.user.nickname,
+    email: exchange.user.email, // 11c: 동의 시
   });
   if (!user) return makeRedirectError("user_upsert_failed");
 

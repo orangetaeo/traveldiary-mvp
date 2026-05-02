@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Badge } from "@/components/ui/Badge";
 import {
   ALLERGEN_CHIPS,
@@ -219,6 +219,34 @@ function ResultsView({
   onRetake: () => void;
 }) {
   const [excludes, setExcludes] = useState<string[]>([]);
+  // 사이클 5b-5.5: sessionStorage 실 결과 우선, 없으면 정적 시드
+  const [liveItems, setLiveItems] = useState<MenuItem[] | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("td-menu-translation");
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Array<{
+        vn: string;
+        ko: string;
+        allergens: string[];
+      }>;
+      if (!Array.isArray(parsed) || parsed.length === 0) return;
+      const items: MenuItem[] = parsed.map((t, i) => ({
+        id: `live-${i}`,
+        original: t.vn,
+        phonetic: "",
+        translated: t.ko,
+        price: { vnd: 0, krw: 0 },
+        koreanPopularity: 0,
+        ingredients: [],
+        allergens: t.allergens as MenuItem["allergens"],
+      }));
+      setLiveItems(items);
+    } catch {
+      // ignore
+    }
+  }, []);
 
   function toggle(raw: string) {
     setExcludes((prev) =>
@@ -226,8 +254,15 @@ function ResultsView({
     );
   }
 
+  function handleRetake() {
+    sessionStorage.removeItem("td-menu-translation");
+    onRetake();
+  }
+
+  const sourceMenu = liveItems ?? phuQuocMenu;
+
   const annotated = useMemo(() => {
-    const list = phuQuocMenu.map((item) => {
+    const list = sourceMenu.map((item) => {
       const haystack = [
         item.original,
         item.translated,
@@ -242,7 +277,7 @@ function ResultsView({
         (b.item.koreanPopularity ?? 0) - (a.item.koreanPopularity ?? 0)
     );
     return list;
-  }, [excludes]);
+  }, [excludes, sourceMenu]);
 
   const dangerCount = annotated.filter((a) =>
     a.matches.some((m) => m.severity === "critical")
@@ -266,7 +301,7 @@ function ResultsView({
         </div>
         <button
           type="button"
-          onClick={onRetake}
+          onClick={handleRetake}
           aria-label="다시 촬영"
           className="p-2 rounded-full hover:bg-surface-soft"
         >
@@ -297,9 +332,12 @@ function ResultsView({
           {/* Header */}
           <div className="flex items-center justify-between mb-td-sm">
             <div>
-              <h2 className="text-td-card-title text-ink">번역된 메뉴</h2>
+              <h2 className="text-td-card-title text-ink">
+                {liveItems ? "실시간 번역" : "번역된 메뉴 (데모)"}
+              </h2>
               <p className="text-td-caption text-ink-soft mt-td-xxs">
-                {annotated.length}개 항목 · 한국인 인기순
+                {annotated.length}개 항목
+                {liveItems ? " · Vision + Claude" : " · 한국인 인기순"}
               </p>
             </div>
             {dangerCount > 0 && (

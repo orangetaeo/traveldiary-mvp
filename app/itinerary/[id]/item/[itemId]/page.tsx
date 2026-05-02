@@ -24,6 +24,9 @@ import {
 import { OtaCompareSection } from "@/components/itinerary/OtaCompareSection";
 import { aggregateOffersForItem } from "@/lib/services/ota-aggregator";
 import { ItineraryMap } from "@/components/itinerary/ItineraryMap";
+import { ItineraryMapWithDirections } from "@/components/itinerary/ItineraryMapWithDirections";
+import { gatherKoreanEvidenceAction } from "@/actions/evidence";
+import type { Evidence } from "@/lib/types";
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: "음식점",
@@ -78,6 +81,21 @@ export default async function ItineraryItemPage({
   // OTA Offer 매칭 (M8, 사이클 12a 시드 + 12b 실 API aggregator, ADR-027).
   // 모든 OTA 키 미설정 → 시드만 (12a 회귀 0). 일부 설정 → 해당 OTA만 실 API.
   const otaOffers = await aggregateOffersForItem(item);
+
+  // Naver Korean evidence (5b-6.5, ADR-020) — 시드 evidence와 합침
+  const naverResult = await gatherKoreanEvidenceAction({
+    itemId: item.id,
+    query: ko,
+  });
+  const mergedEvidence: Evidence =
+    naverResult.mode === "ok"
+      ? {
+          reasons: [...item.evidence.reasons, ...naverResult.evidence.reasons],
+          sources: [...item.evidence.sources, ...naverResult.evidence.sources],
+          warnings: item.evidence.warnings,
+          verifiedAt: naverResult.evidence.verifiedAt,
+        }
+      : item.evidence;
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-32">
@@ -192,7 +210,7 @@ export default async function ItineraryItemPage({
 
         {/* EvidencePanel — M1 정체성 (펼친 상태) */}
         <section className="px-td-md py-td-sm">
-          <EvidencePanel evidence={item.evidence} defaultOpen />
+          <EvidencePanel evidence={mergedEvidence} defaultOpen />
         </section>
 
         {/* Details Grid */}
@@ -251,12 +269,23 @@ export default async function ItineraryItemPage({
           <OtaCompareSection itemId={item.id} offers={otaOffers} />
         )}
 
-        {/* 인라인 지도 (사이클 7.5, ADR-028) */}
-        <ItineraryMap
-          lat={item.location.lat}
-          lng={item.location.lng}
-          placeName={ko}
-        />
+        {/* 인라인 지도 (사이클 7.5+, ADR-028 + Geolocation directions) */}
+        {item.location.lat !== 0 && item.location.lng !== 0 ? (
+          process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY ? (
+            <ItineraryMapWithDirections
+              lat={item.location.lat}
+              lng={item.location.lng}
+              placeName={ko}
+              apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY}
+            />
+          ) : (
+            <ItineraryMap
+              lat={item.location.lat}
+              lng={item.location.lng}
+              placeName={ko}
+            />
+          )
+        ) : null}
 
         {/* 길찾기 deeplink (사이클 7 D1·D2) */}
         {item.location.lat !== 0 && item.location.lng !== 0 && (

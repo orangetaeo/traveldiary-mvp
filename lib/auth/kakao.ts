@@ -30,7 +30,7 @@ export function getKakaoConfig(): KakaoConfig | null {
 
 export const kakaoAvailable = (): boolean => getKakaoConfig() !== null;
 
-/** 카카오 동의 페이지 URL */
+/** 카카오 동의 페이지 URL — 사이클 11c: scope에 account_email 추가 (옵션) */
 export function buildAuthorizeUrl(state: string): string | null {
   const cfg = getKakaoConfig();
   if (!cfg) return null;
@@ -39,6 +39,8 @@ export function buildAuthorizeUrl(state: string): string | null {
     redirect_uri: cfg.redirectUri,
     response_type: "code",
     state,
+    // 11c: 이메일 권한 (선택 동의 — 카카오 콘솔에서 활성 필요)
+    scope: "account_email",
   });
   return `${KAKAO_AUTHORIZE_URL}?${params.toString()}`;
 }
@@ -47,6 +49,7 @@ export interface KakaoUserInfo {
   kakaoId: string;
   nickname?: string;
   profileImageUrl?: string;
+  email?: string;
 }
 
 export type ExchangeOutcome =
@@ -104,7 +107,12 @@ export async function exchangeCodeForUser(
     const userJson = (await userResp.json()) as {
       id?: number;
       properties?: { nickname?: string; profile_image?: string };
-      kakao_account?: { profile?: { nickname?: string; profile_image_url?: string } };
+      kakao_account?: {
+        profile?: { nickname?: string; profile_image_url?: string };
+        email?: string;
+        is_email_valid?: boolean;
+        is_email_verified?: boolean;
+      };
     };
 
     if (!userJson.id) {
@@ -121,6 +129,10 @@ export async function exchangeCodeForUser(
         profileImageUrl:
           userJson.kakao_account?.profile?.profile_image_url ??
           userJson.properties?.profile_image,
+        // 11c: 이메일 (사용자 동의 + 카카오 콘솔 활성 시만 응답에 포함)
+        email:
+          userJson.kakao_account?.email ??
+          undefined,
       },
     };
   } catch (err) {

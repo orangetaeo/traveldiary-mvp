@@ -9,16 +9,19 @@ import { prisma } from "../prisma";
 export interface UpsertKakaoUserInput {
   kakaoId: string;
   nickname?: string;
+  /** 사이클 11c — 이메일 권한 동의 시 채움 */
+  email?: string;
 }
 
 export interface UserRow {
   id: string;
   kakaoId: string | null;
   name: string | null;
+  email: string | null;
 }
 
 /**
- * 카카오 ID 기반 user upsert. 신규 사용자면 생성, 기존이면 nickname 업데이트.
+ * 카카오 ID 기반 user upsert. 신규 사용자면 생성, 기존이면 nickname/email 업데이트.
  */
 export async function upsertKakaoUser(
   input: UpsertKakaoUserInput,
@@ -30,12 +33,20 @@ export async function upsertKakaoUser(
       create: {
         kakaoId: input.kakaoId,
         name: input.nickname,
+        email: input.email,
       },
       update: {
         name: input.nickname,
+        // email은 동의했을 때만 갱신 (재로그인 시 권한 거부됐다면 기존 값 유지)
+        ...(input.email && { email: input.email }),
       },
     });
-    return { id: row.id, kakaoId: row.kakaoId, name: row.name };
+    return {
+      id: row.id,
+      kakaoId: row.kakaoId,
+      name: row.name,
+      email: row.email,
+    };
   } catch (err) {
     console.error("[user.repository] upsertKakaoUser failed", err);
     return null;
