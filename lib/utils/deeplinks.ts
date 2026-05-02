@@ -60,6 +60,21 @@ export function grabUrl(dropoff: LatLng, dropoffName?: string): string {
   return `https://grab.onelink.me/2695613898?${params.toString()}`;
 }
 
+/**
+ * 카카오맵 — D7. 한국인 사용자 친숙. 모바일 카카오맵 앱 또는 웹.
+ * Universal link: https://map.kakao.com/link/map/<name>,<lat>,<lng>
+ */
+export function kakaoMapUrl(loc: LatLng, name?: string): string {
+  const safe = name ? encodeURIComponent(name.replace(/,/g, " ")) : "장소";
+  return `https://map.kakao.com/link/map/${safe},${loc.lat},${loc.lng}`;
+}
+
+/** 카카오맵 길찾기 — 도착지만, 출발은 사용자 현재 위치 */
+export function kakaoMapDirectionsUrl(loc: LatLng, name?: string): string {
+  const safe = name ? encodeURIComponent(name.replace(/,/g, " ")) : "장소";
+  return `https://map.kakao.com/link/to/${safe},${loc.lat},${loc.lng}`;
+}
+
 /** D3: 전화 다이얼 */
 export function phoneDialUrl(phone: string): string {
   return `tel:${phone.replace(/\s+/g, "")}`;

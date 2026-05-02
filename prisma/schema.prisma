@@ -57,6 +57,7 @@ model Trip {
   checklistItems  ChecklistItem[]
   costEntries     CostEntry[]
   shareLinks      ShareLink[]
+  votes           Vote[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -264,6 +265,27 @@ model ShareLink {
 
   @@index([syncKey])
   @@index([tripId])
+}
+
+// ═══════════════════════════════════════════
+// C4 — VOTE (사이클 E)
+// ═══════════════════════════════════════════
+
+model Vote {
+  id          String   @id @default(cuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  question    String
+  /** [{ "label": "추천1", "voters": ["userId1"] }, ...] */
+  options     Json
+  status      String   @default("open") // "open" | "closed"
+  decidedAt   DateTime?
+
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  @@index([tripId, status])
 }
 
 // ═══════════════════════════════════════════

@@ -518,24 +518,35 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
           </div>
         </div>
 
-        {/* M7 공유 진입점 (사이클 11a, ADR-024) */}
+        {/* M7 공유 + 일행 투표 진입점 (사이클 11a + E) */}
         <div className="bg-surface-card border border-divider rounded-xl p-td-md">
           <p className="text-td-body font-semibold text-ink mb-td-xs">
-            함께 보기 (M7)
+            함께 보기 + 의사 결정 (M7 + C4)
           </p>
           <p className="text-td-meta text-ink-soft mb-td-sm">
-            친구·가족에게 보기 전용 링크로 공유. OAuth 없이 URL만 알면 OK.
+            친구·가족에게 링크로 공유 · 일행과 옵션 투표.
           </p>
-          <button
-            type="button"
-            onClick={() => setShareOpen(true)}
-            className="inline-flex items-center gap-1.5 text-td-meta font-semibold text-success-deep border border-success/40 rounded-md px-3 py-2 transition-colors hover:bg-success-soft"
-          >
-            <span className="material-symbols-outlined text-[18px]" aria-hidden>
-              share
-            </span>
-            공유 링크 생성
-          </button>
+          <div className="grid grid-cols-2 gap-td-sm">
+            <button
+              type="button"
+              onClick={() => setShareOpen(true)}
+              className="flex items-center gap-1.5 text-td-meta font-semibold text-success-deep border border-success/40 rounded-md px-3 py-2 transition-colors hover:bg-success-soft"
+            >
+              <span className="material-symbols-outlined text-[18px]" aria-hidden>
+                share
+              </span>
+              공유 링크
+            </button>
+            <Link
+              href={`/vote/${trip.id}`}
+              className="flex items-center gap-1.5 text-td-meta font-semibold text-purple-deep border border-purple/40 rounded-md px-3 py-2 transition-colors hover:bg-purple-soft"
+            >
+              <span className="material-symbols-outlined text-[18px]" aria-hidden>
+                how_to_vote
+              </span>
+              일행 투표
+            </Link>
+          </div>
         </div>
       </section>
 

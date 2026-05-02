@@ -202,12 +202,20 @@ export interface ShareLink {
   revokedAt?: string;
 }
 
+export interface VoteOption {
+  label: string;
+  voters: string[];
+}
+
 export interface Vote {
   id: string;
   tripId: string;
-  itemId: string;
-  options: { label: string; voters: string[] }[];
+  question: string;
+  options: VoteOption[];
+  status: "open" | "closed";
   decidedAt?: string;
+  createdBy?: string;
+  createdAt: string;
 }
 
 // ═══════════════════════════════════════════════════════════

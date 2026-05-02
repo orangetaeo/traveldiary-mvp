@@ -8,10 +8,14 @@
 import type { City } from "../../types";
 import { phuQuocCity } from "./phu-quoc";
 import { daNangCity } from "./da-nang";
+import { bangkokCity } from "./bangkok";
+import { tokyoCity } from "./tokyo";
 
 const CITIES: Record<string, City> = {
   [phuQuocCity.slug]: phuQuocCity,
   [daNangCity.slug]: daNangCity,
+  [bangkokCity.slug]: bangkokCity,
+  [tokyoCity.slug]: tokyoCity,
 };
 
 export const DEMO_CITY_SLUG = phuQuocCity.slug;

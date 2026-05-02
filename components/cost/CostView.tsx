@@ -76,6 +76,38 @@ export function CostView({
     return { paid, booked, planned, total: paid + booked + planned };
   }, [entries]);
 
+  // 사이클 H — 일행 정산 (splitWith 기반 1/N)
+  const splitSummary = useMemo(() => {
+    const memberSet = new Set<string>();
+    for (const e of entries) {
+      if (e.splitWith && e.splitWith.length > 0) {
+        for (const m of e.splitWith) memberSet.add(m);
+      }
+    }
+    const members = Array.from(memberSet);
+    if (members.length === 0) return null;
+
+    // 각 멤버별 부담액 = sum(amountKrw / splitWith.length)  (해당 멤버가 splitWith에 있을 때)
+    const perMember = new Map<string, number>(members.map((m) => [m, 0]));
+    let totalSplit = 0;
+    for (const e of entries) {
+      if (!e.splitWith || e.splitWith.length === 0) continue;
+      const share = Math.round(e.amountKrw / e.splitWith.length);
+      for (const m of e.splitWith) {
+        perMember.set(m, (perMember.get(m) ?? 0) + share);
+      }
+      totalSplit += e.amountKrw;
+    }
+
+    return {
+      members: Array.from(perMember.entries()).map(([id, share]) => ({
+        id,
+        share,
+      })),
+      totalSplit,
+    };
+  }, [entries]);
+
   function showToast(msg: string, ms = 3500) {
     setToast(msg);
     setTimeout(() => setToast(null), ms);
@@ -236,6 +268,38 @@ export function CostView({
             </div>
           </div>
         </section>
+
+        {/* 일행 정산 (E1, 사이클 H) — splitWith가 있는 entry가 있을 때만 */}
+        {splitSummary && (
+          <section className="bg-purple-soft/50 border border-purple/30 rounded-xl p-td-md mb-td-lg">
+            <h3 className="text-td-card-title text-purple-deep mb-td-xs">
+              일행 정산 (E1)
+            </h3>
+            <p className="text-td-meta text-ink-soft mb-td-sm">
+              {splitSummary.members.length}명 · 총{" "}
+              {splitSummary.totalSplit.toLocaleString()}원 분배
+            </p>
+            <ul className="space-y-td-xs">
+              {splitSummary.members.map((m) => (
+                <li
+                  key={m.id}
+                  className="flex justify-between items-center bg-surface-card border border-divider rounded-lg p-td-sm"
+                >
+                  <span className="text-td-body text-ink truncate flex-1">
+                    {m.id.slice(0, 8)}…
+                  </span>
+                  <span className="text-td-card-title text-purple-deep tabular-nums">
+                    {m.share.toLocaleString()}원
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="text-td-caption text-ink-mute mt-td-xs">
+              💡 1/N 균등 분배. 실 결제는 외부에서 송금하고 status를 paid로
+              업데이트.
+            </p>
+          </section>
+        )}
 
         {/* Add form */}
         <section className="bg-surface-card border border-divider rounded-xl p-td-md mb-td-lg">

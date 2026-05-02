@@ -20,6 +20,7 @@ import {
   googleMapsUrl,
   uberUrl,
   grabUrl,
+  kakaoMapUrl,
 } from "@/lib/utils/deeplinks";
 import { OtaCompareSection } from "@/components/itinerary/OtaCompareSection";
 import { aggregateOffersForItem } from "@/lib/services/ota-aggregator";
@@ -287,11 +288,11 @@ export default async function ItineraryItemPage({
           )
         ) : null}
 
-        {/* 길찾기 deeplink (사이클 7 D1·D2) */}
+        {/* 길찾기 deeplink (사이클 7 D1·D2 + G 카카오맵) */}
         {item.location.lat !== 0 && item.location.lng !== 0 && (
           <section className="px-td-md py-td-sm">
             <h3 className="text-td-card-title text-ink mb-td-sm">길찾기</h3>
-            <div className="grid grid-cols-3 gap-td-sm">
+            <div className="grid grid-cols-4 gap-td-xs">
               <a
                 href={googleMapsUrl(item.location, ko)}
                 target="_blank"
@@ -305,7 +306,23 @@ export default async function ItineraryItemPage({
                   map
                 </span>
                 <span className="text-td-caption text-ink font-semibold">
-                  Google Maps
+                  Google
+                </span>
+              </a>
+              <a
+                href={kakaoMapUrl(item.location, ko)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-amber/40 transition-colors"
+              >
+                <span
+                  className="material-symbols-outlined text-amber-deep text-[24px]"
+                  aria-hidden
+                >
+                  pin_drop
+                </span>
+                <span className="text-td-caption text-ink font-semibold">
+                  카카오맵
                 </span>
               </a>
               <a

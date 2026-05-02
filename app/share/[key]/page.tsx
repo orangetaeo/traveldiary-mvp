@@ -2,12 +2,45 @@
  * Share Link view-only 페이지 — 사이클 11a (ADR-024).
  *
  * 권한: view만. 편집 X. 만료/철회 시 404.
+ * 사이클 F: og:image 동적 생성 (인스타·카카오톡 미리보기).
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { fetchShareLinkBySyncKey } from "@/lib/repositories/share.repository";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { key: string };
+}): Promise<Metadata> {
+  const found = await fetchShareLinkBySyncKey(params.key);
+  if (!found) {
+    return { title: "TravelDiary — 공유 받은 여행" };
+  }
+  const { trip } = found.bundle;
+  const title = `${trip.destination} ${trip.nights}박 ${trip.nights + 1}일 — TravelDiary`;
+  const description = `${trip.startDate} 출발 · 일정 ${found.bundle.items.length}개`;
+  const ogImage = `/api/og/share/${params.key}`;
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function SharedTripPage({
   params,
