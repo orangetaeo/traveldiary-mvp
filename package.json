@@ -13,7 +13,10 @@
     "postinstall": "prisma generate || true",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "test:e2e": "playwright test",
+    "test:e2e:live": "PLAYWRIGHT_BASE_URL=https://traveldiary-mvp-production.up.railway.app playwright test",
+    "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -30,6 +33,7 @@
     "typescript": "^5.5.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/node": "^20.14.10",
     "@types/pg": "^8.20.0",
     "@types/react": "^18.3.3",
