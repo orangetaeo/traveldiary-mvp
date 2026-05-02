@@ -20,6 +20,7 @@ import { generateReplanOptions, type ReplanTrigger } from "@/lib/replan";
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
+import { canWriteTrip } from "@/lib/auth/authorize";
 
 export type ReplanOptionId = "option-recommend" | "option-safe" | "option-force";
 
@@ -36,6 +37,7 @@ export type CommitReplanResult =
   | { ok: false; code: "conflict" }
   | { ok: false; code: "not_found" }
   | { ok: false; code: "invalid_option" }
+  | { ok: false; code: "forbidden" }
   | { ok: false; code: "internal" };
 
 export async function commitReplan(
@@ -44,6 +46,9 @@ export async function commitReplan(
   // 데모 모드 — DB 미쓰기, 클라이언트 상태로만 시뮬 (ADR-009 fallback 정책)
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const bundle = await fetchTripFromDb(input.tripId);

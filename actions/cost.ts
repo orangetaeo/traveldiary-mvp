@@ -17,12 +17,13 @@ import {
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
+import { canWriteTrip } from "@/lib/auth/authorize";
 import type { CostEntry } from "@/lib/types";
 
 export type CostActionResult<T = unknown> =
   | { ok: true; demo: true }
   | { ok: true; demo: false; data: T }
-  | { ok: false; code: "not_found" | "internal" };
+  | { ok: false; code: "not_found" | "internal" | "forbidden" };
 
 // ═══════════════════════════════════════════════════════════════════
 // addCost
@@ -33,6 +34,9 @@ export async function addCost(
 ): Promise<CostActionResult<CostEntry>> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const created = await createCostEntry(input);
@@ -66,6 +70,9 @@ export async function updateCost(input: {
 }): Promise<CostActionResult<CostEntry>> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const result = await updateCostEntry(input.data);
@@ -104,6 +111,9 @@ export async function deleteCost(input: {
 }): Promise<CostActionResult<{ id: string }>> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const result = await deleteCostEntry(input.id);

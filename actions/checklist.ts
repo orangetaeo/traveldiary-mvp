@@ -22,12 +22,13 @@ import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { DEFAULT_CHECKLIST_TEMPLATE } from "@/lib/seed/checklist-template";
 import { getActorId } from "@/lib/auth/session";
+import { canWriteTrip } from "@/lib/auth/authorize";
 import type { ChecklistItem } from "@/lib/types";
 
 export type ChecklistActionResult<T = unknown> =
   | { ok: true; demo: true }
   | { ok: true; demo: false; data: T }
-  | { ok: false; code: "not_found" | "internal" };
+  | { ok: false; code: "not_found" | "internal" | "forbidden" };
 
 // ═══════════════════════════════════════════════════════════════════
 // addChecklistItem
@@ -38,6 +39,9 @@ export async function addChecklistItem(
 ): Promise<ChecklistActionResult<ChecklistItem>> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const created = await createChecklistItem(input);
@@ -70,6 +74,9 @@ export async function addFromTemplate(input: {
 }): Promise<ChecklistActionResult<ChecklistItem[]>> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const created = await bulkCreateChecklistItems(
@@ -116,6 +123,9 @@ export async function toggleChecklist(input: {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
   }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
+  }
 
   const result = await toggleChecklistItem(input.itemId);
   if (result === null) return { ok: false, code: "internal" };
@@ -145,6 +155,9 @@ export async function deleteChecklist(input: {
 }): Promise<ChecklistActionResult<{ id: string }>> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const result = await deleteChecklistItem(input.itemId);

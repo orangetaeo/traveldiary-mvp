@@ -20,6 +20,7 @@ import {
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { isDbConnected } from "@/lib/prisma";
 import { getActorId, getOwnerId } from "@/lib/auth/session";
+import { canWriteTrip } from "@/lib/auth/authorize";
 import type { TravelMode } from "@/lib/types";
 
 export interface CreateTripResult {
@@ -83,6 +84,7 @@ export type SetTripModeResult =
   | { ok: true; demo: false; tripUpdatedAt: string }
   | { ok: false; code: "conflict" }
   | { ok: false; code: "not_found" }
+  | { ok: false; code: "forbidden" }
   | { ok: false; code: "internal" };
 
 export async function setTripMode(
@@ -90,6 +92,9 @@ export async function setTripMode(
 ): Promise<SetTripModeResult> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const result = await updateTripMode({

@@ -19,6 +19,7 @@ import {
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
+import { canWriteTrip } from "@/lib/auth/authorize";
 import type { ItineraryItem } from "@/lib/types";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -28,13 +29,16 @@ import type { ItineraryItem } from "@/lib/types";
 export type AddItineraryItemResult =
   | { ok: true; demo: true }
   | { ok: true; demo: false; data: ItineraryItem }
-  | { ok: false; code: "internal" };
+  | { ok: false; code: "internal" | "forbidden" };
 
 export async function addItineraryItem(
   input: AddItineraryItemInput,
 ): Promise<AddItineraryItemResult> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const created = await repoAddItineraryItem(input);
@@ -73,13 +77,16 @@ export interface ReorderItineraryItemsInput {
 export type ReorderItineraryItemsResult =
   | { ok: true; demo: true }
   | { ok: true; demo: false; tripUpdatedAt: string; changedCount: number }
-  | { ok: false; code: "internal" | "not_found" };
+  | { ok: false; code: "internal" | "not_found" | "forbidden" };
 
 export async function reorderItineraryItems(
   input: ReorderItineraryItemsInput,
 ): Promise<ReorderItineraryItemsResult> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   if (input.changes.length === 0) {

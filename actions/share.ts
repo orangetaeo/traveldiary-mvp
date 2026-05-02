@@ -13,6 +13,7 @@ import {
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
+import { canWriteTrip } from "@/lib/auth/authorize";
 import type { ShareLink } from "@/lib/types";
 
 export interface CreateShareLinkInput {
@@ -25,7 +26,7 @@ export interface CreateShareLinkInput {
 export type CreateShareLinkResult =
   | { ok: true; demo: true; syncKey: string }
   | { ok: true; demo: false; data: ShareLink }
-  | { ok: false; code: "internal" };
+  | { ok: false; code: "internal" | "forbidden" };
 
 /** unguessable syncKey 생성 — 24바이트 base64url. cuid보다 짧지만 충분 */
 function generateSyncKey(): string {
@@ -40,6 +41,9 @@ export async function createShareLinkAction(
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     // 데모 시뮬 — 클라이언트가 URL만 보여주고 실제는 저장 X
     return { ok: true, demo: true, syncKey };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
   }
 
   const expiresInDays = input.expiresInDays ?? 30;
