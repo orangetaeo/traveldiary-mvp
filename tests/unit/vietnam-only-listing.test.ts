@@ -41,7 +41,8 @@ describe("사이클 F (V3) — 베트남 우선 노출", () => {
     for (const city of vn) {
       expect(city.countryCode).toBe("VN");
     }
-    // 사이클 G-1~G-4: 호치민·하노이·호이안·나트랑 추가 → minimum + contain
+    // 사이클 G-1~G-4: 호치민·하노이·호이안·나트랑
+    // 사이클 K: 껀터·달랏 추가 → minimum + contain
     const codes = vn.map((c) => c.code);
     expect(codes).toContain("PQC");
     expect(codes).toContain("DAD");
@@ -49,6 +50,8 @@ describe("사이클 F (V3) — 베트남 우선 노출", () => {
     expect(codes).toContain("HAN");
     expect(codes).toContain("HOI");
     expect(codes).toContain("NHA");
+    expect(codes).toContain("CTH");
+    expect(codes).toContain("DLI");
   });
 
   it("isVietnamCity — 푸꾸옥/다낭 true", () => {

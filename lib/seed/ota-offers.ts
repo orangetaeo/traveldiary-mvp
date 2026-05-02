@@ -909,6 +909,123 @@ export const nhaTrangOtaOffers: OtaOffer[] = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════
+// 달랏 (DLI, VND) — 사이클 N
+// ═══════════════════════════════════════════════════════════════════
+
+export const daLatOtaOffers: OtaOffer[] = [
+  // ── 달랏 야시장 푸드 워킹투어 (보조 — 2 offer) ────────────────────
+  {
+    id: "klook-dl-nightMarket",
+    matchTag: "dl-food-nightMarket",
+    ota: "klook",
+    title: "달랏 야시장 푸드 워킹투어 (반짱느엉 + 두유)",
+    priceKrw: 22000,
+    originalPriceKrw: 28000,
+    rating: 4.6,
+    reviewCount: 928,
+    url: "https://www.klook.com/activity/7710-da-lat-night-market",
+  },
+  {
+    id: "kkday-dl-nightMarket",
+    matchTag: "dl-food-nightMarket",
+    ota: "kkday",
+    title: "Da Lat Night Market Food Walking Tour",
+    priceKrw: 24000,
+    rating: 4.5,
+    reviewCount: 412,
+    url: "https://www.kkday.com/product/77001-da-lat-night-market",
+  },
+
+  // ── 랑비앙 일출 지프 투어 (시그니처 — 3 offer) ────────────────────
+  {
+    id: "klook-dl-langbiang",
+    matchTag: "dl-spot-langbiang",
+    ota: "klook",
+    title: "랑비앙 일출 지프 투어 (호텔 새벽 픽업)",
+    priceKrw: 38000,
+    originalPriceKrw: 45000,
+    rating: 4.7,
+    reviewCount: 1240,
+    url: "https://www.klook.com/activity/7720-langbiang-sunrise",
+  },
+  {
+    id: "kkday-dl-langbiang",
+    matchTag: "dl-spot-langbiang",
+    ota: "kkday",
+    title: "Langbiang Mountain Sunrise + Jeep",
+    priceKrw: 41000,
+    rating: 4.6,
+    reviewCount: 624,
+    url: "https://www.kkday.com/product/77002-langbiang-sunrise",
+  },
+  {
+    id: "agoda-dl-langbiang",
+    matchTag: "dl-spot-langbiang",
+    ota: "agoda",
+    title: "Langbiang Sunrise Tour with Pickup",
+    priceKrw: 42000,
+    rating: 4.5,
+    reviewCount: 218,
+    url: "https://www.agoda.com/activities/da-lat/langbiang",
+  },
+
+  // ── 다탄라 폭포 + 알파인 코스터 (시그니처 — 3 offer) ──────────────
+  {
+    id: "klook-dl-datanla",
+    matchTag: "dl-spot-datanla",
+    ota: "klook",
+    title: "다탄라 폭포 + 알파인 코스터 1.6km (한국어)",
+    priceKrw: 29000,
+    originalPriceKrw: 35000,
+    rating: 4.7,
+    reviewCount: 1620,
+    url: "https://www.klook.com/activity/7730-datanla-coaster",
+  },
+  {
+    id: "kkday-dl-datanla",
+    matchTag: "dl-spot-datanla",
+    ota: "kkday",
+    title: "Datanla Waterfall Alpine Coaster",
+    priceKrw: 31000,
+    rating: 4.6,
+    reviewCount: 728,
+    url: "https://www.kkday.com/product/77003-datanla",
+  },
+  {
+    id: "agoda-dl-datanla",
+    matchTag: "dl-spot-datanla",
+    ota: "agoda",
+    title: "Datanla Falls + Coaster Day Pass",
+    priceKrw: 32000,
+    rating: 4.5,
+    reviewCount: 312,
+    url: "https://www.agoda.com/activities/da-lat/datanla",
+  },
+
+  // ── 달랏 케이블카 + Truc Lam 사찰 (보조 — 2 offer) ────────────────
+  {
+    id: "klook-dl-cableCar",
+    matchTag: "dl-spot-cableCar",
+    ota: "klook",
+    title: "달랏 케이블카 왕복 + Truc Lam 선원",
+    priceKrw: 11000,
+    rating: 4.5,
+    reviewCount: 540,
+    url: "https://www.klook.com/activity/7740-da-lat-cable-car",
+  },
+  {
+    id: "kkday-dl-cableCar",
+    matchTag: "dl-spot-cableCar",
+    ota: "kkday",
+    title: "Da Lat Cable Car + Truc Lam Pagoda",
+    priceKrw: 13000,
+    rating: 4.4,
+    reviewCount: 282,
+    url: "https://www.kkday.com/product/77004-da-lat-cable-car",
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
 // 통합 풀 — 모든 도시 OTA Offer (호출처는 항상 이걸 통해 매칭)
 // ═══════════════════════════════════════════════════════════════════
 
@@ -920,6 +1037,7 @@ export const allOtaOffers: OtaOffer[] = [
   ...hoChiMinhOtaOffers,
   ...hanoiOtaOffers,
   ...nhaTrangOtaOffers,
+  ...daLatOtaOffers,
 ];
 
 /**
@@ -957,13 +1075,18 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
     lower.includes("나트랑") ||
     lower.includes("냐짱") ||
     lower.includes("nha trang");
+  // 사이클 N: 달랏 게이트 추가 (야시장·케이블카 충돌 회피)
+  const isDaLatCtx =
+    lower.includes("달랏") || lower.includes("da lat") || lower.includes("dalat");
   if (lower.includes("케이블카") || lower.includes("cable car")) {
     if (isPhuQuocCtx) matched.add("pq-spot-cablecar");
+    if (isDaLatCtx) matched.add("dl-spot-cableCar");
     // 나트랑 빈원더스 케이블카는 빈원더스 시드에 통합 (별도 시드 없음)
   }
   if (lower.includes("야시장") || lower.includes("night market")) {
     if (isPhuQuocCtx) matched.add("pq-food-night-market");
     if (isNhaTrangCtx) matched.add("nh-food-streetFood");
+    if (isDaLatCtx) matched.add("dl-food-nightMarket");
     // 어느 쪽도 명시 안 된 모호한 입력은 매칭 X (오탐 방지)
   }
   if (lower.includes("vinwonder") || lower.includes("빈원더")) {
@@ -1110,6 +1233,18 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
     lower.includes("cho dem")
   ) {
     matched.add("nh-food-streetFood");
+  }
+
+  // ── 달랏 (사이클 N) — 고유 키워드는 도시 게이트 불필요
+  if (lower.includes("랑비앙") || lower.includes("langbiang") || lower.includes("lang biang"))
+    matched.add("dl-spot-langbiang");
+  if (
+    lower.includes("다탄라") ||
+    lower.includes("datanla") ||
+    lower.includes("알파인 코스터") ||
+    lower.includes("alpine coaster")
+  ) {
+    matched.add("dl-spot-datanla");
   }
 
   // ── 하노이 (사이클 G-2)

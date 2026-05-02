@@ -13,6 +13,7 @@
 7. **[07-railway-deploy.md](./07-railway-deploy.md)** — Railway 배포 (시드니 사이트와 분리)
 8. **[09-vision-v2.md](./09-vision-v2.md)** ⭐ — **v2 비전 (Accepted 2026-04-29)** — M5~M8 추가, Tier 분류, 사이클 5b~12 로드맵
 9. **[sydney-pattern-inventory.md](./sydney-pattern-inventory.md)** — 시드니 사이트 패턴 추출 (갭 분석 베이스라인)
+10. **[12-user-actions.md](./12-user-actions.md)** — 사용자 직접 액션 가이드 (카카오 OAuth + `prisma migrate deploy` + 외부 API 키)
 
 ## 화면별 명세
 

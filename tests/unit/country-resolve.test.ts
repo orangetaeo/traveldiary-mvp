@@ -196,8 +196,9 @@ describe("Raw seed → Resolved 정규화 검증", () => {
     const phones = raw?.emergencyContacts.map((c) => c.phone) ?? [];
     expect(phones).not.toContain("113");
     expect(phones).not.toContain("115");
-    expect(phones).not.toContain("+82 2 3210 0404");
-    expect(phones).not.toContain("+82 2 1577 0000");
+    // 사이클 Q: 표기 하이픈 통일
+    expect(phones).not.toContain("+82-2-3210-0404");
+    expect(phones).not.toContain("+82-2-1577-0000");
   });
 
   it("resolveCity는 모든 정보 복원 (raw + country + GLOBAL)", () => {
@@ -205,8 +206,9 @@ describe("Raw seed → Resolved 정규화 검증", () => {
     const phones = resolved?.emergencyContacts.map((c) => c.phone) ?? [];
     expect(phones).toContain("113"); // country
     expect(phones).toContain("115"); // country
-    expect(phones).toContain("+82 2 3210 0404"); // GLOBAL
-    expect(phones).toContain("+82 2 1577 0000"); // GLOBAL
+    // 사이클 Q: 외교부 0404.go.kr 공식 표기 (하이픈) 통일
+    expect(phones).toContain("+82-2-3210-0404"); // GLOBAL translator
+    expect(phones).toContain("+82-2-1577-0000"); // GLOBAL card_lost
   });
 });
 

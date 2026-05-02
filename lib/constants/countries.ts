@@ -19,14 +19,16 @@ import type { Country, EmergencyContact, SituationalPhrase } from "../types";
 export const GLOBAL_EMERGENCY_CONTACTS: EmergencyContact[] = [
   {
     label: "한국어 통역 서비스 (영사 콜센터)",
-    phone: "+82 2 3210 0404",
+    // 사이클 Q — 외교부 0404.go.kr 공식 표기 (하이픈) 통일
+    phone: "+82-2-3210-0404",
     hours: "24시간",
     notes: "외교부 무료. 통신비만 부담",
     category: "translator",
+    url: "https://www.0404.go.kr",
   },
   {
     label: "신용카드 분실 (KB·신한·삼성·현대)",
-    phone: "+82 2 1577 0000",
+    phone: "+82-2-1577-0000",
     notes: "한국 카드사 통합 콜센터. 24시간",
     category: "card_lost",
   },

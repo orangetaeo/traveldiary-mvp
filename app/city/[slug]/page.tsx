@@ -11,6 +11,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { resolveCity, isVietnamCity } from "@/lib/seed/cities";
+import { resolveTripsByCityCode, type ResolvedTrip } from "@/lib/services/resolved-trip";
+import { Badge } from "@/components/ui/Badge";
+import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 import type {
   City,
   EmergencyContact,
@@ -55,6 +58,9 @@ export default function CityPage({ params }: { params: { slug: string } }) {
     return <ComingSoonCity city={city} />;
   }
 
+  // 사이클 J (ADR-034): city → trip 역방향 CTA. 도시당 trip 0~N개 (현 시드는 0 또는 1)
+  const trips = resolveTripsByCityCode(city.code);
+
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-32">
       {/* TopAppBar */}
@@ -69,12 +75,16 @@ export default function CityPage({ params }: { params: { slug: string } }) {
           </Link>
           <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
-        <span
-          className="material-symbols-outlined text-ink-soft"
-          aria-hidden
-        >
-          account_circle
-        </span>
+        <div className="flex items-center gap-td-xs">
+          {/* 사이클 P (ADR-035) — 응급 빠른 액세스 */}
+          <EmergencyHeaderButton citySlug={city.slug} />
+          <span
+            className="material-symbols-outlined text-ink-soft"
+            aria-hidden
+          >
+            account_circle
+          </span>
+        </div>
       </header>
 
       <main className="max-w-xl mx-auto px-td-md">
@@ -87,6 +97,9 @@ export default function CityPage({ params }: { params: { slug: string } }) {
             {city.country} · {city.code} · 한국인 자유여행자 큐레이션
           </p>
         </section>
+
+        {/* 사이클 J (ADR-034) — city→trip 역방향 CTA */}
+        <CityTripCTA trips={trips} cityName={city.name} />
 
         {/* Sticky chip row */}
         <nav
@@ -111,11 +124,18 @@ export default function CityPage({ params }: { params: { slug: string } }) {
         {/* Section 1: Emergency */}
         <section id="emergency" className="mb-td-lg scroll-mt-24">
           <div className="bg-surface-card border-l-4 border-danger rounded-lg shadow-sm p-td-md">
-            <div className="flex items-center mb-td-md">
+            <div className="flex items-center justify-between mb-td-md">
               <span className="bg-danger-soft text-danger-deep px-td-xs py-1 rounded-full text-td-caption font-bold flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px]" aria-hidden>warning</span>
                 긴급 상황
               </span>
+              {/* 사이클 P (ADR-035) — 응급 풀 페이지로 이동 */}
+              <Link
+                href={`/city/${city.slug}/emergency`}
+                className="text-td-caption text-purple-deep hover:underline"
+              >
+                전체 보기 + 분실 가이드 →
+              </Link>
             </div>
             <ul className="space-y-td-sm">
               {city.emergencyContacts.map((c, i) => (
@@ -242,6 +262,89 @@ export default function CityPage({ params }: { params: { slug: string } }) {
 // ═══════════════════════════════════════════════════════════════════
 // Sub-components
 // ═══════════════════════════════════════════════════════════════════
+
+/**
+ * 사이클 J (ADR-034) — city→trip 역방향 CTA.
+ *  - trip 있는 city: 큰 카드 (도시·기간·일정·검증) + "일정 보기 →"
+ *  - trip 없는 city (HOI 등): amber 안내 + "다른 도시 일정" → /trips
+ */
+function CityTripCTA({
+  trips,
+  cityName,
+}: {
+  trips: ResolvedTrip[];
+  cityName: string;
+}) {
+  if (trips.length === 0) {
+    return (
+      <section className="mb-td-lg">
+        <div className="bg-amber-soft border border-amber/40 rounded-xl p-td-md">
+          <p className="text-td-card-title text-amber-deep mb-td-xxs">
+            {cityName} 일정은 준비 중이에요
+          </p>
+          <p className="text-td-meta text-ink-soft mb-td-sm">
+            우선 다른 도시의 큐레이션 일정을 둘러보실 수 있어요.
+          </p>
+          <Link
+            href="/trips"
+            className="inline-flex items-center gap-1 text-td-meta text-purple-deep font-medium hover:underline"
+          >
+            <span className="material-symbols-outlined text-[16px]" aria-hidden>
+              explore
+            </span>
+            다른 도시 일정 둘러보기 →
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  const [first, ...rest] = trips;
+  const days = first.trip.nights + 1;
+
+  return (
+    <section className="mb-td-lg">
+      <article className="bg-surface-card border border-purple/30 rounded-xl shadow-sm overflow-hidden">
+        <Link
+          href={`/itinerary/${first.trip.id}`}
+          aria-label={`${cityName} ${first.trip.nights}박 ${days}일 일정 보기`}
+          className="block p-td-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple"
+        >
+          <div className="flex items-start justify-between gap-td-sm mb-td-xs">
+            <div className="min-w-0">
+              <p className="text-td-meta text-purple-deep uppercase tabular-nums">
+                추천 일정
+              </p>
+              <h3 className="text-td-card-title text-ink mt-td-xxs truncate">
+                {cityName} {first.trip.nights}박 {days}일
+              </h3>
+            </div>
+            {first.verifiedCount > 0 && (
+              <Badge tone="success">AI 검증 {first.verifiedCount}곳</Badge>
+            )}
+          </div>
+          <p className="text-td-meta text-ink-soft tabular-nums mb-td-sm">
+            {first.itemCount} 일정 · 한국인 큐레이션
+          </p>
+          <span className="inline-flex items-center gap-1 text-td-meta text-purple-deep font-medium">
+            일정 보기
+            <span className="material-symbols-outlined text-[16px]" aria-hidden>
+              arrow_forward
+            </span>
+          </span>
+        </Link>
+      </article>
+      {rest.length > 0 && (
+        <p className="mt-td-xs text-td-caption text-ink-mute text-right">
+          이 도시 일정 {trips.length}건 ·{" "}
+          <Link href="/trips" className="text-purple-deep hover:underline">
+            전체 보기 →
+          </Link>
+        </p>
+      )}
+    </section>
+  );
+}
 
 /**
  * 비-베트남 도시(방콕/도쿄 등) 접근 시 표시.

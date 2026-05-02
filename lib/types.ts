@@ -286,6 +286,8 @@ export interface EmergencyContact {
   hours?: string;      // "평일 08:30~17:00"
   notes?: string;      // "한국어 가능"
   category: "embassy" | "police" | "ambulance" | "fire" | "translator" | "card_lost";
+  /** 사이클 Q (ADR-035 백로그) — 공식 사이트 URL (영사관·카드사 통합 콜센터 등) */
+  url?: string;
 }
 
 export interface PaymentInfo {

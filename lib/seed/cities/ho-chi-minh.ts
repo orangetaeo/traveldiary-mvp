@@ -21,6 +21,7 @@ export const hoChiMinhCity: City = {
       hours: "평일 08:30~17:00",
       notes: "한국어 가능. 야간/주말은 +84 93 850 0238 긴급",
       category: "embassy",
+      url: "https://overseas.mofa.go.kr/vn-hochiminh-ko/index.do",
     },
     {
       label: "추천 병원 — FV Hospital / Vinmec Central Park",

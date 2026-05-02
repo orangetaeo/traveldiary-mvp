@@ -232,6 +232,16 @@
 | **C — 다낭/방콕/도쿄 OTA 인프라 시드** | ✅ 2026-05-02 완료 | OTA Offer 18건 (도시당 6) · matchTag 도시 prefix 표준(pq/dn/bk/ty) · findOffersByKeyword 다국가 한·영 분기 · vitest +24건 (총 87) · itinerary 시드는 별도 사이클로 분리 |
 | **D — 다낭 itinerary 시드 + 도달률 50%** | ✅ 2026-05-02 완료 | 다낭 12 일정 (3박 4일) · OTA 매칭 6건 verified 보장 · OTA 풀 다낭 6→15건 · listDemoTrips() 두 trip 노출 · 홈에 "다른 도시" 카드 · vitest +21건 (총 108) · 도달률 50%/100% |
 | **E — 인프라 부채 해소 (마이그 0007 + 통합 + StatusBadge)** | ✅ 2026-05-02 완료 | ADR-031 · ValidationResult priceStatus/distanceStatus 컬럼 (캐시 hit 정확화) · validateItemAction이 googleResult 노출 (외부 API 호출 50% ↓) · StatusBadge 공통 컴포넌트 + mismatch ring-2 강화 · vitest +7건 (총 115) · 사용자 액션 1건 (`prisma migrate deploy` 선택) |
+| **F+G+H — 베트남 6도시 + Country 정규화** | ✅ 2026-05-02 완료 | V3 베트남 우선 + V1 호치민/하노이/호이안/나트랑 + ADR-032 Country 모델 (옵션 C 하이브리드, ~370행 절감) · vitest 115→239 (+124, 6사이클) |
+| **I — /trips 라우트 + Bottom Nav 4슬롯** | ✅ 2026-05-02 완료 | ADR-033 · `app/trips/page.tsx` SSR + `lib/services/trips-listing.ts` 분리 · 카드 3종(trip/city-only/coming-soon) + sticky 칩 필터 · 홈 "전체 보기" 링크 + trip→city 단방향 칩 · vitest +10 (총 249) · STEP 3 복귀 0회 · 의존성 0 / 마이그 0 |
+| **J — ResolvedTrip 뷰 객체 + city→trip 역방향 CTA** | ✅ 2026-05-02 완료 | ADR-034 · `lib/services/resolved-trip.ts` 신규 + `trips-listing` 리팩터(TripCardData를 ResolvedTrip 기반) · `/city/[slug]` Hero 아래 큰 CTA(trip 있음) / amber "준비 중" 안내(HOI) · trip↔city 양방향 완성 · vitest +11 (총 260) · STEP 3 복귀 0회 |
+| **K — 베트남 추가 도시 (껀터·달랏)** | ✅ 2026-05-02 완료 | 옵션 C — 달랏 α (city + trip 8 일정 / 2박 3일) + 껀터 β (city only) · 사이클 I·J 자산 자동 활용 · 도달률 5/8 → 6/10 (60%) · vitest +26 (총 286) · ADR 불필요 (답습) · STEP 3 복귀 0회 |
+| **L — 사용자 직접 액션 가이드** | ✅ 2026-05-02 완료 | `docs/12-user-actions.md` 신규 (~155행) — 카카오 OAuth 7단계 + `prisma migrate deploy` 가이드 + 외부 키 6종 표 + 시크릿 회전 정책 · 코드 변경 0 / vitest 변동 0 · ADR 불필요 (문서만) |
+| **N — 달랏 OTA aggregator 시드** | ✅ 2026-05-02 완료 | daLatOtaOffers 10건 (시그니처 랑비앙·다탄라 3 + 보조 야시장·케이블카 2) + isDaLatCtx 게이트(푸꾸옥/나트랑 충돌 회피) + 랑비앙·다탄라 고유 키워드 직접 매칭 · M8 도달 7→8 도시 · vitest +17 (총 303) · ADR 불필요 (사이클 C 답습) · STEP 3 복귀 0회 |
+| **O — BottomNav 컴포넌트 추출** | ✅ 2026-05-02 완료 | `components/ui/BottomNav.tsx` 신규 (~75행) · 홈+/trips 인라인 60행 중복 → `<BottomNav active="..." />` 1행씩 · `BottomNavSlot` union으로 새 슬롯 추가 명시화 · vitest +9 (총 312) · ADR 불필요 (사이클 I 답습 추출) · 트리거 미충족 선제 리팩터 (회의 정당화) · STEP 3 복귀 0회 |
+| **P — M5 응급/실용/도시 컨텍스트 강화** | ✅ 2026-05-02 완료 | ADR-035 · `/city/[slug]/emergency` 서브 라우트 (~250행) + `koreanLossContacts.ts` 4 카테고리 분실 가이드 + EmergencyHeaderButton (TravelHome·city·itinerary 헤더) + CityContextStrip 분기 제거(currentMode 무관 노출) · T16 환각 차단(개별 카드사·통신사 번호 미시드, 통합 번호만) · vitest +14 (총 326) · STEP 3 복귀 0회 |
+| **Q — 사이클 P 백로그 정리** | ✅ 2026-05-02 완료 | 번호 표기 하이픈 통일(외교부 0404.go.kr 공식) + `EmergencyContact.url` 옵션 필드 + 8 도시 영사관 mofa.go.kr URL 매핑 + LossGuideCard 시맨틱(`<span>` → `<div>+<a>` 형제) · vitest +12 (총 338) · ADR 불필요 (백로그 정리) · STEP 3 복귀 0회 |
+| **R — M7 협업 강화 (익명 댓글 + 카카오 공유)** | ✅ 2026-05-02 완료 | ADR-036 · ShareComment 모델 + 마이그 0008 + clientUuid + nickname 익명 협업 + Web Share API + 카카오 URL scheme 폴백(의존성 0) + ShareLink 만료/revoke 차단 + escapeHtml + Rate Limit 분당 5건 + 데모 LocalStorage fallback · vitest +12 (총 350) · 사용자 액션 +1 (migrate deploy 0008) · STEP 3 복귀 0회 |
 
 ---
 

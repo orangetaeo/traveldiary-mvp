@@ -267,8 +267,40 @@ model ShareLink {
   createdAt   DateTime  @default(now())
   revokedAt   DateTime?
 
+  /** 사이클 R (ADR-036) — 익명 댓글/리액션 */
+  comments    ShareComment[]
+
   @@index([syncKey])
   @@index([tripId])
+}
+
+// ═══════════════════════════════════════════
+// 사이클 R (ADR-036) — 익명 협업 댓글/리액션
+// ═══════════════════════════════════════════
+
+model ShareComment {
+  id          String    @id @default(cuid())
+  shareLinkId String
+  shareLink   ShareLink @relation(fields: [shareLinkId], references: [id], onDelete: Cascade)
+  /** trip 전체 댓글이면 null, 일정별이면 ItineraryItem.id */
+  itemId      String?
+  /** 표시 닉네임 — 2~10자, XSS escape 후 저장 */
+  nickname    String
+  /** 본문 — 최대 500자, HTML escape 후 저장 */
+  body        String    @db.VarChar(500)
+  /** 가벼운 투표 흡수: "LIKE" | "DISLIKE" | "QUESTION" | null */
+  reaction    String?
+  /** 본인 식별 토큰 (LocalStorage UUID) — OAuth 없이 본인 삭제 권한 */
+  clientUuid  String
+  /** OAuth 활성 후 user.id 매핑 (nullable, 마이그 없이 자연 통합) */
+  actorId     String?
+
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  @@index([shareLinkId])
+  @@index([clientUuid])
+  @@index([deletedAt])
 }
 
 // ═══════════════════════════════════════════

@@ -32,6 +32,10 @@ export type AuditAction =
   | "share.create"
   | "share.revoke"
   | "share.access"
+  // M7 사이클 R (ADR-036) — 익명 협업
+  | "comment.create"
+  | "comment.delete"
+  | "reaction.toggle"
   // M8 (사이클 12a, ADR-025)
   | "affiliate.click"
   | "auth.login"

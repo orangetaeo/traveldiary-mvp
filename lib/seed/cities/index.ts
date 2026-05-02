@@ -18,6 +18,8 @@ import { hoChiMinhCity } from "./ho-chi-minh";
 import { hanoiCity } from "./hanoi";
 import { hoiAnCity } from "./hoi-an";
 import { nhaTrangCity } from "./nha-trang";
+import { canThoCity } from "./can-tho";
+import { daLatCity } from "./da-lat";
 import { bangkokCity } from "./bangkok";
 import { tokyoCity } from "./tokyo";
 import {
@@ -32,6 +34,8 @@ const CITIES: Record<string, City> = {
   [hanoiCity.slug]: hanoiCity,
   [hoiAnCity.slug]: hoiAnCity,
   [nhaTrangCity.slug]: nhaTrangCity,
+  [canThoCity.slug]: canThoCity,
+  [daLatCity.slug]: daLatCity,
   [bangkokCity.slug]: bangkokCity,
   [tokyoCity.slug]: tokyoCity,
 };

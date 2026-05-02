@@ -22,6 +22,7 @@ export const hanoiCity: City = {
       hours: "평일 08:30~17:00",
       notes: "한국어 가능. 야간/주말 +84 90 402 6126 긴급",
       category: "embassy",
+      url: "https://overseas.mofa.go.kr/vn-ko/index.do",
     },
     {
       label: "추천 병원 — Vinmec Times City / Bach Mai Hospital",

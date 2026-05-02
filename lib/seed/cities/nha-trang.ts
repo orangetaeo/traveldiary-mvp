@@ -22,6 +22,7 @@ export const nhaTrangCity: City = {
       hours: "평일 08:30~17:00",
       notes: "한국어 가능. 나트랑은 호치민 총영사관 관할 — 야간 +84 93 850 0238",
       category: "embassy",
+      url: "https://overseas.mofa.go.kr/vn-hochiminh-ko/index.do",
     },
     {
       label: "추천 병원 — Vinmec Nha Trang / VK Hospital",

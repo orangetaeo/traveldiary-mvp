@@ -7,6 +7,7 @@ import { dayProgress } from "@/lib/mode-transition";
 import type { ItineraryItem, ResolvedCity, Trip } from "@/lib/types";
 import { AutoModeDetector } from "./AutoModeDetector";
 import { CityContextStrip } from "@/components/city/CityContextStrip";
+import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 
 interface TravelHomeProps {
   trip: Trip;
@@ -111,6 +112,10 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
           </h1>
         </div>
         <div className="flex items-center gap-td-sm">
+          {/* 사이클 P (ADR-035) — 응급 빠른 액세스 */}
+          {city && (
+            <EmergencyHeaderButton citySlug={city.slug} emphasized />
+          )}
           <Link
             href={`/itinerary/${trip.id}`}
             aria-label="일정 전체"
@@ -234,8 +239,8 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
         </div>
       )}
 
-      {/* M5 City Context Strip — currentMode === "in-travel" 시에만 (사이클 8) */}
-      {trip.currentMode === "in-travel" && city && (
+      {/* M5 City Context Strip — 사이클 P (ADR-035): currentMode 분기 제거, 항상 노출 */}
+      {city && (
         <div className="mt-td-md">
           <CityContextStrip city={city} />
         </div>

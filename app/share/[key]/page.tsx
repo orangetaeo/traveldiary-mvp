@@ -9,7 +9,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { fetchShareLinkBySyncKey } from "@/lib/repositories/share.repository";
+import { listCommentsByShareLinkId } from "@/lib/repositories/shareComment.repository";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
+import { CommentSection } from "@/components/share/CommentSection";
 
 export async function generateMetadata({
   params,
@@ -52,6 +54,17 @@ export default async function SharedTripPage({
 
   const { link, bundle } = found;
   const { trip, items } = bundle;
+
+  // 사이클 R (ADR-036) — 익명 댓글/리액션
+  const comments = await listCommentsByShareLinkId(link.id);
+  const isExpired = !!link.expiresAt && new Date(link.expiresAt) < new Date();
+  const isRevoked = !!link.revokedAt;
+  const commentsDisabled = isExpired || isRevoked;
+  const disabledReason = isRevoked
+    ? "이 링크는 더 이상 사용할 수 없어요."
+    : isExpired
+      ? "이 링크는 만료됐어요."
+      : undefined;
 
   // Day별 그룹
   const days: typeof items[] = Array.from(
@@ -153,6 +166,14 @@ export default async function SharedTripPage({
             </section>
           )
         ))}
+
+        {/* 사이클 R (ADR-036) — 익명 댓글/리액션 */}
+        <CommentSection
+          syncKey={params.key}
+          initialComments={comments}
+          disabled={commentsDisabled}
+          disabledReason={disabledReason}
+        />
       </main>
     </div>
   );

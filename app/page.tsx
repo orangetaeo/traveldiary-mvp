@@ -16,6 +16,7 @@ import { phuQuocTrip, phuQuocItinerary } from "@/lib/seed/phu-quoc";
 import { listDemoItemsByDay, listDemoTrips, DEMO_TRIP_ID } from "@/lib/seed";
 import { getCityByCode, isVietnamCity } from "@/lib/seed/cities";
 import { LoginButton } from "@/components/auth/LoginButton";
+import { BottomNav } from "@/components/ui/BottomNav";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { kakaoAvailable } from "@/lib/auth/kakao";
 import { jwtAvailable } from "@/lib/auth/jwt";
@@ -232,9 +233,17 @@ export default async function HomePage() {
           })}
         </div>
 
-        {/* 다른 도시 둘러보기 (사이클 D) */}
+        {/* 다른 도시 둘러보기 (사이클 D) — 사이클 I (ADR-033) "전체 보기" 링크 추가 */}
         <section className="px-td-md pt-td-lg pb-td-md">
-          <h2 className="text-td-card-title text-ink mb-td-sm">다른 도시 둘러보기</h2>
+          <div className="flex items-baseline justify-between mb-td-sm">
+            <h2 className="text-td-card-title text-ink">다른 도시 둘러보기</h2>
+            <Link
+              href="/trips"
+              className="text-td-caption text-purple-deep hover:underline"
+            >
+              전체 보기 →
+            </Link>
+          </div>
           <div className="grid grid-cols-2 gap-td-sm">
             {listDemoTrips()
               .filter((b) => b.trip.id !== DEMO_TRIP_ID)
@@ -280,34 +289,8 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Bottom Nav */}
-      <nav
-        className="bg-surface-card border-t border-divider fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full z-50 flex justify-around items-center h-16"
-        aria-label="주요 메뉴"
-      >
-        <Link
-          href="/"
-          className="flex flex-col items-center justify-center text-purple text-[10px] font-medium"
-          aria-current="page"
-        >
-          <span className="material-symbols-outlined filled">home</span>
-          <span>Home</span>
-        </Link>
-        <Link
-          href={`/itinerary/${DEMO_TRIP_ID}`}
-          className="flex flex-col items-center justify-center text-ink-mute text-[10px] font-medium hover:text-purple transition-colors"
-        >
-          <span className="material-symbols-outlined">calendar_today</span>
-          <span>Itinerary</span>
-        </Link>
-        <Link
-          href="/onboarding"
-          className="flex flex-col items-center justify-center text-ink-mute text-[10px] font-medium hover:text-purple transition-colors"
-        >
-          <span className="material-symbols-outlined">person</span>
-          <span>Profile</span>
-        </Link>
-      </nav>
+      {/* Bottom Nav — 사이클 O 컴포넌트 추출 (사이클 I ADR-033) */}
+      <BottomNav active="home" />
     </div>
   );
 }

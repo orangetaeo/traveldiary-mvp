@@ -13,6 +13,7 @@ import { daNangItinerary, daNangTrip } from "./da-nang";
 import { hoChiMinhItinerary, hoChiMinhTrip } from "./ho-chi-minh";
 import { hanoiItinerary, hanoiTrip } from "./hanoi";
 import { nhaTrangItinerary, nhaTrangTrip } from "./nha-trang";
+import { daLatItinerary, daLatTrip } from "./da-lat";
 
 export interface DemoTripBundle {
   trip: Trip;
@@ -25,6 +26,7 @@ const bundles: DemoTripBundle[] = [
   { trip: hoChiMinhTrip, items: hoChiMinhItinerary },
   { trip: hanoiTrip, items: hanoiItinerary },
   { trip: nhaTrangTrip, items: nhaTrangItinerary },
+  { trip: daLatTrip, items: daLatItinerary },
 ];
 
 export function getDemoTrip(tripId: string): DemoTripBundle | null {

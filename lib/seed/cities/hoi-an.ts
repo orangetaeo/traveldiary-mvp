@@ -22,6 +22,7 @@ export const hoiAnCity: City = {
       hours: "평일 08:30~17:00",
       notes: "한국어 가능. 다낭에서 호이안 30km — 야간/주말 +84 90 940 1500",
       category: "embassy",
+      url: "https://overseas.mofa.go.kr/vn-danang-ko/index.do",
     },
     {
       label: "호이안 관광경찰 (Tourist Police)",

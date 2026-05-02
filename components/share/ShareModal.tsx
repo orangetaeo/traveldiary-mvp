@@ -7,6 +7,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { createShareLinkAction } from "@/actions/share";
+import { KakaoShareButton } from "./KakaoShareButton";
 
 interface ShareModalProps {
   open: boolean;
@@ -123,7 +124,7 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
             <button
               type="button"
               role="radio"
-              aria-checked={permission === "view" ? "true" : "false"}
+              aria-checked={permission === "view"}
               onClick={() => permission !== "view" && regenerate("view")}
               className={`flex-1 px-td-sm py-2 rounded-lg text-td-meta font-semibold border transition-colors ${
                 permission === "view"
@@ -136,7 +137,7 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
             <button
               type="button"
               role="radio"
-              aria-checked={permission === "edit" ? "true" : "false"}
+              aria-checked={permission === "edit"}
               onClick={() => permission !== "edit" && regenerate("edit")}
               className={`flex-1 px-td-sm py-2 rounded-lg text-td-meta font-semibold border transition-colors ${
                 permission === "edit"
@@ -178,6 +179,13 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
               >
                 {copied ? "✅ 복사됨" : "URL 복사"}
               </button>
+              {/* 사이클 R (ADR-036) — 카카오톡 공유 (Web Share API + URL scheme) */}
+              <div className="flex justify-center">
+                <KakaoShareButton
+                  url={shareUrl}
+                  text="TravelDiary 여행 일정을 공유합니다"
+                />
+              </div>
             </>
           )}
         </div>

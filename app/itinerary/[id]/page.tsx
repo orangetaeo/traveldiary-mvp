@@ -16,7 +16,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ItineraryView } from "@/components/itinerary/ItineraryView";
 import { getDemoTrip } from "@/lib/seed";
+import { getCityByCode, resolveCityByCode } from "@/lib/seed/cities";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
+import { CityContextStrip } from "@/components/city/CityContextStrip";
+import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 
 const TODAY_ISO = "2026-04-30";
 
@@ -27,6 +30,10 @@ export default async function ItineraryPage({ params }: { params: { id: string }
   const { trip, items } = bundle;
   const isOnTrip = trip.currentMode === "in-travel";
   const dDayNum = dDay(trip.startDate, TODAY_ISO);
+  // 사이클 I (ADR-033) — trip → city 단방향 칩
+  const city = getCityByCode(trip.destinationCode);
+  // 사이클 P (ADR-035) — CityContextStrip + 헤더 응급 버튼 (currentMode 무관)
+  const resolvedCity = resolveCityByCode(trip.destinationCode);
 
   return (
     <div
@@ -45,12 +52,18 @@ export default async function ItineraryPage({ params }: { params: { id: string }
           </Link>
           <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
-        {isOnTrip && (
-          <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent-soft text-accent-deep rounded-full text-td-caption font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent-deep animate-pulse" aria-hidden />
-            LIVE
-          </span>
-        )}
+        <div className="flex items-center gap-td-xs">
+          {/* 사이클 P (ADR-035) — 응급 빠른 액세스 */}
+          {resolvedCity && (
+            <EmergencyHeaderButton citySlug={resolvedCity.slug} emphasized={isOnTrip} />
+          )}
+          {isOnTrip && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent-soft text-accent-deep rounded-full text-td-caption font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-deep animate-pulse" aria-hidden />
+              LIVE
+            </span>
+          )}
+        </div>
       </header>
 
       <main className="max-w-xl mx-auto pt-td-lg">
@@ -70,6 +83,18 @@ export default async function ItineraryPage({ params }: { params: { id: string }
           <h2 className="text-td-title text-ink mb-td-xxs">
             {trip.destination} {trip.nights}박 {trip.nights + 1}일
           </h2>
+          {city && (
+            <Link
+              href={`/city/${city.slug}`}
+              className="inline-flex items-center gap-1 mb-td-xs px-td-xs py-0.5 rounded-full bg-purple-soft text-purple-deep text-td-caption font-medium hover:bg-purple/15 transition-colors"
+              aria-label={`${city.name} 도시 가이드 보기`}
+            >
+              <span className="material-symbols-outlined text-[14px]" aria-hidden>
+                travel_explore
+              </span>
+              도시 가이드 →
+            </Link>
+          )}
           <p className="text-td-body text-ink-soft mb-td-md">
             {formatRange(trip.startDate, trip.nights)} ·{" "}
             {companionLabel(trip.companion)} · {paceLabel(trip.preferences.pace)}
@@ -94,6 +119,13 @@ export default async function ItineraryPage({ params }: { params: { id: string }
             <Stat label="고정" value={`${items.filter((i) => i.flexibility === "fixed").length}건`} divider />
           </div>
         </section>
+
+        {/* 사이클 P (ADR-035) — CityContextStrip currentMode 무관 노출 */}
+        {resolvedCity && (
+          <div className="mb-td-md">
+            <CityContextStrip city={resolvedCity} />
+          </div>
+        )}
 
         <ItineraryView trip={trip} initialItems={items} />
       </main>

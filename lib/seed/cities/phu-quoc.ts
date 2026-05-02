@@ -24,6 +24,7 @@ export const phuQuocCity: City = {
       hours: "평일 08:30~17:00 (한국시간 +0)",
       notes: "한국어 가능. 야간/주말은 +84 90 940 1500 긴급 라인",
       category: "embassy",
+      url: "https://overseas.mofa.go.kr/vn-hochiminh-ko/index.do",
     },
     {
       label: "추천 병원 — 빈멕(Vinmec) 푸꾸옥",
