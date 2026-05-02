@@ -23,6 +23,7 @@ import {
 } from "@/lib/utils/deeplinks";
 import { OtaCompareSection } from "@/components/itinerary/OtaCompareSection";
 import { aggregateOffersForItem } from "@/lib/services/ota-aggregator";
+import { ItineraryMap } from "@/components/itinerary/ItineraryMap";
 
 const CATEGORY_LABEL: Record<string, string> = {
   food: "음식점",
@@ -249,6 +250,13 @@ export default async function ItineraryItemPage({
         {otaOffers.length > 0 && (
           <OtaCompareSection itemId={item.id} offers={otaOffers} />
         )}
+
+        {/* 인라인 지도 (사이클 7.5, ADR-028) */}
+        <ItineraryMap
+          lat={item.location.lat}
+          lng={item.location.lng}
+          placeName={ko}
+        />
 
         {/* 길찾기 deeplink (사이클 7 D1·D2) */}
         {item.location.lat !== 0 && item.location.lng !== 0 && (
