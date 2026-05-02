@@ -41,7 +41,8 @@ export const phuQuocPlaces: SeedPlace[] = [
       lng: 103.9596,
       address: "Đ. Võ Thị Sáu, Dương Đông, Phú Quốc",
     },
-    estimatedPrice: { amount: 350000, currency: "VND" },
+    // 사이클 B: 워킹투어(가이드+시식) 패키지 기준으로 보정. OTA 31k KRW × 18 ≈ 558k VND
+    estimatedPrice: { amount: 550000, currency: "VND" },
     defaultDurationMinutes: 90,
     evidence: {
       reasons: [
@@ -54,7 +55,7 @@ export const phuQuocPlaces: SeedPlace[] = [
         { platform: "google", reviewCount: 8421, positiveRate: 86, url: "https://maps.google.com/?q=Dinh+Cau+Night+Market", lastVerified: VERIFIED_AT },
       ],
       verifiedAt: VERIFIED_AT,
-      warnings: ["주말 19시 이후 매우 혼잡"],
+      warnings: ["주말 19시 이후 매우 혼잡", "단품 시식만 할 경우 1인 100~200k VND 수준 — 표시 가격은 가이드 워킹투어 패키지 기준"],
     },
   },
   {
@@ -229,7 +230,8 @@ export const phuQuocPlaces: SeedPlace[] = [
     name: "사오비치 (Bãi Sao)",
     category: "spot",
     location: { lat: 10.0392, lng: 104.0274, address: "An Thới, Phú Quốc" },
-    estimatedPrice: { amount: 0, currency: "VND" },
+    // 사이클 B: 데이투어(왕복교통+점심+남부 명소) 패키지 기준. OTA 53k KRW × 18 ≈ 954k VND
+    estimatedPrice: { amount: 950000, currency: "VND" },
     defaultDurationMinutes: 180,
     evidence: {
       reasons: [
@@ -242,7 +244,10 @@ export const phuQuocPlaces: SeedPlace[] = [
         { platform: "google", reviewCount: 14200, positiveRate: 92, lastVerified: VERIFIED_AT },
       ],
       verifiedAt: VERIFIED_AT,
-      warnings: ["선베드는 음식점 이용 시 무료, 단독 대여는 유료"],
+      warnings: [
+        "해변 입장 자체는 무료 — 표시 가격은 왕복교통+점심 포함 데이투어 기준",
+        "선베드는 음식점 이용 시 무료, 단독 대여는 유료",
+      ],
     },
   },
   {

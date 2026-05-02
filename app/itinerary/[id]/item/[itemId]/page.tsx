@@ -14,8 +14,9 @@ import Link from "next/link";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { getDemoItem, getDemoTrip } from "@/lib/seed";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
-import { verifyPlaceAction } from "@/actions/place";
+import { verifyPlaceAction, validateItemAction } from "@/actions/place";
 import type { VerifyPlaceResult } from "@/lib/services/place-verification";
+import { ValidationBadges } from "@/components/itinerary/ValidationBadges";
 import {
   googleMapsUrl,
   uberUrl,
@@ -78,6 +79,10 @@ export default async function ItineraryItemPage({
     name: ko,
     location: { lat: item.location.lat, lng: item.location.lng },
   });
+
+  // 5단계 검증 종합 (사이클 L+N · ADR-029) — 1·2·3·5단계 종합 + DB 영속화.
+  // R1 후속 부채 메모: googleResult와 일부 중복 호출되나 24h 캐시로 dedupe (사이클 후속 통합 예정).
+  const validationResult = await validateItemAction({ item });
 
   // OTA Offer 매칭 (M8, 사이클 12a 시드 + 12b 실 API aggregator, ADR-027).
   // 모든 OTA 키 미설정 → 시드만 (12a 회귀 0). 일부 설정 → 해당 OTA만 실 API.
@@ -197,6 +202,9 @@ export default async function ItineraryItemPage({
 
           {/* Google Places 검증 (5b-3, S-03 1~2단계) */}
           <GoogleVerificationBadge result={googleResult} />
+
+          {/* 5단계 검증 종합 뱃지 (사이클 L+N · D · ADR-029) */}
+          <ValidationBadges result={validationResult} />
 
           {warning && (
             <div className="flex items-start gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-xl">

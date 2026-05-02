@@ -151,6 +151,25 @@ describe("determineBookingRequired — 데모 fallback (types 없음)", () => {
     expect(out.required).toBe(false);
     expect(out.source).toBe("fallback");
   });
+
+  // T12 사이클 B 회귀 검증
+  it("category=spot + '사파리' 키워드 → required: true", () => {
+    const out = determineBookingRequired({
+      category: "spot",
+      name: "빈펄 사파리 (Vinpearl Safari)",
+    });
+    expect(out.required).toBe(true);
+    expect(out.source).toBe("fallback");
+  });
+
+  it("category=spot + '사오비치' 키워드 → required: true (데이투어 패키지)", () => {
+    const out = determineBookingRequired({
+      category: "spot",
+      name: "사오비치 (Bãi Sao)",
+    });
+    expect(out.required).toBe(true);
+    expect(out.source).toBe("fallback");
+  });
 });
 
 describe("determineBookingRequired — 우선순위·경계", () => {

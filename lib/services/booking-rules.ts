@@ -62,7 +62,7 @@ const RESTAURANT_TYPES = new Set([
 // 데모 fallback 키워드 (한·영 매칭)
 // ═══════════════════════════════════════════════════════════════════
 
-/** spot 카테고리에서 예약/티켓 필요 키워드 */
+/** spot 카테고리에서 예약/티켓 필요 키워드 (사이클 B 보강) */
 const SPOT_BOOKING_KEYWORDS = [
   "케이블카",
   "투어",
@@ -72,6 +72,10 @@ const SPOT_BOOKING_KEYWORDS = [
   "크루즈",
   "패스",
   "투어권",
+  // 사이클 B (T12 fix): 시드 데이터의 데이투어/사파리 일정에 booking 정확 매칭
+  "사파리",
+  "사오비치",
+  "데이투어",
   "tour",
   "ticket",
   "snorkel",
@@ -80,6 +84,9 @@ const SPOT_BOOKING_KEYWORDS = [
   "pass",
   "vinwonders",
   "vinpearl",
+  "safari",
+  "day tour",
+  "sao beach",
 ];
 
 /** food 카테고리에서 예약 권장 키워드 (프리미엄 식당) */

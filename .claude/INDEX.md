@@ -227,6 +227,7 @@
 | 후속 일괄 (5b-6.5 / 5b-5.5 / 7.5+ / 11c / 12c) | ✅ 2026-04-30 완료 | Naver UI 통합 · Translate Live · Maps directions+Geo · 카카오 email + ShareLink edit · /admin/affiliate |
 | v2 출시 준비 (A~K 11 작업) | ✅ 2026-04-30 완료 | 권한 검증 · 보안 헤더 · migration 0005~0006 · 방콕/도쿄 · Vote · OG · 카카오맵 · 정산 · README · 체크리스트 · Playwright |
 | **L+N — 5단계 검증 3·5단계 (booking + price)** | ✅ 2026-05-02 완료 | ADR-029 · vitest 도입(38건 PASS) · ValidationResult 첫 영속화 · Google Places types · OTA aggregator 가격 비교(±20%) · matchTag·통화환산 fix · 사용자 액션 0 |
+| **B+D — 시드 보정 + ValidationBadges UI** | ✅ 2026-05-02 완료 | 야시장 550k VND·사오비치 950k VND·사파리 OTA 3건 추가 · 도달률 17→42% · ValidationBadges 컴포넌트 7 status × 디자인 토큰 · vitest 40건 · booking 키워드 보강(사파리·사오비치·데이투어) |
 
 ---
 

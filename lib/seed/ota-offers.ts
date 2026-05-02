@@ -111,6 +111,40 @@ export const phuQuocOtaOffers: OtaOffer[] = [
     url: "https://www.agoda.com/activities/vinwonders-phu-quoc",
   },
 
+  // ── 빈펄 사파리 (사이클 B 추가) ──────────────────────────────────
+  // 시드 estimatedPrice 650k VND ≈ 36.1k KRW와 정렬 (deltaPct ≈ ±5% 이내)
+  {
+    id: "klook-pq-safari",
+    matchTag: "pq-spot-safari",
+    ota: "klook",
+    title: "빈펄 사파리 입장권 (Vinpearl Safari)",
+    priceKrw: 35000,
+    originalPriceKrw: 42000,
+    rating: 4.7,
+    reviewCount: 982,
+    url: "https://www.klook.com/activity/9200-vinpearl-safari-phu-quoc",
+  },
+  {
+    id: "kkday-pq-safari",
+    matchTag: "pq-spot-safari",
+    ota: "kkday",
+    title: "Vinpearl Safari Day Pass",
+    priceKrw: 37500,
+    rating: 4.6,
+    reviewCount: 412,
+    url: "https://www.kkday.com/product/56700-vinpearl-safari",
+  },
+  {
+    id: "agoda-pq-safari",
+    matchTag: "pq-spot-safari",
+    ota: "agoda",
+    title: "Vinpearl Safari + Shuttle",
+    priceKrw: 38000,
+    rating: 4.5,
+    reviewCount: 289,
+    url: "https://www.agoda.com/activities/phu-quoc/vinpearl-safari",
+  },
+
   // ── 스노클링 / 호 트럼 ────────────────────────────────────────────
   {
     id: "klook-pq-snorkeling",
