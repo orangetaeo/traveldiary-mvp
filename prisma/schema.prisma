@@ -140,6 +140,10 @@ model ValidationResult {
   distanceVerified  Boolean
   priceVerified     Boolean
 
+  /** 사이클 E (ADR-031) — enum status 평탄화 해소. 기존 row NULL 허용. */
+  priceStatus       String?
+  distanceStatus    String?
+
   validatedAt       DateTime      @default(now())
 
   @@index([itemId, validatedAt])

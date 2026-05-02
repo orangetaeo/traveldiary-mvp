@@ -14,7 +14,7 @@ import Link from "next/link";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { getDemoItem, getDemoTrip } from "@/lib/seed";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
-import { verifyPlaceAction, validateItemAction } from "@/actions/place";
+import { validateItemAction } from "@/actions/place";
 import type { VerifyPlaceResult } from "@/lib/services/place-verification";
 import { ValidationBadges } from "@/components/itinerary/ValidationBadges";
 import {
@@ -72,14 +72,6 @@ export default async function ItineraryItemPage({
   const verifiedReviews = naverSource?.reviewCount ?? 0;
   const priceLevel = priceLevelOf(item.estimatedPrice?.amount);
 
-  // Google Places 검증 (ADR-018, S-03 1~2단계). 페이지 진입 시 자동 호출.
-  // API 키 미설정 또는 DB 미연결 시 즉시 demo 반환 → 회귀 안전.
-  const googleResult = await verifyPlaceAction({
-    itemId: item.id,
-    name: ko,
-    location: { lat: item.location.lat, lng: item.location.lng },
-  });
-
   // 다음 일정 lookup (사이클 M · ADR-030) — 같은 dayIndex 안에서 scheduledAt 기준 다음 노드.
   // 마지막 일정·미지정이면 null → distance.status = "no_next" (검증 면제).
   const sameDay = bundle.items
@@ -94,10 +86,14 @@ export default async function ItineraryItemPage({
         }
       : null;
 
-  // 5단계 검증 종합 (사이클 L+N · ADR-029 + 사이클 M · ADR-030)
-  // 1·2·3·4·5단계 종합 + DB 영속화.
-  // R1 후속 부채 메모: googleResult와 일부 중복 호출되나 24h 캐시로 dedupe (사이클 후속 통합 예정).
+  // 5단계 검증 종합 (사이클 L+N · ADR-029 + M · ADR-030 + E · ADR-031 통합)
+  // 1·2·3·4·5단계 종합 + DB 영속화 + verifyPlace 결과(googleResult) 통합.
   const validationResult = await validateItemAction({ item, nextItem });
+  // 사이클 E (ADR-031) — verifyPlaceAction 호출 제거. validateItemResult.googleResult 사용.
+  const googleResult: VerifyPlaceResult =
+    validationResult.mode === "ok"
+      ? validationResult.googleResult
+      : { mode: "demo" };
 
   // OTA Offer 매칭 (M8, 사이클 12a 시드 + 12b 실 API aggregator, ADR-027).
   // 모든 OTA 키 미설정 → 시드만 (12a 회귀 0). 일부 설정 → 해당 OTA만 실 API.

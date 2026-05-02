@@ -10,10 +10,14 @@ import path from "path";
 
 export default defineConfig({
   test: {
-    include: ["tests/unit/**/*.test.ts"],
+    include: ["tests/unit/**/*.test.{ts,tsx}"],
     environment: "node",
     globals: false,
     reporters: ["default"],
+  },
+  // 사이클 E (ADR-031) — StatusBadge .tsx 테스트 위해 자동 JSX runtime
+  esbuild: {
+    jsx: "automatic",
   },
   resolve: {
     alias: {

@@ -1,17 +1,22 @@
 "use server";
 
 /**
- * Place Verification Server Action — 사이클 5b-3 (ADR-018) + 사이클 L+N (ADR-029).
+ * Place Verification Server Action — 사이클 5b-3 (ADR-018) + 사이클 L+N (ADR-029) + 사이클 E (ADR-031).
  *
- * - verifyPlaceAction (기존, 5b-3): 1·2단계만. 그대로 유지 (회귀 위험 0).
- * - validateItemAction (신규, L+N): 1·2·3·5단계 종합 + ValidationResult DB 저장.
- *   4단계 distanceVerified는 사이클 M까지 false 고정.
+ * - verifyPlaceAction (기존, 5b-3): @deprecated — 사이클 E 이후 validateItemAction이 google 결과 반환.
+ *   호출처 정리 후 제거 예정. 당장 회귀 위험 0 위해 유지.
+ * - validateItemAction: 1·2·3·4·5단계 종합 + ValidationResult DB 저장 + google 결과 노출.
  *
  * 정책:
  *   - audit log 동시 호출 (S-13). action="validation.completed".
  *   - audit log 실패는 비즈니스 막지 않음.
  *   - 24h 캐시 hit 시 audit log 미기록 (fresh-only, 5b-3 정책 답습).
  *   - 권한: canReadTrip만 (ValidationResult는 부속 데이터).
+ *
+ * 사이클 E (ADR-031):
+ *   - ValidationResult.priceStatus / distanceStatus 컬럼 활용 — 캐시 hit 정확화.
+ *   - validateItemAction이 verifyPlace 결과 노출 → page.tsx 외부 호출 1회로 통합.
+ *   - audit "evidence.gathered" → validateItemAction 안에서도 발행 (verifyPlaceAction 제거 대비).
  */
 
 import { writeAuditLog } from "@/lib/audit-log";
@@ -45,6 +50,10 @@ export interface VerifyPlaceActionInput {
   location?: { lat: number; lng: number };
 }
 
+/**
+ * @deprecated 사이클 E (ADR-031) 이후 validateItemAction이 google 결과 노출.
+ * 호출처 정리 후 제거 예정. 당장 호환성 위해 유지.
+ */
 export async function verifyPlaceAction(
   input: VerifyPlaceActionInput,
 ): Promise<VerifyPlaceResult> {
@@ -120,6 +129,11 @@ export type ValidateItemResult =
       price: PriceVerificationOutput;
       /** 사이클 M (ADR-030) — 4단계 distanceVerified */
       distance: DistanceVerificationOutput;
+      /**
+       * 사이클 E (ADR-031) — verifyPlace 결과 노출.
+       * page.tsx의 GoogleVerificationBadge가 이 값으로 그림 (verifyPlaceAction 호출 제거 대비).
+       */
+      googleResult: VerifyPlaceResult;
       /** DB save 성공 시 row id, 실패/데모 시 null */
       validationId: string | null;
       validatedAt: string;
@@ -164,29 +178,10 @@ export async function validateItemAction(
         reason: "24h 캐시 hit",
         source: "fallback",
       },
-      price: {
-        // T13 리뷰: DB는 boolean만 저장 → false인 경우 warn/mismatch/no_offers 구분 불가.
-        // 보수적 fallback: false면 "warn" (미검증으로 표시되 사용자 결정권 보존).
-        // 정확한 status는 24h 후 새 검증 또는 후속 마이그레이션 (ADR-029 추적).
-        status: cached.priceVerified ? "verified" : "warn",
-        verified: cached.priceVerified,
-        reason: "24h 캐시 hit",
-        deltaPct: null,
-        medianOtaPriceKrw: null,
-        otaSourceCount: 0,
-      },
-      distance: {
-        // T13 리뷰: priceVerified와 같은 한계 — DB는 boolean만 저장.
-        // 보수적 fallback: false면 "warn" (이전 검증이 빠듯/부족 어느 쪽이었는지 미상).
-        status: cached.distanceVerified ? "verified" : "warn",
-        verified: cached.distanceVerified,
-        reason: "24h 캐시 hit",
-        travelMinutes: null,
-        gapMinutes: null,
-        distanceKm: null,
-        mode: null,
-        source: "none",
-      },
+      price: derivePriceFromCache(cached),
+      distance: deriveDistanceFromCache(cached),
+      // 캐시 hit 시 google 결과 미보존 — operatingStatus만으로 demo/verified 추정
+      googleResult: deriveGoogleFromCache(cached),
       validationId: cached.id,
       validatedAt: cached.validatedAt.toISOString(),
     };
@@ -284,6 +279,9 @@ export async function validateItemAction(
     bookingRequired: booking.required,
     distanceVerified: distance.verified,
     priceVerified: price.verified,
+    // 사이클 E (ADR-031) — enum status 영속화
+    priceStatus: price.status,
+    distanceStatus: distance.status,
   });
 
   // ── audit log (fresh fetch만 — 캐시 hit는 위에서 early return)
@@ -321,6 +319,40 @@ export async function validateItemAction(
     },
   });
 
+  // 사이클 E (ADR-031) — verifyPlaceAction 제거 대비 evidence.gathered audit 발행
+  const isPlaceFresh =
+    (placeResult.mode === "verified" && !placeResult.cached) ||
+    (placeResult.mode === "not_found" && !placeResult.cached);
+  if (isPlaceFresh) {
+    await writeAuditLog({
+      actorId,
+      action: "evidence.gathered",
+      resource: "ItineraryItem",
+      resourceId: item.id,
+      before: null,
+      after:
+        placeResult.mode === "verified"
+          ? {
+              placeExists: true,
+              operatingStatus: placeResult.operatingStatus,
+              placeId: placeResult.placeId,
+              rating: placeResult.rating,
+              userRatingsTotal: placeResult.userRatingsTotal,
+            }
+          : { placeExists: false },
+      metadata: {
+        source: "google",
+        query: item.name,
+        cached: false,
+        fetchDurationMs:
+          placeResult.mode === "verified" || placeResult.mode === "not_found"
+            ? placeResult.fetchDurationMs
+            : undefined,
+        viaValidateItem: true, // 사이클 E 통합 추적
+      },
+    });
+  }
+
   return {
     mode: "ok",
     cached: false,
@@ -329,6 +361,7 @@ export async function validateItemAction(
     booking,
     price,
     distance,
+    googleResult: placeResult,
     validationId: saved?.id ?? null,
     validatedAt: (saved?.validatedAt ?? new Date()).toISOString(),
   };
@@ -339,4 +372,82 @@ function deriveCachedOpStatus(stored: string): "open" | "closed" | "demo" {
     return stored;
   }
   return "demo";
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 캐시 hit fallback — 사이클 E (ADR-031)
+// 새 row는 priceStatus/distanceStatus 채워짐 → 정확한 enum 복원.
+// 기존 row(NULL)는 이전 보수적 fallback 답습 (회귀 0).
+// ═══════════════════════════════════════════════════════════════════
+
+function derivePriceFromCache(cached: ValidationResultRow): PriceVerificationOutput {
+  // 새 row — priceStatus 채워진 경우 정확 복원
+  if (cached.priceStatus) {
+    return {
+      status: cached.priceStatus as PriceVerificationOutput["status"],
+      verified: cached.priceVerified,
+      reason: "24h 캐시 hit",
+      deltaPct: null,
+      medianOtaPriceKrw: null,
+      otaSourceCount: 0,
+    };
+  }
+  // 기존 row (NULL) — 보수적 fallback
+  return {
+    status: cached.priceVerified ? "verified" : "warn",
+    verified: cached.priceVerified,
+    reason: "24h 캐시 hit",
+    deltaPct: null,
+    medianOtaPriceKrw: null,
+    otaSourceCount: 0,
+  };
+}
+
+function deriveDistanceFromCache(cached: ValidationResultRow): DistanceVerificationOutput {
+  if (cached.distanceStatus) {
+    return {
+      status: cached.distanceStatus as DistanceVerificationOutput["status"],
+      verified: cached.distanceVerified,
+      reason: "24h 캐시 hit",
+      travelMinutes: null,
+      gapMinutes: null,
+      distanceKm: null,
+      mode: null,
+      source: "none",
+    };
+  }
+  return {
+    status: cached.distanceVerified ? "verified" : "warn",
+    verified: cached.distanceVerified,
+    reason: "24h 캐시 hit",
+    travelMinutes: null,
+    gapMinutes: null,
+    distanceKm: null,
+    mode: null,
+    source: "none",
+  };
+}
+
+function deriveGoogleFromCache(cached: ValidationResultRow): VerifyPlaceResult {
+  // 캐시 hit 시 google 결과 미보존 → operatingStatus로 demo/verified 추정 (rating·types 정보 미복원)
+  if (cached.operatingStatus === "demo") return { mode: "demo" };
+  if (!cached.placeExists) {
+    return {
+      mode: "not_found",
+      placeExists: false,
+      cached: true,
+      fetchDurationMs: 0,
+    };
+  }
+  return {
+    mode: "verified",
+    placeExists: true,
+    operatingStatus:
+      cached.operatingStatus === "open" || cached.operatingStatus === "closed"
+        ? cached.operatingStatus
+        : "open",
+    placeId: "", // 캐시 미보존
+    cached: true,
+    fetchDurationMs: 0,
+  };
 }

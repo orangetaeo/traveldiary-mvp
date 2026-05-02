@@ -22,6 +22,9 @@ export interface ValidationResultRow {
   bookingRequired: boolean;
   distanceVerified: boolean;
   priceVerified: boolean;
+  /** 사이클 E (ADR-031) — 기존 row는 NULL */
+  priceStatus: string | null;
+  distanceStatus: string | null;
   validatedAt: Date;
 }
 
@@ -57,6 +60,9 @@ export interface CreateValidationInput {
   bookingRequired: boolean;
   distanceVerified: boolean;
   priceVerified: boolean;
+  /** 사이클 E (ADR-031) — enum status 평탄화 해소 */
+  priceStatus?: string;
+  distanceStatus?: string;
 }
 
 /**
@@ -77,6 +83,8 @@ export async function createValidation(
         bookingRequired: input.bookingRequired,
         distanceVerified: input.distanceVerified,
         priceVerified: input.priceVerified,
+        priceStatus: input.priceStatus,
+        distanceStatus: input.distanceStatus,
       },
     });
     return row;

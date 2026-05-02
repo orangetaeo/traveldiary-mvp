@@ -231,6 +231,7 @@
 | **M — 5단계 검증 4단계 distanceVerified** | ✅ 2026-05-02 완료 | ADR-030 · Google Directions + Haversine fallback · DistanceBadge 6 status · 차별화 축 2 인프라 65→85% · vitest +23건 (총 63) · 마이그레이션 0 · 사용자 액션 1건 (선택) |
 | **C — 다낭/방콕/도쿄 OTA 인프라 시드** | ✅ 2026-05-02 완료 | OTA Offer 18건 (도시당 6) · matchTag 도시 prefix 표준(pq/dn/bk/ty) · findOffersByKeyword 다국가 한·영 분기 · vitest +24건 (총 87) · itinerary 시드는 별도 사이클로 분리 |
 | **D — 다낭 itinerary 시드 + 도달률 50%** | ✅ 2026-05-02 완료 | 다낭 12 일정 (3박 4일) · OTA 매칭 6건 verified 보장 · OTA 풀 다낭 6→15건 · listDemoTrips() 두 trip 노출 · 홈에 "다른 도시" 카드 · vitest +21건 (총 108) · 도달률 50%/100% |
+| **E — 인프라 부채 해소 (마이그 0007 + 통합 + StatusBadge)** | ✅ 2026-05-02 완료 | ADR-031 · ValidationResult priceStatus/distanceStatus 컬럼 (캐시 hit 정확화) · validateItemAction이 googleResult 노출 (외부 API 호출 50% ↓) · StatusBadge 공통 컴포넌트 + mismatch ring-2 강화 · vitest +7건 (총 115) · 사용자 액션 1건 (`prisma migrate deploy` 선택) |
 
 ---
 
