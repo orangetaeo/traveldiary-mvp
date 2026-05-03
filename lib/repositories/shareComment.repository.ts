@@ -7,7 +7,7 @@
 
 import "server-only";
 
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 
 export type CommentReaction = "LIKE" | "DISLIKE" | "QUESTION" | null;
@@ -134,20 +134,37 @@ export async function createCommentRow(
     return { ok: false, code: "rate_limited", message: "잠시 후 다시 시도해주세요" };
   }
 
+  const data = {
+    shareLinkId: input.shareLinkId,
+    itemId: input.itemId ?? null,
+    nickname: escapeHtml(input.nickname.trim()),
+    body: escapeHtml(input.body.trim()),
+    reaction: input.reaction ?? null,
+    clientUuid: input.clientUuid,
+    actorId: input.actorId ?? null,
+  };
+
   try {
-    const row = await prisma.shareComment.create({
-      data: {
-        shareLinkId: input.shareLinkId,
-        itemId: input.itemId ?? null,
-        nickname: escapeHtml(input.nickname.trim()),
-        body: escapeHtml(input.body.trim()),
-        reaction: input.reaction ?? null,
-        clientUuid: input.clientUuid,
-        actorId: input.actorId ?? null,
-      },
-    });
+    const row = await prisma.shareComment.create({ data });
     return { ok: true, comment: rowToComment(row) };
   } catch (err) {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2003" &&
+      data.actorId !== null
+    ) {
+      // 사이클 GG (ADR-038 §FK race) — 사이클 HH 마이그 0012 적용 후 actorId가
+      // User 삭제 race로 무효화된 순간을 대비. actorId만 null로 떨어뜨려 재시도.
+      try {
+        const row = await prisma.shareComment.create({
+          data: { ...data, actorId: null },
+        });
+        return { ok: true, comment: rowToComment(row) };
+      } catch (retryErr) {
+        console.error("[shareComment.repository] create retry failed", retryErr);
+        return { ok: false, code: "internal" };
+      }
+    }
     console.error("[shareComment.repository] create failed", err);
     return { ok: false, code: "internal" };
   }
@@ -156,6 +173,30 @@ export async function createCommentRow(
 export interface DeleteCommentInput {
   commentId: string;
   clientUuid: string;
+  /** 사이클 GG — JWT에서 추출한 인증 사용자 id. 미인증 시 null. UI 입력 신뢰 X. */
+  actorId?: string | null;
+}
+
+/**
+ * 사이클 GG (ADR-038, T16 OWASP A01) — 본인 삭제 OR 게이트.
+ *
+ * clientUuid 매칭 || (actorId != null && actorId 매칭). 익명 댓글(actorId=null)에
+ * actorId 경로가 활성화되면 null === null 우회로 모든 미인증 사용자가 익명 댓글을
+ * 지울 수 있게 됨 — `existing.actorId != null` 가드 필수.
+ */
+export function canDeleteComment(
+  existing: { clientUuid: string; actorId: string | null },
+  input: { clientUuid: string; actorId?: string | null },
+): boolean {
+  if (existing.clientUuid === input.clientUuid) return true;
+  if (
+    existing.actorId !== null &&
+    input.actorId != null &&
+    existing.actorId === input.actorId
+  ) {
+    return true;
+  }
+  return false;
 }
 
 export async function deleteCommentRow(
@@ -170,7 +211,12 @@ export async function deleteCommentRow(
     if (!existing || existing.deletedAt) {
       return { ok: false, code: "not_found" };
     }
-    if (existing.clientUuid !== input.clientUuid) {
+    if (
+      !canDeleteComment(
+        { clientUuid: existing.clientUuid, actorId: existing.actorId },
+        { clientUuid: input.clientUuid, actorId: input.actorId ?? null },
+      )
+    ) {
       return { ok: false, code: "forbidden" };
     }
     await prisma.shareComment.update({
