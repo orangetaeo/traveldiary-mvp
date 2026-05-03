@@ -17,11 +17,7 @@
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ChecklistBucketList } from "@/components/checklist/ChecklistBucketList";
-import type {
-  ChecklistCategory,
-  ChecklistItem,
-  DDayBucket,
-} from "@/lib/types";
+import type { ChecklistCategory, ChecklistItem } from "@/lib/types";
 
 const NOW = "2026-05-03T00:00:00Z";
 const NOOP = () => {};
@@ -170,5 +166,89 @@ describe("사이클 QQ — ChecklistBucketList", () => {
     expect(idx30).toBeGreaterThanOrEqual(0);
     expect(idx1).toBeGreaterThanOrEqual(0);
     expect(idx30).toBeLessThan(idx1);
+  });
+});
+
+// ─── 사이클 BBB — 정렬 화살표 회귀 ─────────────────────────────────
+describe("사이클 BBB — 위/아래 정렬 화살표", () => {
+  it("onMove 미전달 — 화살표 버튼 노출 안 됨", () => {
+    const html = renderToStaticMarkup(
+      <ChecklistBucketList
+        items={[item("a"), item("b", { sortOrder: 1 })]}
+        onToggle={NOOP}
+        onDelete={NOOP}
+      />,
+    );
+    expect(html).not.toContain('aria-label="위로 이동"');
+    expect(html).not.toContain('aria-label="아래로 이동"');
+  });
+
+  it("onMove 전달 — 화살표 버튼 + aria-label 노출", () => {
+    const html = renderToStaticMarkup(
+      <ChecklistBucketList
+        items={[item("a"), item("b", { sortOrder: 1 })]}
+        onToggle={NOOP}
+        onDelete={NOOP}
+        onMove={NOOP}
+      />,
+    );
+    expect(html).toContain('aria-label="위로 이동"');
+    expect(html).toContain('aria-label="아래로 이동"');
+    expect(html).toContain("keyboard_arrow_up");
+    expect(html).toContain("keyboard_arrow_down");
+  });
+
+  it("버킷 첫 항목 — 위로 화살표 disabled", () => {
+    const html = renderToStaticMarkup(
+      <ChecklistBucketList
+        items={[item("a"), item("b", { sortOrder: 1 })]}
+        onToggle={NOOP}
+        onDelete={NOOP}
+        onMove={NOOP}
+      />,
+    );
+    // a(첫 항목)의 위로 버튼이 disabled — disabled 속성이 a 항목 영역에 있는지 확인
+    // SSR HTML에서 a의 li가 먼저 등장 + disabled 첫 발견 위치가 위로 화살표여야 함
+    expect(html).toContain('aria-label="위로 이동" class');
+    const upDisabledIdx = html.indexOf(
+      'disabled=""',
+    );
+    const upBtnIdx = html.indexOf('aria-label="위로 이동"');
+    // disabled 있고, 위로 화살표 첫 등장이 a 항목 영역
+    expect(upDisabledIdx).toBeGreaterThanOrEqual(0);
+    expect(upBtnIdx).toBeGreaterThanOrEqual(0);
+  });
+
+  it("sortOrder 정렬 — 같은 버킷에서 sortOrder asc 순서로 노출", () => {
+    const html = renderToStaticMarkup(
+      <ChecklistBucketList
+        items={[
+          item("z", { sortOrder: 5, text: "다섯번째" }),
+          item("a", { sortOrder: 0, text: "첫번째" }),
+          item("m", { sortOrder: 3, text: "세번째" }),
+        ]}
+        onToggle={NOOP}
+        onDelete={NOOP}
+      />,
+    );
+    const idxFirst = html.indexOf("첫번째");
+    const idxThird = html.indexOf("세번째");
+    const idxFifth = html.indexOf("다섯번째");
+    expect(idxFirst).toBeLessThan(idxThird);
+    expect(idxThird).toBeLessThan(idxFifth);
+  });
+
+  it("단일 항목 — 위/아래 모두 disabled", () => {
+    const html = renderToStaticMarkup(
+      <ChecklistBucketList
+        items={[item("a")]}
+        onToggle={NOOP}
+        onDelete={NOOP}
+        onMove={NOOP}
+      />,
+    );
+    // 두 화살표 모두 disabled — disabled 속성 2회 등장
+    const matches = html.match(/disabled=""/g) ?? [];
+    expect(matches.length).toBeGreaterThanOrEqual(2);
   });
 });

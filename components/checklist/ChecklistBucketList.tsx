@@ -2,9 +2,10 @@
 
 /**
  * 사이클 QQ — ChecklistBucketList (ChecklistView에서 추출).
+ * 사이클 BBB(2026-05-03) — 위/아래 화살표 정렬 (ADR-022 백로그 활성).
  *
  * 답습: 사이클 LL/NN (presentation 컴포넌트 추출).
- * 책임: D-Day 버킷별 항목 그룹 + 토글/삭제 버튼. 액션은 부모 콜백.
+ * 책임: D-Day 버킷별 항목 그룹 + 토글/삭제 + 위/아래 정렬 버튼. 액션은 부모 콜백.
  */
 
 import type {
@@ -17,6 +18,7 @@ interface Props {
   items: ChecklistItem[];
   onToggle: (item: ChecklistItem) => void;
   onDelete: (item: ChecklistItem) => void;
+  onMove?: (item: ChecklistItem, direction: "up" | "down") => void;
 }
 
 const BUCKET_ORDER: DDayBucket[] = [
@@ -55,11 +57,18 @@ const CATEGORY_TONE: Record<ChecklistCategory, string> = {
   custom: "bg-surface-soft text-ink-soft",
 };
 
-export function ChecklistBucketList({ items, onToggle, onDelete }: Props) {
+export function ChecklistBucketList({
+  items,
+  onToggle,
+  onDelete,
+  onMove,
+}: Props) {
   return (
     <section className="space-y-td-md">
       {BUCKET_ORDER.map((bucket) => {
-        const bucketItems = items.filter((it) => it.dDayBucket === bucket);
+        const bucketItems = items
+          .filter((it) => it.dDayBucket === bucket)
+          .sort((a, b) => a.sortOrder - b.sortOrder);
         if (bucketItems.length === 0) return null;
         const bucketDone = bucketItems.filter((it) => it.done).length;
         return (
@@ -76,62 +85,92 @@ export function ChecklistBucketList({ items, onToggle, onDelete }: Props) {
               </span>
             </header>
             <ul>
-              {bucketItems.map((item) => (
-                <li
-                  key={item.id}
-                  className="px-td-md py-td-sm border-b border-divider last:border-b-0 flex items-start gap-td-sm group"
-                >
-                  <button
-                    type="button"
-                    onClick={() => onToggle(item)}
-                    aria-label={item.done ? "체크 해제" : "체크"}
-                    className="mt-0.5 flex-shrink-0"
+              {bucketItems.map((item, idx) => {
+                const canMoveUp = idx > 0;
+                const canMoveDown = idx < bucketItems.length - 1;
+                return (
+                  <li
+                    key={item.id}
+                    className="px-td-md py-td-sm border-b border-divider last:border-b-0 flex items-start gap-td-sm group"
                   >
-                    <span
-                      className={`material-symbols-outlined ${
-                        item.done ? "filled text-purple" : "text-ink-mute"
-                      }`}
+                    <button
+                      type="button"
+                      onClick={() => onToggle(item)}
+                      aria-label={item.done ? "체크 해제" : "체크"}
+                      className="mt-0.5 flex-shrink-0"
                     >
-                      {item.done ? "check_circle" : "radio_button_unchecked"}
-                    </span>
-                  </button>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-td-xs flex-wrap">
                       <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-td-caption font-bold ${
-                          CATEGORY_TONE[item.category]
+                        className={`material-symbols-outlined ${
+                          item.done ? "filled text-purple" : "text-ink-mute"
                         }`}
                       >
-                        {CATEGORY_LABEL[item.category]}
+                        {item.done ? "check_circle" : "radio_button_unchecked"}
                       </span>
-                      <p
-                        className={`text-td-body ${
-                          item.done
-                            ? "line-through text-ink-mute"
-                            : "text-ink"
-                        }`}
-                      >
-                        {item.text}
-                      </p>
+                    </button>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-td-xs flex-wrap">
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-full text-td-caption font-bold ${
+                            CATEGORY_TONE[item.category]
+                          }`}
+                        >
+                          {CATEGORY_LABEL[item.category]}
+                        </span>
+                        <p
+                          className={`text-td-body ${
+                            item.done
+                              ? "line-through text-ink-mute"
+                              : "text-ink"
+                          }`}
+                        >
+                          {item.text}
+                        </p>
+                      </div>
+                      {item.cityNote && (
+                        <p className="text-td-caption text-ink-mute mt-td-xxs">
+                          💡 {item.cityNote}
+                        </p>
+                      )}
                     </div>
-                    {item.cityNote && (
-                      <p className="text-td-caption text-ink-mute mt-td-xxs">
-                        💡 {item.cityNote}
-                      </p>
+                    {onMove && (
+                      <div className="flex flex-col flex-shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => onMove(item, "up")}
+                          disabled={!canMoveUp}
+                          aria-label="위로 이동"
+                          className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-5 flex items-center"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            keyboard_arrow_up
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onMove(item, "down")}
+                          disabled={!canMoveDown}
+                          aria-label="아래로 이동"
+                          className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-5 flex items-center"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            keyboard_arrow_down
+                          </span>
+                        </button>
+                      </div>
                     )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(item)}
-                    aria-label="삭제"
-                    className="opacity-0 group-hover:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">
-                      close
-                    </span>
-                  </button>
-                </li>
-              ))}
+                    <button
+                      type="button"
+                      onClick={() => onDelete(item)}
+                      aria-label="삭제"
+                      className="opacity-0 group-hover:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">
+                        close
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </article>
         );

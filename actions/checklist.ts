@@ -15,8 +15,10 @@ import {
   bulkCreateChecklistItems,
   createChecklistItem,
   deleteChecklistItem,
+  moveChecklistItem,
   toggleChecklistItem,
   type CreateChecklistInput,
+  type MoveDirection,
 } from "@/lib/repositories/checklist.repository";
 import { isDbConnected } from "@/lib/prisma";
 import { ensureDemoTripInDb } from "@/lib/repositories/trip.repository";
@@ -141,6 +143,48 @@ export async function toggleChecklist(input: {
     before: { done: result.before.done },
     after: { done: result.after.done },
     metadata: { source: "web" },
+  });
+
+  revalidatePath(`/checklist/${input.tripId}`);
+  return { ok: true, demo: false, data: result.item };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// moveChecklist — 사이클 BBB (위/아래 화살표 정렬)
+// ═══════════════════════════════════════════════════════════════════
+
+export async function moveChecklist(input: {
+  itemId: string;
+  tripId: string;
+  direction: MoveDirection;
+}): Promise<ChecklistActionResult<ChecklistItem> | { ok: true; demo: false; data: ChecklistItem; noOp: true }> {
+  if (!isDbConnected) {
+    return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
+  }
+
+  const result = await moveChecklistItem(input.itemId, input.direction);
+  if (result === null) return { ok: false, code: "internal" };
+  if (result === "not_found") return { ok: false, code: "not_found" };
+  if (result === "no_op") {
+    // 버킷 끝 도달 — UI는 화살표 비활성화로 호출 자체를 막지만 안전 분기.
+    return { ok: false, code: "not_found" };
+  }
+
+  await writeAuditLog({
+    actorId: await getActorId(),
+    action: "checklist.reorder",
+    resource: "ChecklistItem",
+    resourceId: input.itemId,
+    before: { sortOrder: result.before.sortOrder },
+    after: { sortOrder: result.after.sortOrder },
+    metadata: {
+      source: "web",
+      direction: input.direction,
+      swappedWithId: result.swappedWithId,
+    },
   });
 
   revalidatePath(`/checklist/${input.tripId}`);

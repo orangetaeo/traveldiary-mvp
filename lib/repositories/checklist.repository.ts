@@ -136,6 +136,76 @@ export async function toggleChecklistItem(
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// 사이클 BBB — moveChecklistItem (위/아래 화살표 swap)
+//
+// 같은 (tripId, dDayBucket) 안의 인접 행과 sortOrder를 swap한다.
+// 버킷 첫 항목 위쪽 / 마지막 항목 아래쪽 호출은 "no_op" 반환.
+// ═══════════════════════════════════════════════════════════════════
+
+export type MoveDirection = "up" | "down";
+
+export interface MoveChecklistResult {
+  before: { sortOrder: number };
+  after: { sortOrder: number };
+  swappedWithId: string;
+  item: ChecklistItem;
+}
+
+export async function moveChecklistItem(
+  itemId: string,
+  direction: MoveDirection,
+): Promise<MoveChecklistResult | "not_found" | "no_op" | null> {
+  if (!prisma) return null;
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const target = await tx.checklistItem.findUnique({ where: { id: itemId } });
+      if (!target) return "not_found" as const;
+
+      // 같은 버킷 안의 인접 항목 찾기 — sortOrder 기준
+      const neighbor = await tx.checklistItem.findFirst({
+        where: {
+          tripId: target.tripId,
+          dDayBucket: target.dDayBucket,
+          sortOrder:
+            direction === "up"
+              ? { lt: target.sortOrder }
+              : { gt: target.sortOrder },
+        },
+        orderBy: { sortOrder: direction === "up" ? "desc" : "asc" },
+      });
+      if (!neighbor) return "no_op" as const;
+
+      // sortOrder swap — 단순 치환은 unique index 충돌 없음 (sortOrder는 PK 아님)
+      const targetOrder = target.sortOrder;
+      const neighborOrder = neighbor.sortOrder;
+
+      await tx.checklistItem.update({
+        where: { id: target.id },
+        data: { sortOrder: neighborOrder },
+      });
+      await tx.checklistItem.update({
+        where: { id: neighbor.id },
+        data: { sortOrder: targetOrder },
+      });
+
+      const after = await tx.checklistItem.findUniqueOrThrow({
+        where: { id: itemId },
+      });
+
+      return {
+        before: { sortOrder: targetOrder },
+        after: { sortOrder: neighborOrder },
+        swappedWithId: neighbor.id,
+        item: rowToItem(after),
+      };
+    });
+  } catch (err) {
+    console.error("[checklist.repository] move failed", err);
+    return null;
+  }
+}
+
 export async function deleteChecklistItem(
   itemId: string,
 ): Promise<{ before: ChecklistItem } | "not_found" | null> {

@@ -13,7 +13,6 @@ import {
   getCityBySlug,
   getCityByCode,
   isVietnamCity,
-  listVietnamCities,
   resolveCity,
 } from "@/lib/seed/cities";
 import { listDemoTrips, getDemoTrip } from "@/lib/seed";

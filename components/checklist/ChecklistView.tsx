@@ -16,9 +16,11 @@ import {
   addChecklistItem,
   addFromTemplate,
   deleteChecklist,
+  moveChecklist,
   toggleChecklist,
 } from "@/actions/checklist";
 import { DEFAULT_CHECKLIST_TEMPLATE } from "@/lib/seed/checklist-template";
+import { swapWithinBucket } from "@/lib/checklist-reorder";
 import type { ChecklistItem, Trip } from "@/lib/types";
 import { ChecklistEmptyState } from "./ChecklistEmptyState";
 import { ChecklistBucketList } from "./ChecklistBucketList";
@@ -148,6 +150,26 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
     });
   }
 
+  function handleMove(item: ChecklistItem, direction: "up" | "down") {
+    // 같은 버킷 안에서 인접 항목과 swap. 데모/DB 모두 옵티미스틱.
+    const snapshot = items;
+    setItems((prev) => swapWithinBucket(prev, item.id, direction));
+
+    startTransition(async () => {
+      const result = await moveChecklist({
+        itemId: item.id,
+        tripId: trip.id,
+        direction,
+      });
+      if (!result.ok) {
+        setItems(snapshot);
+        showToast(`정렬 실패: ${result.code}`);
+        return;
+      }
+      if (!result.demo) router.refresh();
+    });
+  }
+
   function handleDelete(item: ChecklistItem) {
     if (!confirm(`"${item.text}" 항목을 삭제할까요?`)) return;
 
@@ -230,6 +252,7 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
             items={items}
             onToggle={handleToggle}
             onDelete={handleDelete}
+            onMove={handleMove}
           />
         )}
 
