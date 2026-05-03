@@ -112,14 +112,7 @@ export default function SharedListPage() {
           <p className="text-sm text-ink-mute">불러오는 중…</p>
         )}
 
-        {state.kind === "empty" && (
-          <div className="text-center py-12">
-            <p className="text-base text-ink mb-2">받은 여행이 없습니다</p>
-            <p className="text-sm text-ink-mute">
-              일행이 보낸 공유 링크(/share/...)를 한 번 열면 여기에 자동으로 모입니다.
-            </p>
-          </div>
-        )}
+        {state.kind === "empty" && <EmptyGuide />}
 
         {state.kind === "error" && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -163,6 +156,89 @@ export default function SharedListPage() {
         )}
       </div>
     </main>
+  );
+}
+
+function EmptyGuide() {
+  const steps = [
+    {
+      icon: "chat",
+      title: "일행에게 링크 받기",
+      desc: "카카오톡·메시지 등으로 traveldiary-mvp.../share/... 형식 링크를 받아요.",
+    },
+    {
+      icon: "open_in_new",
+      title: "링크 한 번 열기",
+      desc: "받은 링크를 누르면 일정 화면이 열리고, 동시에 이 목록에 자동 등록돼요.",
+    },
+    {
+      icon: "inbox",
+      title: "여기서 다시 찾기",
+      desc: "다음부터는 이 페이지에서 받은 모든 여행을 한눈에 볼 수 있어요.",
+    },
+  ];
+
+  return (
+    <section aria-label="공유 받기 가이드" className="py-8">
+      <div className="text-center mb-6">
+        <span
+          className="material-symbols-outlined text-5xl text-purple-soft"
+          aria-hidden
+        >
+          inbox
+        </span>
+        <h2 className="text-lg font-semibold text-ink mt-2">
+          받은 여행이 없습니다
+        </h2>
+        <p className="text-sm text-ink-mute mt-1">
+          일행과 함께 여행을 둘러볼 때 여기에 모입니다.
+        </p>
+      </div>
+
+      <ol className="space-y-3" aria-label="3단계 가이드">
+        {steps.map((step, idx) => (
+          <li
+            key={step.icon}
+            className="flex gap-3 bg-surface-card border border-divider rounded-xl p-4"
+          >
+            <div className="flex-none w-8 h-8 rounded-full bg-purple-soft text-purple-deep flex items-center justify-center text-sm font-bold tabular-nums">
+              {idx + 1}
+            </div>
+            <div>
+              <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+                <span
+                  className="material-symbols-outlined text-[18px] text-purple"
+                  aria-hidden
+                >
+                  {step.icon}
+                </span>
+                {step.title}
+              </p>
+              <p className="text-xs text-ink-mute mt-1 leading-relaxed">
+                {step.desc}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-6 bg-surface-card border border-divider rounded-xl p-4 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-ink">
+            내 여행을 공유하고 싶나요?
+          </p>
+          <p className="text-xs text-ink-mute mt-1">
+            일정 화면 → 함께 보기 → 공유 링크.
+          </p>
+        </div>
+        <Link
+          href="/trips"
+          className="flex-none text-purple text-sm font-medium hover:text-purple-deep"
+        >
+          내 여행 →
+        </Link>
+      </div>
+    </section>
   );
 }
 

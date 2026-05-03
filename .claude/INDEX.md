@@ -249,6 +249,10 @@
 | **W — /shared 받은 trip 목록 (M7 미니)** | ✅ 2026-05-03 완료 | LocalStorage td_received_share_keys (LRU 50, 1년) · ReceivedKeyTracker 'use client' (/share/[key]에서 자동 추가) · /api/share/lookup POST (분당 30회 IP rate limit) · /shared 페이지 + /trips에 "받은 여행" 링크 · BottomNav 변경 X (사이클 I/O 답습) · vitest +14 (총 373) |
 | **X — M3 Live Replan 동적 trigger** | ✅ 2026-05-03 완료 | ItineraryView에 activeTrigger state + 카드 dropdown(Day별 일정 선택) + 30/60/90분 버튼 · effectiveTrigger를 ReplanModal/commitReplan 전달 · 기존 hardcoded `pq-item-6` → fallback으로만 사용 · mutation 자체는 무변경 (답습) |
 | **Y — M4 카메라 번역 진단 도구** | ✅ 2026-05-03 완료 | `/api/diag/translate` GET (vision/claude available + keyMask 마지막 4자만) · docs/12-user-actions.md §C 신규 (Vision/Claude 활성 검증 + 비용 가드) · vitest +5 · ADR 불필요 |
+| **Z — M3 trigger type 확장** | ✅ 2026-05-03 완료 | ItineraryView에 사유 dropdown(지연/악천후/웨이팅/직접 조정) 추가 · ReplanModal triggerLabel은 이미 보유 → UI만 보완 · vitest 변동 X · ADR 불필요 |
+| **AA — M3 weather condition 선택** | ✅ 2026-05-03 완료 | weather 선택 시에만 condition select 노출(비/태풍/안개) · 사이클 X aria-pressed 잔존 진단 정리(토글 아닌 트리거라 제거) · vitest 변동 X |
+| **BB — /shared 빈 상태 가이드** | ✅ 2026-05-03 완료 | EmptyGuide 컴포넌트 — 3단계 가이드 카드(링크 받기→열기→자동 등록) + "내 여행" CTA · 데모 모드 사용자 onboarding 강화 · vitest 변동 X |
+| **CC — ItineraryView 분할 (사이클 O 답습)** | ✅ 2026-05-03 완료 | `components/itinerary/ReplanTriggerCard.tsx` 추출(~170행) · ItineraryView 754→610행(-144행) · Button import 제거 · 단위 테스트 6건(weather 분기·appliedLabel 분기·dropdown·chip) · vitest +6 (총 379) · STEP 3 복귀 0회 |
 
 ---
 

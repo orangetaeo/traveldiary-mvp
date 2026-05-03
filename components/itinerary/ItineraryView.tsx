@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { ReplanModal } from "./ReplanModal";
+import { ReplanTriggerCard } from "./ReplanTriggerCard";
 import {
   generateReplanOptions,
   type ReplanTrigger,
@@ -95,23 +95,7 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
     [replanOpen, items, effectiveTrigger.itemId, effectiveTrigger.minutes, effectiveTrigger.type]
   );
 
-  // 사이클 Z — 사유별 trigger 생성 (lib/replan.ts ReplanTrigger union)
-  function buildTrigger(
-    type: ReplanTrigger["type"],
-    itemId: string,
-    minutes: number,
-  ): ReplanTrigger {
-    if (type === "weather") {
-      return { type: "weather", itemId, condition: "비", minutes };
-    }
-    return { type, itemId, minutes };
-  }
-
-  function openReplanWithTrigger(itemId: string, minutes: number) {
-    const type = effectiveTrigger.type;
-    setActiveTrigger(buildTrigger(type, itemId, minutes));
-    setReplanOpen(true);
-  }
+  // 사이클 CC — buildTrigger / openReplanWithTrigger는 ReplanTriggerCard로 이전
 
   function handleApply(itemsAfter: ItineraryItem[], option: ReplanOption) {
     // 1. 클라이언트 즉시 반영 (optimistic update — 데모/DB 모두 동일 UX)
@@ -470,110 +454,15 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
 
       {/* Replan + Travel Mode 진입점 */}
       <section className="px-td-md py-td-lg space-y-td-sm">
-        <div className="bg-surface-card border border-divider rounded-xl p-td-md">
-          <div className="flex items-center justify-between gap-td-sm mb-td-xs">
-            <p className="text-td-body font-semibold text-ink">
-              지연 시뮬레이션 (M3)
-            </p>
-            {appliedLabel && <Badge tone="info">{appliedLabel} 적용됨</Badge>}
-          </div>
-          <p className="text-td-meta text-ink-soft mb-td-sm">
-            늦어진 일정과 지연 시간을 골라 추천·안전·강행 3옵션을 비교해 보세요.
-          </p>
-
-          {/* 사이클 X — 동적 trigger / 사이클 Z — 사유 type 4종 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-td-xs mb-td-sm">
-            <div className="space-y-td-xxs">
-              <label
-                htmlFor="replan-trigger-item"
-                className="text-td-caption text-ink-mute"
-              >
-                어떤 일정에서?
-              </label>
-              <select
-                id="replan-trigger-item"
-                className="w-full border border-divider rounded-md px-2 py-1.5 text-td-meta bg-surface-soft"
-                value={effectiveTrigger.itemId}
-                onChange={(e) =>
-                  setActiveTrigger(
-                    buildTrigger(
-                      effectiveTrigger.type,
-                      e.target.value,
-                      effectiveTrigger.minutes,
-                    ),
-                  )
-                }
-              >
-                {dayItems.map((it) => (
-                  <option key={it.id} value={it.id}>
-                    Day {it.dayIndex + 1} · {it.scheduledAt.slice(11, 16)} · {it.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-td-xxs">
-              <label
-                htmlFor="replan-trigger-type"
-                className="text-td-caption text-ink-mute"
-              >
-                무슨 이유로?
-              </label>
-              <select
-                id="replan-trigger-type"
-                className="w-full border border-divider rounded-md px-2 py-1.5 text-td-meta bg-surface-soft"
-                value={effectiveTrigger.type}
-                onChange={(e) =>
-                  setActiveTrigger(
-                    buildTrigger(
-                      e.target.value as ReplanTrigger["type"],
-                      effectiveTrigger.itemId,
-                      effectiveTrigger.minutes,
-                    ),
-                  )
-                }
-              >
-                <option value="delay">지연</option>
-                <option value="weather">악천후 (비)</option>
-                <option value="wait_time">웨이팅</option>
-                <option value="manual">직접 조정</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-td-xs">
-            {[30, 60, 90].map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() =>
-                  openReplanWithTrigger(effectiveTrigger.itemId, m)
-                }
-                className={`px-3 py-1.5 rounded-full border text-td-caption font-medium tabular-nums transition-colors ${
-                  effectiveTrigger.minutes === m && replanOpen
-                    ? "bg-purple text-white border-purple"
-                    : "border-divider text-ink-soft hover:border-purple/40"
-                }`}
-                aria-pressed={Boolean(
-                  effectiveTrigger.minutes === m && replanOpen,
-                )}
-              >
-                {m}분 지연
-              </button>
-            ))}
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setReplanOpen(true)}
-            >
-              Live Replan 열기
-            </Button>
-            {appliedLabel && (
-              <Button variant="secondary" size="sm" onClick={handleReset}>
-                초기화
-              </Button>
-            )}
-          </div>
-        </div>
+        <ReplanTriggerCard
+          trigger={effectiveTrigger}
+          dayItems={dayItems}
+          replanOpen={replanOpen}
+          appliedLabel={appliedLabel}
+          onTriggerChange={setActiveTrigger}
+          onOpenReplan={() => setReplanOpen(true)}
+          onReset={handleReset}
+        />
 
         {!isOnTrip && (
           <div className="bg-surface-card border border-divider rounded-xl p-td-md">
