@@ -19,6 +19,10 @@ interface Props {
   onToggle: (item: ChecklistItem) => void;
   onDelete: (item: ChecklistItem) => void;
   onMove?: (item: ChecklistItem, direction: "up" | "down") => void;
+  /** 사이클 II — 선택 모드 시 클릭 = 선택/해제, move/delete 비활성 */
+  selectionMode?: boolean;
+  selectedIds?: Set<string>;
+  onSelectToggle?: (item: ChecklistItem) => void;
 }
 
 const BUCKET_ORDER: DDayBucket[] = [
@@ -62,6 +66,9 @@ export function ChecklistBucketList({
   onToggle,
   onDelete,
   onMove,
+  selectionMode = false,
+  selectedIds,
+  onSelectToggle,
 }: Props) {
   return (
     <section className="space-y-td-md">
@@ -88,25 +95,49 @@ export function ChecklistBucketList({
               {bucketItems.map((item, idx) => {
                 const canMoveUp = idx > 0;
                 const canMoveDown = idx < bucketItems.length - 1;
+                const isSelected = !!selectedIds?.has(item.id);
                 return (
                   <li
                     key={item.id}
-                    className="px-td-md py-td-sm border-b border-divider last:border-b-0 flex items-start gap-td-sm group"
+                    className={`px-td-md py-td-sm border-b border-divider last:border-b-0 flex items-start gap-td-sm group transition-colors ${
+                      selectionMode && isSelected
+                        ? "bg-purple-soft border-l-2 border-l-purple"
+                        : ""
+                    }`}
                   >
-                    <button
-                      type="button"
-                      onClick={() => onToggle(item)}
-                      aria-label={item.done ? "체크 해제" : "체크"}
-                      className="mt-0.5 flex-shrink-0"
-                    >
-                      <span
-                        className={`material-symbols-outlined ${
-                          item.done ? "filled text-purple" : "text-ink-mute"
-                        }`}
+                    {selectionMode ? (
+                      <button
+                        type="button"
+                        role="checkbox"
+                        onClick={() => onSelectToggle?.(item)}
+                        aria-label={isSelected ? "선택 해제" : "선택"}
+                        aria-checked={isSelected ? "true" : "false"}
+                        className="mt-0.5 flex-shrink-0"
                       >
-                        {item.done ? "check_circle" : "radio_button_unchecked"}
-                      </span>
-                    </button>
+                        <span
+                          className={`material-symbols-outlined ${
+                            isSelected ? "filled text-purple" : "text-ink-mute"
+                          }`}
+                        >
+                          {isSelected ? "check_box" : "check_box_outline_blank"}
+                        </span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onToggle(item)}
+                        aria-label={item.done ? "체크 해제" : "체크"}
+                        className="mt-0.5 flex-shrink-0"
+                      >
+                        <span
+                          className={`material-symbols-outlined ${
+                            item.done ? "filled text-purple" : "text-ink-mute"
+                          }`}
+                        >
+                          {item.done ? "check_circle" : "radio_button_unchecked"}
+                        </span>
+                      </button>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-td-xs flex-wrap">
                         <span
@@ -132,7 +163,7 @@ export function ChecklistBucketList({
                         </p>
                       )}
                     </div>
-                    {onMove && (
+                    {!selectionMode && onMove && (
                       <div className="flex flex-col flex-shrink-0">
                         <button
                           type="button"
@@ -158,16 +189,18 @@ export function ChecklistBucketList({
                         </button>
                       </div>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => onDelete(item)}
-                      aria-label="삭제"
-                      className="opacity-0 group-hover:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">
-                        close
-                      </span>
-                    </button>
+                    {!selectionMode && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(item)}
+                        aria-label="삭제"
+                        className="opacity-0 group-hover:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">
+                          close
+                        </span>
+                      </button>
+                    )}
                   </li>
                 );
               })}

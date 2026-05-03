@@ -206,6 +206,57 @@ export async function moveChecklistItem(
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// 사이클 II — setChecklistItemsDone (멀티 선택 일괄 완료/미완료)
+//
+// strict count check: where 절에 tripId 포함으로 cross-trip injection 방어 +
+// updatedCount !== itemIds.length 시 throw (트랜잭션 롤백). audit log는 단일
+// "checklist.bulk_toggle" row + metadata.itemIds (호출처에서).
+// ═══════════════════════════════════════════════════════════════════
+
+export interface SetItemsDoneInput {
+  tripId: string;
+  itemIds: string[];
+  done: boolean;
+}
+
+export interface SetItemsDoneResult {
+  updatedCount: number;
+  itemIds: string[];
+  done: boolean;
+}
+
+export async function setChecklistItemsDone(
+  input: SetItemsDoneInput,
+): Promise<SetItemsDoneResult | "count_mismatch" | "empty" | null> {
+  if (!prisma) return null;
+  if (input.itemIds.length === 0) return "empty";
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const updated = await tx.checklistItem.updateMany({
+        where: { id: { in: input.itemIds }, tripId: input.tripId },
+        data: { done: input.done },
+      });
+      if (updated.count !== input.itemIds.length) {
+        // 부분 매칭 — cross-trip itemId 또는 not_found row 존재. 트랜잭션 throw로 롤백.
+        throw new Error("count_mismatch");
+      }
+      return {
+        updatedCount: updated.count,
+        itemIds: input.itemIds,
+        done: input.done,
+      };
+    });
+  } catch (err) {
+    if (err instanceof Error && err.message === "count_mismatch") {
+      return "count_mismatch";
+    }
+    console.error("[checklist.repository] setChecklistItemsDone failed", err);
+    return null;
+  }
+}
+
 export async function deleteChecklistItem(
   itemId: string,
 ): Promise<{ before: ChecklistItem } | "not_found" | null> {

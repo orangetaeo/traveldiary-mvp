@@ -9,12 +9,13 @@
  * 사이클 QQ: EmptyState / BucketList / AddForm 추출 (LL/NN 답습).
  */
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   addChecklistItem,
   addFromTemplate,
+  bulkToggleChecklist,
   deleteChecklist,
   moveChecklist,
   toggleChecklist,
@@ -41,10 +42,20 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<string | null>(null);
 
+  // 사이클 II — 멀티 선택 모드
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
   const total = items.length;
   const done = items.filter((it) => it.done).length;
   const progressPercent = total === 0 ? 0 : Math.round((done / total) * 100);
   const progressBucket = nearestProgressBucket(progressPercent);
+
+  const selectedCount = selectedIds.size;
+  const allSelected = useMemo(
+    () => total > 0 && selectedCount === total,
+    [total, selectedCount],
+  );
 
   function showToast(msg: string, ms = 3500) {
     setToast(msg);
@@ -170,6 +181,62 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
     });
   }
 
+  // 사이클 II — 선택 모드 토글 + 항목 선택
+  function toggleSelectionMode() {
+    if (selectionMode) {
+      setSelectedIds(new Set());
+    }
+    setSelectionMode((m) => !m);
+  }
+
+  function toggleItemSelection(item: ChecklistItem) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(item.id)) next.delete(item.id);
+      else next.add(item.id);
+      return next;
+    });
+  }
+
+  function selectAll() {
+    if (allSelected) setSelectedIds(new Set());
+    else setSelectedIds(new Set(items.map((it) => it.id)));
+  }
+
+  function handleBulkToggle(targetDone: boolean) {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+
+    // 옵티미스틱
+    const snapshot = items;
+    setItems((prev) =>
+      prev.map((it) => (selectedIds.has(it.id) ? { ...it, done: targetDone } : it)),
+    );
+
+    startTransition(async () => {
+      const result = await bulkToggleChecklist({
+        tripId: trip.id,
+        itemIds: ids,
+        done: targetDone,
+      });
+      if (!result.ok) {
+        setItems(snapshot);
+        showToast(`일괄 변경 실패: ${result.code}`);
+        return;
+      }
+      const label = targetDone ? "완료" : "미완료";
+      if (result.demo) {
+        showToast(`${ids.length}개 ${label} (데모 시뮬)`);
+      } else {
+        showToast(`${result.data.updatedCount}개 ${label} 처리됨`);
+        router.refresh();
+      }
+      // 선택 해제 + 모드 종료
+      setSelectedIds(new Set());
+      setSelectionMode(false);
+    });
+  }
+
   function handleDelete(item: ChecklistItem) {
     if (!confirm(`"${item.text}" 항목을 삭제할까요?`)) return;
 
@@ -211,6 +278,15 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
             D-Day 체크리스트
           </h1>
         </div>
+        {total > 0 && (
+          <button
+            type="button"
+            onClick={toggleSelectionMode}
+            className="text-td-meta font-semibold text-purple hover:text-purple-deep transition-colors px-2"
+          >
+            {selectionMode ? "취소" : "선택"}
+          </button>
+        )}
       </header>
 
       <main className="max-w-xl mx-auto px-td-md">
@@ -253,11 +329,52 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
             onToggle={handleToggle}
             onDelete={handleDelete}
             onMove={handleMove}
+            selectionMode={selectionMode}
+            selectedIds={selectedIds}
+            onSelectToggle={toggleItemSelection}
           />
         )}
 
-        <AddChecklistForm isPending={isPending} onSubmit={handleAddCustom} />
+        {!selectionMode && (
+          <AddChecklistForm isPending={isPending} onSubmit={handleAddCustom} />
+        )}
       </main>
+
+      {selectionMode && (
+        <div
+          className="fixed bottom-0 left-0 right-0 z-40 bg-surface-card border-t border-divider px-td-md py-td-sm flex items-center gap-td-sm pb-[calc(env(safe-area-inset-bottom)+12px)]"
+          role="toolbar"
+          aria-label="멀티 선택 액션 바"
+        >
+          <button
+            type="button"
+            onClick={selectAll}
+            className="text-td-meta text-ink-soft hover:text-ink whitespace-nowrap"
+          >
+            {allSelected ? "전체 해제" : "전체 선택"}
+          </button>
+          <span className="text-td-meta text-ink font-semibold tabular-nums whitespace-nowrap">
+            {selectedCount}개
+          </span>
+          <div className="flex-1" />
+          <button
+            type="button"
+            onClick={() => handleBulkToggle(false)}
+            disabled={selectedCount === 0 || isPending}
+            className="px-3 py-2 rounded-lg text-td-meta font-semibold text-ink border border-divider disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-soft"
+          >
+            미완료
+          </button>
+          <button
+            type="button"
+            onClick={() => handleBulkToggle(true)}
+            disabled={selectedCount === 0 || isPending}
+            className="px-3 py-2 rounded-lg text-td-meta font-semibold text-white bg-purple disabled:opacity-40 disabled:cursor-not-allowed hover:bg-purple-deep"
+          >
+            완료
+          </button>
+        </div>
+      )}
 
       {toast && (
         <div
