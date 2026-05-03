@@ -12,6 +12,9 @@ import Link from "next/link";
 import { getAffiliateSummary } from "@/lib/repositories/affiliate.repository";
 import { isDbConnected } from "@/lib/prisma";
 
+// 라이브 audit log를 매 요청마다 조회 (build-time 캐시 X) — 사이클 SS (PP 답습)
+export const dynamic = "force-dynamic";
+
 const OTA_LABEL: Record<string, string> = {
   klook: "Klook",
   kkday: "KKday",
