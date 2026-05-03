@@ -62,7 +62,7 @@ export function ChecklistCategoryFilter({ items, value, onChange }: Props) {
       <button
         type="button"
         role="radio"
-        aria-checked={value === "all"}
+        aria-checked={value === "all" ? "true" : "false"}
         onClick={() => onChange("all")}
         className={`${baseChip} ${
           value === "all"
@@ -81,7 +81,7 @@ export function ChecklistCategoryFilter({ items, value, onChange }: Props) {
             key={cat}
             type="button"
             role="radio"
-            aria-checked={isActive}
+            aria-checked={isActive ? "true" : "false"}
             onClick={() => onChange(cat)}
             disabled={count === 0}
             className={`${baseChip} ${
@@ -119,4 +119,26 @@ export function applyCategoryFilter(
 ): ChecklistItem[] {
   if (filter === "all") return items;
   return items.filter((it) => it.category === filter);
+}
+
+/**
+ * 사이클 OO — 카테고리 + 텍스트 검색 합성.
+ * 검색어는 trim + lowercase 후 text·cityNote 부분 일치.
+ */
+export interface ChecklistFilters {
+  category: CategoryFilterValue;
+  search: string;
+}
+
+export function applyChecklistFilters(
+  items: ChecklistItem[],
+  filters: ChecklistFilters,
+): ChecklistItem[] {
+  const byCategory = applyCategoryFilter(items, filters.category);
+  const q = filters.search.trim().toLowerCase();
+  if (q.length === 0) return byCategory;
+  return byCategory.filter((it) => {
+    const hay = `${it.text}${it.cityNote ?? ""}`.toLowerCase();
+    return hay.includes(q);
+  });
 }
