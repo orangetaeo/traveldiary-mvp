@@ -24,6 +24,7 @@ function rowToItem(row: DbRow): ChecklistItem {
     done: row.done,
     cityNote: row.cityNote ?? undefined,
     sortOrder: row.sortOrder,
+    actorId: row.actorId,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -52,6 +53,8 @@ export interface CreateChecklistInput {
   dDayBucket: ChecklistItem["dDayBucket"];
   cityNote?: string;
   sortOrder?: number;
+  /** 사이클 TT (ADR-045) — 작성자 user.id. 미인증/DEMO는 null */
+  actorId?: string | null;
 }
 
 export async function createChecklistItem(
@@ -67,6 +70,7 @@ export async function createChecklistItem(
         dDayBucket: input.dDayBucket,
         cityNote: input.cityNote,
         sortOrder: input.sortOrder ?? 0,
+        actorId: input.actorId ?? null,
       },
     });
     return rowToItem(row);
@@ -79,6 +83,7 @@ export async function createChecklistItem(
 export async function bulkCreateChecklistItems(
   tripId: string,
   inputs: Omit<CreateChecklistInput, "tripId">[],
+  actorId?: string | null,
 ): Promise<ChecklistItem[] | null> {
   if (!prisma) return null;
   try {
@@ -94,6 +99,7 @@ export async function bulkCreateChecklistItems(
             dDayBucket: input.dDayBucket,
             cityNote: input.cityNote,
             sortOrder: input.sortOrder ?? i,
+            actorId: input.actorId ?? actorId ?? null,
           },
         });
         created.push(rowToItem(row));

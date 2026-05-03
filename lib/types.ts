@@ -241,6 +241,8 @@ export interface ChecklistItem {
   done: boolean;
   cityNote?: string;
   sortOrder: number;
+  /** 사이클 TT (ADR-045) — 작성자 user.id. NULL = legacy/DEMO/미인증 */
+  actorId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

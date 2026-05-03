@@ -22,9 +22,10 @@ model User {
 
   preferences Json?
 
-  trips         Trip[]
-  members       TripMember[]
-  shareComments ShareComment[]
+  trips          Trip[]
+  members        TripMember[]
+  shareComments  ShareComment[]
+  checklistItems ChecklistItem[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -211,11 +212,19 @@ model ChecklistItem {
   /** 같은 dDayBucket 내 정렬 */
   sortOrder   Int      @default(0)
 
+  /**
+   * 사이클 TT (ADR-045) — 작성자 user.id. OAuth 활성 후 매핑.
+   * NULL = legacy / DEMO_TRIP_ID / 미인증. 생성 시점에만 stamp, 이후 mutation은 보존.
+   */
+  actorId     String?
+  actor       User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([tripId, dDayBucket])
   @@index([tripId, done])
+  @@index([actorId])
 }
 
 // ═══════════════════════════════════════════
