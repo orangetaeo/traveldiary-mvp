@@ -14,6 +14,8 @@ import { hoChiMinhItinerary, hoChiMinhTrip } from "./ho-chi-minh";
 import { hanoiItinerary, hanoiTrip } from "./hanoi";
 import { nhaTrangItinerary, nhaTrangTrip } from "./nha-trang";
 import { daLatItinerary, daLatTrip } from "./da-lat";
+// 사이클 OO: chiangMai 시드는 lib/seed/chiang-mai.ts에 보존되나 V3 정책(베트남 우선)
+// 유지를 위해 listDemoTrips()에는 미포함. 노출 활성화는 별도 ADR + 정책 변경 사이클.
 
 export interface DemoTripBundle {
   trip: Trip;

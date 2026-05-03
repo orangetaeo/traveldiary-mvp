@@ -21,6 +21,7 @@ import { nhaTrangCity } from "./nha-trang";
 import { canThoCity } from "./can-tho";
 import { daLatCity } from "./da-lat";
 import { bangkokCity } from "./bangkok";
+import { chiangMaiCity } from "./chiang-mai";
 import { tokyoCity } from "./tokyo";
 import {
   COUNTRIES,
@@ -37,6 +38,7 @@ const CITIES: Record<string, City> = {
   [canThoCity.slug]: canThoCity,
   [daLatCity.slug]: daLatCity,
   [bangkokCity.slug]: bangkokCity,
+  [chiangMaiCity.slug]: chiangMaiCity,
   [tokyoCity.slug]: tokyoCity,
 };
 

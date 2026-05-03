@@ -1,0 +1,98 @@
+"use client";
+
+/**
+ * 사이클 NN — CostEntriesList (CostView에서 추출).
+ *
+ * 답습: 사이클 LL AddCostForm (presentation 컴포넌트 추출).
+ * 책임: 비용 entry 카드 리스트 + 빈 상태 + 삭제 버튼. 삭제 액션은 부모 콜백.
+ */
+
+import type { CostEntry, CostStatus } from "@/lib/types";
+
+interface Props {
+  entries: CostEntry[];
+  onDelete: (entry: CostEntry) => void;
+}
+
+const STATUS_LABEL: Record<CostStatus, string> = {
+  paid: "결제 완료",
+  booked: "예약 (선결제)",
+  planned: "예정",
+};
+
+const STATUS_TONE: Record<CostStatus, string> = {
+  paid: "bg-success-soft text-success-deep",
+  booked: "bg-purple-soft text-purple-deep",
+  planned: "bg-amber-soft text-amber-deep",
+};
+
+const CATEGORY_LABEL: Record<string, string> = {
+  food: "식비",
+  transport: "교통",
+  accommodation: "숙박",
+  shopping: "쇼핑",
+  activity: "액티비티",
+  other: "기타",
+};
+
+export function CostEntriesList({ entries, onDelete }: Props) {
+  return (
+    <section>
+      <h3 className="text-td-card-title text-ink mb-td-sm">최근 입력</h3>
+      {entries.length === 0 ? (
+        <p className="text-td-body text-ink-soft text-center py-td-lg bg-surface-card border border-divider rounded-xl">
+          아직 입력된 비용이 없어요. 위에서 추가하세요.
+        </p>
+      ) : (
+        <ul className="space-y-td-xs">
+          {entries.map((entry) => (
+            <li
+              key={entry.id}
+              className="bg-surface-card border border-divider rounded-xl p-td-sm flex items-start justify-between group"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-td-xs flex-wrap mb-td-xxs">
+                  <span
+                    className={`inline-block px-2 py-0.5 rounded-full text-td-caption font-bold ${
+                      STATUS_TONE[entry.status]
+                    }`}
+                  >
+                    {STATUS_LABEL[entry.status]}
+                  </span>
+                  <span className="text-td-caption text-ink-mute tabular-nums">
+                    {entry.date}
+                  </span>
+                  {entry.category && (
+                    <span className="text-td-caption text-ink-soft">
+                      · {CATEGORY_LABEL[entry.category] ?? entry.category}
+                    </span>
+                  )}
+                </div>
+                <p className="text-td-body text-ink truncate">{entry.label}</p>
+                <p className="text-td-card-title text-ink tabular-nums mt-td-xxs">
+                  {entry.amountKrw.toLocaleString()}원
+                  {entry.amountLocal && (
+                    <span className="text-td-meta text-ink-soft ml-td-xs">
+                      ({entry.amountLocal.value.toLocaleString()}{" "}
+                      {entry.amountLocal.currency})
+                    </span>
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onDelete(entry)}
+                aria-label="삭제"
+                className="opacity-0 group-hover:opacity-100 text-ink-mute hover:text-danger transition-opacity ml-td-sm flex-shrink-0"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  close
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
