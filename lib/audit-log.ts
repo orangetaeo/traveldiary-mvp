@@ -26,6 +26,7 @@ export type AuditAction =
   | "checklist.delete"
   | "checklist.toggle"
   | "checklist.bulk_toggle"
+  | "checklist.bulk_delete"
   | "checklist.reorder"
   | "cost.add"
   | "cost.update"
