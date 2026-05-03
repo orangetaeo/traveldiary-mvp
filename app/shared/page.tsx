@@ -21,6 +21,11 @@ import {
   SORT_LABELS,
   type ReceivedSortMode,
 } from "@/lib/share/sortReceived";
+import {
+  filterReceived,
+  STATUS_FILTER_LABELS,
+  type ReceivedStatusFilter,
+} from "@/lib/share/filterReceived";
 
 interface LookupItem {
   key: string;
@@ -41,11 +46,16 @@ type ViewState =
 export default function SharedListPage() {
   const [state, setState] = useState<ViewState>({ kind: "loading" });
   const [sortMode, setSortMode] = useState<ReceivedSortMode>("addedAtDesc");
+  // 사이클 KK — 검색 + 상태 필터
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] =
+    useState<ReceivedStatusFilter>("all");
 
-  const sortedItems = useMemo(() => {
+  const visibleItems = useMemo(() => {
     if (state.kind !== "list") return [];
-    return sortReceived(state.items, sortMode);
-  }, [state, sortMode]);
+    const filtered = filterReceived(state.items, query, statusFilter);
+    return sortReceived(filtered, sortMode);
+  }, [state, sortMode, query, statusFilter]);
 
   useEffect(() => {
     const local: ReceivedKey[] = listReceivedKeys();
@@ -135,10 +145,41 @@ export default function SharedListPage() {
 
         {state.kind === "list" && (
           <>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-ink-mute tabular-nums">
-                {state.items.length}개
-              </p>
+            {/* 사이클 KK — 검색 input */}
+            <div className="mb-3">
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value.slice(0, 50))}
+                placeholder="도시명 검색 (예: 다낭)"
+                className="w-full px-3 py-2 border border-divider rounded-lg text-sm bg-surface-soft focus:outline focus:outline-purple"
+                aria-label="도시명 검색"
+              />
+            </div>
+
+            {/* 사이클 KK — 상태 필터 + 정렬 (둘 다 select로 일관성) */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <label className="flex items-center gap-2 text-xs text-ink-mute">
+                상태
+                <select
+                  value={statusFilter}
+                  onChange={(e) =>
+                    setStatusFilter(e.target.value as ReceivedStatusFilter)
+                  }
+                  className="border border-divider rounded-md px-2 py-1 text-xs bg-surface-soft"
+                  aria-label="상태 필터"
+                >
+                  {(
+                    Object.keys(
+                      STATUS_FILTER_LABELS,
+                    ) as ReceivedStatusFilter[]
+                  ).map((f) => (
+                    <option key={f} value={f}>
+                      {STATUS_FILTER_LABELS[f]}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label className="flex items-center gap-2 text-xs text-ink-mute">
                 정렬
                 <select
@@ -159,8 +200,20 @@ export default function SharedListPage() {
                 </select>
               </label>
             </div>
+
+            <p className="text-xs text-ink-mute tabular-nums mb-3">
+              {visibleItems.length === state.items.length
+                ? `${state.items.length}개`
+                : `${visibleItems.length}개 / ${state.items.length}개 중`}
+            </p>
+
+            {visibleItems.length === 0 ? (
+              <p className="text-sm text-ink-mute text-center py-8 bg-surface-card border border-divider rounded-xl">
+                조건에 맞는 여행이 없어요.
+              </p>
+            ) : (
             <ul className="flex flex-col gap-3">
-              {sortedItems.map((it) => (
+              {visibleItems.map((it) => (
               <li
                 key={it.key}
                 className="bg-surface-card rounded-xl border border-divider overflow-hidden"
@@ -189,6 +242,7 @@ export default function SharedListPage() {
               </li>
               ))}
             </ul>
+            )}
           </>
         )}
       </div>

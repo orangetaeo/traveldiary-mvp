@@ -6,6 +6,7 @@ import { ReplanModal } from "./ReplanModal";
 import { ReplanTriggerCard } from "./ReplanTriggerCard";
 import { TripSecondaryActions } from "./TripSecondaryActions";
 import { ItineraryItemCard } from "./ItineraryItemCard";
+import { DayTabsBar } from "./DayTabsBar";
 import {
   generateReplanOptions,
   type ReplanTrigger,
@@ -297,40 +298,13 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
 
   return (
     <>
-      {/* Day Tabs + 자유 추가 버튼 (A5) */}
-      <div className="flex items-center gap-td-xs mb-td-md px-td-md">
-        <nav
-          className="flex-1 flex gap-td-xs overflow-x-auto pb-2 hide-scrollbar"
-          aria-label="여행 일자"
-        >
-          {Array.from({ length: trip.nights + 1 }, (_, i) => i).map((d) => {
-            const active = d === activeDay;
-            return (
-              <button
-                key={d}
-                type="button"
-                onClick={() => setActiveDay(d)}
-                className={`px-td-md py-td-xs rounded-full text-td-meta whitespace-nowrap transition-colors ${
-                  active
-                    ? "bg-mode-primary text-white shadow-sm"
-                    : "bg-surface-card text-ink-soft border border-divider hover:bg-surface-soft"
-                }`}
-                aria-current={active ? "page" : undefined}
-              >
-                Day {d + 1}
-              </button>
-            );
-          })}
-        </nav>
-        <button
-          type="button"
-          onClick={() => setAddOpen(true)}
-          aria-label="일정 추가"
-          className="flex-shrink-0 w-9 h-9 rounded-full bg-purple text-white flex items-center justify-center shadow-sm hover:opacity-90 active:scale-95 transition-all"
-        >
-          <span className="material-symbols-outlined text-[20px]">add</span>
-        </button>
-      </div>
+      {/* 사이클 JJ — DayTabsBar 추출 (Day 탭 + A5 자유 추가) */}
+      <DayTabsBar
+        dayCount={trip.nights + 1}
+        activeDay={activeDay}
+        onActiveDayChange={setActiveDay}
+        onAddOpen={() => setAddOpen(true)}
+      />
 
       {/* Timeline */}
       <div className="relative space-y-td-md px-td-md">

@@ -13,7 +13,7 @@ import Link from "next/link";
 import { addCost, deleteCost } from "@/actions/cost";
 import type { CostEntry, CostStatus, Trip } from "@/lib/types";
 import { SettlementCard } from "./SettlementCard";
-import { parseSplitToken } from "@/lib/services/settlement";
+import { AddCostForm } from "./AddCostForm";
 
 interface Props {
   trip: Trip;
@@ -44,8 +44,6 @@ const CATEGORY_OPTIONS = [
   { id: "other", label: "기타" },
 ];
 
-const TODAY_ISO = new Date().toISOString().slice(0, 10);
-
 export function CostView({
   trip,
   initialEntries,
@@ -57,16 +55,6 @@ export function CostView({
   const [entries, setEntries] = useState<CostEntry[]>(initialEntries);
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<string | null>(null);
-
-  const [draftLabel, setDraftLabel] = useState("");
-  const [draftAmountKrw, setDraftAmountKrw] = useState("");
-  const [draftAmountLocal, setDraftAmountLocal] = useState("");
-  const [draftCategory, setDraftCategory] = useState("food");
-  const [draftStatus, setDraftStatus] = useState<CostStatus>("paid");
-  const [draftDate, setDraftDate] = useState(TODAY_ISO);
-  // 사이클 E1 — splitWith[0] = 결제자 컨벤션 (ADR-039)
-  const [draftPayer, setDraftPayer] = useState("");
-  const [draftSplitMembers, setDraftSplitMembers] = useState("");
 
   const totals = useMemo(() => {
     const paid = entries
@@ -88,81 +76,25 @@ export function CostView({
     setTimeout(() => setToast(null), ms);
   }
 
-  /** KRW 또는 local 둘 중 하나만 입력해도 자동 산출. 둘 다 입력 시 우선: local */
-  function deriveAmounts(
-    krwInput: string,
-    localInput: string,
-  ): { amountKrw: number; amountLocal?: { value: number; currency: string } } | null {
-    const krw = parseFloat(krwInput);
-    const local = parseFloat(localInput);
-
-    if (!isNaN(local) && local > 0) {
-      // local 우선 — KRW로 변환
-      return {
-        amountKrw: Math.round(local / approxKrwRate),
-        amountLocal: { value: local, currency },
-      };
-    }
-    if (!isNaN(krw) && krw > 0) {
-      return {
-        amountKrw: Math.round(krw),
-        amountLocal: {
-          value: Math.round(krw * approxKrwRate),
-          currency,
-        },
-      };
-    }
-    return null;
-  }
-
-  function handleAdd(e: React.FormEvent) {
-    e.preventDefault();
-    if (!draftLabel.trim()) {
-      showToast("항목 이름을 입력해주세요.");
-      return;
-    }
-    const amounts = deriveAmounts(draftAmountKrw, draftAmountLocal);
-    if (!amounts) {
-      showToast("KRW 또는 현지통화 중 하나는 입력해주세요.");
-      return;
-    }
-
-    const label = draftLabel.trim();
-    const date = draftDate;
-    const status = draftStatus;
-    const category = draftCategory;
-    // 사이클 E1/II — splitWith[0]=payer + 옵션 가중치 (ADR-039 v2).
-    // 입력 형식: "이름" (weight=1) 또는 "이름:가중치" 예) "철수:2"
-    const payerToken = parseSplitToken(draftPayer);
-    const payerName =
-      typeof payerToken === "string"
-        ? payerToken
-        : payerToken
-          ? payerToken.name
-          : "";
-    const otherTokens = draftSplitMembers
-      .split(",")
-      .map((s) => parseSplitToken(s))
-      .filter((t): t is string | { name: string; weight?: number } => {
-        if (t === null) return false;
-        const name = typeof t === "string" ? t : t.name;
-        return name.length > 0 && name !== payerName;
-      });
-    const splitWith =
-      payerName.length > 0 && payerToken !== null
-        ? [payerToken, ...otherTokens]
-        : undefined;
-
+  function handleAdd(input: {
+    label: string;
+    amountKrw: number;
+    amountLocal?: { value: number; currency: string };
+    status: CostStatus;
+    category: string;
+    date: string;
+    splitWith?: Array<string | { name: string; weight?: number }>;
+  }) {
     startTransition(async () => {
       const result = await addCost({
         tripId: trip.id,
-        date,
-        label,
-        amountKrw: amounts.amountKrw,
-        amountLocal: amounts.amountLocal,
-        status,
-        category,
-        splitWith,
+        date: input.date,
+        label: input.label,
+        amountKrw: input.amountKrw,
+        amountLocal: input.amountLocal,
+        status: input.status,
+        category: input.category,
+        splitWith: input.splitWith,
       });
       if (!result.ok) {
         showToast(`추가 실패: ${result.code}`);
@@ -174,13 +106,13 @@ export function CostView({
           {
             id: `demo-${Date.now()}`,
             tripId: trip.id,
-            date,
-            label,
-            amountKrw: amounts.amountKrw,
-            amountLocal: amounts.amountLocal,
-            status,
-            category,
-            splitWith,
+            date: input.date,
+            label: input.label,
+            amountKrw: input.amountKrw,
+            amountLocal: input.amountLocal,
+            status: input.status,
+            category: input.category,
+            splitWith: input.splitWith,
             createdAt: now,
             updatedAt: now,
           },
@@ -188,14 +120,9 @@ export function CostView({
         ]);
         showToast("비용 추가 (데모 시뮬)");
       } else {
-        showToast(`비용 추가됨 — ${amounts.amountKrw.toLocaleString()}원`);
+        showToast(`비용 추가됨 — ${input.amountKrw.toLocaleString()}원`);
         router.refresh();
       }
-      setDraftLabel("");
-      setDraftAmountKrw("");
-      setDraftAmountLocal("");
-      setDraftPayer("");
-      setDraftSplitMembers("");
     });
   }
 
@@ -269,118 +196,15 @@ export function CostView({
           </div>
         </section>
 
-        {/* Add form */}
-        <section className="bg-surface-card border border-divider rounded-xl p-td-md mb-td-lg">
-          <h3 className="text-td-card-title text-ink mb-td-sm">비용 추가</h3>
-          <form onSubmit={handleAdd} className="space-y-td-sm">
-            <input
-              type="text"
-              placeholder="항목명 (예: 즈엉동 야시장 저녁)"
-              value={draftLabel}
-              onChange={(e) => setDraftLabel(e.target.value)}
-              className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft focus:outline focus:outline-purple"
-              maxLength={50}
-            />
-            <div className="grid grid-cols-2 gap-td-sm">
-              <label className="flex flex-col">
-                <span className="text-td-caption text-ink-soft mb-1">KRW</span>
-                <input
-                  type="number"
-                  placeholder="원"
-                  value={draftAmountKrw}
-                  onChange={(e) => setDraftAmountKrw(e.target.value)}
-                  className="px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft tabular-nums"
-                  min="0"
-                  step="100"
-                />
-              </label>
-              <label className="flex flex-col">
-                <span className="text-td-caption text-ink-soft mb-1">
-                  {currency} ({currencySymbol})
-                </span>
-                <input
-                  type="number"
-                  placeholder={currencySymbol}
-                  value={draftAmountLocal}
-                  onChange={(e) => setDraftAmountLocal(e.target.value)}
-                  className="px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft tabular-nums"
-                  min="0"
-                />
-              </label>
-            </div>
-            <p className="text-td-caption text-ink-mute">
-              💡 둘 중 하나만 입력하면 자동 변환됩니다.
-            </p>
-            <div className="grid grid-cols-3 gap-td-sm">
-              <select
-                value={draftCategory}
-                onChange={(e) => setDraftCategory(e.target.value)}
-                className="px-td-sm py-2 border border-divider rounded-lg text-td-meta bg-surface-soft"
-                aria-label="카테고리"
-              >
-                {CATEGORY_OPTIONS.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={draftStatus}
-                onChange={(e) => setDraftStatus(e.target.value as CostStatus)}
-                className="px-td-sm py-2 border border-divider rounded-lg text-td-meta bg-surface-soft"
-                aria-label="결제 상태"
-              >
-                <option value="paid">결제 완료</option>
-                <option value="booked">예약 (선결제)</option>
-                <option value="planned">예정</option>
-              </select>
-              <input
-                type="date"
-                value={draftDate}
-                onChange={(e) => setDraftDate(e.target.value)}
-                className="px-td-sm py-2 border border-divider rounded-lg text-td-meta bg-surface-soft"
-                aria-label="결제 일자"
-              />
-            </div>
-            {/* 사이클 E1 — 결제자 + 함께 부담 (옵션) */}
-            <details className="text-td-meta">
-              <summary className="cursor-pointer text-td-caption text-ink-mute hover:text-ink py-1">
-                일행과 정산 (선택)
-              </summary>
-              <div className="space-y-td-xs mt-td-xs">
-                <input
-                  type="text"
-                  placeholder="결제자 (예: 나)"
-                  value={draftPayer}
-                  onChange={(e) => setDraftPayer(e.target.value.slice(0, 30))}
-                  className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft"
-                  aria-label="결제자"
-                />
-                <input
-                  type="text"
-                  placeholder="함께 부담 (쉼표 구분, 예: 영희, 철수:2 — 가중치)"
-                  value={draftSplitMembers}
-                  onChange={(e) =>
-                    setDraftSplitMembers(e.target.value.slice(0, 200))
-                  }
-                  className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft"
-                  aria-label="함께 부담한 사람"
-                />
-                <p className="text-td-caption text-ink-mute">
-                  💡 결제자 포함 자동 분담. <strong>이름:가중치</strong> 형식
-                  (예: 어른은 2, 아동은 1). 가중치 생략 시 1.
-                </p>
-              </div>
-            </details>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="w-full py-2 bg-purple text-white rounded-lg text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
-            >
-              {isPending ? "추가 중…" : "비용 추가"}
-            </button>
-          </form>
-        </section>
+        {/* 사이클 LL — AddCostForm 추출 */}
+        <AddCostForm
+          currency={currency}
+          currencySymbol={currencySymbol}
+          approxKrwRate={approxKrwRate}
+          isPending={isPending}
+          onSubmit={handleAdd}
+          onError={showToast}
+        />
 
         {/* 사이클 E1 — 정산 흐름 카드 (splitWith 가진 entry 있을 때만 노출) */}
         <section className="mb-td-lg">
