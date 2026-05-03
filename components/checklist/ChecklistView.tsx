@@ -32,9 +32,10 @@ import {
 } from "./AddChecklistForm";
 import {
   ChecklistCategoryFilter,
-  applyCategoryFilter,
+  applyChecklistFilters,
   type CategoryFilterValue,
 } from "./ChecklistCategoryFilter";
+import { ChecklistSearchInput } from "./ChecklistSearchInput";
 
 interface Props {
   trip: Trip;
@@ -55,6 +56,8 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
   // 사이클 NN — 카테고리 필터 (UI only, DB 미터치)
   const [categoryFilter, setCategoryFilter] =
     useState<CategoryFilterValue>("all");
+  // 사이클 OO — 텍스트 검색 (UI only)
+  const [searchText, setSearchText] = useState("");
 
   const total = items.length;
   const done = items.filter((it) => it.done).length;
@@ -62,9 +65,16 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
   const progressBucket = nearestProgressBucket(progressPercent);
 
   const filteredItems = useMemo(
-    () => applyCategoryFilter(items, categoryFilter),
-    [items, categoryFilter],
+    () =>
+      applyChecklistFilters(items, {
+        category: categoryFilter,
+        search: searchText,
+      }),
+    [items, categoryFilter, searchText],
   );
+
+  // 사이클 OO — 검색 활성 시에도 onMove 비활성 (NN 답습)
+  const isFiltering = categoryFilter !== "all" || searchText.trim().length > 0;
 
   const selectedCount = selectedIds.size;
   const allSelected = useMemo(
@@ -374,6 +384,12 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
 
         {total > 0 && (
           <>
+            <div className="pb-td-xs">
+              <ChecklistSearchInput
+                value={searchText}
+                onChange={setSearchText}
+              />
+            </div>
             <div className="pb-td-sm">
               <ChecklistCategoryFilter
                 items={items}
@@ -382,18 +398,31 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
               />
             </div>
             {filteredItems.length === 0 ? (
-              <p
-                className="text-td-meta text-ink-soft py-td-md text-center"
-                role="status"
-              >
-                이 카테고리에 항목이 없어요. 다른 카테고리를 선택해보세요.
-              </p>
+              <div className="py-td-md text-center" role="status">
+                <p className="text-td-meta text-ink-soft">
+                  {searchText.trim().length > 0
+                    ? `"${searchText.trim()}" 검색 결과가 없어요.`
+                    : "이 카테고리에 항목이 없어요."}
+                </p>
+                {isFiltering && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchText("");
+                      setCategoryFilter("all");
+                    }}
+                    className="mt-td-xs text-td-meta font-semibold text-purple hover:text-purple-deep"
+                  >
+                    필터 초기화
+                  </button>
+                )}
+              </div>
             ) : (
               <ChecklistBucketList
                 items={filteredItems}
                 onToggle={handleToggle}
                 onDelete={handleDelete}
-                onMove={categoryFilter === "all" ? handleMove : undefined}
+                onMove={isFiltering ? undefined : handleMove}
                 selectionMode={selectionMode}
                 selectedIds={selectedIds}
                 onSelectToggle={toggleItemSelection}
