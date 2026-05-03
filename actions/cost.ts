@@ -16,7 +16,7 @@ import {
   type UpdateCostInput,
 } from "@/lib/repositories/cost.repository";
 import { isDbConnected } from "@/lib/prisma";
-import { DEMO_TRIP_ID } from "@/lib/seed";
+import { ensureDemoTripInDb } from "@/lib/repositories/trip.repository";
 import { getActorId } from "@/lib/auth/session";
 import { canWriteTrip } from "@/lib/auth/authorize";
 import type { CostEntry } from "@/lib/types";
@@ -33,13 +33,14 @@ export type CostActionResult<T = unknown> =
 export async function addCost(
   input: CreateCostInput,
 ): Promise<CostActionResult<CostEntry>> {
-  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+  if (!isDbConnected) {
     return { ok: true, demo: true };
   }
   if (!(await canWriteTrip(input.tripId))) {
     return { ok: false, code: "forbidden" };
   }
 
+  await ensureDemoTripInDb(input.tripId);
   const created = await createCostEntry(input);
   if (!created) return { ok: false, code: "internal" };
 
@@ -69,7 +70,7 @@ export async function updateCost(input: {
   data: UpdateCostInput;
   tripId: string;
 }): Promise<CostActionResult<CostEntry>> {
-  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+  if (!isDbConnected) {
     return { ok: true, demo: true };
   }
   if (!(await canWriteTrip(input.tripId))) {
@@ -111,7 +112,7 @@ export async function settleCost(input: {
   tripId: string;
   settled: boolean;
 }): Promise<CostActionResult<CostEntry>> {
-  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+  if (!isDbConnected) {
     return { ok: true, demo: true };
   }
   if (!(await canWriteTrip(input.tripId))) {
@@ -144,7 +145,7 @@ export async function deleteCost(input: {
   id: string;
   tripId: string;
 }): Promise<CostActionResult<{ id: string }>> {
-  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+  if (!isDbConnected) {
     return { ok: true, demo: true };
   }
   if (!(await canWriteTrip(input.tripId))) {

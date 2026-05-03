@@ -11,8 +11,58 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../prisma";
 import type { ItineraryItem, Trip, UserPreferences } from "../types";
 import { phuQuocItinerary } from "../seed/phu-quoc";
+import { getDemoTrip } from "../seed";
 
 export const SYSTEM_OWNER_ID = "system-owner-pqc";
+
+// ═══════════════════════════════════════════════════════════════════
+// ensureDemoTripInDb — 사이클 XX (ADR-044)
+//   시드 trip이 DB에 없으면 upsert. checklist/cost 영속화 진입점에서 호출.
+//   itinerary 시드 복제는 미수행(체크리스트/비용은 trip FK만 필요).
+//   idempotent — 동시 호출 시 P2002 unique 충돌은 try/catch로 흡수.
+// ═══════════════════════════════════════════════════════════════════
+
+export async function ensureDemoTripInDb(tripId: string): Promise<void> {
+  if (!prisma) return;
+  try {
+    const existing = await prisma.trip.findFirst({
+      where: { id: tripId, deletedAt: null },
+      select: { id: true },
+    });
+    if (existing) return;
+
+    const seed = getDemoTrip(tripId);
+    if (!seed) return; // 시드 trip이 아님 — 사용자 trip 삭제 등은 호출처가 처리
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.upsert({
+        where: { id: SYSTEM_OWNER_ID },
+        create: { id: SYSTEM_OWNER_ID, name: "System Demo User" },
+        update: {},
+      });
+      await tx.trip.create({
+        data: {
+          id: seed.trip.id,
+          ownerId: SYSTEM_OWNER_ID,
+          destination: seed.trip.destination,
+          destinationCode: seed.trip.destinationCode,
+          startDate: new Date(`${seed.trip.startDate}T00:00:00Z`),
+          nights: seed.trip.nights,
+          companion: seed.trip.companion,
+          preferences: seed.trip.preferences as never,
+          status: seed.trip.status,
+          currentMode: seed.trip.currentMode,
+        },
+      });
+    });
+  } catch (err) {
+    // unique constraint = 다른 호출이 먼저 upsert — 정상
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return;
+    }
+    console.error("[trip.repository] ensureDemoTripInDb failed", err);
+  }
+}
 
 export interface TripBundle {
   trip: Trip;

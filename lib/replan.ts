@@ -1,8 +1,9 @@
 /**
  * Live Replan 엔진 — 순수 함수.
  *
- * 사이클 2(ADR-012): 클라이언트 상태 시뮬레이션. mutation·DB 미도입.
- * 사이클 5(ADR-013 예정): 같은 함수를 Server Action으로 wrap + writeAuditLog 실호출.
+ * 사이클 2(ADR-012): 옵션 생성 알고리즘 도입.
+ * 사이클 5b-2(ADR-013): commitReplan Server Action으로 mutation·DB 영속 + 낙관적 동시성
+ *   + writeAuditLog. 본 모듈은 순수 함수로 유지하고, actions/trip.ts가 wrap.
  *
  * 알고리즘 출처: S-01 dag-scheduling, S-06 live-replan-options.
  * 핵심 원칙: AI는 결정하지 않는다. 옵션을 제시하고, 사용자가 결정한다.

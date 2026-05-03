@@ -27,6 +27,7 @@ import {
   type ReceivedStatusFilter,
 } from "@/lib/share/filterReceived";
 import { MyIdentityPanel } from "@/components/share/MyIdentityPanel";
+import { MyActivitySection } from "@/components/share/MyActivitySection";
 
 interface LookupItem {
   key: string;
@@ -132,6 +133,9 @@ export default function SharedListPage() {
       <div className="max-w-[420px] mx-auto px-4 py-4">
         {/* 사이클 SS — 내 정보 (clientUuid + nickname) */}
         <MyIdentityPanel />
+
+        {/* 사이클 YY — 본인 활동 (clientUuid 기반 ShareComment 내역) */}
+        <MyActivitySection />
 
         {state.kind === "loading" && (
           <p className="text-sm text-ink-mute">불러오는 중…</p>

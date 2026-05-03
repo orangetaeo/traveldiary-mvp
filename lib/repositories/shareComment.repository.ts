@@ -195,3 +195,61 @@ export async function listCommentsByShareLinkId(
   });
   return rows.map(rowToComment);
 }
+
+// ─── 본인 활동 (사이클 YY) ───────────────────────────────────────────
+//
+// /shared 페이지의 "내가 남긴 메모" 섹션용. clientUuid는 LocalStorage 기반 익명
+// 토큰이라 임의 변경 가능 — anyway anonymous 모델 답습. ShareLink revoke/expired
+// 상태도 함께 반환해 사용자가 죽은 링크를 정리할 수 있게.
+
+export interface MyActivityItem {
+  commentId: string;
+  syncKey: string;
+  destination: string | null;
+  body: string;
+  reaction: CommentReaction;
+  itemId: string | null;
+  createdAt: string;
+  isShareLinkActive: boolean;
+}
+
+export async function listMyActivityByClientUuid(
+  clientUuid: string,
+  limit = 50,
+): Promise<MyActivityItem[]> {
+  if (!prisma) return [];
+  if (!clientUuid || clientUuid.length < 8 || clientUuid.length > 200) return [];
+
+  const rows = await prisma.shareComment.findMany({
+    where: { clientUuid, deletedAt: null },
+    orderBy: { createdAt: "desc" },
+    take: Math.min(Math.max(limit, 1), 100),
+    include: {
+      shareLink: {
+        select: {
+          syncKey: true,
+          revokedAt: true,
+          expiresAt: true,
+          trip: { select: { destination: true } },
+        },
+      },
+    },
+  });
+
+  const now = Date.now();
+  return rows.map((r) => {
+    const link = r.shareLink;
+    const revoked = !!link.revokedAt;
+    const expired = !!link.expiresAt && link.expiresAt.getTime() < now;
+    return {
+      commentId: r.id,
+      syncKey: link.syncKey,
+      destination: link.trip?.destination ?? null,
+      body: r.body,
+      reaction: (r.reaction as CommentReaction) ?? null,
+      itemId: r.itemId,
+      createdAt: r.createdAt.toISOString(),
+      isShareLinkActive: !revoked && !expired,
+    };
+  });
+}

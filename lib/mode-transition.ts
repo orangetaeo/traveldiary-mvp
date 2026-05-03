@@ -1,14 +1,22 @@
 /**
  * Mode Transition — 순수 함수 (S-04).
  *
- * 사이클 3(ADR-014): 데모 토글로만 시연. lib는 자동 전환에 그대로 사용 가능.
- * 사이클 5(ADR-013 예정): Geolocation API + writeAuditLog 결합.
+ * 사이클 3(ADR-014): 데모 토글 시연.
+ * 사이클 5b-4(ADR-017): Geolocation API + AutoModeDetector + setTripMode mutation.
+ *   좌표는 클라이언트에서만 사용. 서버에는 mode 값과 trigger="geolocation"만 전송.
+ * 사이클 WW(ADR-043, 2026-05-03): 베트남 6 도시(trip 시드 보유)에 boundary 활성화.
+ *   M2 자동 전환이 푸꾸옥 외 베트남 trip 전체에서 동작.
  */
 
 import type { TravelMode, Trip } from "./types";
 
 // ═══════════════════════════════════════════════════════════════════
-// 목적지 경계 (Phase 0: 푸꾸옥. Phase 1+에서 확장)
+// 목적지 경계 — 베트남 6 도시 (WW, ADR-043)
+//
+// 좌표 = 도시 중심(시청/공항 인근). 반경은 도시 규모에 비례:
+//   대도시(다낭/호치민/하노이) 25km, 중소도시(나트랑/달랏) 20km, 섬(푸꾸옥) 30km.
+// 비-베트남 도시(BKK/CNX/TYO)는 베트남 단일 국가 정책에 따라 미포함.
+// 시드 승격 트리거(City.center): Phase 2 동남아 확장 시.
 // ═══════════════════════════════════════════════════════════════════
 
 interface GeoBoundary {
@@ -19,8 +27,12 @@ interface GeoBoundary {
 }
 
 const DESTINATION_BOUNDARIES: Record<string, GeoBoundary> = {
-  PQC: { center: { lat: 10.225, lng: 103.96 }, radiusKm: 30 },
-  // 사이클 5+ 다낭/하노이/도쿄 추가 예정
+  PQC: { center: { lat: 10.225, lng: 103.96 }, radiusKm: 30 },   // 푸꾸옥 섬
+  SGN: { center: { lat: 10.7769, lng: 106.7009 }, radiusKm: 25 }, // 호치민
+  HAN: { center: { lat: 21.0285, lng: 105.8542 }, radiusKm: 25 }, // 하노이
+  DAD: { center: { lat: 16.0544, lng: 108.2022 }, radiusKm: 25 }, // 다낭
+  NHA: { center: { lat: 12.2388, lng: 109.1967 }, radiusKm: 20 }, // 나트랑
+  DLI: { center: { lat: 11.9404, lng: 108.4583 }, radiusKm: 20 }, // 달랏
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -88,7 +100,7 @@ export function isWithinBoundary(
 
 /**
  * 자동 모드 결정. 위치 미제공 시 D-Day만으로 보수적으로 판단(여행 전 유지).
- * 사이클 3 데모 토글은 이 함수 결과를 무시하고 강제 in-travel 가능.
+ * AutoModeDetector(5b-4)가 클라이언트에서 호출. 데모 토글로 강제 전환도 병존.
  */
 export function detectMode(
   trip: Trip,

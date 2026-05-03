@@ -19,7 +19,7 @@ import {
   type CreateChecklistInput,
 } from "@/lib/repositories/checklist.repository";
 import { isDbConnected } from "@/lib/prisma";
-import { DEMO_TRIP_ID } from "@/lib/seed";
+import { ensureDemoTripInDb } from "@/lib/repositories/trip.repository";
 import { DEFAULT_CHECKLIST_TEMPLATE } from "@/lib/seed/checklist-template";
 import { getActorId } from "@/lib/auth/session";
 import { canWriteTrip } from "@/lib/auth/authorize";
@@ -37,13 +37,14 @@ export type ChecklistActionResult<T = unknown> =
 export async function addChecklistItem(
   input: CreateChecklistInput,
 ): Promise<ChecklistActionResult<ChecklistItem>> {
-  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+  if (!isDbConnected) {
     return { ok: true, demo: true };
   }
   if (!(await canWriteTrip(input.tripId))) {
     return { ok: false, code: "forbidden" };
   }
 
+  await ensureDemoTripInDb(input.tripId);
   const created = await createChecklistItem(input);
   if (!created) return { ok: false, code: "internal" };
 
@@ -72,13 +73,14 @@ export async function addChecklistItem(
 export async function addFromTemplate(input: {
   tripId: string;
 }): Promise<ChecklistActionResult<ChecklistItem[]>> {
-  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+  if (!isDbConnected) {
     return { ok: true, demo: true };
   }
   if (!(await canWriteTrip(input.tripId))) {
     return { ok: false, code: "forbidden" };
   }
 
+  await ensureDemoTripInDb(input.tripId);
   const created = await bulkCreateChecklistItems(
     input.tripId,
     DEFAULT_CHECKLIST_TEMPLATE.map((t, i) => ({
@@ -120,7 +122,7 @@ export async function toggleChecklist(input: {
   itemId: string;
   tripId: string;
 }): Promise<ChecklistActionResult<ChecklistItem>> {
-  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+  if (!isDbConnected) {
     return { ok: true, demo: true };
   }
   if (!(await canWriteTrip(input.tripId))) {
@@ -153,7 +155,7 @@ export async function deleteChecklist(input: {
   itemId: string;
   tripId: string;
 }): Promise<ChecklistActionResult<{ id: string }>> {
-  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+  if (!isDbConnected) {
     return { ok: true, demo: true };
   }
   if (!(await canWriteTrip(input.tripId))) {

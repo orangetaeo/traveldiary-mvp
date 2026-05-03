@@ -23,7 +23,7 @@ export interface UserPreferences {
 export interface Trip {
   id: string;
   destination: string;        // "푸꾸옥"
-  destinationCode: string;    // "PQC" — Phase 0 푸꾸옥, Phase 1 도쿄·오사카·교토 확장
+  destinationCode: string;    // "PQC"/"SGN"/"HAN"/"DAD"/"NHA"/"DLI" — 베트남 6 도시 (M2 boundary 활성, ADR-043)
   startDate: string;          // ISO date
   nights: number;
   companion: CompanionType;
