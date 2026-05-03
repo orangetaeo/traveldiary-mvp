@@ -178,3 +178,161 @@ describe("사이클 PP — aggregateModeTransitionStats", () => {
     expect(stats.byTrigger[0].trigger).toBe("unknown");
   });
 });
+
+/**
+ * 사이클 RR — byDestinationCode + windowDays 메타 + options 객체 시그니처.
+ */
+describe("사이클 RR — byDestinationCode + windowDays + options 객체", () => {
+  it("byDestinationCode: 도시별 applied/skipped 정확 카운트 + total 내림차순", () => {
+    const stats = aggregateModeTransitionStats([
+      row("a", {
+        outcome: "applied",
+        trigger: "geolocation",
+        destinationCode: "PQC",
+      }),
+      row("b", {
+        outcome: "applied",
+        trigger: "geolocation",
+        destinationCode: "PQC",
+      }),
+      row("c", {
+        outcome: "skipped",
+        trigger: "geolocation",
+        destinationCode: "PQC",
+        skipReason: "not_in_destination",
+      }),
+      row("d", {
+        outcome: "applied",
+        trigger: "geolocation",
+        destinationCode: "DAD",
+      }),
+    ]);
+    expect(stats.byDestinationCode).toHaveLength(2);
+    expect(stats.byDestinationCode[0]).toEqual({
+      code: "PQC",
+      total: 3,
+      applied: 2,
+      skipped: 1,
+    });
+    expect(stats.byDestinationCode[1]).toEqual({
+      code: "DAD",
+      total: 1,
+      applied: 1,
+      skipped: 0,
+    });
+  });
+
+  it("destinationCode 누락 → 'unknown' 그룹", () => {
+    const stats = aggregateModeTransitionStats([
+      row("a", { outcome: "applied", trigger: "manual" }),
+      row("b", {
+        outcome: "applied",
+        trigger: "manual",
+        destinationCode: "HAN",
+      }),
+    ]);
+    const unknown = stats.byDestinationCode.find((d) => d.code === "unknown");
+    expect(unknown).toEqual({
+      code: "unknown",
+      total: 1,
+      applied: 1,
+      skipped: 0,
+    });
+  });
+
+  it("legacy outcome (unknown) 행은 byDestinationCode에서 제외 (totalAttempts 정의와 정합)", () => {
+    const stats = aggregateModeTransitionStats([
+      row("legacy", {
+        trigger: "manual",
+        destinationCode: "PQC",
+        // outcome 누락 → unknown
+      }),
+      row("new", {
+        outcome: "applied",
+        trigger: "manual",
+        destinationCode: "PQC",
+      }),
+    ]);
+    const pqc = stats.byDestinationCode.find((d) => d.code === "PQC");
+    expect(pqc?.total).toBe(1);
+    expect(pqc?.applied).toBe(1);
+    expect(stats.totalAttempts).toBe(1);
+  });
+
+  it("byDestinationCode 합계 == totalAttempts (분포 일치)", () => {
+    const stats = aggregateModeTransitionStats([
+      row("a", { outcome: "applied", destinationCode: "PQC" }),
+      row("b", { outcome: "skipped", destinationCode: "DAD", skipReason: "not_in_destination" }),
+      row("c", { outcome: "applied", destinationCode: "HAN" }),
+      row("d", { outcome: "applied", destinationCode: "PQC" }),
+    ]);
+    const sum = stats.byDestinationCode.reduce((s, d) => s + d.total, 0);
+    expect(sum).toBe(stats.totalAttempts);
+  });
+
+  it("options.windowDays는 메타로 결과에 포함 (집계 자체는 호출자가 사전 필터)", () => {
+    const stats = aggregateModeTransitionStats(
+      [row("a", { outcome: "applied", trigger: "manual" })],
+      { windowDays: 7 },
+    );
+    expect(stats.windowDays).toBe(7);
+  });
+
+  it("options.windowDays 미지정 → undefined", () => {
+    const stats = aggregateModeTransitionStats([
+      row("a", { outcome: "applied", trigger: "manual" }),
+    ]);
+    expect(stats.windowDays).toBeUndefined();
+  });
+
+  it("options.recentLimit 적용 (객체 시그니처)", () => {
+    const rows: RawRow[] = [];
+    for (let i = 0; i < 30; i++) {
+      rows.push(row(`r-${i}`, { outcome: "applied", trigger: "manual" }));
+    }
+    const stats = aggregateModeTransitionStats(rows, { recentLimit: 5 });
+    expect(stats.recent).toHaveLength(5);
+    expect(stats.recent[0].id).toBe("r-0");
+  });
+
+  it("number 시그니처 호환 (기존 caller 미파괴)", () => {
+    const rows: RawRow[] = [];
+    for (let i = 0; i < 10; i++) {
+      rows.push(row(`r-${i}`, { outcome: "applied", trigger: "manual" }));
+    }
+    const stats = aggregateModeTransitionStats(rows, 3);
+    expect(stats.recent).toHaveLength(3);
+    expect(stats.windowDays).toBeUndefined();
+  });
+
+  it("빈 입력에서도 byDestinationCode == [] (안전 기본값)", () => {
+    const stats = aggregateModeTransitionStats([]);
+    expect(stats.byDestinationCode).toEqual([]);
+  });
+
+  it("8 베트남 도시 분포: 전부 인식되고 카운트 내림차순", () => {
+    const codes = ["PQC", "DAD", "HAN", "SGN", "HOI", "NHA", "DLI", "CTH"];
+    const rows: RawRow[] = [];
+    codes.forEach((code, i) => {
+      // 인덱스+1 만큼 applied 행 생성 — PQC=1건, DAD=2건, ..., CTH=8건
+      for (let j = 0; j <= i; j++) {
+        rows.push(
+          row(`${code}-${j}`, {
+            outcome: "applied",
+            trigger: "geolocation",
+            destinationCode: code,
+          }),
+        );
+      }
+    });
+    const stats = aggregateModeTransitionStats(rows);
+    expect(stats.byDestinationCode).toHaveLength(8);
+    // 첫 항목은 가장 많은 CTH (8건)
+    expect(stats.byDestinationCode[0].code).toBe("CTH");
+    expect(stats.byDestinationCode[0].total).toBe(8);
+    // 마지막 항목은 가장 적은 PQC (1건)
+    expect(stats.byDestinationCode[stats.byDestinationCode.length - 1].code).toBe(
+      "PQC",
+    );
+  });
+});
