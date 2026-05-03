@@ -3,6 +3,9 @@
  *
  * 회귀 방어용 최소 시나리오. 실 mutation은 별 시나리오에서 (auth.spec.ts 등 후속).
  * 데모 trip ID: demo-trip-phu-quoc (lib/seed/index.ts).
+ *
+ * 사이클 EEE(2026-05-03): strict mode 위반 셀렉터 .first()로 좁힘 — 라이브 콘텐츠 풍부화로
+ *   같은 텍스트가 여러 위치(heading, link, body)에 등장. 라이브 회귀가 아니라 테스트 fragility.
  */
 
 import { test, expect } from "@playwright/test";
@@ -31,8 +34,9 @@ test("item detail shows hero + evidence panel", async ({ page }) => {
 
 test("city page loads phu-quoc emergency contacts", async ({ page }) => {
   await page.goto("/city/phu-quoc");
-  await expect(page.getByText("푸꾸옥")).toBeVisible();
-  await expect(page.getByText(/긴급 상황|113|115/)).toBeVisible();
+  // /city/phu-quoc는 "푸꾸옥"이 heading/link/연락처 등 여러 위치에 등장 — first()로 좁힘
+  await expect(page.getByText("푸꾸옥").first()).toBeVisible();
+  await expect(page.getByText(/긴급 상황|113|115/).first()).toBeVisible();
 });
 
 test("translate capturing view loads", async ({ page }) => {
@@ -42,7 +46,8 @@ test("translate capturing view loads", async ({ page }) => {
 
 test("travel mode page loads with timeline", async ({ page }) => {
   await page.goto(`/travel/${DEMO_TRIP}`);
-  await expect(page.getByText(/DAY 1/)).toBeVisible();
+  // /travel/[id]는 헤더 + 일정 카드 둘 다 "DAY 1" 노출 — first()로 좁힘
+  await expect(page.getByText(/DAY 1/).first()).toBeVisible();
 });
 
 test("checklist page shows empty state with template button", async ({ page }) => {
