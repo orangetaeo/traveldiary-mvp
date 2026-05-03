@@ -15,6 +15,7 @@ import Link from "next/link";
 import {
   addChecklistItem,
   addFromTemplate,
+  bulkDeleteChecklist,
   bulkToggleChecklist,
   deleteChecklist,
   moveChecklist,
@@ -237,6 +238,40 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
     });
   }
 
+  // 사이클 JJ — 일괄 삭제
+  function handleBulkDelete() {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+
+    if (!confirm(`선택한 ${ids.length}개 항목을 삭제할까요? 되돌릴 수 없습니다.`)) {
+      return;
+    }
+
+    // 옵티미스틱 — 선택된 항목 즉시 제거
+    const snapshot = items;
+    setItems((prev) => prev.filter((it) => !selectedIds.has(it.id)));
+
+    startTransition(async () => {
+      const result = await bulkDeleteChecklist({
+        tripId: trip.id,
+        itemIds: ids,
+      });
+      if (!result.ok) {
+        setItems(snapshot);
+        showToast(`일괄 삭제 실패: ${result.code}`);
+        return;
+      }
+      if (result.demo) {
+        showToast(`${ids.length}개 삭제 (데모 시뮬)`);
+      } else {
+        showToast(`${result.data.deletedCount}개 삭제됨 (DB 영속화)`);
+        router.refresh();
+      }
+      setSelectedIds(new Set());
+      setSelectionMode(false);
+    });
+  }
+
   function handleDelete(item: ChecklistItem) {
     if (!confirm(`"${item.text}" 항목을 삭제할까요?`)) return;
 
@@ -372,6 +407,15 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
             className="px-3 py-2 rounded-lg text-td-meta font-semibold text-white bg-purple disabled:opacity-40 disabled:cursor-not-allowed hover:bg-purple-deep"
           >
             완료
+          </button>
+          <div className="w-px h-6 bg-divider mx-1" aria-hidden="true" />
+          <button
+            type="button"
+            onClick={handleBulkDelete}
+            disabled={selectedCount === 0 || isPending}
+            className="px-3 py-2 rounded-lg text-td-meta font-semibold text-danger border border-danger disabled:opacity-40 disabled:cursor-not-allowed hover:bg-danger-soft"
+          >
+            삭제
           </button>
         </div>
       )}

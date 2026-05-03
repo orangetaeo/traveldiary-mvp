@@ -257,6 +257,68 @@ export async function setChecklistItemsDone(
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// 사이클 JJ — bulkDeleteChecklistItems (멀티 선택 일괄 삭제)
+//
+// strict count check (II 답습): where 절에 tripId 포함 + count !== expected throw.
+// before snapshot은 audit metadata용으로 첫 50개까지만 보존 (R1 결정 — JSON 비대화 방지).
+// ═══════════════════════════════════════════════════════════════════
+
+export const BULK_DELETE_SNAPSHOT_LIMIT = 50;
+
+export interface BulkDeleteChecklistInput {
+  tripId: string;
+  itemIds: string[];
+}
+
+export interface BulkDeleteChecklistResult {
+  deletedCount: number;
+  itemIds: string[];
+  beforeSnapshot: ChecklistItem[];
+  omittedSnapshotCount: number;
+}
+
+export async function bulkDeleteChecklistItems(
+  input: BulkDeleteChecklistInput,
+): Promise<BulkDeleteChecklistResult | "count_mismatch" | "empty" | null> {
+  if (!prisma) return null;
+  if (input.itemIds.length === 0) return "empty";
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      // before snapshot — audit metadata용 (첫 50개 제한)
+      const snapshotIds = input.itemIds.slice(0, BULK_DELETE_SNAPSHOT_LIMIT);
+      const beforeRows = await tx.checklistItem.findMany({
+        where: { id: { in: snapshotIds }, tripId: input.tripId },
+      });
+      const beforeSnapshot = beforeRows.map(rowToItem);
+
+      const deleted = await tx.checklistItem.deleteMany({
+        where: { id: { in: input.itemIds }, tripId: input.tripId },
+      });
+      if (deleted.count !== input.itemIds.length) {
+        // cross-trip itemId 또는 not_found row 존재 → 트랜잭션 throw로 롤백.
+        throw new Error("count_mismatch");
+      }
+      return {
+        deletedCount: deleted.count,
+        itemIds: input.itemIds,
+        beforeSnapshot,
+        omittedSnapshotCount: Math.max(
+          0,
+          input.itemIds.length - BULK_DELETE_SNAPSHOT_LIMIT,
+        ),
+      };
+    });
+  } catch (err) {
+    if (err instanceof Error && err.message === "count_mismatch") {
+      return "count_mismatch";
+    }
+    console.error("[checklist.repository] bulkDeleteChecklistItems failed", err);
+    return null;
+  }
+}
+
 export async function deleteChecklistItem(
   itemId: string,
 ): Promise<{ before: ChecklistItem } | "not_found" | null> {

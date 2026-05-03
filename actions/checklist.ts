@@ -13,6 +13,7 @@ import { revalidatePath } from "next/cache";
 import { writeAuditLog } from "@/lib/audit-log";
 import {
   bulkCreateChecklistItems,
+  bulkDeleteChecklistItems,
   createChecklistItem,
   deleteChecklistItem,
   moveChecklistItem,
@@ -241,6 +242,62 @@ export async function bulkToggleChecklist(input: {
     ok: true,
     demo: false,
     data: { updatedCount: result.updatedCount, done: result.done },
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 사이클 JJ — bulkDeleteChecklist (멀티 선택 일괄 삭제)
+//
+// audit log 단일 row + metadata.beforeSnapshot (50개 제한, R1 결정).
+// strict count → forbidden (cross-trip 시도 권한 거부 표시, II 답습).
+// ═══════════════════════════════════════════════════════════════════
+
+export async function bulkDeleteChecklist(input: {
+  tripId: string;
+  itemIds: string[];
+}): Promise<ChecklistActionResult<{ deletedCount: number }>> {
+  if (!isDbConnected) {
+    return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
+  }
+  if (input.itemIds.length === 0) {
+    return { ok: false, code: "not_found" };
+  }
+
+  const result = await bulkDeleteChecklistItems({
+    tripId: input.tripId,
+    itemIds: input.itemIds,
+  });
+  if (result === null) return { ok: false, code: "internal" };
+  if (result === "empty") return { ok: false, code: "not_found" };
+  if (result === "count_mismatch") return { ok: false, code: "forbidden" };
+
+  await writeAuditLog({
+    actorId: await getActorId(),
+    action: "checklist.bulk_delete",
+    resource: "ChecklistItem",
+    resourceId: input.tripId,
+    before: result.beforeSnapshot.map((it) => ({
+      id: it.id,
+      text: it.text,
+      category: it.category,
+      dDayBucket: it.dDayBucket,
+    })),
+    metadata: {
+      source: "web",
+      itemIds: result.itemIds,
+      itemCount: result.deletedCount,
+      omittedSnapshotCount: result.omittedSnapshotCount,
+    },
+  });
+
+  revalidatePath(`/checklist/${input.tripId}`);
+  return {
+    ok: true,
+    demo: false,
+    data: { deletedCount: result.deletedCount },
   };
 }
 
