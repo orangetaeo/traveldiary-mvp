@@ -1,12 +1,19 @@
 /**
  * Affiliate AuditLog 집계 — 사이클 12c.
  * AuditLog.action="affiliate.click" 행을 OTA별 집계.
+ *
+ * 사이클 XXX — windowDays 옵션 도입 (RR 답습). 시그니처 옵션 객체 진화
+ * (helper-evolution 6번째 답습: scalar → options | scalar with fallback).
  */
 
 import "server-only";
 
 import { prisma } from "../prisma";
 import type { OtaProvider } from "../types";
+import {
+  buildWindowCutoffFilter,
+  type WindowOption,
+} from "../admin/window-filter";
 
 /** OTA별 추정 commission rate (어필리에이트 계약 정확값으로 운영 단계에서 갱신) */
 export const COMMISSION_RATE: Record<OtaProvider, number> = {
@@ -38,13 +45,33 @@ export interface AffiliateSummary {
   recent: AffiliateClickRow[];
 }
 
+export interface GetAffiliateSummaryOptions {
+  limit?: number;
+  /** 사이클 XXX — 시간 윈도우(7|30). undefined = 전체. */
+  windowDays?: WindowOption;
+}
+
+/**
+ * @param optionsOrLimit options object 또는 scalar limit (helper-evolution fallback)
+ */
 export async function getAffiliateSummary(
-  limit = 20,
+  optionsOrLimit: GetAffiliateSummaryOptions | number = 20,
 ): Promise<AffiliateSummary | null> {
+  // helper-evolution 6번째 답습: scalar → options | scalar with typeof fallback
+  const options: GetAffiliateSummaryOptions =
+    typeof optionsOrLimit === "number"
+      ? { limit: optionsOrLimit }
+      : optionsOrLimit;
+  const limit = options.limit ?? 20;
+  const windowDays = options.windowDays;
+
   if (!prisma) return null;
   try {
     const rows = await prisma.auditLog.findMany({
-      where: { action: "affiliate.click" },
+      where: {
+        action: "affiliate.click",
+        ...buildWindowCutoffFilter(windowDays),
+      },
       orderBy: { createdAt: "desc" },
       take: 500,
     });
