@@ -160,3 +160,135 @@ describe("사이클 RR — SettlementCard", () => {
     expect(html).toContain("현지 통화 병기");
   });
 });
+
+describe("사이클 UU (ADR-042) — settledAt 정산 완료 마커 UI", () => {
+  function settledEntry(
+    id: string,
+    amountKrw: number,
+    splitWith: CostEntry["splitWith"],
+    settledAt?: string,
+  ): CostEntry {
+    return {
+      ...entry(id, amountKrw, splitWith),
+      settledAt,
+    };
+  }
+
+  it("settledAt 있는 entry만 → '전체 정산 완료' 헤더", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[settledEntry("a", 10000, ["철수", "영희"], NOW)]}
+      />,
+    );
+    expect(html).toContain("전체 정산 완료");
+    expect(html).toContain("정산 완료된 1건");
+  });
+
+  it("settledAt 있는 entry는 흐름에서 제외 (송금 안 보임)", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[settledEntry("a", 10000, ["철수", "영희"], NOW)]}
+      />,
+    );
+    // transfers 영역 미렌더 — "→" 없음 (정산 완료 details 안에서는 hyphen line-through만)
+    expect(html).not.toContain("송금 흐름");
+  });
+
+  it("미정산 + 정산완료 혼재 — 미정산 헤더 + 정산완료 details 둘 다", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[
+          entry("u1", 10000, ["철수", "영희"]),
+          settledEntry("s1", 20000, ["철수", "영희"], NOW),
+        ]}
+      />,
+    );
+    expect(html).toContain("미정산 1건");
+    expect(html).toContain("정산 완료된 1건");
+  });
+
+  it("onSettle 미전달 → '완료 처리' 토글 버튼 미렌더", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[entry("a", 10000, ["철수", "영희"])]}
+      />,
+    );
+    expect(html).not.toContain("완료 처리");
+    expect(html).not.toContain("항목별 정산 완료 처리");
+  });
+
+  it("onSettle 전달 + 미정산 entry 있음 → '완료 처리' 버튼 노출", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[entry("a", 10000, ["철수", "영희"])]}
+        onSettle={() => {}}
+      />,
+    );
+    expect(html).toContain("항목별 정산 완료 처리");
+    expect(html).toContain("완료 처리");
+  });
+
+  it("onSettle 전달 + 정산완료 entry 있음 → '되돌리기' 버튼 노출", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[settledEntry("a", 10000, ["철수", "영희"], NOW)]}
+        onSettle={() => {}}
+      />,
+    );
+    expect(html).toContain("되돌리기");
+  });
+
+  it("onSettle 미전달 + 정산완료 entry → details 표시되지만 되돌리기 버튼 없음", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[settledEntry("a", 10000, ["철수", "영희"], NOW)]}
+      />,
+    );
+    expect(html).toContain("정산 완료된 1건");
+    expect(html).not.toContain("되돌리기");
+  });
+
+  it("정산 완료 details — 통화 병기 적용", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[settledEntry("a", 10000, ["철수", "영희"], NOW)]}
+        approxKrwRate={20}
+        currencySymbol="₫"
+      />,
+    );
+    // 정산 완료된 1건 · 총 ₩10,000 (≈ ₫200,000)
+    expect(html).toContain("≈ ₫200,000");
+  });
+
+  it("settledAt 있는 + splitWith 없는 entry → 카드 미렌더 (members<2)", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[settledEntry("a", 10000, undefined, NOW)]}
+      />,
+    );
+    expect(html).toBe("");
+  });
+
+  it("settledAt 있는 + splitWith 1명 entry → 카드 미렌더", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[settledEntry("a", 10000, ["혼자"], NOW)]}
+      />,
+    );
+    expect(html).toBe("");
+  });
+
+  it("미정산 entry의 line-through 없음 — 정산완료만 line-through", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[
+          entry("u1", 10000, ["철수", "영희"]),
+          settledEntry("s1", 20000, ["철수", "영희"], NOW),
+        ]}
+        onSettle={() => {}}
+      />,
+    );
+    // line-through는 정산완료 details 안에만
+    expect(html).toContain("line-through");
+  });
+});

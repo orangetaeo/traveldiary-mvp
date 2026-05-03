@@ -10,6 +10,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import {
   createCostEntry,
   deleteCostEntry,
+  settleCostEntry,
   updateCostEntry,
   type CreateCostInput,
   type UpdateCostInput,
@@ -94,6 +95,40 @@ export async function updateCost(input: {
       amountKrw: result.after.amountKrw,
       status: result.after.status,
     },
+    metadata: { source: "web" },
+  });
+
+  revalidatePath(`/cost/${input.tripId}`);
+  return { ok: true, demo: false, data: result.after };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// settleCost (사이클 UU, ADR-042 — E1 v3 미니)
+// ═══════════════════════════════════════════════════════════════════
+
+export async function settleCost(input: {
+  id: string;
+  tripId: string;
+  settled: boolean;
+}): Promise<CostActionResult<CostEntry>> {
+  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+    return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
+  }
+
+  const result = await settleCostEntry(input.id, input.settled);
+  if (result === null) return { ok: false, code: "internal" };
+  if (result === "not_found") return { ok: false, code: "not_found" };
+
+  await writeAuditLog({
+    actorId: await getActorId(),
+    action: input.settled ? "cost.settle" : "cost.unsettle",
+    resource: "CostEntry",
+    resourceId: input.id,
+    before: { settledAt: result.before.settledAt ?? null },
+    after: { settledAt: result.after.settledAt ?? null },
     metadata: { source: "web" },
   });
 

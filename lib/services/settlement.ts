@@ -14,6 +14,10 @@
  *  - 분담 = amountKrw × member.weight / sum(weights)
  *  - schema 변경 0 — 동일 Json? 컬럼에서 형식 분기
  *
+ * v3 미니 (사이클 UU, ADR-042): settledAt NOT NULL인 entry는 흐름 계산에서 제외.
+ *  - splitEntryCount / totalSplitKrw / transfers / netByMember 모두 미정산 entry만 반영
+ *  - settledEntryCount / settledTotalKrw 별도 노출 (정산 완료된 건 표시용)
+ *
  * 순수 함수 (server-only X) — 클라이언트/서버 모두 사용 가능.
  */
 
@@ -44,6 +48,12 @@ export interface SettlementResult {
   splitEntryCount: number;
   /** 가중치를 명시적으로 사용한 entry 개수 */
   weightedEntryCount: number;
+  /**
+   * 사이클 UU (ADR-042) — 정산 완료된 entry 수 (흐름 계산에서 제외됨).
+   */
+  settledEntryCount: number;
+  /** 사이클 UU — 정산 완료된 split entry 합계 (KRW). */
+  settledTotalKrw: number;
 }
 
 const EMPTY_RESULT: SettlementResult = {
@@ -52,6 +62,8 @@ const EMPTY_RESULT: SettlementResult = {
   totalSplitKrw: 0,
   splitEntryCount: 0,
   weightedEntryCount: 0,
+  settledEntryCount: 0,
+  settledTotalKrw: 0,
 };
 
 /**
@@ -85,14 +97,26 @@ export function normalizeSplitWith(
 
 export function computeSettlement(entries: CostEntry[]): SettlementResult {
   // 정규화 후 2명 이상인 entry만 정산 대상
-  const splitEntries = entries
+  const allSplitEntries = entries
     .map((e) => ({
       entry: e,
       ...normalizeSplitWith(e.splitWith),
     }))
     .filter((s) => s.members.length >= 2);
 
-  if (splitEntries.length === 0) return EMPTY_RESULT;
+  // 사이클 UU (ADR-042) — settledAt 있는 entry는 흐름 계산에서 제외
+  const settledOnly = allSplitEntries.filter((s) => s.entry.settledAt);
+  const splitEntries = allSplitEntries.filter((s) => !s.entry.settledAt);
+
+  const settledEntryCount = settledOnly.length;
+  const settledTotalKrw = settledOnly.reduce(
+    (sum, s) => sum + s.entry.amountKrw,
+    0,
+  );
+
+  if (splitEntries.length === 0) {
+    return { ...EMPTY_RESULT, settledEntryCount, settledTotalKrw };
+  }
 
   const memberSet = new Set<string>();
   for (const s of splitEntries) {
@@ -155,6 +179,8 @@ export function computeSettlement(entries: CostEntry[]): SettlementResult {
     totalSplitKrw,
     splitEntryCount: splitEntries.length,
     weightedEntryCount,
+    settledEntryCount,
+    settledTotalKrw,
   };
 }
 

@@ -240,11 +240,19 @@ model CostEntry {
   /** ["userId-1", ...] — 사이클 11 OAuth 후 활성. 9에선 빈 배열 또는 null */
   splitWith   Json?
 
+  /**
+   * 사이클 UU (ADR-042) — 정산 완료 마커 (E1 v3 미니).
+   * NULL = 미정산 / NOT NULL = 정산 완료 시점.
+   * computeSettlement에서 NOT NULL인 entry는 흐름 계산에서 제외.
+   */
+  settledAt   DateTime?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([tripId, date])
   @@index([tripId, status])
+  @@index([tripId, settledAt])
 }
 
 // ═══════════════════════════════════════════

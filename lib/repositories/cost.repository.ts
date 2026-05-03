@@ -24,6 +24,7 @@ function rowToEntry(row: DbRow): CostEntry {
     status: row.status as CostEntry["status"],
     category: row.category ?? undefined,
     splitWith: (row.splitWith as string[] | null) ?? undefined,
+    settledAt: row.settledAt?.toISOString(),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -122,6 +123,32 @@ export async function updateCostEntry(
     });
   } catch (err) {
     console.error("[cost.repository] update failed", err);
+    return null;
+  }
+}
+
+/**
+ * 사이클 UU (ADR-042) — 정산 완료 토글.
+ * settled=true → settledAt = now() / false → settledAt = null.
+ * 멱등 — 동일 상태 입력 시도 noop이지만 트랜잭션은 수행 (audit 흐름 단순).
+ */
+export async function settleCostEntry(
+  id: string,
+  settled: boolean,
+): Promise<{ before: CostEntry; after: CostEntry } | "not_found" | null> {
+  if (!prisma) return null;
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.costEntry.findUnique({ where: { id } });
+      if (!before) return "not_found" as const;
+      const after = await tx.costEntry.update({
+        where: { id },
+        data: { settledAt: settled ? new Date() : null },
+      });
+      return { before: rowToEntry(before), after: rowToEntry(after) };
+    });
+  } catch (err) {
+    console.error("[cost.repository] settle failed", err);
     return null;
   }
 }

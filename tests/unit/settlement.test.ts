@@ -268,3 +268,100 @@ describe("사이클 II — parseSplitToken (UI 입력 파서)", () => {
     expect(parseSplitToken(":2")).toBeNull();
   });
 });
+
+describe("사이클 UU (ADR-042) — settledAt 정산 완료 마커", () => {
+  function makeSettled(
+    id: string,
+    amountKrw: number,
+    splitWith: CostEntry["splitWith"],
+    settledAt: string | undefined,
+  ): CostEntry {
+    return {
+      ...makeEntry(id, amountKrw, splitWith),
+      settledAt,
+    };
+  }
+
+  it("settledAt 있는 entry → transfers 제외", () => {
+    const result = computeSettlement([
+      makeSettled("a", 10000, ["철수", "영희"], "2026-05-04T00:00:00Z"),
+    ]);
+    expect(result.transfers).toEqual([]);
+    expect(result.splitEntryCount).toBe(0);
+  });
+
+  it("settledAt 있는 entry → netByMember 제외", () => {
+    const result = computeSettlement([
+      makeSettled("a", 10000, ["철수", "영희"], "2026-05-04T00:00:00Z"),
+    ]);
+    expect(result.netByMember).toEqual([]);
+  });
+
+  it("settledAt 있는 entry → settledEntryCount + settledTotalKrw 집계", () => {
+    const result = computeSettlement([
+      makeSettled("a", 10000, ["철수", "영희"], "2026-05-04T00:00:00Z"),
+      makeSettled("b", 20000, ["철수", "민수"], "2026-05-05T00:00:00Z"),
+    ]);
+    expect(result.settledEntryCount).toBe(2);
+    expect(result.settledTotalKrw).toBe(30000);
+    expect(result.splitEntryCount).toBe(0);
+  });
+
+  it("미정산 + 정산완료 혼재 — 미정산만 흐름 계산", () => {
+    const result = computeSettlement([
+      makeEntry("u1", 10000, ["철수", "영희"]), // 미정산
+      makeSettled("s1", 20000, ["철수", "영희"], "2026-05-04T00:00:00Z"),
+    ]);
+    expect(result.splitEntryCount).toBe(1);
+    expect(result.totalSplitKrw).toBe(10000);
+    expect(result.settledEntryCount).toBe(1);
+    expect(result.settledTotalKrw).toBe(20000);
+    expect(result.transfers).toHaveLength(1);
+    expect(result.transfers[0].amountKrw).toBe(5000); // 10000/2
+  });
+
+  it("settledAt 빈 문자열은 미정산 (truthy 판정 — '' 미사용 컨벤션)", () => {
+    // settledAt: undefined 만 미정산. 빈 문자열은 들어오지 않는 컨벤션.
+    const result = computeSettlement([
+      makeSettled("a", 10000, ["철수", "영희"], undefined),
+    ]);
+    expect(result.splitEntryCount).toBe(1);
+    expect(result.settledEntryCount).toBe(0);
+  });
+
+  it("splitWith 없으면서 settledAt — settledEntryCount에도 미포함 (members<2)", () => {
+    const result = computeSettlement([
+      {
+        ...makeEntry("a", 10000),
+        settledAt: "2026-05-04T00:00:00Z",
+      },
+    ]);
+    expect(result.splitEntryCount).toBe(0);
+    expect(result.settledEntryCount).toBe(0);
+  });
+
+  it("모두 정산 완료 — 흐름 0 + settledEntryCount > 0", () => {
+    const result = computeSettlement([
+      makeSettled("a", 10000, ["철수", "영희"], "2026-05-04T00:00:00Z"),
+      makeSettled("b", 30000, ["영희", "철수"], "2026-05-05T00:00:00Z"),
+    ]);
+    expect(result.transfers).toEqual([]);
+    expect(result.netByMember).toEqual([]);
+    expect(result.splitEntryCount).toBe(0);
+    expect(result.settledEntryCount).toBe(2);
+    expect(result.settledTotalKrw).toBe(40000);
+  });
+
+  it("가중치 + settledAt 혼재 — 미정산 가중치 보존", () => {
+    const result = computeSettlement([
+      makeEntry("u1", 12000, [
+        { name: "철수", weight: 2 },
+        { name: "영희", weight: 1 },
+      ]),
+      makeSettled("s1", 6000, ["철수", "영희"], "2026-05-04T00:00:00Z"),
+    ]);
+    expect(result.splitEntryCount).toBe(1);
+    expect(result.weightedEntryCount).toBe(1);
+    expect(result.settledEntryCount).toBe(1);
+  });
+});

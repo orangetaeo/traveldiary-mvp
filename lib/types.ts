@@ -276,6 +276,12 @@ export interface CostEntry {
    * v1: string[] (1/N 균등). v2: { name, weight? }[] (가중치).
    */
   splitWith?: Array<string | { name: string; weight?: number }>;
+  /**
+   * 사이클 UU (ADR-042) — 정산 완료 마커 (E1 v3 미니).
+   * ISO datetime 또는 undefined. NOT NULL이면 정산 완료된 시점.
+   * computeSettlement에서 제외됨.
+   */
+  settledAt?: string;
   createdAt: string;
   updatedAt: string;
 }

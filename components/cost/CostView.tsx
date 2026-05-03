@@ -12,7 +12,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { addCost, deleteCost } from "@/actions/cost";
+import { addCost, deleteCost, settleCost } from "@/actions/cost";
 import type { CostEntry, CostStatus, Trip } from "@/lib/types";
 import { SettlementCard } from "./SettlementCard";
 import { AddCostForm } from "./AddCostForm";
@@ -94,6 +94,48 @@ export function CostView({
     });
   }
 
+  /**
+   * 사이클 UU (ADR-042) — 정산 완료 토글.
+   * 옵티미스틱 — 즉시 settledAt 업데이트 후 server action.
+   * 실패 시 롤백.
+   */
+  function handleSettle(entry: CostEntry, settled: boolean) {
+    const prevSettledAt = entry.settledAt;
+    const nextSettledAt = settled ? new Date().toISOString() : undefined;
+
+    setEntries((prev) =>
+      prev.map((e) =>
+        e.id === entry.id ? { ...e, settledAt: nextSettledAt } : e,
+      ),
+    );
+
+    startTransition(async () => {
+      const result = await settleCost({
+        id: entry.id,
+        tripId: trip.id,
+        settled,
+      });
+      if (!result.ok) {
+        // 롤백
+        setEntries((prev) =>
+          prev.map((e) =>
+            e.id === entry.id ? { ...e, settledAt: prevSettledAt } : e,
+          ),
+        );
+        showToast(`정산 처리 실패: ${result.code}`);
+        return;
+      }
+      if (result.demo) {
+        showToast(
+          settled ? "정산 완료 (데모 시뮬)" : "정산 되돌림 (데모 시뮬)",
+        );
+      } else {
+        showToast(settled ? "정산 완료" : "정산 되돌림");
+        router.refresh();
+      }
+    });
+  }
+
   function handleDelete(entry: CostEntry) {
     if (!confirm(`"${entry.label}" 비용을 삭제할까요?`)) return;
 
@@ -157,6 +199,7 @@ export function CostView({
             entries={entries}
             approxKrwRate={approxKrwRate}
             currencySymbol={currencySymbol}
+            onSettle={handleSettle}
           />
         </section>
 
