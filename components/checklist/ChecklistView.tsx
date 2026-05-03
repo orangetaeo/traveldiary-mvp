@@ -30,6 +30,11 @@ import {
   AddChecklistForm,
   type AddChecklistFormSubmit,
 } from "./AddChecklistForm";
+import {
+  ChecklistCategoryFilter,
+  applyCategoryFilter,
+  type CategoryFilterValue,
+} from "./ChecklistCategoryFilter";
 
 interface Props {
   trip: Trip;
@@ -47,10 +52,19 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  // 사이클 NN — 카테고리 필터 (UI only, DB 미터치)
+  const [categoryFilter, setCategoryFilter] =
+    useState<CategoryFilterValue>("all");
+
   const total = items.length;
   const done = items.filter((it) => it.done).length;
   const progressPercent = total === 0 ? 0 : Math.round((done / total) * 100);
   const progressBucket = nearestProgressBucket(progressPercent);
+
+  const filteredItems = useMemo(
+    () => applyCategoryFilter(items, categoryFilter),
+    [items, categoryFilter],
+  );
 
   const selectedCount = selectedIds.size;
   const allSelected = useMemo(
@@ -359,15 +373,33 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
         )}
 
         {total > 0 && (
-          <ChecklistBucketList
-            items={items}
-            onToggle={handleToggle}
-            onDelete={handleDelete}
-            onMove={handleMove}
-            selectionMode={selectionMode}
-            selectedIds={selectedIds}
-            onSelectToggle={toggleItemSelection}
-          />
+          <>
+            <div className="pb-td-sm">
+              <ChecklistCategoryFilter
+                items={items}
+                value={categoryFilter}
+                onChange={setCategoryFilter}
+              />
+            </div>
+            {filteredItems.length === 0 ? (
+              <p
+                className="text-td-meta text-ink-soft py-td-md text-center"
+                role="status"
+              >
+                이 카테고리에 항목이 없어요. 다른 카테고리를 선택해보세요.
+              </p>
+            ) : (
+              <ChecklistBucketList
+                items={filteredItems}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                onMove={categoryFilter === "all" ? handleMove : undefined}
+                selectionMode={selectionMode}
+                selectedIds={selectedIds}
+                onSelectToggle={toggleItemSelection}
+              />
+            )}
+          </>
         )}
 
         {!selectionMode && (
