@@ -111,7 +111,7 @@ model User {
 | toggleChecklist 후 actorId | 변경 X (생성 시점 보존) |
 | User 삭제 → ON DELETE SET NULL | row 보존 + actorId=null |
 
-> **D5 가드 구현 — `actions/checklist.ts:resolveActorIdForTrip`**:
+> **D5 가드 구현 — `lib/auth/actor-resolution.ts:resolveActorIdForTrip`** (별도 모듈 — Server Actions 파일은 async export만 허용):
 > ```ts
 > if (DEMO_TRIP_IDS.includes(tripId)) return null;
 > return actorId;

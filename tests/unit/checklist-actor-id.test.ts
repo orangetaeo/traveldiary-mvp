@@ -219,29 +219,29 @@ describe("사이클 TT — bulkCreateChecklistItems actorId 전파", () => {
 // 인증 사용자가 DEMO trip에 add 시 시드 row가 user.id로 stamp되는 오염 차단.
 // ═══════════════════════════════════════════════════════════════════
 
-import { _resolveActorIdForTrip } from "@/actions/checklist";
+import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import { DEMO_TRIP_IDS } from "@/lib/seed";
 
-describe("사이클 TT — _resolveActorIdForTrip (D5 DEMO_TRIP_ID 가드)", () => {
+describe("사이클 TT — resolveActorIdForTrip (D5 DEMO_TRIP_ID 가드)", () => {
   it("일반 trip + 인증 사용자 → actorId 그대로 반환", () => {
-    expect(_resolveActorIdForTrip("trip-real-A", "user-kakao-1")).toBe(
+    expect(resolveActorIdForTrip("trip-real-A", "user-kakao-1")).toBe(
       "user-kakao-1",
     );
   });
 
   it("일반 trip + 미인증 → null 그대로", () => {
-    expect(_resolveActorIdForTrip("trip-real-A", null)).toBe(null);
+    expect(resolveActorIdForTrip("trip-real-A", null)).toBe(null);
   });
 
   it.each(DEMO_TRIP_IDS)(
     "DEMO_TRIP_ID(%s) + 인증 사용자 → null 강제 (시드 오염 차단)",
     (demoId) => {
-      expect(_resolveActorIdForTrip(demoId, "user-kakao-1")).toBe(null);
+      expect(resolveActorIdForTrip(demoId, "user-kakao-1")).toBe(null);
     },
   );
 
   it("DEMO_TRIP_ID + 미인증 → null (그대로)", () => {
-    expect(_resolveActorIdForTrip(DEMO_TRIP_IDS[0], null)).toBe(null);
+    expect(resolveActorIdForTrip(DEMO_TRIP_IDS[0], null)).toBe(null);
   });
 
   it("DEMO_TRIP_IDS는 베트남 6 trip 모두 포함 (회귀 안전망)", () => {

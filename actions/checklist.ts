@@ -6,7 +6,7 @@
  * 5b-2 mutation 표준 패턴 답습:
  *   - DB 미연결 → demo:true (클라이언트 상태 시뮬)
  *   - DEMO_TRIP_ID는 XX(ADR-044) 이후 ensureDemoTripInDb로 DB 영속화 (demo:true 반환 X)
- *     → TT(ADR-045)에서 actorId=null 강제로 시드 오염 방지 (_resolveActorIdForTrip)
+ *     → TT(ADR-045)에서 actorId=null 강제로 시드 오염 방지 (lib/auth/actor-resolution)
  *   - audit log 동시 기록 (S-13) — actorId는 sessionActorId 그대로 (감사는 시드 오염과 무관)
  *   - discriminated union return
  */
@@ -27,26 +27,10 @@ import {
 import { isDbConnected } from "@/lib/prisma";
 import { ensureDemoTripInDb } from "@/lib/repositories/trip.repository";
 import { DEFAULT_CHECKLIST_TEMPLATE } from "@/lib/seed/checklist-template";
-import { DEMO_TRIP_IDS } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
 import { canWriteTrip } from "@/lib/auth/authorize";
+import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { ChecklistItem } from "@/lib/types";
-
-/**
- * 사이클 TT (ADR-045) — DEMO_TRIP_ID에는 actorId=null 강제.
- * XX(ADR-044) 도입 후 DEMO trip은 isDbConnected=true이면 DB에 영속화되므로,
- * 인증 사용자가 add 호출 시 시드 row가 user.id로 stamp되는 오염을 차단한다.
- * audit log의 actorId는 영향 받지 않음 (감사 추적은 시드 오염과 별개).
- *
- * 테스트 노출용 — export.
- */
-export function _resolveActorIdForTrip(
-  tripId: string,
-  actorId: string | null,
-): string | null {
-  if (DEMO_TRIP_IDS.includes(tripId)) return null;
-  return actorId;
-}
 
 export type ChecklistActionResult<T = unknown> =
   | { ok: true; demo: true }
@@ -68,7 +52,7 @@ export async function addChecklistItem(
   }
 
   const sessionActorId = await getActorId();
-  const actorId = _resolveActorIdForTrip(input.tripId, sessionActorId);
+  const actorId = resolveActorIdForTrip(input.tripId, sessionActorId);
 
   await ensureDemoTripInDb(input.tripId);
   const created = await createChecklistItem({ ...input, actorId });
@@ -107,7 +91,7 @@ export async function addFromTemplate(input: {
   }
 
   const sessionActorId = await getActorId();
-  const stampActorId = _resolveActorIdForTrip(input.tripId, sessionActorId);
+  const stampActorId = resolveActorIdForTrip(input.tripId, sessionActorId);
 
   await ensureDemoTripInDb(input.tripId);
   const created = await bulkCreateChecklistItems(
