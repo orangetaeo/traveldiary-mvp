@@ -210,7 +210,9 @@ export async function createTripWithSeedItinerary(
 // 행 → 도메인 객체 변환
 // ═══════════════════════════════════════════════════════════════════
 
-type DbTripRow = Prisma.TripGetPayload<{ /* base columns only */ }>;
+// 사이클 YYY — `Prisma.XxxGetPayload<Record<string, never>>` 답습 패턴
+// (checklist.repository와 통일, no-empty-object-type 룰 호환).
+type DbTripRow = Prisma.TripGetPayload<Record<string, never>>;
 type DbItemRow = Prisma.ItineraryItemGetPayload<{
   include: { dependencies: { select: { dependencyId: true } } };
 }>;
