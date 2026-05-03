@@ -125,9 +125,13 @@ export function applyCategoryFilter(
  * 사이클 OO — 카테고리 + 텍스트 검색 합성.
  * 검색어는 trim + lowercase 후 text·cityNote 부분 일치.
  */
+export type DoneFilterValue = "all" | "todo" | "done";
+
 export interface ChecklistFilters {
   category: CategoryFilterValue;
   search: string;
+  /** 사이클 QQ — 옵션. 미지정 시 "all"과 동일 (NN→OO 답습으로 키 추가) */
+  done?: DoneFilterValue;
 }
 
 export function applyChecklistFilters(
@@ -135,9 +139,15 @@ export function applyChecklistFilters(
   filters: ChecklistFilters,
 ): ChecklistItem[] {
   const byCategory = applyCategoryFilter(items, filters.category);
+  const byDone =
+    !filters.done || filters.done === "all"
+      ? byCategory
+      : filters.done === "done"
+        ? byCategory.filter((it) => it.done)
+        : byCategory.filter((it) => !it.done);
   const q = filters.search.trim().toLowerCase();
-  if (q.length === 0) return byCategory;
-  return byCategory.filter((it) => {
+  if (q.length === 0) return byDone;
+  return byDone.filter((it) => {
     const hay = `${it.text}${it.cityNote ?? ""}`.toLowerCase();
     return hay.includes(q);
   });
