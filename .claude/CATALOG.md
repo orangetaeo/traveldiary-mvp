@@ -28,6 +28,7 @@
 | `회고`, `학습`, `진화`, `evolution` | T18, S-16 |
 | `병렬`, `팀`, `소집`, `parallel` | T19, S-17 |
 | `검색`, `사서`, `librarian` | T19, S-19 |
+| `tsconfig`, `빌드 격리`, `devDeps 누수`, `vitest typecheck` | ADR-029 각주, feedback `tsconfig_build_isolation` |
 | `UX`, `토큰`, `디자인`, `A11y` | T17, R9, R10, S-12, P7 |
 | `사업`, `수익`, `Affiliate`, `투자` | T8, T9 |
 | `마케팅`, `브랜드`, `성장` | T11, R8 |
@@ -328,3 +329,4 @@
 | 날짜 | 내용 |
 |------|------|
 | 2026-04-29 | 초기 카탈로그 작성. 도메인 에이전트 19개(T1~T19), 도메인 스킬 19개(S-01~S-19) 등록 |
+| 2026-05-03 | tsconfig 빌드 격리 키워드 추가 (vitest devDeps 누수 사건 — Railway 7회 실패 후 35eb085로 해소). ADR-029 각주 + feedback 메모 신설 |

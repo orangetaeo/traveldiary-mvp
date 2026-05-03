@@ -189,3 +189,11 @@ metadata: {
 ## 사인오프
 
 R1 ✅ (조건부) · T4 ✅ · T10 ✅ · T13 ✅ · T14 ✅
+
+## 각주 (2026-05-03 추가)
+
+vitest 도입(이 ADR 산출물 중 하나)으로 인한 후속 부채: `vitest.config.ts`가 Next.js production typecheck 그래프에 포함되어 Railway devDeps 미설치 환경에서 `vitest/config` 모듈 미해소 → 7회 연속 빌드 실패(17h 라이브 정체).
+
+**해소 (커밋 35eb085)**: `tsconfig.json` `exclude`에 `vitest.config.ts`, `playwright.config.ts`, `tests/**` 추가. 테스트 코드는 빌드 산출물이 아니므로 production typecheck 그래프에서 제외하는 것이 정합. vitest/Playwright는 자체 typecheck 수행.
+
+**재발 방지**: devDependencies 모듈을 import하는 `*.config.ts` / `tests/**`는 항상 tsconfig include 경계에서 제외. CI 게이트(`npm run build` + `test:unit`)는 다음 사이클로 별도 도입.
