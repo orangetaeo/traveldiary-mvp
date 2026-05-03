@@ -16,6 +16,8 @@ import type {
   ModeTransitionTrigger,
 } from "@/lib/mode-transition";
 import { getCityLabelKo } from "@/lib/constants/city-labels";
+import { parseWindow } from "@/lib/admin/window-filter";
+import { TimeWindowFilter } from "@/components/admin/TimeWindowFilter";
 
 // 라이브 audit log를 매 요청마다 조회 (build-time 캐시 X)
 export const dynamic = "force-dynamic";
@@ -45,18 +47,8 @@ const TRIGGER_LABEL: Record<ModeTransitionTrigger | "unknown", string> = {
 };
 
 // 사이클 RR — destinationCode → 한국어 라벨 매핑.
-// VVV(2026-05-03) lib/constants/city-labels로 추출 — XXX affiliate dashboard에서 재사용 예정.
-
-const ALLOWED_WINDOWS = [7, 30] as const;
-type WindowOption = (typeof ALLOWED_WINDOWS)[number];
-
-function parseWindow(raw: string | undefined): WindowOption | undefined {
-  if (!raw) return undefined;
-  const n = Number.parseInt(raw, 10);
-  return ALLOWED_WINDOWS.includes(n as WindowOption)
-    ? (n as WindowOption)
-    : undefined;
-}
+// VVV(2026-05-03) lib/constants/city-labels로 추출.
+// 사이클 XXX — TimeWindowFilter / parseWindow / WindowOption도 lib/admin/window-filter로 추출 (RR 인라인 → import).
 
 interface PageProps {
   searchParams: { window?: string };
@@ -94,7 +86,10 @@ export default async function ModeTransitionStatsDashboard({
       <main className="max-w-2xl mx-auto px-td-md">
         {/* 사이클 RR — 시간 윈도우 필터 (전체/7일/30일). 항상 노출. */}
         <div className="pt-td-md">
-          <TimeWindowFilter current={windowDays} />
+          <TimeWindowFilter
+            current={windowDays}
+            basePath="/admin/m2-skip-reasons"
+          />
         </div>
 
         {!stats ? (
@@ -354,58 +349,4 @@ function DashboardHeader() {
   );
 }
 
-/**
- * 사이클 RR — 시간 윈도우 chip 필터.
- * Link 기반 (서버 컴포넌트, force-dynamic이라 매번 재조회).
- * radiogroup + aria-checked string (feedback_aria_invariant 답습).
- */
-function TimeWindowFilter({ current }: { current: WindowOption | undefined }) {
-  const baseChip =
-    "shrink-0 px-3 py-1.5 rounded-full text-td-meta font-semibold border transition-colors flex items-center";
-  const inactive =
-    "bg-surface-card border-divider text-ink-soft hover:text-ink hover:border-ink-mute";
-  const active = "bg-ink text-white border-ink";
-
-  const options: Array<{
-    label: string;
-    href: string;
-    isActive: boolean;
-  }> = [
-    {
-      label: "전체",
-      href: "/admin/m2-skip-reasons",
-      isActive: current === undefined,
-    },
-    {
-      label: "최근 7일",
-      href: "/admin/m2-skip-reasons?window=7",
-      isActive: current === 7,
-    },
-    {
-      label: "최근 30일",
-      href: "/admin/m2-skip-reasons?window=30",
-      isActive: current === 30,
-    },
-  ];
-
-  return (
-    <div
-      className="flex gap-2 overflow-x-auto scrollbar-hide pb-1"
-      role="radiogroup"
-      aria-label="시간 윈도우"
-    >
-      {options.map((opt) => (
-        <Link
-          key={opt.label}
-          href={opt.href}
-          role="radio"
-          aria-checked={opt.isActive ? "true" : "false"}
-          prefetch={false}
-          className={`${baseChip} ${opt.isActive ? active : inactive}`}
-        >
-          {opt.label}
-        </Link>
-      ))}
-    </div>
-  );
-}
+// TimeWindowFilter는 사이클 XXX에서 components/admin/TimeWindowFilter로 추출.

@@ -11,6 +11,8 @@
 import Link from "next/link";
 import { getAffiliateSummary } from "@/lib/repositories/affiliate.repository";
 import { isDbConnected } from "@/lib/prisma";
+import { parseWindow } from "@/lib/admin/window-filter";
+import { TimeWindowFilter } from "@/components/admin/TimeWindowFilter";
 
 // 라이브 audit log를 매 요청마다 조회 (build-time 캐시 X) — 사이클 SS (PP 답습)
 export const dynamic = "force-dynamic";
@@ -29,7 +31,15 @@ const OTA_TONE: Record<string, string> = {
   unknown: "bg-surface-soft text-ink-soft",
 };
 
-export default async function AffiliateDashboard() {
+interface PageProps {
+  searchParams: { window?: string };
+}
+
+export default async function AffiliateDashboard({
+  searchParams,
+}: PageProps) {
+  const windowDays = parseWindow(searchParams.window);
+
   if (!isDbConnected) {
     return (
       <div className="min-h-screen bg-surface-soft text-ink p-td-md">
@@ -48,13 +58,21 @@ export default async function AffiliateDashboard() {
     );
   }
 
-  const summary = await getAffiliateSummary(20);
+  const summary = await getAffiliateSummary({ limit: 20, windowDays });
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
       <DashboardHeader />
 
       <main className="max-w-2xl mx-auto px-td-md">
+        {/* 사이클 XXX — 시간 윈도우 chip (RR 답습 추출 컴포넌트) */}
+        <div className="pt-td-md">
+          <TimeWindowFilter
+            current={windowDays}
+            basePath="/admin/affiliate"
+          />
+        </div>
+
         {!summary ? (
           <div className="py-td-lg text-center text-td-body text-ink-soft">
             데이터 로드 실패
@@ -84,7 +102,9 @@ export default async function AffiliateDashboard() {
               <h2 className="text-td-card-title text-ink mb-td-sm">OTA별</h2>
               {summary.byOta.length === 0 ? (
                 <p className="text-td-meta text-ink-soft text-center py-td-md bg-surface-card border border-divider rounded-xl">
-                  아직 클릭 데이터가 없어요.
+                  {windowDays
+                    ? `최근 ${windowDays}일간 클릭 데이터가 없어요.`
+                    : "아직 클릭 데이터가 없어요."}
                 </p>
               ) : (
                 <div className="space-y-td-xs">
