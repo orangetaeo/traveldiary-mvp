@@ -4,8 +4,10 @@
  * Checklist Server Actions — 사이클 9 M6 (ADR-022).
  *
  * 5b-2 mutation 표준 패턴 답습:
- *   - DB 미연결 또는 DEMO_TRIP_ID → demo:true (클라이언트 상태 시뮬)
- *   - audit log 동시 기록 (S-13)
+ *   - DB 미연결 → demo:true (클라이언트 상태 시뮬)
+ *   - DEMO_TRIP_ID는 XX(ADR-044) 이후 ensureDemoTripInDb로 DB 영속화 (demo:true 반환 X)
+ *     → TT(ADR-045)에서 actorId=null 강제로 시드 오염 방지 (lib/auth/actor-resolution)
+ *   - audit log 동시 기록 (S-13) — actorId는 sessionActorId 그대로 (감사는 시드 오염과 무관)
  *   - discriminated union return
  */
 
@@ -27,6 +29,7 @@ import { ensureDemoTripInDb } from "@/lib/repositories/trip.repository";
 import { DEFAULT_CHECKLIST_TEMPLATE } from "@/lib/seed/checklist-template";
 import { getActorId } from "@/lib/auth/session";
 import { canWriteTrip } from "@/lib/auth/authorize";
+import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { ChecklistItem } from "@/lib/types";
 
 export type ChecklistActionResult<T = unknown> =
@@ -48,12 +51,15 @@ export async function addChecklistItem(
     return { ok: false, code: "forbidden" };
   }
 
+  const sessionActorId = await getActorId();
+  const actorId = resolveActorIdForTrip(input.tripId, sessionActorId);
+
   await ensureDemoTripInDb(input.tripId);
-  const created = await createChecklistItem(input);
+  const created = await createChecklistItem({ ...input, actorId });
   if (!created) return { ok: false, code: "internal" };
 
   await writeAuditLog({
-    actorId: await getActorId(),
+    actorId: sessionActorId,
     action: "checklist.add",
     resource: "ChecklistItem",
     resourceId: created.id,
@@ -84,6 +90,9 @@ export async function addFromTemplate(input: {
     return { ok: false, code: "forbidden" };
   }
 
+  const sessionActorId = await getActorId();
+  const stampActorId = resolveActorIdForTrip(input.tripId, sessionActorId);
+
   await ensureDemoTripInDb(input.tripId);
   const created = await bulkCreateChecklistItems(
     input.tripId,
@@ -94,13 +103,14 @@ export async function addFromTemplate(input: {
       cityNote: t.cityNote,
       sortOrder: i,
     })),
+    stampActorId,
   );
   if (!created) return { ok: false, code: "internal" };
 
-  // 일괄 audit log — fresh fetch만 기록 (5b-3 답습)
+  // 일괄 audit log — fresh fetch만 기록 (5b-3 답습). audit는 시드 오염과 무관 → sessionActorId 그대로.
   for (const item of created) {
     await writeAuditLog({
-      actorId: await getActorId(),
+      actorId: sessionActorId,
       action: "checklist.add",
       resource: "ChecklistItem",
       resourceId: item.id,
