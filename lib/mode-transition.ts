@@ -175,6 +175,21 @@ export function dayProgress(
 
 export type ModeTransitionTrigger = "manual" | "geolocation";
 
+/**
+ * 사이클 KK — 자동 전환 시도가 실패한 사유 6 카테고리. 좌표/거리 수치는 포함하지
+ * 않는다 (boundary 밖이라도 "5.2km 떨어짐"은 leak이라 단순 "not_in_destination"만).
+ */
+export type ModeTransitionSkipReason =
+  | "not_in_destination"
+  | "not_yet_started"
+  | "already_in_mode"
+  | "geolocation_unsupported"
+  | "geolocation_denied"
+  | "geolocation_unavailable";
+
+/** 사이클 KK — applied = mode 변경됨, skipped = 시도했으나 변경 안 됨 */
+export type ModeTransitionOutcome = "applied" | "skipped";
+
 export interface ModeTransitionContext {
   /** D-Day (calculateDDay 결과). 음수면 출발 후. */
   dDay?: number;
@@ -182,6 +197,10 @@ export interface ModeTransitionContext {
   boundaryHit?: boolean;
   /** trip.destinationCode (PQC/SGN 등 IATA-like). */
   destinationCode?: string;
+  /** 사이클 KK — applied 기본, skipped는 명시. 미지정 시 applied 가정 (AAA 답습). */
+  outcome?: ModeTransitionOutcome;
+  /** 사이클 KK — outcome=skipped일 때만 의미. 6 카테고리 enum. */
+  skipReason?: ModeTransitionSkipReason;
 }
 
 export interface ModeTransitionMetadataInput {
@@ -193,6 +212,11 @@ export interface ModeTransitionMetadataInput {
 /**
  * trip.mode_transition audit log의 metadata 객체를 만든다.
  * 좌표(lat/lng)는 어떤 경우에도 결과에 포함되지 않는다.
+ *
+ * 화이트리스트 (KK 시점):
+ *   trigger, source, previousMode, dDay, boundaryHit, destinationCode,
+ *   outcome, skipReason
+ * 금지: lat, lng, distanceKm, accuracy, ip, userAgent, ...
  */
 export function buildModeTransitionMetadata(
   input: ModeTransitionMetadataInput,
@@ -213,6 +237,26 @@ export function buildModeTransitionMetadata(
     if (typeof ctx.destinationCode === "string" && ctx.destinationCode.length > 0) {
       meta.destinationCode = ctx.destinationCode;
     }
+    // 사이클 KK — outcome/skipReason 화이트리스트
+    if (ctx.outcome === "applied" || ctx.outcome === "skipped") {
+      meta.outcome = ctx.outcome;
+    }
+    if (typeof ctx.skipReason === "string" && isValidSkipReason(ctx.skipReason)) {
+      meta.skipReason = ctx.skipReason;
+    }
   }
   return meta;
+}
+
+const VALID_SKIP_REASONS: ReadonlySet<string> = new Set<ModeTransitionSkipReason>([
+  "not_in_destination",
+  "not_yet_started",
+  "already_in_mode",
+  "geolocation_unsupported",
+  "geolocation_denied",
+  "geolocation_unavailable",
+]);
+
+function isValidSkipReason(value: string): value is ModeTransitionSkipReason {
+  return VALID_SKIP_REASONS.has(value);
 }

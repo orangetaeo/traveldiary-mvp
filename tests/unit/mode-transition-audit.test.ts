@@ -151,3 +151,124 @@ describe("사이클 AAA — buildModeTransitionMetadata", () => {
     expect(meta.dDay).toBeUndefined();
   });
 });
+
+describe("사이클 KK — outcome / skipReason (M2 negative path)", () => {
+  it("outcome=applied — metadata에 outcome 포함", () => {
+    const meta = buildModeTransitionMetadata({
+      trigger: "geolocation",
+      previousMode: "pre-travel",
+      context: { dDay: 0, boundaryHit: true, destinationCode: "DAD", outcome: "applied" },
+    });
+    expect(meta.outcome).toBe("applied");
+    expect(meta.skipReason).toBeUndefined();
+  });
+
+  it("outcome=skipped + skipReason=not_in_destination", () => {
+    const meta = buildModeTransitionMetadata({
+      trigger: "geolocation",
+      previousMode: "pre-travel",
+      context: {
+        dDay: 0,
+        boundaryHit: false,
+        destinationCode: "DAD",
+        outcome: "skipped",
+        skipReason: "not_in_destination",
+      },
+    });
+    expect(meta.outcome).toBe("skipped");
+    expect(meta.skipReason).toBe("not_in_destination");
+    expect(meta.boundaryHit).toBe(false);
+  });
+
+  it("6 skipReason 카테고리 모두 화이트리스트 통과", () => {
+    const reasons = [
+      "not_in_destination",
+      "not_yet_started",
+      "already_in_mode",
+      "geolocation_unsupported",
+      "geolocation_denied",
+      "geolocation_unavailable",
+    ] as const;
+
+    for (const reason of reasons) {
+      const meta = buildModeTransitionMetadata({
+        trigger: "geolocation",
+        previousMode: "pre-travel",
+        context: { outcome: "skipped", skipReason: reason },
+      });
+      expect(meta.outcome).toBe("skipped");
+      expect(meta.skipReason).toBe(reason);
+    }
+  });
+
+  it("invalid skipReason 값 — 화이트리스트 차단", () => {
+    const meta = buildModeTransitionMetadata({
+      trigger: "geolocation",
+      previousMode: "pre-travel",
+      context: {
+        outcome: "skipped",
+        // 의도적으로 enum 외 문자열 주입 (런타임 위험)
+        skipReason: "5km_distance_leaked" as never,
+      },
+    });
+    expect(meta.skipReason).toBeUndefined();
+  });
+
+  it("invalid outcome 값 — 화이트리스트 차단", () => {
+    const meta = buildModeTransitionMetadata({
+      trigger: "geolocation",
+      previousMode: "pre-travel",
+      // 의도적으로 enum 외 값 주입
+      context: { outcome: "partial" as never },
+    });
+    expect(meta.outcome).toBeUndefined();
+  });
+
+  it("좌표 leak 방어 (KK 확장) — outcome/skipReason 추가 후에도 lat/lng 미포함", () => {
+    const meta = buildModeTransitionMetadata({
+      trigger: "geolocation",
+      previousMode: "pre-travel",
+      context: {
+        dDay: 0,
+        boundaryHit: false,
+        destinationCode: "DAD",
+        outcome: "skipped",
+        skipReason: "not_in_destination",
+        lat: 37.5,
+        lng: 127.0,
+        distanceKm: 5.2,
+        accuracy: 10,
+      } as never,
+    });
+    const keys = Object.keys(meta);
+    expect(keys).not.toContain("lat");
+    expect(keys).not.toContain("lng");
+    expect(keys).not.toContain("distanceKm");
+    expect(keys).not.toContain("accuracy");
+    // 정상 필드는 모두 통과
+    expect(meta.outcome).toBe("skipped");
+    expect(meta.skipReason).toBe("not_in_destination");
+    expect(meta.boundaryHit).toBe(false);
+  });
+
+  it("outcome=skipped이지만 skipReason 미설정 — outcome만 통과", () => {
+    const meta = buildModeTransitionMetadata({
+      trigger: "manual",
+      previousMode: "pre-travel",
+      context: { outcome: "skipped" },
+    });
+    expect(meta.outcome).toBe("skipped");
+    expect(meta.skipReason).toBeUndefined();
+  });
+
+  it("AAA 답습 — outcome 미지정 시 metadata에 outcome 키 부재 (호환성)", () => {
+    const meta = buildModeTransitionMetadata({
+      trigger: "manual",
+      previousMode: "pre-travel",
+      context: { dDay: 5, destinationCode: "DAD" },
+    });
+    expect(meta.outcome).toBeUndefined();
+    // AAA 시점 호출은 outcome 없이도 정상 동작 (옵셔널)
+    expect(meta.dDay).toBe(5);
+  });
+});

@@ -24,6 +24,7 @@ import { canWriteTrip } from "@/lib/auth/authorize";
 import {
   buildModeTransitionMetadata,
   type ModeTransitionContext,
+  type ModeTransitionSkipReason,
 } from "@/lib/mode-transition";
 import type { TravelMode } from "@/lib/types";
 
@@ -125,7 +126,8 @@ export async function setTripMode(
     metadata: buildModeTransitionMetadata({
       trigger: input.trigger ?? "manual",
       previousMode: result.before.currentMode as TravelMode,
-      context: input.context,
+      // KK — outcome="applied" 명시. M2 성공률 산출 위해 applied/skipped 둘 다 기록.
+      context: { ...input.context, outcome: "applied" },
     }),
   });
 
@@ -137,4 +139,59 @@ export async function setTripMode(
     demo: false,
     tripUpdatedAt: result.after.tripUpdatedAt,
   };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// recordModeTransitionSkip — 사이클 KK (M2 negative path)
+//
+// 사용자가 자동 전환을 시도했지만 실패한 경우 audit log 1건 기록.
+// mode 변경 X — audit log만. trip.mode_transition 단일 action 유지하고
+// metadata.outcome="skipped" + skipReason으로 구분 (R1 옵션 C 결정).
+//
+// 좌표는 절대 받지 않음 — boundaryHit boolean만 (ADR-017 §C, AAA 답습).
+// ═══════════════════════════════════════════════════════════════════
+
+export interface RecordModeTransitionSkipInput {
+  tripId: string;
+  skipReason: ModeTransitionSkipReason;
+  /** 현재 mode (이미 in-travel인 경우 already_in_mode 식별). */
+  currentMode: TravelMode;
+  /** geolocation trigger인지 manual인지. denied/unsupported 등은 geolocation. */
+  trigger?: "manual" | "geolocation";
+  /** dDay/boundaryHit/destinationCode만. 좌표 X. */
+  context?: ModeTransitionContext;
+}
+
+export type RecordModeTransitionSkipResult =
+  | { ok: true; demo: true }
+  | { ok: true; demo: false }
+  | { ok: false; code: "forbidden" | "internal" };
+
+export async function recordModeTransitionSkip(
+  input: RecordModeTransitionSkipInput,
+): Promise<RecordModeTransitionSkipResult> {
+  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+    return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
+  }
+
+  await writeAuditLog({
+    actorId: await getActorId(),
+    action: "trip.mode_transition",
+    resource: "Trip",
+    resourceId: input.tripId,
+    metadata: buildModeTransitionMetadata({
+      trigger: input.trigger ?? "geolocation",
+      previousMode: input.currentMode,
+      context: {
+        ...input.context,
+        outcome: "skipped",
+        skipReason: input.skipReason,
+      },
+    }),
+  });
+
+  return { ok: true, demo: false };
 }

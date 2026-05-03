@@ -24,7 +24,7 @@ import {
   isWithinBoundary,
 } from "@/lib/mode-transition";
 import { getCurrentLocation } from "@/lib/services/geolocation";
-import { setTripMode } from "@/actions/trip";
+import { recordModeTransitionSkip, setTripMode } from "@/actions/trip";
 import type { Trip } from "@/lib/types";
 
 interface AutoModeDetectorProps {
@@ -46,21 +46,44 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
     startTransition(async () => {
       const loc = await getCurrentLocation();
 
+      // 사이클 KK — geolocation 실패 4 카테고리. 사용자 명시 클릭이라 audit 가치 큼.
+      // unavailable / timeout은 R1 결정에 따라 동일 카테고리(geolocation_unavailable)로 통합.
       if (loc.mode === "unsupported") {
+        await recordModeTransitionSkip({
+          tripId: trip.id,
+          skipReason: "geolocation_unsupported",
+          currentMode: trip.currentMode ?? "pre-travel",
+          trigger: "geolocation",
+          context: { destinationCode: trip.destinationCode },
+        });
         showToast("이 기기에서 위치 기능을 지원하지 않아요.");
         return;
       }
       if (loc.mode === "denied") {
+        await recordModeTransitionSkip({
+          tripId: trip.id,
+          skipReason: "geolocation_denied",
+          currentMode: trip.currentMode ?? "pre-travel",
+          trigger: "geolocation",
+          context: { destinationCode: trip.destinationCode },
+        });
         setDenied(true);
         showToast("위치 권한이 거부됐어요. 수동 전환 버튼을 활용해주세요.");
         return;
       }
-      if (loc.mode === "unavailable") {
-        showToast("현재 위치를 가져올 수 없어요. 잠시 후 다시 시도.");
-        return;
-      }
-      if (loc.mode === "timeout") {
-        showToast("시간 초과 — 다시 시도해주세요.");
+      if (loc.mode === "unavailable" || loc.mode === "timeout") {
+        await recordModeTransitionSkip({
+          tripId: trip.id,
+          skipReason: "geolocation_unavailable",
+          currentMode: trip.currentMode ?? "pre-travel",
+          trigger: "geolocation",
+          context: { destinationCode: trip.destinationCode },
+        });
+        showToast(
+          loc.mode === "timeout"
+            ? "시간 초과 — 다시 시도해주세요."
+            : "현재 위치를 가져올 수 없어요. 잠시 후 다시 시도.",
+        );
         return;
       }
 
@@ -74,6 +97,15 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
       const newMode = detectMode(trip, now, { lat: loc.lat, lng: loc.lng });
 
       if (newMode !== "in-travel") {
+        // KK — 도시 밖(boundaryHit=false) 또는 출발 전(dDay>0) 구분해 skipReason 결정.
+        const skipReason = boundaryHit ? "not_yet_started" : "not_in_destination";
+        await recordModeTransitionSkip({
+          tripId: trip.id,
+          skipReason,
+          currentMode: trip.currentMode ?? "pre-travel",
+          trigger: "geolocation",
+          context: { dDay, boundaryHit, destinationCode: trip.destinationCode },
+        });
         showToast(
           `${trip.destination} 도시 안에 있지 않거나 출발 전이라 자동 전환 안 됨`,
         );
@@ -81,6 +113,13 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
       }
 
       if (trip.currentMode === "in-travel") {
+        await recordModeTransitionSkip({
+          tripId: trip.id,
+          skipReason: "already_in_mode",
+          currentMode: "in-travel",
+          trigger: "geolocation",
+          context: { dDay, boundaryHit, destinationCode: trip.destinationCode },
+        });
         showToast("이미 여행 중 모드로 설정돼 있어요.");
         return;
       }
