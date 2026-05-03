@@ -9,6 +9,7 @@
 
 import { revalidatePath } from "next/cache";
 import { writeAuditLog } from "@/lib/audit-log";
+import { getActorId } from "@/lib/auth/session";
 import { fetchShareLinkBySyncKey } from "@/lib/repositories/share.repository";
 import {
   createCommentRow,
@@ -50,6 +51,10 @@ export async function createCommentAction(
     return { ok: false, code: "expired" };
   }
 
+  // 사이클 GG (ADR-038 트리거 ②) — 카카오 OAuth 사용자는 actorId 매핑, 익명은 null.
+  // 클라이언트가 보내는 값 신뢰 X — 서버 JWT에서만 추출.
+  const actorId = await getActorId();
+
   const result: CreateCommentResult = await createCommentRow({
     shareLinkId: linkRow.id,
     itemId: input.itemId ?? null,
@@ -57,6 +62,7 @@ export async function createCommentAction(
     body: input.body,
     reaction: input.reaction ?? null,
     clientUuid: input.clientUuid,
+    actorId,
   });
 
   if (!result.ok) {
@@ -64,6 +70,7 @@ export async function createCommentAction(
   }
 
   await writeAuditLog({
+    actorId,
     action: "comment.create",
     resource: "ShareComment",
     resourceId: result.comment.id,
@@ -90,14 +97,19 @@ export async function deleteCommentAction(
 ): Promise<{ ok: boolean; code?: ShareError }> {
   if (!isDbConnected) return { ok: true };
 
+  // OAuth 사용자가 LocalStorage 초기화 후에도 본인 댓글 삭제 가능 — clientUuid OR actorId.
+  const actorId = await getActorId();
+
   const result = await deleteCommentRow({
     commentId: input.commentId,
     clientUuid: input.clientUuid,
+    actorId,
   });
 
   if (!result.ok) return result;
 
   await writeAuditLog({
+    actorId,
     action: "comment.delete",
     resource: "ShareComment",
     resourceId: input.commentId,

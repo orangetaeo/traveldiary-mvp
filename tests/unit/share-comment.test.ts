@@ -18,6 +18,7 @@ import {
   validateBody,
   escapeHtml,
   checkRateLimit,
+  canDeleteComment,
   _resetRateLimit,
 } from "@/lib/repositories/shareComment.repository";
 
@@ -92,6 +93,70 @@ describe("사이클 R — checkRateLimit (clientUuid당 분당 5건)", () => {
     for (let i = 0; i < 5; i++) checkRateLimit(a);
     expect(checkRateLimit(a)).toBe(false); // A 차단
     expect(checkRateLimit(b)).toBe(true); // B는 별도
+  });
+});
+
+describe("사이클 GG — canDeleteComment OR 게이트 (clientUuid OR actorId)", () => {
+  it("clientUuid 매칭 → 허용 (익명 댓글, OAuth 무관)", () => {
+    expect(
+      canDeleteComment(
+        { clientUuid: "uuid-A", actorId: null },
+        { clientUuid: "uuid-A", actorId: null },
+      ),
+    ).toBe(true);
+  });
+
+  it("clientUuid 다르지만 actorId 매칭 → 허용 (OAuth 사용자 LocalStorage 초기화)", () => {
+    expect(
+      canDeleteComment(
+        { clientUuid: "uuid-A", actorId: "user-1" },
+        { clientUuid: "uuid-B", actorId: "user-1" },
+      ),
+    ).toBe(true);
+  });
+
+  it("clientUuid 다르고 actorId 다름 → 차단", () => {
+    expect(
+      canDeleteComment(
+        { clientUuid: "uuid-A", actorId: "user-1" },
+        { clientUuid: "uuid-B", actorId: "user-2" },
+      ),
+    ).toBe(false);
+  });
+
+  it("익명 댓글 (existing.actorId=null) + 미인증 (input.actorId=null) → null === null 우회 차단", () => {
+    expect(
+      canDeleteComment(
+        { clientUuid: "uuid-A", actorId: null },
+        { clientUuid: "uuid-B", actorId: null },
+      ),
+    ).toBe(false);
+  });
+
+  it("익명 댓글 (existing.actorId=null) + 인증 사용자 (input.actorId='user-1') → 차단", () => {
+    expect(
+      canDeleteComment(
+        { clientUuid: "uuid-A", actorId: null },
+        { clientUuid: "uuid-B", actorId: "user-1" },
+      ),
+    ).toBe(false);
+  });
+
+  it("OAuth 댓글 + 미인증 사용자 (input.actorId=null) → clientUuid 경로만 활성", () => {
+    // clientUuid 매칭 시 허용
+    expect(
+      canDeleteComment(
+        { clientUuid: "uuid-A", actorId: "user-1" },
+        { clientUuid: "uuid-A", actorId: null },
+      ),
+    ).toBe(true);
+    // clientUuid 미매칭 시 차단
+    expect(
+      canDeleteComment(
+        { clientUuid: "uuid-A", actorId: "user-1" },
+        { clientUuid: "uuid-B", actorId: null },
+      ),
+    ).toBe(false);
   });
 });
 
