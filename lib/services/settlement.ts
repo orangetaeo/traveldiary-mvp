@@ -1,34 +1,49 @@
 /**
- * Settlement (E1 v1) — 사이클 E1.
+ * Settlement (E1 v1 + v2) — 사이클 E1 / II.
  *
  * 정산 흐름 계산. splitWith[0]을 결제자(payer)로 약속하는 컨벤션.
- *  - splitWith[0] = 결제자
- *  - splitWith[1..] = 함께 부담한 사람들 (결제자 포함 아님)
- *  - 분담 = amountKrw / splitWith.length (결제자도 자기 몫 부담)
  *
- * v2 트리거(ADR-039): payer 별도 컬럼이 필요한 시점 — 사용자 100+ 도달 시 schema 갱신.
+ * v1 (사이클 E1, ADR-039): splitWith: string[]
+ *  - splitWith[0] = 결제자
+ *  - splitWith[1..] = 함께 부담한 사람들 (결제자 자기 몫 포함)
+ *  - 분담 = amountKrw / splitWith.length (모두 1/N)
+ *
+ * v2 (사이클 II, ADR-039 갱신): splitWith: WeightedMember[] 도 허용
+ *  - { name, weight? } — weight 미명시 시 1
+ *  - 첫 element = 결제자 (컨벤션 유지)
+ *  - 분담 = amountKrw × member.weight / sum(weights)
+ *  - schema 변경 0 — 동일 Json? 컬럼에서 형식 분기
  *
  * 순수 함수 (server-only X) — 클라이언트/서버 모두 사용 가능.
  */
 
 import type { CostEntry } from "@/lib/types";
 
+export interface WeightedMember {
+  name: string;
+  /** 가중치 — 미명시 시 1 (어른=2, 아동=1 등) */
+  weight?: number;
+}
+
+/** 정규화된 멤버 — 내부 계산용 */
+interface NormalizedMember {
+  name: string;
+  weight: number;
+}
+
 export interface SettlementTransfer {
-  /** 빚진 사람 → 결제자에게 줘야 함 */
   from: string;
   to: string;
   amountKrw: number;
 }
 
 export interface SettlementResult {
-  /** 멤버별 net (양수=받을 돈, 음수=내야 할 돈) */
   netByMember: Array<{ name: string; netKrw: number }>;
-  /** 최종 송금 흐름 (greedy 매칭) */
   transfers: SettlementTransfer[];
-  /** splitWith 가진 entry들의 총합 */
   totalSplitKrw: number;
-  /** 정산 대상 entry 개수 */
   splitEntryCount: number;
+  /** 가중치를 명시적으로 사용한 entry 개수 */
+  weightedEntryCount: number;
 }
 
 const EMPTY_RESULT: SettlementResult = {
@@ -36,38 +51,71 @@ const EMPTY_RESULT: SettlementResult = {
   transfers: [],
   totalSplitKrw: 0,
   splitEntryCount: 0,
+  weightedEntryCount: 0,
 };
 
+/**
+ * splitWith를 NormalizedMember[]로 정규화.
+ *  - string[] → weight=1 모두
+ *  - WeightedMember[] → weight 미명시 시 1
+ *  - 잘못된 형식(weight ≤ 0, name 빈 값) 제거
+ */
+export function normalizeSplitWith(
+  raw: unknown,
+): { members: NormalizedMember[]; isWeighted: boolean } {
+  if (!Array.isArray(raw)) return { members: [], isWeighted: false };
+
+  let isWeighted = false;
+  const members: NormalizedMember[] = [];
+  for (const entry of raw) {
+    if (typeof entry === "string") {
+      const name = entry.trim();
+      if (name.length > 0) members.push({ name, weight: 1 });
+    } else if (entry && typeof entry === "object" && "name" in entry) {
+      const name = String((entry as { name: unknown }).name).trim();
+      if (name.length === 0) continue;
+      const weightRaw = (entry as { weight?: unknown }).weight;
+      const weight = typeof weightRaw === "number" && weightRaw > 0 ? weightRaw : 1;
+      if (weightRaw !== undefined && weight !== 1) isWeighted = true;
+      members.push({ name, weight });
+    }
+  }
+  return { members, isWeighted };
+}
+
 export function computeSettlement(entries: CostEntry[]): SettlementResult {
-  // 정산 대상: splitWith가 2명 이상인 entry
-  const splitEntries = entries.filter(
-    (e) => e.splitWith && e.splitWith.length >= 2,
-  );
+  // 정규화 후 2명 이상인 entry만 정산 대상
+  const splitEntries = entries
+    .map((e) => ({
+      entry: e,
+      ...normalizeSplitWith(e.splitWith),
+    }))
+    .filter((s) => s.members.length >= 2);
+
   if (splitEntries.length === 0) return EMPTY_RESULT;
 
   const memberSet = new Set<string>();
-  for (const e of splitEntries) {
-    for (const m of e.splitWith ?? []) memberSet.add(m);
+  for (const s of splitEntries) {
+    for (const m of s.members) memberSet.add(m.name);
   }
   const members = Array.from(memberSet);
-
-  // net 계산: payer는 amountKrw 받음(+), 모든 splitWith 멤버는 share 부담(-)
   const net = new Map<string, number>(members.map((m) => [m, 0]));
   let totalSplitKrw = 0;
+  let weightedEntryCount = 0;
 
-  for (const e of splitEntries) {
-    const split = e.splitWith ?? [];
-    const payer = split[0];
-    const n = split.length;
-    const share = Math.round(e.amountKrw / n);
+  for (const { entry, members: split, isWeighted } of splitEntries) {
+    if (isWeighted) weightedEntryCount += 1;
+    const payer = split[0].name;
+    const totalWeight = split.reduce((sum, m) => sum + m.weight, 0);
 
-    // 결제자가 amountKrw 지불 → 받을 돈 +amountKrw
-    net.set(payer, (net.get(payer) ?? 0) + e.amountKrw);
-    // 모든 멤버는 share만큼 부담 (자기 몫)
+    // 결제자 net = +amountKrw (지불) - 자기 share
+    net.set(payer, (net.get(payer) ?? 0) + entry.amountKrw);
+    // 모든 멤버는 weight 비율로 share 부담
     for (const m of split) {
-      net.set(m, (net.get(m) ?? 0) - share);
+      const share = Math.round((entry.amountKrw * m.weight) / totalWeight);
+      net.set(m.name, (net.get(m.name) ?? 0) - share);
     }
-    totalSplitKrw += e.amountKrw;
+    totalSplitKrw += entry.amountKrw;
   }
 
   // greedy 매칭 — 가장 빚진 사람 → 가장 많이 받을 사람
@@ -78,12 +126,11 @@ export function computeSettlement(entries: CostEntry[]): SettlementResult {
   const debtors = members
     .map((m) => ({ name: m, netKrw: net.get(m) ?? 0 }))
     .filter((m) => m.netKrw < 0)
-    .sort((a, b) => a.netKrw - b.netKrw); // 가장 음수(가장 많이 빚진)부터
+    .sort((a, b) => a.netKrw - b.netKrw);
 
   const transfers: SettlementTransfer[] = [];
   let ci = 0;
   let di = 0;
-  // 작업 사본
   const cWork = creditors.map((c) => ({ ...c }));
   const dWork = debtors.map((d) => ({ ...d, netKrw: -d.netKrw }));
 
@@ -92,11 +139,7 @@ export function computeSettlement(entries: CostEntry[]): SettlementResult {
     const debt = dWork[di];
     const amount = Math.min(credit.netKrw, debt.netKrw);
     if (amount > 0) {
-      transfers.push({
-        from: debt.name,
-        to: credit.name,
-        amountKrw: amount,
-      });
+      transfers.push({ from: debt.name, to: credit.name, amountKrw: amount });
     }
     credit.netKrw -= amount;
     debt.netKrw -= amount;
@@ -111,9 +154,33 @@ export function computeSettlement(entries: CostEntry[]): SettlementResult {
     transfers,
     totalSplitKrw,
     splitEntryCount: splitEntries.length,
+    weightedEntryCount,
   };
 }
 
 export function formatKrw(value: number): string {
   return `₩${Math.abs(value).toLocaleString("ko-KR")}`;
+}
+
+/**
+ * UI 입력 토큰 파싱 — "이름" 또는 "이름:가중치" 형식.
+ * 사이클 II — UI에서 "철수:2" 같은 입력을 WeightedMember로 변환.
+ *  - 빈 입력 → null
+ *  - weight 파싱 실패(0, 음수, NaN) → weight=1
+ *  - weight=1이면 객체 대신 문자열 반환 (v1 호환 — 데이터 단순화)
+ */
+export function parseSplitToken(
+  raw: string,
+): string | { name: string; weight?: number } | null {
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return null;
+  const colonIdx = trimmed.lastIndexOf(":");
+  if (colonIdx < 0) return trimmed;
+  const name = trimmed.slice(0, colonIdx).trim();
+  if (name.length === 0) return null;
+  const weightRaw = parseFloat(trimmed.slice(colonIdx + 1).trim());
+  if (!isFinite(weightRaw) || weightRaw <= 0 || weightRaw === 1) {
+    return name;
+  }
+  return { name, weight: weightRaw };
 }

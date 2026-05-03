@@ -53,8 +53,12 @@ export interface CreateCostInput {
   amountLocal?: { value: number; currency: string };
   status?: CostEntry["status"];
   category?: string;
-  /** 사이클 E1 — splitWith[0] = 결제자 컨벤션 (ADR-039) */
-  splitWith?: string[];
+  /**
+   * 사이클 E1 — splitWith[0] = 결제자 컨벤션 (ADR-039).
+   * v1: string[] (모두 1/N 균등)
+   * v2: { name, weight? }[] (가중치)
+   */
+  splitWith?: Array<string | { name: string; weight?: number }>;
 }
 
 export async function createCostEntry(

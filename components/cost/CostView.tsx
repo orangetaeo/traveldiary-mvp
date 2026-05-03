@@ -13,6 +13,7 @@ import Link from "next/link";
 import { addCost, deleteCost } from "@/actions/cost";
 import type { CostEntry, CostStatus, Trip } from "@/lib/types";
 import { SettlementCard } from "./SettlementCard";
+import { parseSplitToken } from "@/lib/services/settlement";
 
 interface Props {
   trip: Trip;
@@ -80,37 +81,7 @@ export function CostView({
     return { paid, booked, planned, total: paid + booked + planned };
   }, [entries]);
 
-  // 사이클 H — 일행 정산 (splitWith 기반 1/N)
-  const splitSummary = useMemo(() => {
-    const memberSet = new Set<string>();
-    for (const e of entries) {
-      if (e.splitWith && e.splitWith.length > 0) {
-        for (const m of e.splitWith) memberSet.add(m);
-      }
-    }
-    const members = Array.from(memberSet);
-    if (members.length === 0) return null;
-
-    // 각 멤버별 부담액 = sum(amountKrw / splitWith.length)  (해당 멤버가 splitWith에 있을 때)
-    const perMember = new Map<string, number>(members.map((m) => [m, 0]));
-    let totalSplit = 0;
-    for (const e of entries) {
-      if (!e.splitWith || e.splitWith.length === 0) continue;
-      const share = Math.round(e.amountKrw / e.splitWith.length);
-      for (const m of e.splitWith) {
-        perMember.set(m, (perMember.get(m) ?? 0) + share);
-      }
-      totalSplit += e.amountKrw;
-    }
-
-    return {
-      members: Array.from(perMember.entries()).map(([id, share]) => ({
-        id,
-        share,
-      })),
-      totalSplit,
-    };
-  }, [entries]);
+  // 사이클 II — splitSummary는 SettlementCard로 이전 (settlement.computeSettlement)
 
   function showToast(msg: string, ms = 3500) {
     setToast(msg);
@@ -160,13 +131,27 @@ export function CostView({
     const date = draftDate;
     const status = draftStatus;
     const category = draftCategory;
-    // 사이클 E1 — splitWith[0]=payer 컨벤션. payer 비면 정산 안 함.
-    const payer = draftPayer.trim();
-    const others = draftSplitMembers
+    // 사이클 E1/II — splitWith[0]=payer + 옵션 가중치 (ADR-039 v2).
+    // 입력 형식: "이름" (weight=1) 또는 "이름:가중치" 예) "철수:2"
+    const payerToken = parseSplitToken(draftPayer);
+    const payerName =
+      typeof payerToken === "string"
+        ? payerToken
+        : payerToken
+          ? payerToken.name
+          : "";
+    const otherTokens = draftSplitMembers
       .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0 && s !== payer);
-    const splitWith = payer ? [payer, ...others] : undefined;
+      .map((s) => parseSplitToken(s))
+      .filter((t): t is string | { name: string; weight?: number } => {
+        if (t === null) return false;
+        const name = typeof t === "string" ? t : t.name;
+        return name.length > 0 && name !== payerName;
+      });
+    const splitWith =
+      payerName.length > 0 && payerToken !== null
+        ? [payerToken, ...otherTokens]
+        : undefined;
 
     startTransition(async () => {
       const result = await addCost({
@@ -284,38 +269,6 @@ export function CostView({
           </div>
         </section>
 
-        {/* 일행 정산 (E1, 사이클 H) — splitWith가 있는 entry가 있을 때만 */}
-        {splitSummary && (
-          <section className="bg-purple-soft/50 border border-purple/30 rounded-xl p-td-md mb-td-lg">
-            <h3 className="text-td-card-title text-purple-deep mb-td-xs">
-              일행 정산 (E1)
-            </h3>
-            <p className="text-td-meta text-ink-soft mb-td-sm">
-              {splitSummary.members.length}명 · 총{" "}
-              {splitSummary.totalSplit.toLocaleString()}원 분배
-            </p>
-            <ul className="space-y-td-xs">
-              {splitSummary.members.map((m) => (
-                <li
-                  key={m.id}
-                  className="flex justify-between items-center bg-surface-card border border-divider rounded-lg p-td-sm"
-                >
-                  <span className="text-td-body text-ink truncate flex-1">
-                    {m.id.slice(0, 8)}…
-                  </span>
-                  <span className="text-td-card-title text-purple-deep tabular-nums">
-                    {m.share.toLocaleString()}원
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <p className="text-td-caption text-ink-mute mt-td-xs">
-              💡 1/N 균등 분배. 실 결제는 외부에서 송금하고 status를 paid로
-              업데이트.
-            </p>
-          </section>
-        )}
-
         {/* Add form */}
         <section className="bg-surface-card border border-divider rounded-xl p-td-md mb-td-lg">
           <h3 className="text-td-card-title text-ink mb-td-sm">비용 추가</h3>
@@ -363,6 +316,7 @@ export function CostView({
                 value={draftCategory}
                 onChange={(e) => setDraftCategory(e.target.value)}
                 className="px-td-sm py-2 border border-divider rounded-lg text-td-meta bg-surface-soft"
+                aria-label="카테고리"
               >
                 {CATEGORY_OPTIONS.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -374,6 +328,7 @@ export function CostView({
                 value={draftStatus}
                 onChange={(e) => setDraftStatus(e.target.value as CostStatus)}
                 className="px-td-sm py-2 border border-divider rounded-lg text-td-meta bg-surface-soft"
+                aria-label="결제 상태"
               >
                 <option value="paid">결제 완료</option>
                 <option value="booked">예약 (선결제)</option>
@@ -403,7 +358,7 @@ export function CostView({
                 />
                 <input
                   type="text"
-                  placeholder="함께 부담 (쉼표 구분, 예: 영희, 철수)"
+                  placeholder="함께 부담 (쉼표 구분, 예: 영희, 철수:2 — 가중치)"
                   value={draftSplitMembers}
                   onChange={(e) =>
                     setDraftSplitMembers(e.target.value.slice(0, 200))
@@ -412,7 +367,8 @@ export function CostView({
                   aria-label="함께 부담한 사람"
                 />
                 <p className="text-td-caption text-ink-mute">
-                  💡 결제자 포함 1/N 자동 분담. 결제자 비우면 정산 없음.
+                  💡 결제자 포함 자동 분담. <strong>이름:가중치</strong> 형식
+                  (예: 어른은 2, 아동은 1). 가중치 생략 시 1.
                 </p>
               </div>
             </details>

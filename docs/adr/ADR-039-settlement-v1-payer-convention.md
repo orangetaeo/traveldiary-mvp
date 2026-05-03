@@ -1,11 +1,11 @@
 ---
 id: ADR-039
-title: E1 정산 분담 v1 — splitWith[0] = 결제자 컨벤션 (schema 변경 없이 데모 가능)
+title: E1 정산 분담 v1+v2 — splitWith[0] 결제자 컨벤션 + 가중치 옵션 (schema 변경 없이)
 status: Accepted
-date: 2026-05-03
+date: 2026-05-03 (v1) / 2026-05-03 (v2 갱신)
 decider: R1 CTO
 proposer: T8 PM + T17 UX + T13 CR + T14 DB
-related: ADR-022 (M6 Cost), ADR-026 (OAuth — v2 트리거), 마이그 0002
+related: ADR-022 (M6 Cost), ADR-026 (OAuth — v3 트리거), 마이그 0002
 ---
 
 # ADR-039: E1 정산 v1 — payer 컨벤션 + 1/N (사이클 E1)
@@ -50,31 +50,72 @@ splitWith[1..] = 함께 부담한 사람들 (결제자 자기 몫 포함)
 
 ## v1 한계 (의도적)
 
-- ❌ 가중치 분담 (어른/아동, 5:5 vs 4:6) — 모두 1/N 균등
+- ❌ 가중치 분담 (어른/아동, 5:5 vs 4:6) — 모두 1/N 균등 → **사이클 II에서 v2로 해소**
 - ❌ 통화 변환 — KRW 기준만 (`amountKrw` 필드)
 - ❌ 결제자 별도 컬럼 — splitWith[0] 컨벤션
 - ❌ User FK — 닉네임 string array
 - ❌ 정산 완료 표시 — read-only 흐름만
 
-## v2 트리거 → schema 갱신
+## v2 (사이클 II) — 가중치 분담 옵션
 
-**모두 충족 시 v2 마이그 작성**:
+**schema 변경 없이** `splitWith` Json 컬럼의 형식을 확장:
+
+```ts
+// v1 (호환)
+splitWith: string[]                              // 모두 weight=1
+
+// v2
+splitWith: Array<string | { name; weight? }>     // 가중치 명시 가능
+```
+
+### 정규화 (`normalizeSplitWith`)
+
+- `string` element → `{ name, weight: 1 }`
+- `{ name, weight }` element → 그대로 (weight 미명시 시 1)
+- 잘못된 weight(≤0, NaN) → 1 폴백
+- 빈 name → drop
+
+### 분담 계산 (가중치 반영)
+
+```
+share = amountKrw × member.weight / sum(weights)
+```
+
+- 어른 2 + 아동 1 (총 6 가중치) → 어른 1/3, 아동 1/6 부담
+- 결제자 net = +amountKrw (지불) − 자기 share
+
+### UI (`parseSplitToken`)
+
+- "이름" → string (v1 호환)
+- "이름:가중치" → `{ name, weight }`
+- weight=1 입력 → string으로 단순화 (데이터 깨끗)
+- weight 파싱 실패 → string 폴백
+
+### v2 한계 (의도적)
+
+- ❌ 결제자 가중치 변경 (현재 payer는 그대로 weight 컨벤션 따름)
+- ❌ 통화 변환 — 여전히 KRW 기준만
+- ❌ 사용자 입력 검증 강화 (데모 수준 — 빈 입력 허용 등)
+
+## v3 트리거 → schema 갱신 (현재 v2까지는 schema 무변경)
+
+**모두 충족 시 v3 마이그 작성**:
 1. 라이브 사용자 100+ 도달
 2. 정산 데이터 누적 (`SELECT COUNT(*) FROM "CostEntry" WHERE "splitWith" IS NOT NULL ≥ 50`)
-3. 사용자 피드백: 가중치 또는 결제자 명시 별도 컬럼 요청
+3. 사용자 피드백: payer 별도 컬럼 또는 정산 완료 상태 마킹 요청
 
-**v2 schema 변경 후보**:
+**v3 schema 변경 후보**:
 ```prisma
 model CostEntry {
   // ...
-  payerName String?  // 결제자 명시
-  splitShares Json?  // 가중치 분담 [{name: "나", weight: 2}, ...]
+  payerName String?  // 결제자 명시 (splitWith[0] 컨벤션 → 별도 컬럼)
+  splitShares Json?  // 가중치 분담 (현재 splitWith의 v2 형식을 명시화)
   settlementCompletedAt DateTime?  // 정산 완료 마킹
 }
 ```
 
-v1 → v2 마이그 시 데이터 변환:
-- splitWith[0] → payerName, splitWith[1..] → splitShares (모두 weight=1)
+v2 → v3 마이그 시 데이터 변환:
+- splitWith[0] → payerName, splitWith[1..] → splitShares (가중치 보존)
 
 ## 결과
 

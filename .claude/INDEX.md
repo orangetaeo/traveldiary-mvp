@@ -259,6 +259,8 @@
 | **GG — VarChar 정합성 확장 (U 답습)** | ✅ 2026-05-03 완료 | User(email/kakaoId/name) + Trip(destination/destinationCode) + ItineraryItem(name/locationAddress) 7 컬럼 VarChar 명시 · 마이그 0010 (사용자 액션 +1) · 회귀 테스트 +7 (총 399) · feedback_schema_validation_consistency 답습 |
 | **ADR-038 — ShareComment.actorId FK 정책 (Deferred)** | 🟡 정책만 | OAuth 활성 후 마이그 0011 적용 정책 + SQL 초안 · 마이그 파일 미생성 · 트리거 명시(actorId not null user 매핑 검증 통과) |
 | **E1 v1 — 정산 분담 (M9 후보)** | ✅ 2026-05-03 완료 | ADR-039 · `lib/services/settlement.ts` (greedy 정산) + `components/cost/SettlementCard.tsx` + /cost 결제자/함께 부담 분리 입력 · splitWith[0] = 결제자 컨벤션 · schema 변경 0 / 마이그 0 · 단위 테스트 9건 · vitest +9 (총 408) · v2 마이그 트리거 ADR 명시 |
+| **HH — ItineraryItemCard 추출 (CC/DD 답습)** | ✅ 2026-05-03 완료 | `components/itinerary/ItineraryItemCard.tsx` 추출 (~150행) · ItineraryView 539→443행(-96, 누적 -41%) · formatItineraryTime/splitItemName 헬퍼 함께 이동 · Card/Badge/EvidencePanel/Link import 정리 · 단위 테스트 12건 · vitest +12 (총 420) |
+| **II — E1 v2 가중치 분담 (ADR-039 갱신)** | ✅ 2026-05-03 완료 | splitWith Json 형식 확장 (`string[]` → `Array<string \| {name, weight?}>`) · `normalizeSplitWith` 정규화 + `parseSplitToken` UI 파서 · weight 비율 분담 (어른 2 + 아동 1 등) · CostEntry.splitWith 타입 union · schema 변경 0 / 마이그 0 (v3 트리거 ADR 명시) · 레거시 splitSummary 제거(SettlementCard로 통합) · 단위 테스트 +16 (총 436) |
 
 ---
 

@@ -5,13 +5,18 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { computeSettlement, formatKrw } from "@/lib/services/settlement";
+import {
+  computeSettlement,
+  formatKrw,
+  normalizeSplitWith,
+  parseSplitToken,
+} from "@/lib/services/settlement";
 import type { CostEntry } from "@/lib/types";
 
 function makeEntry(
   id: string,
   amountKrw: number,
-  splitWith?: string[],
+  splitWith?: CostEntry["splitWith"],
 ): CostEntry {
   return {
     id,
@@ -122,5 +127,144 @@ describe("formatKrw", () => {
     expect(formatKrw(15000)).toBe("₩15,000");
     expect(formatKrw(-15000)).toBe("₩15,000"); // 음수도 절댓값 표시
     expect(formatKrw(0)).toBe("₩0");
+  });
+});
+
+describe("사이클 II — normalizeSplitWith (v1/v2 호환)", () => {
+  it("string[] (v1) → 모두 weight=1", () => {
+    const { members, isWeighted } = normalizeSplitWith(["나", "영희"]);
+    expect(members).toEqual([
+      { name: "나", weight: 1 },
+      { name: "영희", weight: 1 },
+    ]);
+    expect(isWeighted).toBe(false);
+  });
+
+  it("WeightedMember[] (v2) — weight=2 인식", () => {
+    const { members, isWeighted } = normalizeSplitWith([
+      { name: "나" },
+      { name: "철수", weight: 2 },
+    ]);
+    expect(members).toEqual([
+      { name: "나", weight: 1 },
+      { name: "철수", weight: 2 },
+    ]);
+    expect(isWeighted).toBe(true);
+  });
+
+  it("v1+v2 mixed → 모두 정규화", () => {
+    const { members } = normalizeSplitWith([
+      "나",
+      { name: "철수", weight: 2 },
+    ]);
+    expect(members).toEqual([
+      { name: "나", weight: 1 },
+      { name: "철수", weight: 2 },
+    ]);
+  });
+
+  it("잘못된 weight (≤0, NaN) → 1로 폴백", () => {
+    const { members } = normalizeSplitWith([
+      { name: "a", weight: 0 },
+      { name: "b", weight: -1 },
+      { name: "c", weight: NaN },
+    ]);
+    expect(members.every((m) => m.weight === 1)).toBe(true);
+  });
+
+  it("name 빈 값 → drop", () => {
+    const { members } = normalizeSplitWith([
+      { name: "" },
+      "  ",
+      { name: "나" },
+    ]);
+    expect(members).toEqual([{ name: "나", weight: 1 }]);
+  });
+
+  it("배열 아닌 입력 → 빈 결과", () => {
+    expect(normalizeSplitWith(null).members).toEqual([]);
+    expect(normalizeSplitWith("not-array").members).toEqual([]);
+  });
+});
+
+describe("사이클 II — computeSettlement v2 가중치", () => {
+  it("어른 2명 + 아동 2명 (2:2:1:1) — 결제자 어른", () => {
+    // 60000원 결제. 가중치 합 6 → 어른 20000씩, 아동 10000씩 부담.
+    // 결제자(어른1) net = +60000 - 20000 = +40000
+    // 어른2 net = -20000, 아동1 net = -10000, 아동2 net = -10000
+    // greedy: 어른2 → 어른1 20000, 아동1 → 어른1 10000, 아동2 → 어른1 10000
+    const result = computeSettlement([
+      makeEntry("a", 60000, [
+        { name: "어른1", weight: 2 },
+        { name: "어른2", weight: 2 },
+        { name: "아동1", weight: 1 },
+        { name: "아동2", weight: 1 },
+      ]),
+    ]);
+    expect(result.weightedEntryCount).toBe(1);
+    expect(result.transfers).toHaveLength(3);
+    // 모두 어른1로
+    expect(result.transfers.every((t) => t.to === "어른1")).toBe(true);
+    const total = result.transfers.reduce((s, t) => s + t.amountKrw, 0);
+    expect(total).toBe(40000);
+
+    const adult2 = result.transfers.find((t) => t.from === "어른2");
+    const child1 = result.transfers.find((t) => t.from === "아동1");
+    expect(adult2?.amountKrw).toBe(20000);
+    expect(child1?.amountKrw).toBe(10000);
+  });
+
+  it("v1 string[] 입력은 모두 균등 (기존 동작 보존)", () => {
+    const result = computeSettlement([
+      makeEntry("a", 30000, ["나", "영희"]),
+    ]);
+    expect(result.weightedEntryCount).toBe(0);
+    expect(result.transfers).toHaveLength(1);
+    expect(result.transfers[0].amountKrw).toBe(15000);
+  });
+
+  it("weight=1 명시 entry는 weightedEntryCount 미증가", () => {
+    const result = computeSettlement([
+      makeEntry("a", 30000, [
+        { name: "나" },
+        { name: "영희", weight: 1 },
+      ]),
+    ]);
+    expect(result.weightedEntryCount).toBe(0);
+  });
+});
+
+describe("사이클 II — parseSplitToken (UI 입력 파서)", () => {
+  it("이름만 → string", () => {
+    expect(parseSplitToken("영희")).toBe("영희");
+  });
+
+  it("이름:가중치 → object", () => {
+    expect(parseSplitToken("철수:2")).toEqual({ name: "철수", weight: 2 });
+    expect(parseSplitToken("어른:1.5")).toEqual({ name: "어른", weight: 1.5 });
+  });
+
+  it("weight=1 입력 → object 대신 string (단순화)", () => {
+    expect(parseSplitToken("나:1")).toBe("나");
+  });
+
+  it("잘못된 weight (0, 음수, NaN) → string 폴백", () => {
+    expect(parseSplitToken("나:0")).toBe("나");
+    expect(parseSplitToken("나:-1")).toBe("나");
+    expect(parseSplitToken("나:abc")).toBe("나");
+  });
+
+  it("trim 처리", () => {
+    expect(parseSplitToken("  영희  ")).toBe("영희");
+    expect(parseSplitToken(" 철수 : 2 ")).toEqual({ name: "철수", weight: 2 });
+  });
+
+  it("빈 입력 → null", () => {
+    expect(parseSplitToken("")).toBeNull();
+    expect(parseSplitToken("   ")).toBeNull();
+  });
+
+  it("이름이 빈 ':2' → null", () => {
+    expect(parseSplitToken(":2")).toBeNull();
   });
 });

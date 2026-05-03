@@ -271,7 +271,11 @@ export interface CostEntry {
   amountLocal?: { value: number; currency: string };
   status: CostStatus;
   category?: string;   // CostCategory 또는 자유 입력
-  splitWith?: string[];
+  /**
+   * 사이클 E1 (ADR-039) — splitWith[0] = 결제자 컨벤션.
+   * v1: string[] (1/N 균등). v2: { name, weight? }[] (가중치).
+   */
+  splitWith?: Array<string | { name: string; weight?: number }>;
   createdAt: string;
   updatedAt: string;
 }

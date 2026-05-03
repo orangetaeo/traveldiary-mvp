@@ -1,14 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
-import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { ReplanModal } from "./ReplanModal";
 import { ReplanTriggerCard } from "./ReplanTriggerCard";
 import { TripSecondaryActions } from "./TripSecondaryActions";
+import { ItineraryItemCard } from "./ItineraryItemCard";
 import {
   generateReplanOptions,
   type ReplanTrigger,
@@ -27,13 +24,6 @@ interface ItineraryViewProps {
   trip: Trip;
   initialItems: ItineraryItem[];
 }
-
-const CATEGORY_ICON: Record<string, string> = {
-  food: "restaurant",
-  spot: "photo_camera",
-  shopping: "shopping_bag",
-  rest: "bed",
-};
 
 /**
  * Itinerary 클라이언트 뷰 — Stitch #3/#4 디자인 (2026-04-30 옵션 C).
@@ -357,100 +347,27 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
           </p>
         )}
 
-        {dayItems.map((item) => {
-          const isFeatured = item.id === featuredId;
-          const isBooked =
-            item.flexibility === "booked" || item.flexibility === "fixed";
-          const showEvidence =
-            item.id === evidenceCardId &&
-            item.evidence &&
-            item.evidence.reasons.length > 0;
-          const time = formatTime(item.scheduledAt);
-          const { ko, en } = splitName(item.name);
-          const icon = CATEGORY_ICON[item.category] ?? "place";
-
-          const isDragging = item.id === draggingId;
-          const isDragOver = item.id === dragOverId;
-
-          return (
-            <div
-              key={item.id}
-              className={`relative pl-td-lg transition-opacity ${
-                isDragging ? "opacity-40" : ""
-              }`}
-              draggable
-              onDragStart={(e) => handleDragStart(e, item.id)}
-              onDragOver={(e) => handleDragOver(e, item.id)}
-              onDragLeave={handleDragLeave}
-              onDragEnd={handleDragEnd}
-              onDrop={(e) => handleDrop(e, item.id)}
-            >
-              {/* Dot — featured는 mode-primary로 자동 swap */}
-              <div
-                className={`absolute left-0 top-6 w-8 h-8 rounded-full flex items-center justify-center z-10 ${
-                  isFeatured
-                    ? "bg-mode-primary text-white shadow-lg"
-                    : "bg-surface-card border-2 border-divider text-ink-soft"
-                }`}
-                aria-hidden
-              >
-                <span className="material-symbols-outlined text-[16px]">
-                  {icon}
-                </span>
-              </div>
-
-              <Card
-                variant={isFeatured ? "featured" : "raised"}
-                className={`!p-td-md ${
-                  isFeatured
-                    ? "shadow-md !border-mode-primary border-2"
-                    : isDragOver
-                    ? "shadow-md !border-purple border-2"
-                    : "shadow-sm"
-                }`}
-              >
-                <Link
-                  href={`/itinerary/${trip.id}/item/${item.id}`}
-                  className="block -m-td-md p-td-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple rounded-lg"
-                >
-                  <div className="flex justify-between items-start mb-td-xs">
-                    <div className="flex flex-col">
-                      <span
-                        className={`text-td-caption ${
-                          isFeatured
-                            ? "text-mode-primary font-bold"
-                            : "text-ink-soft"
-                        }`}
-                      >
-                        {time}
-                      </span>
-                      {isFeatured && (
-                        <span className="text-td-caption text-mode-primary">
-                          {isOnTrip ? "진행 중" : "AI 추천"}
-                        </span>
-                      )}
-                    </div>
-                    {isBooked ? (
-                      <Badge tone="success">예약 완료</Badge>
-                    ) : (
-                      <Badge tone="info">AI 추천</Badge>
-                    )}
-                  </div>
-                  <h3 className="text-td-card-title text-ink">{ko}</h3>
-                  {en && (
-                    <p className="text-td-caption text-ink-soft mt-td-xxs">{en}</p>
-                  )}
-                </Link>
-
-                {showEvidence && (
-                  <div className="mt-td-sm">
-                    <EvidencePanel evidence={item.evidence} />
-                  </div>
-                )}
-              </Card>
-            </div>
-          );
-        })}
+        {dayItems.map((item) => (
+          <ItineraryItemCard
+            key={item.id}
+            item={item}
+            tripId={trip.id}
+            isFeatured={item.id === featuredId}
+            isOnTrip={isOnTrip}
+            showEvidence={
+              item.id === evidenceCardId &&
+              !!item.evidence &&
+              item.evidence.reasons.length > 0
+            }
+            isDragging={item.id === draggingId}
+            isDragOver={item.id === dragOverId}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDragEnd={handleDragEnd}
+            onDrop={handleDrop}
+          />
+        ))}
       </div>
 
       {/* Replan + Travel Mode 진입점 */}
@@ -524,16 +441,3 @@ function groupByDay(items: ItineraryItem[], dayCount: number): ItineraryItem[][]
   return days;
 }
 
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(
-    d.getUTCMinutes()
-  ).padStart(2, "0")}`;
-}
-
-function splitName(name: string): { ko: string; en: string } {
-  const m = name.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
-  if (m) return { ko: m[1].trim(), en: m[2].trim() };
-  return { ko: name, en: "" };
-}
