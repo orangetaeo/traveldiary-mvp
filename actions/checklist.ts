@@ -16,6 +16,7 @@ import {
   createChecklistItem,
   deleteChecklistItem,
   moveChecklistItem,
+  setChecklistItemsDone,
   toggleChecklistItem,
   type CreateChecklistInput,
   type MoveDirection,
@@ -189,6 +190,58 @@ export async function moveChecklist(input: {
 
   revalidatePath(`/checklist/${input.tripId}`);
   return { ok: true, demo: false, data: result.item };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 사이클 II — bulkToggleChecklist (멀티 선택 일괄 완료/미완료)
+//
+// audit log: 단일 "checklist.bulk_toggle" row + metadata.itemIds (R1 결정 — N row 폭주 회피).
+// AuditAction enum 추가만 (마이그 X — schema.prisma의 action은 String 컬럼).
+// ═══════════════════════════════════════════════════════════════════
+
+export async function bulkToggleChecklist(input: {
+  tripId: string;
+  itemIds: string[];
+  done: boolean;
+}): Promise<ChecklistActionResult<{ updatedCount: number; done: boolean }>> {
+  if (!isDbConnected) {
+    return { ok: true, demo: true };
+  }
+  if (!(await canWriteTrip(input.tripId))) {
+    return { ok: false, code: "forbidden" };
+  }
+  if (input.itemIds.length === 0) {
+    return { ok: false, code: "not_found" };
+  }
+
+  const result = await setChecklistItemsDone({
+    tripId: input.tripId,
+    itemIds: input.itemIds,
+    done: input.done,
+  });
+  if (result === null) return { ok: false, code: "internal" };
+  if (result === "empty") return { ok: false, code: "not_found" };
+  if (result === "count_mismatch") return { ok: false, code: "forbidden" };
+
+  await writeAuditLog({
+    actorId: await getActorId(),
+    action: "checklist.bulk_toggle",
+    resource: "ChecklistItem",
+    resourceId: input.tripId,
+    metadata: {
+      source: "web",
+      itemIds: result.itemIds,
+      itemCount: result.updatedCount,
+      done: result.done,
+    },
+  });
+
+  revalidatePath(`/checklist/${input.tripId}`);
+  return {
+    ok: true,
+    demo: false,
+    data: { updatedCount: result.updatedCount, done: result.done },
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════
