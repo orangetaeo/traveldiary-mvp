@@ -188,7 +188,7 @@ describe("findOffersByKeyword — 다국가 fuzzy 매칭", () => {
 
 describe("allOtaOffers 통합 풀", () => {
   it("모든 도시 합산 = allOtaOffers.length", () => {
-    // 사이클 N: 달랏 추가
+    // 사이클 N: 달랏 추가 / 사이클 VV: 치앙마이 추가
     const expected =
       phuQuocOtaOffers.length +
       daNangOtaOffers.length +
@@ -197,10 +197,12 @@ describe("allOtaOffers 통합 풀", () => {
       hoChiMinhOtaOffers.length +
       hanoiOtaOffers.length +
       nhaTrangOtaOffers.length;
-    // dl- prefix는 daLatOtaOffers 별도 import 없이 prefix 카운트로 검증
+    // dl-/cm- prefix는 별도 import 없이 prefix 카운트로 검증
     const dlCount = allOtaOffers.filter((o) => o.matchTag.startsWith("dl-")).length;
-    expect(allOtaOffers.length).toBe(expected + dlCount);
+    const cmCount = allOtaOffers.filter((o) => o.matchTag.startsWith("cm-")).length;
+    expect(allOtaOffers.length).toBe(expected + dlCount + cmCount);
     expect(dlCount).toBeGreaterThanOrEqual(10);
+    expect(cmCount).toBeGreaterThanOrEqual(10);
   });
 
   it("사이클 C+D 후 신규 시드 = 27건 (다낭 15 + 방콕 6 + 도쿄 6)", () => {

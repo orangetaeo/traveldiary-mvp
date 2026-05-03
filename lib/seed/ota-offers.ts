@@ -1026,6 +1026,123 @@ export const daLatOtaOffers: OtaOffer[] = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════
+// 치앙마이 (CNX, THB) — 사이클 VV (M8 9 도시 도달, 사이클 N 답습)
+// ═══════════════════════════════════════════════════════════════════
+
+export const chiangMaiOtaOffers: OtaOffer[] = [
+  // ── 도이수텝 사찰 일몰 투어 (시그니처 — 3 offer) ────────────────────
+  {
+    id: "klook-cm-doiSuthep",
+    matchTag: "cm-spot-doiSuthep",
+    ota: "klook",
+    title: "도이수텝(Doi Suthep) 사찰 + 일몰 투어 (송태우 왕복)",
+    priceKrw: 13000,
+    originalPriceKrw: 16000,
+    rating: 4.7,
+    reviewCount: 1820,
+    url: "https://www.klook.com/activity/8810-doi-suthep-temple",
+  },
+  {
+    id: "kkday-cm-doiSuthep",
+    matchTag: "cm-spot-doiSuthep",
+    ota: "kkday",
+    title: "Doi Suthep Temple Sunset + Hmong Village",
+    priceKrw: 14000,
+    rating: 4.6,
+    reviewCount: 942,
+    url: "https://www.kkday.com/product/88001-doi-suthep",
+  },
+  {
+    id: "agoda-cm-doiSuthep",
+    matchTag: "cm-spot-doiSuthep",
+    ota: "agoda",
+    title: "Doi Suthep Half Day Tour with Pickup",
+    priceKrw: 14500,
+    rating: 4.5,
+    reviewCount: 312,
+    url: "https://www.agoda.com/activities/chiang-mai/doi-suthep",
+  },
+
+  // ── 엘리펀트 자연 보호소 (시그니처 — 3 offer) ────────────────────────
+  {
+    id: "klook-cm-elephantSanctuary",
+    matchTag: "cm-spot-elephantSanctuary",
+    ota: "klook",
+    title: "엘리펀트 자연 보호소 (Elephant Nature Park) — 윤리 1일 투어",
+    priceKrw: 95000,
+    originalPriceKrw: 110000,
+    rating: 4.8,
+    reviewCount: 2640,
+    url: "https://www.klook.com/activity/8820-elephant-nature-park",
+  },
+  {
+    id: "kkday-cm-elephantSanctuary",
+    matchTag: "cm-spot-elephantSanctuary",
+    ota: "kkday",
+    title: "Elephant Nature Park Ethical Sanctuary",
+    priceKrw: 92000,
+    rating: 4.7,
+    reviewCount: 1380,
+    url: "https://www.kkday.com/product/88002-elephant-nature-park",
+  },
+  {
+    id: "agoda-cm-elephantSanctuary",
+    matchTag: "cm-spot-elephantSanctuary",
+    ota: "agoda",
+    title: "Chiang Mai Elephant Sanctuary Day Tour",
+    priceKrw: 98000,
+    rating: 4.6,
+    reviewCount: 528,
+    url: "https://www.agoda.com/activities/chiang-mai/elephant-sanctuary",
+  },
+
+  // ── 올드시티 사원 3곳 워킹 투어 (보조 — 2 offer) ────────────────────
+  {
+    id: "klook-cm-oldCityTemples",
+    matchTag: "cm-spot-oldCityTemples",
+    ota: "klook",
+    title: "올드시티 사원 3곳 도보 투어 (한국어 가이드)",
+    priceKrw: 3000,
+    rating: 4.4,
+    reviewCount: 412,
+    url: "https://www.klook.com/activity/8830-old-city-temples",
+  },
+  {
+    id: "kkday-cm-oldCityTemples",
+    matchTag: "cm-spot-oldCityTemples",
+    ota: "kkday",
+    title: "Chiang Mai Old City Temple Walking Tour",
+    priceKrw: 3500,
+    rating: 4.3,
+    reviewCount: 218,
+    url: "https://www.kkday.com/product/88003-old-city-temples",
+  },
+
+  // ── 일요 야시장 푸드 워킹 투어 (보조 — 2 offer) ─────────────────────
+  {
+    id: "klook-cm-sundayMarket",
+    matchTag: "cm-spot-sundayMarket",
+    ota: "klook",
+    title: "일요 야시장 (Sunday Walking Street) 푸드 워킹 투어",
+    priceKrw: 14000,
+    originalPriceKrw: 18000,
+    rating: 4.6,
+    reviewCount: 768,
+    url: "https://www.klook.com/activity/8840-sunday-walking-street",
+  },
+  {
+    id: "kkday-cm-sundayMarket",
+    matchTag: "cm-spot-sundayMarket",
+    ota: "kkday",
+    title: "Chiang Mai Sunday Walking Street Food Tour",
+    priceKrw: 16000,
+    rating: 4.5,
+    reviewCount: 342,
+    url: "https://www.kkday.com/product/88004-sunday-walking-street",
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
 // 통합 풀 — 모든 도시 OTA Offer (호출처는 항상 이걸 통해 매칭)
 // ═══════════════════════════════════════════════════════════════════
 
@@ -1038,6 +1155,7 @@ export const allOtaOffers: OtaOffer[] = [
   ...hanoiOtaOffers,
   ...nhaTrangOtaOffers,
   ...daLatOtaOffers,
+  ...chiangMaiOtaOffers,
 ];
 
 /**
@@ -1078,6 +1196,11 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
   // 사이클 N: 달랏 게이트 추가 (야시장·케이블카 충돌 회피)
   const isDaLatCtx =
     lower.includes("달랏") || lower.includes("da lat") || lower.includes("dalat");
+  // 사이클 VV: 치앙마이 게이트 추가 (야시장·사원·올드시티 충돌 회피)
+  const isChiangMaiCtx =
+    lower.includes("치앙마이") ||
+    lower.includes("chiang mai") ||
+    lower.includes("chiangmai");
   if (lower.includes("케이블카") || lower.includes("cable car")) {
     if (isPhuQuocCtx) matched.add("pq-spot-cablecar");
     if (isDaLatCtx) matched.add("dl-spot-cableCar");
@@ -1087,7 +1210,36 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
     if (isPhuQuocCtx) matched.add("pq-food-night-market");
     if (isNhaTrangCtx) matched.add("nh-food-streetFood");
     if (isDaLatCtx) matched.add("dl-food-nightMarket");
+    // 사이클 VV: 치앙마이 일요 야시장 — "sunday walking street"는 도시 게이트 없이도 고유
+    if (isChiangMaiCtx) matched.add("cm-spot-sundayMarket");
     // 어느 쪽도 명시 안 된 모호한 입력은 매칭 X (오탐 방지)
+  }
+  // 사이클 VV: 일요 야시장 / Sunday Walking Street는 치앙마이 시그니처 — 도시 게이트 없이도 매칭
+  if (
+    lower.includes("일요 야시장") ||
+    lower.includes("일요야시장") ||
+    lower.includes("sunday walking street") ||
+    lower.includes("sunday market")
+  ) {
+    matched.add("cm-spot-sundayMarket");
+  }
+  // 사이클 VV: 올드시티 사원 — "사원/사찰"은 매우 모호 → 치앙마이 게이트 강제
+  // "old city" 단독은 호이안과 충돌 → "치앙마이 + 사원" 조합 또는 "old city + chiang mai"
+  if (
+    isChiangMaiCtx &&
+    (lower.includes("사원") ||
+      lower.includes("사찰") ||
+      lower.includes("temple") ||
+      lower.includes("old city"))
+  ) {
+    // 도이수텝과의 충돌 회피 — "도이수텝"이 명시된 경우는 도이수텝 매칭만
+    if (
+      !lower.includes("도이수텝") &&
+      !lower.includes("doi suthep") &&
+      !lower.includes("doisuthep")
+    ) {
+      matched.add("cm-spot-oldCityTemples");
+    }
   }
   if (lower.includes("vinwonder") || lower.includes("빈원더")) {
     if (isPhuQuocCtx) matched.add("pq-spot-vinwonders");
@@ -1245,6 +1397,24 @@ export function findOffersByKeyword(name: string): OtaOffer[] {
     lower.includes("alpine coaster")
   ) {
     matched.add("dl-spot-datanla");
+  }
+
+  // ── 치앙마이 (사이클 VV) — 고유 키워드는 도시 게이트 불필요
+  if (
+    lower.includes("도이수텝") ||
+    lower.includes("doi suthep") ||
+    lower.includes("doisuthep")
+  ) {
+    matched.add("cm-spot-doiSuthep");
+  }
+  if (
+    lower.includes("코끼리 보호소") ||
+    lower.includes("코끼리보호소") ||
+    lower.includes("엘리펀트") ||
+    lower.includes("elephant nature park") ||
+    lower.includes("elephant sanctuary")
+  ) {
+    matched.add("cm-spot-elephantSanctuary");
   }
 
   // ── 하노이 (사이클 G-2)
