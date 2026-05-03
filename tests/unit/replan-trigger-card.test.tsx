@@ -63,7 +63,7 @@ describe("사이클 CC — ReplanTriggerCard", () => {
     expect(html).toContain("90분 지연");
   });
 
-  it("weather trigger — condition select 노출", () => {
+  it("weather trigger — chip preset 3 + 자유 입력 (사이클 EE)", () => {
     const trigger: ReplanTrigger = {
       type: "weather",
       itemId: "b",
@@ -82,9 +82,56 @@ describe("사이클 CC — ReplanTriggerCard", () => {
       />,
     );
     expect(html).toContain("날씨 상태는?");
-    expect(html).toContain('value="태풍"');
-    expect(html).toContain('value="비"');
-    expect(html).toContain('value="안개"');
+    expect(html).toContain(">비<");
+    expect(html).toContain(">태풍<");
+    expect(html).toContain(">안개<");
+    expect(html.toLowerCase()).toContain('maxlength="30"');
+    expect(html).toContain("폭염");
+    expect(html).toContain("미세먼지");
+  });
+
+  it("weather chip 비활성 condition (자유 입력) → input value 노출, chip 비강조", () => {
+    const trigger: ReplanTrigger = {
+      type: "weather",
+      itemId: "b",
+      minutes: 60,
+      condition: "폭염",
+    };
+    const html = renderToStaticMarkup(
+      <ReplanTriggerCard
+        trigger={trigger}
+        dayItems={DAY_ITEMS}
+        replanOpen={false}
+        appliedLabel={null}
+        onTriggerChange={NOOP}
+        onOpenReplan={NOOP}
+        onReset={NOOP}
+      />,
+    );
+    // 자유 입력값이 input value로 노출
+    expect(html).toContain('value="폭염"');
+  });
+
+  it("weather chip 활성 condition (preset) → input value 빈 문자열", () => {
+    const trigger: ReplanTrigger = {
+      type: "weather",
+      itemId: "b",
+      minutes: 60,
+      condition: "비",
+    };
+    const html = renderToStaticMarkup(
+      <ReplanTriggerCard
+        trigger={trigger}
+        dayItems={DAY_ITEMS}
+        replanOpen={false}
+        appliedLabel={null}
+        onTriggerChange={NOOP}
+        onOpenReplan={NOOP}
+        onReset={NOOP}
+      />,
+    );
+    // input은 chip이 활성이면 빈 값
+    expect(html).toContain('value=""');
   });
 
   it("appliedLabel 있으면 Badge + 초기화 버튼 노출", () => {

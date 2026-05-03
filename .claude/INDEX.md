@@ -253,6 +253,12 @@
 | **AA — M3 weather condition 선택** | ✅ 2026-05-03 완료 | weather 선택 시에만 condition select 노출(비/태풍/안개) · 사이클 X aria-pressed 잔존 진단 정리(토글 아닌 트리거라 제거) · vitest 변동 X |
 | **BB — /shared 빈 상태 가이드** | ✅ 2026-05-03 완료 | EmptyGuide 컴포넌트 — 3단계 가이드 카드(링크 받기→열기→자동 등록) + "내 여행" CTA · 데모 모드 사용자 onboarding 강화 · vitest 변동 X |
 | **CC — ItineraryView 분할 (사이클 O 답습)** | ✅ 2026-05-03 완료 | `components/itinerary/ReplanTriggerCard.tsx` 추출(~170행) · ItineraryView 754→610행(-144행) · Button import 제거 · 단위 테스트 6건(weather 분기·appliedLabel 분기·dropdown·chip) · vitest +6 (총 379) · STEP 3 복귀 0회 |
+| **DD — TripSecondaryActions 추출 (CC 답습)** | ✅ 2026-05-03 완료 | M2/M6/M7 카드 묶음 → `components/itinerary/TripSecondaryActions.tsx` · ItineraryView 610→539행(-71행, 누적 -215, -29%) · 단위 테스트 5건 · vitest +5 (총 384) |
+| **EE — weather condition 자유 입력** | ✅ 2026-05-03 완료 | dropdown 3종 → chip preset 3 + 자유 텍스트 input(30자 한도) · ReplanTriggerCard 보강 · 신규 테스트 3건 · vitest +3 (총 387) |
+| **FF — /shared 정렬 옵션** | ✅ 2026-05-03 완료 | `lib/share/sortReceived.ts` (받은 날짜/출발일자/도시명, ko locale) · /shared dropdown UI · 단위 테스트 6건 · vitest +6 (총 392) |
+| **GG — VarChar 정합성 확장 (U 답습)** | ✅ 2026-05-03 완료 | User(email/kakaoId/name) + Trip(destination/destinationCode) + ItineraryItem(name/locationAddress) 7 컬럼 VarChar 명시 · 마이그 0010 (사용자 액션 +1) · 회귀 테스트 +7 (총 399) · feedback_schema_validation_consistency 답습 |
+| **ADR-038 — ShareComment.actorId FK 정책 (Deferred)** | 🟡 정책만 | OAuth 활성 후 마이그 0011 적용 정책 + SQL 초안 · 마이그 파일 미생성 · 트리거 명시(actorId not null user 매핑 검증 통과) |
+| **E1 v1 — 정산 분담 (M9 후보)** | ✅ 2026-05-03 완료 | ADR-039 · `lib/services/settlement.ts` (greedy 정산) + `components/cost/SettlementCard.tsx` + /cost 결제자/함께 부담 분리 입력 · splitWith[0] = 결제자 컨벤션 · schema 변경 0 / 마이그 0 · 단위 테스트 9건 · vitest +9 (총 408) · v2 마이그 트리거 ADR 명시 |
 
 ---
 

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { ReplanModal } from "./ReplanModal";
 import { ReplanTriggerCard } from "./ReplanTriggerCard";
+import { TripSecondaryActions } from "./TripSecondaryActions";
 import {
   generateReplanOptions,
   type ReplanTrigger,
@@ -464,85 +465,13 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
           onReset={handleReset}
         />
 
-        {!isOnTrip && (
-          <div className="bg-surface-card border border-divider rounded-xl p-td-md">
-            <p className="text-td-body font-semibold text-ink mb-td-xs">
-              여행 중 모드 (M2)
-            </p>
-            <p className="text-td-meta text-ink-soft mb-td-sm">
-              헤더가 보라 → 코랄로 바뀌고 FAB가 등장합니다 (ADR-014).
-            </p>
-            <button
-              type="button"
-              onClick={handleEnterTravelMode}
-              disabled={isPending}
-              className="inline-flex items-center gap-1.5 text-td-meta font-semibold text-accent-deep border border-accent/40 rounded-md px-3 py-2 transition-colors hover:bg-accent-soft disabled:opacity-60 disabled:cursor-wait"
-            >
-              {isPending ? "전환 중…" : "여행 중 모드로 전환 (데모) →"}
-            </button>
-          </div>
-        )}
-
-        {/* M6 진입점 (사이클 9, ADR-022) */}
-        <div className="bg-surface-card border border-divider rounded-xl p-td-md">
-          <p className="text-td-body font-semibold text-ink mb-td-xs">
-            여행 도구 (M6)
-          </p>
-          <p className="text-td-meta text-ink-soft mb-td-sm">
-            D-Day 체크리스트와 비용 관리를 한 곳에서. 자동 환율 변환 포함.
-          </p>
-          <div className="grid grid-cols-2 gap-td-sm">
-            <Link
-              href={`/checklist/${trip.id}`}
-              className="flex items-center gap-1.5 text-td-meta font-semibold text-purple-deep border border-purple/40 rounded-md px-3 py-2 transition-colors hover:bg-purple-soft"
-            >
-              <span className="material-symbols-outlined text-[18px]" aria-hidden>
-                checklist
-              </span>
-              체크리스트
-            </Link>
-            <Link
-              href={`/cost/${trip.id}`}
-              className="flex items-center gap-1.5 text-td-meta font-semibold text-amber-deep border border-amber/40 rounded-md px-3 py-2 transition-colors hover:bg-amber-soft"
-            >
-              <span className="material-symbols-outlined text-[18px]" aria-hidden>
-                account_balance_wallet
-              </span>
-              비용 관리
-            </Link>
-          </div>
-        </div>
-
-        {/* M7 공유 + 일행 투표 진입점 (사이클 11a + E) */}
-        <div className="bg-surface-card border border-divider rounded-xl p-td-md">
-          <p className="text-td-body font-semibold text-ink mb-td-xs">
-            함께 보기 + 의사 결정 (M7 + C4)
-          </p>
-          <p className="text-td-meta text-ink-soft mb-td-sm">
-            친구·가족에게 링크로 공유 · 일행과 옵션 투표.
-          </p>
-          <div className="grid grid-cols-2 gap-td-sm">
-            <button
-              type="button"
-              onClick={() => setShareOpen(true)}
-              className="flex items-center gap-1.5 text-td-meta font-semibold text-success-deep border border-success/40 rounded-md px-3 py-2 transition-colors hover:bg-success-soft"
-            >
-              <span className="material-symbols-outlined text-[18px]" aria-hidden>
-                share
-              </span>
-              공유 링크
-            </button>
-            <Link
-              href={`/vote/${trip.id}`}
-              className="flex items-center gap-1.5 text-td-meta font-semibold text-purple-deep border border-purple/40 rounded-md px-3 py-2 transition-colors hover:bg-purple-soft"
-            >
-              <span className="material-symbols-outlined text-[18px]" aria-hidden>
-                how_to_vote
-              </span>
-              일행 투표
-            </Link>
-          </div>
-        </div>
+        <TripSecondaryActions
+          tripId={trip.id}
+          isOnTrip={isOnTrip}
+          isPending={isPending}
+          onEnterTravelMode={handleEnterTravelMode}
+          onShareClick={() => setShareOpen(true)}
+        />
       </section>
 
       <ReplanModal

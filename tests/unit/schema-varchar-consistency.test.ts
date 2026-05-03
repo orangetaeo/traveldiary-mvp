@@ -19,7 +19,8 @@ function readNumericVarChar(modelName: string, field: string): number {
   if (modelStart === -1) throw new Error(`model ${modelName} not found`);
   const modelEnd = src.indexOf("\n}", modelStart);
   const block = src.slice(modelStart, modelEnd);
-  const re = new RegExp(`${field}\\s+\\S+\\s+@db\\.VarChar\\((\\d+)\\)`);
+  // 라인 단위 매치 — `field type [...attrs] @db.VarChar(N) [...]`
+  const re = new RegExp(`^\\s*${field}\\s+[^\\n]*@db\\.VarChar\\((\\d+)\\)`, "m");
   const m = block.match(re);
   if (!m) throw new Error(`${modelName}.${field} VarChar(N) not found`);
   return Number(m[1]);
@@ -47,5 +48,47 @@ describe("사이클 U — validateBody 경계 회귀", () => {
     const { validateBody } = await import("@/lib/repositories/shareComment.repository");
     expect(validateBody("a".repeat(200)).ok).toBe(true);
     expect(validateBody("a".repeat(201)).ok).toBe(false);
+  });
+});
+
+describe("사이클 GG — User/Trip/ItineraryItem VarChar 정합성", () => {
+  it("User.email — RFC 5321 한도(320) 명시", () => {
+    expect(readNumericVarChar("User", "email")).toBe(320);
+  });
+
+  it("User.kakaoId — 카카오 user id (40자 충분)", () => {
+    const v = readNumericVarChar("User", "kakaoId");
+    expect(v).toBeGreaterThanOrEqual(20);
+    expect(v).toBeLessThanOrEqual(80);
+  });
+
+  it("User.name — 카카오 nickname 한도 + escape 마진 (60~120)", () => {
+    const v = readNumericVarChar("User", "name");
+    expect(v).toBeGreaterThanOrEqual(50);
+    expect(v).toBeLessThanOrEqual(120);
+  });
+
+  it("Trip.destination — 도시명 (60~120)", () => {
+    const v = readNumericVarChar("Trip", "destination");
+    expect(v).toBeGreaterThanOrEqual(50);
+    expect(v).toBeLessThanOrEqual(120);
+  });
+
+  it("Trip.destinationCode — 슬러그 형 (10~40)", () => {
+    const v = readNumericVarChar("Trip", "destinationCode");
+    expect(v).toBeGreaterThanOrEqual(10);
+    expect(v).toBeLessThanOrEqual(40);
+  });
+
+  it("ItineraryItem.name — 일정 이름 (100~300)", () => {
+    const v = readNumericVarChar("ItineraryItem", "name");
+    expect(v).toBeGreaterThanOrEqual(100);
+    expect(v).toBeLessThanOrEqual(300);
+  });
+
+  it("ItineraryItem.locationAddress — Google Places 주소 (300~1000)", () => {
+    const v = readNumericVarChar("ItineraryItem", "locationAddress");
+    expect(v).toBeGreaterThanOrEqual(300);
+    expect(v).toBeLessThanOrEqual(1000);
   });
 });

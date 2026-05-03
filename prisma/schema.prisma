@@ -16,9 +16,9 @@ datasource db {
 model User {
   id          String   @id @default(cuid())
 
-  email       String?  @unique
-  kakaoId     String?  @unique
-  name        String?
+  email       String?  @unique @db.VarChar(320)
+  kakaoId     String?  @unique @db.VarChar(40)
+  name        String?  @db.VarChar(80)
 
   preferences Json?
 
@@ -41,8 +41,8 @@ model Trip {
   ownerId         String
   owner           User     @relation(fields: [ownerId], references: [id])
 
-  destination     String
-  destinationCode String
+  destination     String   @db.VarChar(80)
+  destinationCode String   @db.VarChar(20)
   startDate       DateTime
   nights          Int
 
@@ -86,12 +86,12 @@ model ItineraryItem {
   priority        Int
   flexMinutes     Int      @default(0)
 
-  name            String
+  name            String   @db.VarChar(200)
   category        String
 
   locationLat     Float
   locationLng     Float
-  locationAddress String
+  locationAddress String   @db.VarChar(500)
 
   estimatedPrice  Json?
   bookingStatus   Json?

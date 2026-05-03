@@ -9,13 +9,18 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   listReceivedKeys,
   removeReceivedKey,
   type ReceivedKey,
 } from "@/lib/share/receivedKeys";
+import {
+  sortReceived,
+  SORT_LABELS,
+  type ReceivedSortMode,
+} from "@/lib/share/sortReceived";
 
 interface LookupItem {
   key: string;
@@ -35,6 +40,12 @@ type ViewState =
 
 export default function SharedListPage() {
   const [state, setState] = useState<ViewState>({ kind: "loading" });
+  const [sortMode, setSortMode] = useState<ReceivedSortMode>("addedAtDesc");
+
+  const sortedItems = useMemo(() => {
+    if (state.kind !== "list") return [];
+    return sortReceived(state.items, sortMode);
+  }, [state, sortMode]);
 
   useEffect(() => {
     const local: ReceivedKey[] = listReceivedKeys();
@@ -123,8 +134,33 @@ export default function SharedListPage() {
         )}
 
         {state.kind === "list" && (
-          <ul className="flex flex-col gap-3">
-            {state.items.map((it) => (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs text-ink-mute tabular-nums">
+                {state.items.length}개
+              </p>
+              <label className="flex items-center gap-2 text-xs text-ink-mute">
+                정렬
+                <select
+                  value={sortMode}
+                  onChange={(e) =>
+                    setSortMode(e.target.value as ReceivedSortMode)
+                  }
+                  className="border border-divider rounded-md px-2 py-1 text-xs bg-surface-soft"
+                  aria-label="정렬 기준"
+                >
+                  {(Object.keys(SORT_LABELS) as ReceivedSortMode[]).map(
+                    (mode) => (
+                      <option key={mode} value={mode}>
+                        {SORT_LABELS[mode]}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+            </div>
+            <ul className="flex flex-col gap-3">
+              {sortedItems.map((it) => (
               <li
                 key={it.key}
                 className="bg-surface-card rounded-xl border border-divider overflow-hidden"
@@ -151,8 +187,9 @@ export default function SharedListPage() {
                   </button>
                 </div>
               </li>
-            ))}
-          </ul>
+              ))}
+            </ul>
+          </>
         )}
       </div>
     </main>

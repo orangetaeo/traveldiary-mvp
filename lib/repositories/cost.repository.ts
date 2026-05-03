@@ -53,6 +53,8 @@ export interface CreateCostInput {
   amountLocal?: { value: number; currency: string };
   status?: CostEntry["status"];
   category?: string;
+  /** 사이클 E1 — splitWith[0] = 결제자 컨벤션 (ADR-039) */
+  splitWith?: string[];
 }
 
 export async function createCostEntry(
@@ -69,6 +71,9 @@ export async function createCostEntry(
         amountLocal: (input.amountLocal ?? null) as never,
         status: input.status ?? "planned",
         category: input.category,
+        splitWith: (input.splitWith && input.splitWith.length > 0
+          ? input.splitWith
+          : null) as never,
       },
     });
     return rowToEntry(row);

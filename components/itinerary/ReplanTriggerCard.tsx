@@ -25,7 +25,8 @@ interface ReplanTriggerCardProps {
 }
 
 const PRESET_MINUTES = [30, 60, 90] as const;
-const WEATHER_OPTIONS = ["비", "태풍", "안개"] as const;
+const WEATHER_PRESETS = ["비", "태풍", "안개"] as const;
+const WEATHER_CONDITION_MAX = 30;
 
 export function ReplanTriggerCard({
   trigger,
@@ -119,7 +120,7 @@ export function ReplanTriggerCard({
         </div>
       </div>
 
-      {/* weather일 때만 condition select */}
+      {/* 사이클 EE — weather chip preset 3 + 자유 입력 (길이 30자 한도) */}
       {trigger.type === "weather" && (
         <div className="space-y-td-xxs mb-td-sm">
           <label
@@ -128,27 +129,54 @@ export function ReplanTriggerCard({
           >
             날씨 상태는?
           </label>
-          <select
+          <div className="flex flex-wrap gap-td-xxs">
+            {WEATHER_PRESETS.map((w) => {
+              const active = trigger.condition === w;
+              return (
+                <button
+                  key={w}
+                  type="button"
+                  onClick={() =>
+                    onTriggerChange(
+                      buildTrigger("weather", trigger.itemId, trigger.minutes, w),
+                    )
+                  }
+                  className={`px-3 py-1 rounded-full border text-td-caption font-medium transition-colors ${
+                    active
+                      ? "bg-purple text-white border-purple"
+                      : "border-divider text-ink-soft hover:border-purple/40"
+                  }`}
+                >
+                  {w}
+                </button>
+              );
+            })}
+          </div>
+          <input
             id="replan-weather-condition"
-            className="w-full border border-divider rounded-md px-2 py-1.5 text-td-meta bg-surface-soft"
-            value={trigger.condition}
-            onChange={(e) =>
+            type="text"
+            maxLength={WEATHER_CONDITION_MAX}
+            placeholder={`또는 직접 입력 (예: 폭염, 미세먼지) · 최대 ${WEATHER_CONDITION_MAX}자`}
+            value={
+              WEATHER_PRESETS.includes(
+                trigger.condition as (typeof WEATHER_PRESETS)[number],
+              )
+                ? ""
+                : trigger.condition
+            }
+            onChange={(e) => {
+              const next = e.target.value.slice(0, WEATHER_CONDITION_MAX);
               onTriggerChange(
                 buildTrigger(
                   "weather",
                   trigger.itemId,
                   trigger.minutes,
-                  e.target.value,
+                  next.length > 0 ? next : "비",
                 ),
-              )
-            }
-          >
-            {WEATHER_OPTIONS.map((w) => (
-              <option key={w} value={w}>
-                {w}
-              </option>
-            ))}
-          </select>
+              );
+            }}
+            className="w-full border border-divider rounded-md px-2 py-1.5 text-td-meta bg-surface-soft"
+          />
         </div>
       )}
 

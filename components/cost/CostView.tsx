@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { addCost, deleteCost } from "@/actions/cost";
 import type { CostEntry, CostStatus, Trip } from "@/lib/types";
+import { SettlementCard } from "./SettlementCard";
 
 interface Props {
   trip: Trip;
@@ -62,6 +63,9 @@ export function CostView({
   const [draftCategory, setDraftCategory] = useState("food");
   const [draftStatus, setDraftStatus] = useState<CostStatus>("paid");
   const [draftDate, setDraftDate] = useState(TODAY_ISO);
+  // 사이클 E1 — splitWith[0] = 결제자 컨벤션 (ADR-039)
+  const [draftPayer, setDraftPayer] = useState("");
+  const [draftSplitMembers, setDraftSplitMembers] = useState("");
 
   const totals = useMemo(() => {
     const paid = entries
@@ -156,6 +160,13 @@ export function CostView({
     const date = draftDate;
     const status = draftStatus;
     const category = draftCategory;
+    // 사이클 E1 — splitWith[0]=payer 컨벤션. payer 비면 정산 안 함.
+    const payer = draftPayer.trim();
+    const others = draftSplitMembers
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0 && s !== payer);
+    const splitWith = payer ? [payer, ...others] : undefined;
 
     startTransition(async () => {
       const result = await addCost({
@@ -166,6 +177,7 @@ export function CostView({
         amountLocal: amounts.amountLocal,
         status,
         category,
+        splitWith,
       });
       if (!result.ok) {
         showToast(`추가 실패: ${result.code}`);
@@ -183,6 +195,7 @@ export function CostView({
             amountLocal: amounts.amountLocal,
             status,
             category,
+            splitWith,
             createdAt: now,
             updatedAt: now,
           },
@@ -196,6 +209,8 @@ export function CostView({
       setDraftLabel("");
       setDraftAmountKrw("");
       setDraftAmountLocal("");
+      setDraftPayer("");
+      setDraftSplitMembers("");
     });
   }
 
@@ -372,6 +387,35 @@ export function CostView({
                 aria-label="결제 일자"
               />
             </div>
+            {/* 사이클 E1 — 결제자 + 함께 부담 (옵션) */}
+            <details className="text-td-meta">
+              <summary className="cursor-pointer text-td-caption text-ink-mute hover:text-ink py-1">
+                일행과 정산 (선택)
+              </summary>
+              <div className="space-y-td-xs mt-td-xs">
+                <input
+                  type="text"
+                  placeholder="결제자 (예: 나)"
+                  value={draftPayer}
+                  onChange={(e) => setDraftPayer(e.target.value.slice(0, 30))}
+                  className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft"
+                  aria-label="결제자"
+                />
+                <input
+                  type="text"
+                  placeholder="함께 부담 (쉼표 구분, 예: 영희, 철수)"
+                  value={draftSplitMembers}
+                  onChange={(e) =>
+                    setDraftSplitMembers(e.target.value.slice(0, 200))
+                  }
+                  className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft"
+                  aria-label="함께 부담한 사람"
+                />
+                <p className="text-td-caption text-ink-mute">
+                  💡 결제자 포함 1/N 자동 분담. 결제자 비우면 정산 없음.
+                </p>
+              </div>
+            </details>
             <button
               type="submit"
               disabled={isPending}
@@ -380,6 +424,11 @@ export function CostView({
               {isPending ? "추가 중…" : "비용 추가"}
             </button>
           </form>
+        </section>
+
+        {/* 사이클 E1 — 정산 흐름 카드 (splitWith 가진 entry 있을 때만 노출) */}
+        <section className="mb-td-lg">
+          <SettlementCard entries={entries} />
         </section>
 
         {/* Entries list */}
