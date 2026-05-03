@@ -34,8 +34,10 @@ import {
   ChecklistCategoryFilter,
   applyChecklistFilters,
   type CategoryFilterValue,
+  type DoneFilterValue,
 } from "./ChecklistCategoryFilter";
 import { ChecklistSearchInput } from "./ChecklistSearchInput";
+import { ChecklistDoneFilter } from "./ChecklistDoneFilter";
 
 interface Props {
   trip: Trip;
@@ -58,6 +60,8 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
     useState<CategoryFilterValue>("all");
   // 사이클 OO — 텍스트 검색 (UI only)
   const [searchText, setSearchText] = useState("");
+  // 사이클 QQ — 완료 상태 필터 (UI only, NN→OO→QQ 헬퍼 진화 답습)
+  const [doneFilter, setDoneFilter] = useState<DoneFilterValue>("all");
 
   const total = items.length;
   const done = items.filter((it) => it.done).length;
@@ -69,12 +73,17 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
       applyChecklistFilters(items, {
         category: categoryFilter,
         search: searchText,
+        done: doneFilter,
       }),
-    [items, categoryFilter, searchText],
+    [items, categoryFilter, searchText, doneFilter],
   );
 
   // 사이클 OO — 검색 활성 시에도 onMove 비활성 (NN 답습)
-  const isFiltering = categoryFilter !== "all" || searchText.trim().length > 0;
+  // 사이클 QQ — done 필터 활성 시에도 동일 게이트 적용
+  const isFiltering =
+    categoryFilter !== "all" ||
+    searchText.trim().length > 0 ||
+    doneFilter !== "all";
 
   const selectedCount = selectedIds.size;
   const allSelected = useMemo(
@@ -390,6 +399,13 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
                 onChange={setSearchText}
               />
             </div>
+            <div className="pb-td-xs">
+              <ChecklistDoneFilter
+                items={items}
+                value={doneFilter}
+                onChange={setDoneFilter}
+              />
+            </div>
             <div className="pb-td-sm">
               <ChecklistCategoryFilter
                 items={items}
@@ -402,7 +418,11 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
                 <p className="text-td-meta text-ink-soft">
                   {searchText.trim().length > 0
                     ? `"${searchText.trim()}" 검색 결과가 없어요.`
-                    : "이 카테고리에 항목이 없어요."}
+                    : doneFilter === "todo"
+                      ? "미완료 항목이 없어요."
+                      : doneFilter === "done"
+                        ? "완료한 항목이 없어요."
+                        : "이 카테고리에 항목이 없어요."}
                 </p>
                 {isFiltering && (
                   <button
@@ -410,6 +430,7 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
                     onClick={() => {
                       setSearchText("");
                       setCategoryFilter("all");
+                      setDoneFilter("all");
                     }}
                     className="mt-td-xs text-td-meta font-semibold text-purple hover:text-purple-deep"
                   >
