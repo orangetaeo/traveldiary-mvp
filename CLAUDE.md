@@ -206,6 +206,16 @@ STEP 5. 보고 + 회고 (T18 자가 진화)
 
 ---
 
+## 🛡️ CI 게이트 (2026-05-03 도입)
+
+`.github/workflows/ci.yml` — push to main + PR to main에서 `tsc --noEmit` + `test:unit` + `next build` 자동 검증.
+
+> **CI는 "조기 경보"**, Railway deploy gate 아님. Railway는 GitHub push를 직접 구독하므로 CI 실패해도 배포 시도. PR 머지 차단(branch protection)으로만 강제 가능.
+
+재발 방지 대상: 35eb085 같은 빌드 부채를 푸시 전(또는 PR에서) 차단.
+
+---
+
 ## 🚀 작업 시작 시 체크리스트
 
 ```
