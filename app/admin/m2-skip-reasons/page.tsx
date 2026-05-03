@@ -15,6 +15,7 @@ import type {
   ModeTransitionSkipReason,
   ModeTransitionTrigger,
 } from "@/lib/mode-transition";
+import { getCityLabelKo } from "@/lib/constants/city-labels";
 
 // 라이브 audit log를 매 요청마다 조회 (build-time 캐시 X)
 export const dynamic = "force-dynamic";
@@ -44,22 +45,7 @@ const TRIGGER_LABEL: Record<ModeTransitionTrigger | "unknown", string> = {
 };
 
 // 사이클 RR — destinationCode → 한국어 라벨 매핑.
-// 베트남 단일 국가 정책: 8 도시 활성. 비-베트남(TYO/BKK/CNX)은 dormant 시드라
-// 실 데이터 미발생 예상이지만 안전망으로 매핑 포함.
-const CITY_LABEL: Record<string, string> = {
-  PQC: "푸꾸옥",
-  DAD: "다낭",
-  HAN: "하노이",
-  SGN: "호치민",
-  HOI: "호이안",
-  NHA: "나트랑",
-  DLI: "달랏",
-  CTH: "껀터",
-  TYO: "도쿄",
-  BKK: "방콕",
-  CNX: "치앙마이",
-  unknown: "(기록 이전)",
-};
+// VVV(2026-05-03) lib/constants/city-labels로 추출 — XXX affiliate dashboard에서 재사용 예정.
 
 const ALLOWED_WINDOWS = [7, 30] as const;
 type WindowOption = (typeof ALLOWED_WINDOWS)[number];
@@ -247,7 +233,7 @@ export default async function ModeTransitionStatsDashboard({
                       >
                         <div className="min-w-0">
                           <p className="text-td-meta text-ink truncate">
-                            {CITY_LABEL[d.code] ?? d.code}
+                            {getCityLabelKo(d.code)}
                           </p>
                           <p className="text-td-caption text-ink-soft tabular-nums">
                             성공 {d.applied} / 스킵 {d.skipped}
