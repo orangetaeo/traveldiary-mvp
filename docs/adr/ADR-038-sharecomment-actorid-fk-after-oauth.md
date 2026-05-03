@@ -1,14 +1,14 @@
 ---
 id: ADR-038
 title: ShareComment.actorId User FK 마이그 — OAuth 활성 후 적용 정책
-status: Deferred
+status: Accepted (2026-05-03, cycle HH)
 date: 2026-05-03
 decider: R1 CTO
 proposer: T14 DB + T16 Security
-related: ADR-026 (카카오 OAuth), ADR-036 (익명 협업), 마이그 0008
+related: ADR-026 (카카오 OAuth), ADR-036 (익명 협업), 마이그 0008, 마이그 0012
 ---
 
-# ADR-038: ShareComment.actorId User FK 정책 (사이클 — 미니 결정)
+# ADR-038: ShareComment.actorId User FK 정책 (사이클 GG/HH 분리 적용)
 
 ## 컨텍스트
 
@@ -69,10 +69,20 @@ model User {
 
 ## 결과
 
-- 마이그 파일 미생성 (사이클 GG 시점)
-- ADR-038로 정책 + SQL + 트리거 보존 → 활성 직후 본 ADR 따라 마이그 0011 작성
-- 사용자 액션 +0 (현 시점)
-- 향후 추가 액션: OAuth 활성 후 0011 적용 시점에 +1
+### 사이클 GG (2026-05-03, 319991a, PR #3)
+- 옵션 A 1단계 — wiring only (마이그 X)
+- `createCommentAction`/`deleteCommentAction`에 `getActorId()` 주입
+- `canDeleteComment` 순수 함수 분리 — clientUuid OR actorId OR 게이트 (T16 OWASP A01)
+- `createCommentRow` P2003 catch + actorId=null retry (HH FK race 사전 wiring)
+- 회귀 6건 (OR 게이트 4 사분면 + null 우회 차단)
+- 사용자 액션 +0
+
+### 사이클 HH (2026-05-03, PR #4)
+- 마이그 0012 적용 — FK + INDEX (위 §SQL 초안 그대로)
+- schema.prisma 갱신 — `actor User?` 관계 + `User.shareComments[]` 백 관계 + `@@index([actorId])`
+- T12 백로그 회귀 추가 — prisma mock P2003 throw → actorId=null retry 분기 검증
+- 사용자 액션 +1 — 라이브 카카오 댓글 1건 + DB SELECT 2건 (orphan=0 사전 점검)
+- ADR-038 status `Deferred` → `Accepted`
 
 ## 회귀 방어
 
