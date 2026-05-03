@@ -57,6 +57,19 @@ test("checklist page shows empty state with template button", async ({ page }) =
   ).toBeVisible();
 });
 
+// 사이클 WWW (QQ 후속 9→10) — done 필터는 total > 0 게이트.
+// 빈 상태에서 노출되지 않음을 negative regression으로 잠금. mutation 0.
+// 게이트가 풀려서 항상 노출되는 회귀(useState 기본값 표시 등)를 라이브에서 잡음.
+test("checklist done filter is NOT visible in empty state (QQ total > 0 gate)", async ({
+  page,
+}) => {
+  await page.goto(`/checklist/${DEMO_TRIP}`);
+  // QQ a11y 표준: ChecklistDoneFilter는 role=radiogroup + aria-label="완료 상태 필터"
+  await expect(
+    page.getByRole("radiogroup", { name: "완료 상태 필터" }),
+  ).not.toBeVisible();
+});
+
 test("cost page shows totals", async ({ page }) => {
   await page.goto(`/cost/${DEMO_TRIP}`);
   await expect(page.getByText(/합계/)).toBeVisible();
