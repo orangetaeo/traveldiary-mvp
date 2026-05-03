@@ -92,11 +92,24 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
     () =>
       replanOpen ? generateReplanOptions(items, effectiveTrigger) : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [replanOpen, items, effectiveTrigger.itemId, effectiveTrigger.minutes]
+    [replanOpen, items, effectiveTrigger.itemId, effectiveTrigger.minutes, effectiveTrigger.type]
   );
 
+  // 사이클 Z — 사유별 trigger 생성 (lib/replan.ts ReplanTrigger union)
+  function buildTrigger(
+    type: ReplanTrigger["type"],
+    itemId: string,
+    minutes: number,
+  ): ReplanTrigger {
+    if (type === "weather") {
+      return { type: "weather", itemId, condition: "비", minutes };
+    }
+    return { type, itemId, minutes };
+  }
+
   function openReplanWithTrigger(itemId: string, minutes: number) {
-    setActiveTrigger({ type: "delay", itemId, minutes });
+    const type = effectiveTrigger.type;
+    setActiveTrigger(buildTrigger(type, itemId, minutes));
     setReplanOpen(true);
   }
 
@@ -468,32 +481,63 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
             늦어진 일정과 지연 시간을 골라 추천·안전·강행 3옵션을 비교해 보세요.
           </p>
 
-          {/* 사이클 X — 동적 trigger: 현재 활성 Day의 일정에서 선택 */}
-          <div className="space-y-td-xs mb-td-sm">
-            <label
-              htmlFor="replan-trigger-item"
-              className="text-td-caption text-ink-mute"
-            >
-              어떤 일정에서 늦어졌나요?
-            </label>
-            <select
-              id="replan-trigger-item"
-              className="w-full border border-divider rounded-md px-2 py-1.5 text-td-meta bg-surface-soft"
-              value={effectiveTrigger.itemId}
-              onChange={(e) =>
-                setActiveTrigger({
-                  type: "delay",
-                  itemId: e.target.value,
-                  minutes: effectiveTrigger.minutes,
-                })
-              }
-            >
-              {dayItems.map((it) => (
-                <option key={it.id} value={it.id}>
-                  Day {it.dayIndex + 1} · {it.scheduledAt.slice(11, 16)} · {it.name}
-                </option>
-              ))}
-            </select>
+          {/* 사이클 X — 동적 trigger / 사이클 Z — 사유 type 4종 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-td-xs mb-td-sm">
+            <div className="space-y-td-xxs">
+              <label
+                htmlFor="replan-trigger-item"
+                className="text-td-caption text-ink-mute"
+              >
+                어떤 일정에서?
+              </label>
+              <select
+                id="replan-trigger-item"
+                className="w-full border border-divider rounded-md px-2 py-1.5 text-td-meta bg-surface-soft"
+                value={effectiveTrigger.itemId}
+                onChange={(e) =>
+                  setActiveTrigger(
+                    buildTrigger(
+                      effectiveTrigger.type,
+                      e.target.value,
+                      effectiveTrigger.minutes,
+                    ),
+                  )
+                }
+              >
+                {dayItems.map((it) => (
+                  <option key={it.id} value={it.id}>
+                    Day {it.dayIndex + 1} · {it.scheduledAt.slice(11, 16)} · {it.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-td-xxs">
+              <label
+                htmlFor="replan-trigger-type"
+                className="text-td-caption text-ink-mute"
+              >
+                무슨 이유로?
+              </label>
+              <select
+                id="replan-trigger-type"
+                className="w-full border border-divider rounded-md px-2 py-1.5 text-td-meta bg-surface-soft"
+                value={effectiveTrigger.type}
+                onChange={(e) =>
+                  setActiveTrigger(
+                    buildTrigger(
+                      e.target.value as ReplanTrigger["type"],
+                      effectiveTrigger.itemId,
+                      effectiveTrigger.minutes,
+                    ),
+                  )
+                }
+              >
+                <option value="delay">지연</option>
+                <option value="weather">악천후 (비)</option>
+                <option value="wait_time">웨이팅</option>
+                <option value="manual">직접 조정</option>
+              </select>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-td-xs">
