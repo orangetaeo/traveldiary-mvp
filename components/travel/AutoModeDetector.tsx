@@ -18,7 +18,11 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { detectMode } from "@/lib/mode-transition";
+import {
+  calculateDDay,
+  detectMode,
+  isWithinBoundary,
+} from "@/lib/mode-transition";
 import { getCurrentLocation } from "@/lib/services/geolocation";
 import { setTripMode } from "@/actions/trip";
 import type { Trip } from "@/lib/types";
@@ -61,11 +65,13 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
       }
 
       // mode === "ok" — detectMode 클라이언트 실행 (좌표 서버 미전송)
-      const newMode = detectMode(
-        trip,
-        new Date(),
+      const now = new Date();
+      const dDay = calculateDDay(trip.startDate, now);
+      const boundaryHit = isWithinBoundary(
         { lat: loc.lat, lng: loc.lng },
+        trip.destinationCode,
       );
+      const newMode = detectMode(trip, now, { lat: loc.lat, lng: loc.lng });
 
       if (newMode !== "in-travel") {
         showToast(
@@ -79,12 +85,17 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
         return;
       }
 
-      // setTripMode mutation — 좌표 절대 미전송, mode 값과 trigger만
+      // setTripMode mutation — 좌표 절대 미전송, mode 값과 trigger + audit context만
       const result = await setTripMode({
         tripId: trip.id,
         mode: "in-travel",
         expectedTripUpdatedAt: trip.updatedAt,
         trigger: "geolocation",
+        context: {
+          dDay,
+          boundaryHit,
+          destinationCode: trip.destinationCode,
+        },
       });
 
       if (!result.ok) {

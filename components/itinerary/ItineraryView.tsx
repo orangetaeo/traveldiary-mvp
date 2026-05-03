@@ -11,6 +11,7 @@ import {
   generateReplanOptions,
   type ReplanTrigger,
 } from "@/lib/replan";
+import { calculateDDay } from "@/lib/mode-transition";
 import type { ItineraryItem, ReplanOption, Trip } from "@/lib/types";
 import { commitReplan, type ReplanOptionId } from "@/actions/replan";
 import { setTripMode } from "@/actions/trip";
@@ -275,10 +276,17 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
 
   function handleEnterTravelMode() {
     startTransition(async () => {
+      // 데모 토글(수동) — boundaryHit은 의도적으로 미설정 (좌표 평가 없음).
+      // dDay와 destinationCode만 audit metadata에 기록.
       const result = await setTripMode({
         tripId: trip.id,
         mode: "in-travel",
         expectedTripUpdatedAt: trip.updatedAt,
+        trigger: "manual",
+        context: {
+          dDay: calculateDDay(trip.startDate),
+          destinationCode: trip.destinationCode,
+        },
       });
 
       if (!result.ok) {

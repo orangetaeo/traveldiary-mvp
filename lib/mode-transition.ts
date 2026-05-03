@@ -6,6 +6,9 @@
  *   좌표는 클라이언트에서만 사용. 서버에는 mode 값과 trigger="geolocation"만 전송.
  * 사이클 WW(ADR-043, 2026-05-03): 베트남 6 도시(trip 시드 보유)에 boundary 활성화.
  *   M2 자동 전환이 푸꾸옥 외 베트남 trip 전체에서 동작.
+ * 사이클 AAA(2026-05-03): audit log metadata 풍부화 — buildModeTransitionMetadata.
+ *   기존 trigger/source 외 dDay·boundaryHit·destinationCode·previousMode 4 필드 추가.
+ *   좌표 leak 방어: whitelist 화이트리스트만 통과 (ADR-017 §C 유지).
  */
 
 import type { TravelMode, Trip } from "./types";
@@ -160,4 +163,56 @@ export function dayProgress(
   }
 
   return { done, total: today.length, current, next };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Audit Log metadata — 사이클 AAA
+//
+// trip.mode_transition audit log의 metadata 빌더. 좌표 leak 방어를 위해
+// 화이트리스트 필드만 통과시킨다. 호출자가 lat/lng 같은 위험 키를 넘겨도
+// 결과 객체에 포함되지 않는다.
+// ═══════════════════════════════════════════════════════════════════
+
+export type ModeTransitionTrigger = "manual" | "geolocation";
+
+export interface ModeTransitionContext {
+  /** D-Day (calculateDDay 결과). 음수면 출발 후. */
+  dDay?: number;
+  /** geolocation trigger의 boundary 평가 결과. manual에서는 보통 미설정. */
+  boundaryHit?: boolean;
+  /** trip.destinationCode (PQC/SGN 등 IATA-like). */
+  destinationCode?: string;
+}
+
+export interface ModeTransitionMetadataInput {
+  trigger: ModeTransitionTrigger;
+  previousMode: TravelMode;
+  context?: ModeTransitionContext;
+}
+
+/**
+ * trip.mode_transition audit log의 metadata 객체를 만든다.
+ * 좌표(lat/lng)는 어떤 경우에도 결과에 포함되지 않는다.
+ */
+export function buildModeTransitionMetadata(
+  input: ModeTransitionMetadataInput,
+): Record<string, unknown> {
+  const meta: Record<string, unknown> = {
+    trigger: input.trigger,
+    source: "web",
+    previousMode: input.previousMode,
+  };
+  const ctx = input.context;
+  if (ctx) {
+    if (typeof ctx.dDay === "number" && Number.isFinite(ctx.dDay)) {
+      meta.dDay = ctx.dDay;
+    }
+    if (typeof ctx.boundaryHit === "boolean") {
+      meta.boundaryHit = ctx.boundaryHit;
+    }
+    if (typeof ctx.destinationCode === "string" && ctx.destinationCode.length > 0) {
+      meta.destinationCode = ctx.destinationCode;
+    }
+  }
+  return meta;
 }

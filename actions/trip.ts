@@ -21,6 +21,10 @@ import { DEMO_TRIP_ID } from "@/lib/seed";
 import { isDbConnected } from "@/lib/prisma";
 import { getActorId, getOwnerId } from "@/lib/auth/session";
 import { canWriteTrip } from "@/lib/auth/authorize";
+import {
+  buildModeTransitionMetadata,
+  type ModeTransitionContext,
+} from "@/lib/mode-transition";
 import type { TravelMode } from "@/lib/types";
 
 export interface CreateTripResult {
@@ -77,6 +81,11 @@ export interface SetTripModeInput {
   expectedTripUpdatedAt?: string;
   /** 5b-4 추가 — audit log metadata에 반영. "geolocation"은 좌표 미포함 (ADR-017 §C). */
   trigger?: "manual" | "geolocation";
+  /**
+   * AAA(2026-05-03) 추가 — audit metadata 풍부화 컨텍스트.
+   * 좌표(lat/lng)는 절대 포함 금지. buildModeTransitionMetadata가 화이트리스트 필터링.
+   */
+  context?: ModeTransitionContext;
 }
 
 export type SetTripModeResult =
@@ -113,10 +122,11 @@ export async function setTripMode(
     resourceId: input.tripId,
     before: { mode: result.before.currentMode },
     after: { mode: result.after.currentMode },
-    metadata: {
+    metadata: buildModeTransitionMetadata({
       trigger: input.trigger ?? "manual",
-      source: "web",
-    },
+      previousMode: result.before.currentMode as TravelMode,
+      context: input.context,
+    }),
   });
 
   revalidatePath(`/itinerary/${input.tripId}`);
