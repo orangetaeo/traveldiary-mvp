@@ -30,7 +30,14 @@ export function getKakaoConfig(): KakaoConfig | null {
 
 export const kakaoAvailable = (): boolean => getKakaoConfig() !== null;
 
-/** 카카오 동의 페이지 URL — 사이클 11c: scope에 account_email 추가 (옵션) */
+/**
+ * 카카오 동의 페이지 URL.
+ * scope 미지정 — 카카오 콘솔에 등록된 동의 항목(닉네임 필수)을 자동 사용.
+ *
+ * 사이클 DDD(2026-05-03): scope="account_email" 제거.
+ *   account_email은 비즈 앱 등록 후에만 활성 가능. 미등록 상태에서 요청하면 KOE205.
+ *   향후 비즈 전환 시 ADR-026 §189에 따라 사이클 11c+에서 재도입.
+ */
 export function buildAuthorizeUrl(state: string): string | null {
   const cfg = getKakaoConfig();
   if (!cfg) return null;
@@ -39,8 +46,6 @@ export function buildAuthorizeUrl(state: string): string | null {
     redirect_uri: cfg.redirectUri,
     response_type: "code",
     state,
-    // 11c: 이메일 권한 (선택 동의 — 카카오 콘솔에서 활성 필요)
-    scope: "account_email",
   });
   return `${KAKAO_AUTHORIZE_URL}?${params.toString()}`;
 }
