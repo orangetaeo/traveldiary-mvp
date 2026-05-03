@@ -143,6 +143,49 @@ curl https://traveldiary-mvp-production.up.railway.app/api/health
 
 ---
 
+## 🔬 C. 외부 API 키 활성 검증 (사이클 Y 신규)
+
+키를 Railway Variables에 등록하고 재배포한 뒤 **정말 인식됐는지** 한 번 확인하는 절차.
+
+### C-1. M4 카메라 번역 (Vision OCR + Claude 번역)
+
+```bash
+curl https://traveldiary-mvp-production.up.railway.app/api/diag/translate
+```
+
+기대 응답 예시 (둘 다 활성):
+
+```json
+{
+  "feature": "M4 Camera Translate",
+  "services": {
+    "vision": { "available": true,  "keyMask": "****abcd" },
+    "claude": { "available": true,  "keyMask": "****wxyz" }
+  },
+  "fallback": { "mode": "demo", "description": "..." }
+}
+```
+
+- `available: false` → Railway Variables에서 키명 오타 또는 빈 값. 재등록 후 자동 재배포 대기.
+- `available: true` → /translate 페이지에서 실제 메뉴 사진 업로드 → 결과 확인. 처음 호출은 1~2초 (Vision + Claude 직렬). 두 번째부터는 EvidenceCache hit.
+
+### C-2. 회귀 모니터링
+
+E2E nightly(ADR-037)는 `/translate` 페이지 진입까지만 검증 (실 OCR 호출은 비용 + flake 위험). 키 만료/취소 회귀는 사용자가 위 진단으로 주기적(분기 1회) 확인.
+
+| 키 | 발급처 | 진단 |
+|---|---|---|
+| `GOOGLE_VISION_API_KEY` | https://console.cloud.google.com/apis/credentials | `vision.available` |
+| `ANTHROPIC_API_KEY` | https://console.anthropic.com/ | `claude.available` |
+
+### C-3. 비용 가드 (ADR-019)
+
+- Vision: $1.50 / 1k images. 30일 EvidenceCache → 같은 사진 재호출 X
+- Claude haiku: 입력 $0.25/M, 출력 $1.25/M. 메뉴 1장당 ~$0.001
+- 일일 호출 추정: 100 사용자 × 2회 = $0.50/일 미만. 모니터링은 콘솔.
+
+---
+
 ## 🔁 시크릿 회전 정책 (S-11 §1.5)
 
 | 키 | 권장 회전 주기 | 영향 |

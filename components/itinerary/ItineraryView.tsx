@@ -55,6 +55,8 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   // 사이클 11a — M7 공유
   const [shareOpen, setShareOpen] = useState(false);
+  // 사이클 X — 동적 replan trigger (카드별 "지연 발생" 진입점)
+  const [activeTrigger, setActiveTrigger] = useState<ReplanTrigger | null>(null);
 
   const days = useMemo(
     () => groupByDay(items, trip.nights + 1),
@@ -73,18 +75,30 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
       (b.evidence?.reasons.length ?? 0) - (a.evidence?.reasons.length ?? 0)
   )[0]?.id;
 
-  const demoTrigger: ReplanTrigger = {
+  // activeTrigger가 있으면 그걸 우선, 없으면 데모 시드 trigger로 폴백
+  const fallbackTriggerId = items.find((it) => it.id === "pq-item-6")?.id
+    ?? items.find((it) => it.priority >= 4)?.id
+    ?? items[0]?.id
+    ?? "";
+  const effectiveTrigger: ReplanTrigger = activeTrigger ?? {
     type: "delay",
-    itemId: "pq-item-6",
+    itemId: fallbackTriggerId,
     minutes: 90,
   };
-  const demoTriggerItem = items.find((it) => it.id === demoTrigger.itemId) ?? null;
+  const demoTriggerItem =
+    items.find((it) => it.id === effectiveTrigger.itemId) ?? null;
 
   const replanResults = useMemo(
-    () => (replanOpen ? generateReplanOptions(items, demoTrigger) : []),
+    () =>
+      replanOpen ? generateReplanOptions(items, effectiveTrigger) : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [replanOpen, items]
+    [replanOpen, items, effectiveTrigger.itemId, effectiveTrigger.minutes]
   );
+
+  function openReplanWithTrigger(itemId: string, minutes: number) {
+    setActiveTrigger({ type: "delay", itemId, minutes });
+    setReplanOpen(true);
+  }
 
   function handleApply(itemsAfter: ItineraryItem[], option: ReplanOption) {
     // 1. 클라이언트 즉시 반영 (optimistic update — 데모/DB 모두 동일 UX)
@@ -97,7 +111,7 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
       const result = await commitReplan({
         tripId: trip.id,
         optionId: option.id as ReplanOptionId,
-        trigger: demoTrigger,
+        trigger: effectiveTrigger,
         expectedTripUpdatedAt: trip.updatedAt,
       });
 
@@ -451,9 +465,57 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
             {appliedLabel && <Badge tone="info">{appliedLabel} 적용됨</Badge>}
           </div>
           <p className="text-td-meta text-ink-soft mb-td-sm">
-            Day 3 사오비치가 90분 지연된 상황. 추천·안전·강행 3옵션을 비교해 보세요.
+            늦어진 일정과 지연 시간을 골라 추천·안전·강행 3옵션을 비교해 보세요.
           </p>
-          <div className="flex gap-td-xs">
+
+          {/* 사이클 X — 동적 trigger: 현재 활성 Day의 일정에서 선택 */}
+          <div className="space-y-td-xs mb-td-sm">
+            <label
+              htmlFor="replan-trigger-item"
+              className="text-td-caption text-ink-mute"
+            >
+              어떤 일정에서 늦어졌나요?
+            </label>
+            <select
+              id="replan-trigger-item"
+              className="w-full border border-divider rounded-md px-2 py-1.5 text-td-meta bg-surface-soft"
+              value={effectiveTrigger.itemId}
+              onChange={(e) =>
+                setActiveTrigger({
+                  type: "delay",
+                  itemId: e.target.value,
+                  minutes: effectiveTrigger.minutes,
+                })
+              }
+            >
+              {dayItems.map((it) => (
+                <option key={it.id} value={it.id}>
+                  Day {it.dayIndex + 1} · {it.scheduledAt.slice(11, 16)} · {it.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-wrap gap-td-xs">
+            {[30, 60, 90].map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() =>
+                  openReplanWithTrigger(effectiveTrigger.itemId, m)
+                }
+                className={`px-3 py-1.5 rounded-full border text-td-caption font-medium tabular-nums transition-colors ${
+                  effectiveTrigger.minutes === m && replanOpen
+                    ? "bg-purple text-white border-purple"
+                    : "border-divider text-ink-soft hover:border-purple/40"
+                }`}
+                aria-pressed={Boolean(
+                  effectiveTrigger.minutes === m && replanOpen,
+                )}
+              >
+                {m}분 지연
+              </button>
+            ))}
             <Button
               variant="primary"
               size="sm"
@@ -552,11 +614,14 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
 
       <ReplanModal
         open={replanOpen}
-        trigger={demoTrigger}
+        trigger={effectiveTrigger}
         triggerItem={demoTriggerItem}
         results={replanResults}
         onApply={handleApply}
-        onClose={() => setReplanOpen(false)}
+        onClose={() => {
+          setReplanOpen(false);
+          setActiveTrigger(null);
+        }}
       />
 
       <AddItemModal

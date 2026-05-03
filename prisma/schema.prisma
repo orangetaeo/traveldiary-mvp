@@ -284,10 +284,10 @@ model ShareComment {
   shareLink   ShareLink @relation(fields: [shareLinkId], references: [id], onDelete: Cascade)
   /** trip 전체 댓글이면 null, 일정별이면 ItineraryItem.id */
   itemId      String?
-  /** 표시 닉네임 — 2~10자, XSS escape 후 저장 */
-  nickname    String
-  /** 본문 — 최대 500자, HTML escape 후 저장 */
-  body        String    @db.VarChar(500)
+  /** 표시 닉네임 — 2~10자, XSS escape 후 저장 (escape 4배 여유 → 50) */
+  nickname    String    @db.VarChar(50)
+  /** 본문 — validateBody 200자, escape 4배 여유 → 800은 과함. 200자 + escape 안전 마진 → 1000 */
+  body        String    @db.VarChar(1000)
   /** 가벼운 투표 흡수: "LIKE" | "DISLIKE" | "QUESTION" | null */
   reaction    String?
   /** 본인 식별 토큰 (LocalStorage UUID) — OAuth 없이 본인 삭제 권한 */

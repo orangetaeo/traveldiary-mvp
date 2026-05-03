@@ -214,6 +214,14 @@ STEP 5. 보고 + 회고 (T18 자가 진화)
 
 재발 방지 대상: 35eb085 같은 빌드 부채를 푸시 전(또는 PR에서) 차단.
 
+## 🌙 E2E nightly (사이클 V, ADR-037)
+
+`.github/workflows/e2e-nightly.yml` — 매일 KST 03:00에 라이브 사이트(`PLAYWRIGHT_BASE_URL`) 대상 Playwright smoke 9 시나리오 실행.
+
+> **빌드 회귀(ADR-029 CI) ≠ 라이브 회귀(ADR-037 E2E nightly)**. 시드 누락/env 키 만료/스키마 드리프트 등 라이브 환경에서만 발견되는 회귀를 매일 새벽 자동 검출.
+
+수동 트리거 필요 시 GitHub Actions 탭 → "E2E Nightly (Live)" → Run workflow. health probe 선행으로 라이브 다운 시 fail-fast.
+
 ---
 
 ## 🚀 작업 시작 시 체크리스트

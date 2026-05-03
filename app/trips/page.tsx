@@ -83,6 +83,15 @@ export default function TripsPage({
             한국인 자유여행자 큐레이션 도시 {allCards.length}곳 ·{" "}
             데모 일정 {listDemoTrips().length}건
           </p>
+          <Link
+            href="/shared"
+            className="mt-td-sm inline-flex items-center gap-td-xxs text-td-caption text-purple hover:text-purple-dark"
+            aria-label="받은 여행 목록"
+          >
+            <span className="material-symbols-outlined text-[18px]">inbox</span>
+            받은 여행 보기
+            <span aria-hidden>→</span>
+          </Link>
         </section>
 
         {/* Sticky chip filter */}

@@ -1,0 +1,72 @@
+name: E2E Nightly (Live)
+
+on:
+  schedule:
+    # 매일 UTC 18:00 = KST 03:00 (트래픽 저시간대)
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Override PLAYWRIGHT_BASE_URL (default: production)'
+        required: false
+        default: 'https://traveldiary-mvp-production.up.railway.app'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-nightly
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    name: Playwright smoke (live)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'https://traveldiary-mvp-production.up.railway.app' }}
+      NEXT_TELEMETRY_DISABLED: '1'
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Health probe (fail fast)
+        run: |
+          echo "Probing $PLAYWRIGHT_BASE_URL/api/health"
+          status=$(curl -sS -o /tmp/health.json -w "%{http_code}" "$PLAYWRIGHT_BASE_URL/api/health")
+          cat /tmp/health.json
+          echo
+          if [ "$status" != "200" ]; then
+            echo "Health probe failed with HTTP $status — aborting before E2E"
+            exit 1
+          fi
+
+      - name: Run Playwright smoke
+        run: npx playwright test --reporter=github,html
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Upload trace on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-trace-${{ github.run_id }}
+          path: test-results/
+          retention-days: 14

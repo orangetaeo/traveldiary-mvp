@@ -242,6 +242,13 @@
 | **P — M5 응급/실용/도시 컨텍스트 강화** | ✅ 2026-05-02 완료 | ADR-035 · `/city/[slug]/emergency` 서브 라우트 (~250행) + `koreanLossContacts.ts` 4 카테고리 분실 가이드 + EmergencyHeaderButton (TravelHome·city·itinerary 헤더) + CityContextStrip 분기 제거(currentMode 무관 노출) · T16 환각 차단(개별 카드사·통신사 번호 미시드, 통합 번호만) · vitest +14 (총 326) · STEP 3 복귀 0회 |
 | **Q — 사이클 P 백로그 정리** | ✅ 2026-05-02 완료 | 번호 표기 하이픈 통일(외교부 0404.go.kr 공식) + `EmergencyContact.url` 옵션 필드 + 8 도시 영사관 mofa.go.kr URL 매핑 + LossGuideCard 시맨틱(`<span>` → `<div>+<a>` 형제) · vitest +12 (총 338) · ADR 불필요 (백로그 정리) · STEP 3 복귀 0회 |
 | **R — M7 협업 강화 (익명 댓글 + 카카오 공유)** | ✅ 2026-05-02 완료 | ADR-036 · ShareComment 모델 + 마이그 0008 + clientUuid + nickname 익명 협업 + Web Share API + 카카오 URL scheme 폴백(의존성 0) + ShareLink 만료/revoke 차단 + escapeHtml + Rate Limit 분당 5건 + 데모 LocalStorage fallback · vitest +12 (총 350) · 사용자 액션 +1 (migrate deploy 0008) · STEP 3 복귀 0회 |
+| **S — Build Hotfix + CI Gate** | ✅ 2026-05-03 완료 | 35eb085 tsconfig exclude vitest.config.ts/tests/** (Railway 17h 정체 해소) · 067fe61 `.github/workflows/ci.yml` (push:main + PR:main, Node 20, 첫 실행 success) · feedback_tsconfig_build_isolation 정착 · vitest 350 변동 X · STEP 3 복귀 0회 |
+| **T — health endpoint cycle 동적화** | ✅ 2026-05-03 완료 | RAILWAY_GIT_COMMIT_SHA → commit 7자 + commitFull + deploymentId + branch · 하드코딩 "v2-launch-ready" 제거 · vitest +4 (총 354) · ADR 불필요 |
+| **U — 백로그 정리 미니 (VarChar 정합성)** | ✅ 2026-05-03 완료 | ShareComment.nickname VarChar(50) + body VarChar(1000) — validateNickname(10) / validateBody(200)의 5x escape 마진과 정합 · 마이그 0009 · vitest +5 (총 359) · 사용자 액션 +1 (migrate deploy 0009) |
+| **V — E2E nightly 워크플로우** | ✅ 2026-05-03 완료 | ADR-037 · `.github/workflows/e2e-nightly.yml` (cron 0 18 UTC = KST 03:00 + workflow_dispatch + health probe 선행) · ADR-029 빌드 회귀 ↔ ADR-037 라이브 회귀 계층 분리 · 의존성 0 / 마이그 0 |
+| **W — /shared 받은 trip 목록 (M7 미니)** | ✅ 2026-05-03 완료 | LocalStorage td_received_share_keys (LRU 50, 1년) · ReceivedKeyTracker 'use client' (/share/[key]에서 자동 추가) · /api/share/lookup POST (분당 30회 IP rate limit) · /shared 페이지 + /trips에 "받은 여행" 링크 · BottomNav 변경 X (사이클 I/O 답습) · vitest +14 (총 373) |
+| **X — M3 Live Replan 동적 trigger** | ✅ 2026-05-03 완료 | ItineraryView에 activeTrigger state + 카드 dropdown(Day별 일정 선택) + 30/60/90분 버튼 · effectiveTrigger를 ReplanModal/commitReplan 전달 · 기존 hardcoded `pq-item-6` → fallback으로만 사용 · mutation 자체는 무변경 (답습) |
+| **Y — M4 카메라 번역 진단 도구** | ✅ 2026-05-03 완료 | `/api/diag/translate` GET (vision/claude available + keyMask 마지막 4자만) · docs/12-user-actions.md §C 신규 (Vision/Claude 활성 검증 + 비용 가드) · vitest +5 · ADR 불필요 |
 
 ---
 

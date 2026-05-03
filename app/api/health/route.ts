@@ -1,25 +1,29 @@
 import { NextResponse } from "next/server";
 import { prisma, isDbConnected } from "@/lib/prisma";
 
-/**
- * Railway 헬스체크 엔드포인트 (S-10 / ADR-013/016).
- *
- * 상태:
- *   - DB 연결됨 + 쿼리 OK → 200 healthy
- *   - DB 연결됨 + 쿼리 실패 → 503 degraded (Railway 자동 재시작)
- *   - DB 미연결 (DATABASE_URL 빈 칸) → 200 demo (사이클 5a 호환)
- */
 export const dynamic = "force-dynamic";
 
+function getDeploymentMeta() {
+  const sha = process.env.RAILWAY_GIT_COMMIT_SHA;
+  return {
+    commit: sha ? sha.slice(0, 7) : "local",
+    commitFull: sha ?? null,
+    deploymentId: process.env.RAILWAY_DEPLOYMENT_ID ?? null,
+    branch: process.env.RAILWAY_GIT_BRANCH ?? null,
+  };
+}
+
 export async function GET() {
+  const meta = getDeploymentMeta();
+
   if (!isDbConnected || !prisma) {
     return NextResponse.json(
       {
         status: "demo",
         checks: { server: "ok", database: "demo" },
         timestamp: new Date().toISOString(),
-        cycle: "5a",
         app: "traveldiary-mvp",
+        ...meta,
       },
       { status: 200 },
     );
@@ -32,8 +36,8 @@ export async function GET() {
         status: "healthy",
         checks: { server: "ok", database: "ok" },
         timestamp: new Date().toISOString(),
-        cycle: "v2-launch-ready",
         app: "traveldiary-mvp",
+        ...meta,
       },
       { status: 200 },
     );
@@ -47,8 +51,8 @@ export async function GET() {
           error: err instanceof Error ? err.message : "unknown",
         },
         timestamp: new Date().toISOString(),
-        cycle: "v2-launch-ready",
         app: "traveldiary-mvp",
+        ...meta,
       },
       { status: 503 },
     );

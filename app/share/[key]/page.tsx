@@ -12,6 +12,7 @@ import { fetchShareLinkBySyncKey } from "@/lib/repositories/share.repository";
 import { listCommentsByShareLinkId } from "@/lib/repositories/shareComment.repository";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { CommentSection } from "@/components/share/CommentSection";
+import { ReceivedKeyTracker } from "@/components/share/ReceivedKeyTracker";
 
 export async function generateMetadata({
   params,
@@ -80,6 +81,11 @@ export default async function SharedTripPage({
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
+      <ReceivedKeyTracker
+        shareKey={params.key}
+        destination={trip.destination}
+        nights={trip.nights}
+      />
       <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
         <div className="flex items-center gap-td-sm">
           <Link
