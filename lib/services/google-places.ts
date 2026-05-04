@@ -15,6 +15,11 @@ import {
   getEvidenceCache,
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
+import {
+  assertQuota,
+  recordExternalCall,
+  QuotaExceededError,
+} from "@/lib/usage-quota";
 
 const FIND_PLACE_TTL_MS = 60 * 60 * 1000; // 1시간
 const DETAILS_TTL_MS = 24 * 60 * 60 * 1000; // 24시간
@@ -56,13 +61,21 @@ export type FindPlaceOutcome =
   | { mode: "demo" }
   | { mode: "found"; placeId: string; cached: boolean }
   | { mode: "not_found"; cached: boolean }
-  | { mode: "error"; code: "google_api_error" | "network"; message?: string };
+  | {
+      mode: "error";
+      code: "google_api_error" | "network" | "quota_exceeded";
+      message?: string;
+    };
 
 export type DetailsOutcome =
   | { mode: "demo" }
   | { mode: "found"; details: PlaceDetails; cached: boolean }
   | { mode: "not_found"; cached: boolean }
-  | { mode: "error"; code: "google_api_error" | "network"; message?: string };
+  | {
+      mode: "error";
+      code: "google_api_error" | "network" | "quota_exceeded";
+      message?: string;
+    };
 
 // ═══════════════════════════════════════════════════════════════════
 // API 키 분기
@@ -100,6 +113,19 @@ export async function findPlaceFromText(
   }
 
   try {
+    assertQuota("google-places");
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+
+  try {
     const params = new URLSearchParams({
       input: query,
       inputtype: "textquery",
@@ -114,6 +140,8 @@ export async function findPlaceFromText(
       method: "GET",
       cache: "no-store",
     });
+
+    recordExternalCall("google-places");
 
     if (!resp.ok) {
       return { mode: "error", code: "google_api_error", message: `HTTP ${resp.status}` };
@@ -183,6 +211,19 @@ export async function getPlaceDetails(
   }
 
   try {
+    assertQuota("google-places");
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+
+  try {
     const params = new URLSearchParams({
       place_id: placeId,
       fields: DETAILS_FIELDS,
@@ -193,6 +234,8 @@ export async function getPlaceDetails(
       method: "GET",
       cache: "no-store",
     });
+
+    recordExternalCall("google-places");
 
     if (!resp.ok) {
       return { mode: "error", code: "google_api_error", message: `HTTP ${resp.status}` };

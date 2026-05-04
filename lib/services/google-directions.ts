@@ -19,6 +19,11 @@ import {
   getEvidenceCache,
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
+import {
+  assertQuota,
+  recordExternalCall,
+  QuotaExceededError,
+} from "@/lib/usage-quota";
 import type { TravelMode } from "./distance-rules";
 
 const DIRECTIONS_TTL_MS = 24 * 60 * 60 * 1000; // 24시간
@@ -40,7 +45,7 @@ export type DirectionsOutcome =
   | { mode: "not_found"; cached: boolean }
   | {
       mode: "error";
-      code: "google_api_error" | "network";
+      code: "google_api_error" | "network" | "quota_exceeded";
       message?: string;
     };
 
@@ -89,6 +94,19 @@ export async function fetchDirections(
   }
 
   try {
+    assertQuota("google-directions");
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+
+  try {
     const params = new URLSearchParams({
       origin: `${input.origin.lat},${input.origin.lng}`,
       destination: `${input.destination.lat},${input.destination.lng}`,
@@ -100,6 +118,8 @@ export async function fetchDirections(
       method: "GET",
       cache: "no-store",
     });
+
+    recordExternalCall("google-directions");
 
     if (!resp.ok) {
       return {

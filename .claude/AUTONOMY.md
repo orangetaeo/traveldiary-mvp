@@ -31,16 +31,26 @@
 | **게이트 batch** | **5건 또는 6시간** 중 먼저 도달 | 자는 시간에 게이트 발생 시 즉시 정지가 아니라 batch 메모리에 누적. 5건 또는 6시간 도달 시 batch 알림 메모리 잠금(다음 사이클 정지). |
 | **자율 영역** | Phase 1 + Phase 6 + 리팩터/테스트만 | M1(Phase 4) 핵심 결정은 자는 시간 진행 금지. 깨어있는 시간만. |
 
-### 0.5.1 안전 킬스위치 (사이클 ZZZ 도입)
+### 0.5.1 안전 킬스위치 (사이클 ZZZ 도입, AAAA1 보강)
 
 | 항목 | 값 | 위치 |
 |------|----|------|
-| **외부 API 일일 cap** | anthropic 1000 / google-vision 500 / google-places 5000 / google-directions 5000 / naver-search 5000 / ota 1000 (env로 override) | `lib/usage-quota.ts` — 도달 시 `QuotaExceededError` throw |
+| **외부 API 일일 cap** | anthropic 1000 / google-vision 500 / google-places 5000 / google-directions 5000 / naver-search 5000 / ota 1000 (env `QUOTA_DAILY_CAP_<PROVIDER>` override) | `lib/usage-quota.ts` — 6 서비스 모두 wrap 적용 (AAAA1): `anthropic-claude / google-vision / google-places / google-directions / naver-search / ota{agoda,kkday,klook}`. cap 도달 시 `QuotaExceededError` → `{mode:"error", code:"quota_exceeded"}` outcome |
 | **AuditLog metadata redact** | 13개 키 패턴 `password / passwd / secret / token / api[_-]?key / authorization / bearer / cookie / session(?:[_-]?id)? / credential / private[_-]?key / access[_-]?key / refresh[_-]?token`은 자동 `[REDACTED]` (case-insensitive, 중첩/배열 지원, 깊이 6) | `lib/audit-log.ts` `sanitizeAuditValue()` |
 | **자동 머지/승인 차단** | `gh pr merge --admin/--auto/-A`, `gh pr review --approve`, `gh api ... reviews ... event=APPROVE` | `.claude/settings.json` deny |
 | **파괴적 git 차단** | `git push --force/-f`, `git push origin main`, `git push --no-verify`, `git commit --no-verify` | `.claude/settings.json` deny |
 | **`.env*` 직접 읽기 차단** | `Read(./.env*)`, `Bash(cat .env*)` (단 `.env.example`은 허용) | `.claude/settings.json` deny |
 | **CI Secret Scan** | PR/push to main 시 위험 패턴 grep (AKIA, sk-ant-, sk-, AIza, ghp_, github_pat_, xox[abp]-) | `.github/workflows/secret-scan.yml` |
+
+### 0.5.2 사이클 카운터 + 모델 라우팅 (사이클 AAAA1 도입)
+
+| 항목 | 값 | 위치 |
+|------|----|------|
+| **일일 사이클 카운터** | 메모리 파일 기반 `memory/autonomy_counter_YYYY-MM-DD.json` (KST 일자). `cycles/cap/lastCycleAt/lastCycleId`. 파일명 일자 박힘 → KST 자정 자동 리셋 (새 파일 0부터). | `lib/autonomy/cycle-counter.ts` — `assertCycleCap()` (STEP 1) + `incrementCycleCount(id)` (STEP 5) |
+| **자율 시간대 게이트** | `isAutonomyHours(now)` — KST 22:00~09:00 범위 체크. STEP 1 진입 시 호출. | 동일 |
+| **사이클 캡 override** | env `AUTONOMY_DAILY_CYCLE_CAP` (default 10) | 동일 |
+| **모델 라우팅** (ADR-047) | Triage=Haiku / 회의·구현·검증=Sonnet / R1게이트·M1·5+ 파일·보안=Opus. 분포 목표 H 5~10% / S 70~75% / O 15~25%. | `docs/adr/ADR-047-model-routing-policy.md` — 권장만, 강제 메커니즘은 AAAA2 |
+| **Opus 호출 전 4-체크** | 5+ 파일 / 아키텍처·보안 / Sonnet 2회 실패 / release 전 최종 QA — 모두 Yes일 때만 Opus | ADR-047 |
 
 **자는 시간 cron**:
 - 시작: KST 22:00 (UTC 13:00) — `0 13 * * *`
@@ -254,5 +264,6 @@ PRD §4 매트릭스에서 자율/게이트 판정
 | 2026-05-03 | (신규) | 시나리오 B 자율 모드 정책 초기 작성. PRD §4 매트릭스와 짝. |
 | 2026-05-03 | (구체값 박제) | 사용자 결정 반영: 자율 시간대 22:00~09:00 KST · 일일 캡 10 사이클 · 컨텍스트 80% 가드 · 세션당 3 사이클 · 게이트 batch 5건/6시간 · 자율 영역 Phase 1/6 + 리팩터 한정. |
 | 2026-05-04 | ZZZ | §0.5.1 안전 킬스위치 도입: `lib/usage-quota.ts` 외부 API cap(anthropic wrap 적용, 5개 서비스 AAAA 미룸) · `lib/audit-log.ts` `sanitizeAuditValue` (13 키 패턴 redact, ADR-046) · `.claude/settings.json` deny (자동 머지/승인/force push/`.env` Read) · `.github/workflows/secret-scan.yml` (7 패턴 grep). |
+| 2026-05-04 | AAAA1 | §0.5.1 보강 + §0.5.2 신규: 6 외부 API 서비스 모두 quota wrap (vision/places/directions/naver/ota{agoda,kkday,klook}) + grep coverage 회귀 + `lib/autonomy/cycle-counter.ts` 메모리 파일 기반 일일 카운터 + `isAutonomyHours()` + ADR-047 모델 라우팅 정책. AAAA2 미룸: 영속 카운터 / 비용 트래킹 / 임계치 / pickModel 헬퍼. |
 
 > 이후 변경은 게이트 매트릭스 보강이나 자동화 영역 확대 시 갱신.
