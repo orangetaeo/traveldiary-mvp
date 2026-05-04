@@ -47,9 +47,16 @@ export function CostEntriesList({ entries, onDelete }: Props) {
           <p className="text-td-body text-ink-soft">
             아직 입력된 비용이 없어요.
           </p>
-          <p className="text-td-caption text-ink-mute mt-td-xxs">
-            위의 입력 폼에서 금액과 카테고리를 선택해 추가하세요.
+          <p className="text-td-caption text-ink-mute mt-td-xxs mb-td-sm">
+            여행 경비를 기록하면 자동 정산까지 도와드려요.
           </p>
+          <button
+            type="button"
+            onClick={() => document.getElementById("add-cost-form")?.scrollIntoView({ behavior: "smooth" })}
+            className="bg-purple text-white py-2 px-td-md rounded-lg text-td-body font-semibold hover:opacity-90 transition-opacity"
+          >
+            첫 비용 기록하기
+          </button>
         </div>
       ) : (
         <ul className="space-y-td-xs">

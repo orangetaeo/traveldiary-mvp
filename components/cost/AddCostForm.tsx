@@ -135,7 +135,7 @@ export function AddCostForm({
   }
 
   return (
-    <section className="bg-surface-card border border-divider rounded-xl p-td-md mb-td-lg">
+    <section id="add-cost-form" className="bg-surface-card border border-divider rounded-xl p-td-md mb-td-lg">
       <h3 className="text-td-card-title text-ink mb-td-sm">비용 추가</h3>
       <form onSubmit={handleSubmit} className="space-y-td-sm">
         <input
