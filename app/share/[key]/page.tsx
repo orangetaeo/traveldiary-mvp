@@ -100,21 +100,21 @@ export default async function SharedTripPage({
             공유 받은 여행
           </h1>
         </div>
-        <span className="inline-flex items-center gap-1 text-td-caption text-ink-mute">
-          <span className="material-symbols-outlined text-[14px]">visibility</span>
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-td-caption font-bold bg-gray-200 text-gray-600">
+          <span className="material-symbols-outlined text-[14px]">lock</span>
           {link.permission === "view" ? "보기 전용" : "편집 가능"}
         </span>
       </header>
 
       <main className="max-w-xl mx-auto px-td-md">
-        {/* C3 — 보기 전용 배너 (눈에 띄게) */}
-        <div className="bg-purple-soft border border-purple/20 rounded-lg px-td-md py-td-sm mt-td-sm flex items-center gap-td-sm">
-          <span className="material-symbols-outlined text-purple text-[20px]" aria-hidden>
-            visibility
+        {/* C3 — 보기 전용 배너 (회색 배지 + disabled 시각 차단) */}
+        <div className="bg-gray-100 border border-gray-300 rounded-lg px-td-md py-td-sm mt-td-sm flex items-center gap-td-sm">
+          <span className="material-symbols-outlined text-gray-500 text-[20px]" aria-hidden>
+            lock
           </span>
-          <p className="text-td-meta text-purple-deep">
-            보기 전용 — 편집이 필요하면{" "}
-            <Link href="/onboarding" className="underline font-medium">
+          <p className="text-td-meta text-gray-600">
+            <span className="font-bold">보기 전용</span> — 일정 수정은 불가합니다.{" "}
+            <Link href="/onboarding" className="underline font-medium text-purple-deep">
               내 여행 만들기
             </Link>
           </p>
@@ -144,7 +144,7 @@ export default async function SharedTripPage({
                   return (
                     <article
                       key={item.id}
-                      className="bg-surface-card border border-divider rounded-xl p-td-md"
+                      className="bg-surface-card border border-divider rounded-xl p-td-md relative"
                     >
                       <div className="flex items-start gap-td-sm">
                         {item.photos?.[0] && (
@@ -172,6 +172,10 @@ export default async function SharedTripPage({
                           <EvidencePanel evidence={item.evidence} />
                         </div>
                       )}
+                      {/* C3 — 보기 전용 시각 차단: 각 카드에 회색 배지 */}
+                      <span className="absolute top-2 right-2 text-[9px] px-1.5 py-0.5 rounded-full bg-gray-200 text-gray-500 font-bold">
+                        보기 전용
+                      </span>
                     </article>
                   );
                 })}
