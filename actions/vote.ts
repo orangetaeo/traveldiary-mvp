@@ -14,6 +14,7 @@ import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
 import { canWriteTrip } from "@/lib/auth/authorize";
+import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { Vote } from "@/lib/types";
 
 export interface CreateVoteInput {
@@ -43,11 +44,14 @@ export async function createVote(
     return { ok: false, code: "invalid" };
   }
 
+  const sessionActorId = await getActorId();
+  const actorId = resolveActorIdForTrip(input.tripId, sessionActorId);
   const created = await createVoteRow({
     tripId: input.tripId,
     question: input.question.trim(),
     optionLabels: labels,
-    createdBy: await getActorId(),
+    createdBy: sessionActorId,
+    actorId,
   });
   if (!created) return { ok: false, code: "internal" };
 

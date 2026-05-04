@@ -60,6 +60,8 @@ export interface CreateCostInput {
    * v2: { name, weight? }[] (가중치)
    */
   splitWith?: Array<string | { name: string; weight?: number }>;
+  /** BLOCKER6 (마이그 0014) — 작성자 user.id. NULL = legacy/DEMO/미인증. */
+  actorId?: string | null;
 }
 
 export async function createCostEntry(
@@ -79,6 +81,7 @@ export async function createCostEntry(
         splitWith: (input.splitWith && input.splitWith.length > 0
           ? input.splitWith
           : null) as never,
+        actorId: input.actorId ?? undefined,
       },
     });
     return rowToEntry(row);

@@ -20,6 +20,7 @@ import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
 import { canWriteTrip } from "@/lib/auth/authorize";
+import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { ItineraryItem } from "@/lib/types";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -41,7 +42,9 @@ export async function addItineraryItem(
     return { ok: false, code: "forbidden" };
   }
 
-  const created = await repoAddItineraryItem(input);
+  const sessionActorId = await getActorId();
+  const actorId = resolveActorIdForTrip(input.tripId, sessionActorId);
+  const created = await repoAddItineraryItem({ ...input, actorId });
   if (!created) return { ok: false, code: "internal" };
 
   await writeAuditLog({

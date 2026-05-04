@@ -19,6 +19,7 @@ import { isDbConnected } from "@/lib/prisma";
 import { ensureDemoTripInDb } from "@/lib/repositories/trip.repository";
 import { getActorId } from "@/lib/auth/session";
 import { canWriteTrip } from "@/lib/auth/authorize";
+import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { CostEntry } from "@/lib/types";
 
 export type CostActionResult<T = unknown> =
@@ -41,7 +42,9 @@ export async function addCost(
   }
 
   await ensureDemoTripInDb(input.tripId);
-  const created = await createCostEntry(input);
+  const sessionActorId = await getActorId();
+  const actorId = resolveActorIdForTrip(input.tripId, sessionActorId);
+  const created = await createCostEntry({ ...input, actorId });
   if (!created) return { ok: false, code: "internal" };
 
   await writeAuditLog({

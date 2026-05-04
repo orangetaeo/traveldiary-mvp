@@ -9,12 +9,7 @@
 ---
 
 ## 1. 다음 사이클
-**BLOCKER2** — PRD §3 Phase 1: /profile 라우트 skeleton (1~2 사이클, 🟢 자율 OK).
-- BottomNav Profile → /profile 연결
-- 기본 정보 노출 (닉네임, clientUuid, 받은 공유 수, 내 여행 수)
-- 카카오 OAuth 연동 자리 마련 (BLOCKER 6과 연계)
-
-이후 Phase 2 BLOCKER4 (모바일 드래그 → 화살표).
+**진행 중**: BLOCKER6(actorId 격리) → BLOCKER1(M1 AI 일정) → C4(Day 동기화) 순차 진행. PR #33~#40 머지 완료.
 
 ## 2. 활성 게이트 (batch)
 **없음.** 게이트 발생 시 `memory/project_gate_batch_YYYY_MM_DD.md` 위치 + 본 라인 `🔴 활성 게이트 N건` 갱신.

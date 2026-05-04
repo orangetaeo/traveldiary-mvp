@@ -365,6 +365,8 @@ export interface AddItineraryItemInput {
   category: ItineraryItem["category"];
   location: { lat: number; lng: number; address: string };
   estimatedPrice?: { amount: number; currency: string };
+  /** BLOCKER6 (마이그 0014) — 작성자 user.id. NULL = legacy/DEMO/미인증. */
+  actorId?: string | null;
 }
 
 export async function addItineraryItem(
@@ -393,6 +395,7 @@ export async function addItineraryItem(
         locationAddress: input.location.address,
         estimatedPrice: (input.estimatedPrice ?? null) as never,
         evidence: evidence as never,
+        actorId: input.actorId ?? undefined,
       },
       include: { dependencies: { select: { dependencyId: true } } },
     });
