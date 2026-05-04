@@ -99,6 +99,29 @@ export default function CityPage({ params }: { params: { slug: string } }) {
           </p>
         </section>
 
+        {/* C5 — 응급 페이지 진입 카드 (본문 상단 명시 노출) */}
+        <Link
+          href={`/city/${city.slug}/emergency`}
+          className="block mb-td-md bg-danger-soft border border-danger/30 rounded-xl p-td-md hover:bg-danger/10 transition-colors"
+        >
+          <div className="flex items-center gap-td-sm">
+            <span className="material-symbols-outlined text-danger text-[24px]" aria-hidden>
+              emergency
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-td-body font-bold text-danger-deep">
+                긴급 상황 시 필요한 정보
+              </p>
+              <p className="text-td-caption text-ink-soft mt-td-xxs">
+                병원 · 경찰 · 대사관 · 분실 가이드
+              </p>
+            </div>
+            <span className="material-symbols-outlined text-danger text-[18px]" aria-hidden>
+              chevron_right
+            </span>
+          </div>
+        </Link>
+
         {/* 사이클 J (ADR-034) — city→trip 역방향 CTA */}
         <CityTripCTA trips={trips} cityName={city.name} />
 
