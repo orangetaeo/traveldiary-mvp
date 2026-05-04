@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { TranslateView } from "@/components/translate/TranslateView";
 import { BottomNav } from "@/components/ui/BottomNav";
+
+export const metadata: Metadata = {
+  title: "카메라 번역 — TRAVELDIARY",
+  description: "베트남어 메뉴를 카메라로 촬영하면 AI가 번역합니다.",
+};
 
 /**
  * 카메라 번역 (M4) — `/translate?trip=<id>`

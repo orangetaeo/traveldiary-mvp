@@ -8,10 +8,16 @@
  * 데모 모드: lib/seed의 푸꾸옥 데이터 직접 import (ADR-009).
  */
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
+
+export const metadata: Metadata = {
+  title: "TRAVELDIARY — 베트남 자유여행 AI 동반자",
+  description: "AI가 추천한 일정에 근거까지. 여행 중에는 살아 움직여요.",
+};
 import { phuQuocTrip, phuQuocItinerary } from "@/lib/seed/phu-quoc";
 import { listDemoItemsByDay, listDemoTrips, DEMO_TRIP_ID } from "@/lib/seed";
 import { getCityByCode, isVietnamCity } from "@/lib/seed/cities";
