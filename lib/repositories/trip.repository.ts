@@ -207,6 +207,86 @@ export async function createTripWithSeedItinerary(
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// BLOCKER1: AI 생성 일정으로 Trip 생성
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * AI가 생성한 ItineraryItem[]을 받아 새 Trip + items를 DB에 영속화.
+ * createTripWithSeedItinerary와 동일한 패턴이지만 시드 대신 AI 결과 사용.
+ */
+export async function createTripWithAiItems(
+  input: CreateTripInput,
+  aiItems: ItineraryItem[],
+  ownerId: string = SYSTEM_OWNER_ID,
+): Promise<TripBundle | null> {
+  if (!prisma) return null;
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.user.upsert({
+        where: { id: ownerId },
+        create: {
+          id: ownerId,
+          name: ownerId === SYSTEM_OWNER_ID ? "System Demo User" : null,
+        },
+        update: {},
+      });
+
+      const trip = await tx.trip.create({
+        data: {
+          ownerId,
+          destination: input.destination,
+          destinationCode: input.destinationCode,
+          startDate: new Date(`${input.startDate}T00:00:00Z`),
+          nights: input.nights,
+          companion: input.companion,
+          preferences: input.preferences as never,
+          status: "draft",
+          currentMode: "pre-travel",
+        },
+      });
+
+      for (const item of aiItems) {
+        await tx.itineraryItem.create({
+          data: {
+            tripId: trip.id,
+            dayIndex: item.dayIndex,
+            scheduledAt: new Date(item.scheduledAt),
+            durationMinutes: item.durationMinutes,
+            flexibility: item.flexibility,
+            priority: item.priority,
+            flexMinutes: item.flexMinutes,
+            name: item.name,
+            category: item.category,
+            locationLat: item.location.lat,
+            locationLng: item.location.lng,
+            locationAddress: item.location.address,
+            estimatedPrice: (item.estimatedPrice ?? null) as never,
+            evidence: item.evidence as never,
+          },
+        });
+      }
+
+      const fullItems = await tx.itineraryItem.findMany({
+        where: { tripId: trip.id },
+        include: { dependencies: { select: { dependencyId: true } } },
+        orderBy: { scheduledAt: "asc" },
+      });
+
+      return { trip, items: fullItems };
+    });
+
+    return {
+      trip: rowToTrip(result.trip),
+      items: result.items.map(rowToItineraryItem),
+    };
+  } catch (err) {
+    console.error("[trip.repository] createTripWithAiItems failed", err);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // 행 → 도메인 객체 변환
 // ═══════════════════════════════════════════════════════════════════
 

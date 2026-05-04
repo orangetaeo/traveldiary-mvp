@@ -14,6 +14,7 @@ import { revalidatePath } from "next/cache";
 import { writeAuditLog } from "@/lib/audit-log";
 import {
   createTripWithSeedItinerary,
+  createTripWithAiItems,
   updateTripMode,
   type CreateTripInput,
 } from "@/lib/repositories/trip.repository";
@@ -21,6 +22,10 @@ import { DEMO_TRIP_ID } from "@/lib/seed";
 import { isDbConnected } from "@/lib/prisma";
 import { getActorId, getOwnerId } from "@/lib/auth/session";
 import { canWriteTrip } from "@/lib/auth/authorize";
+import {
+  generateItinerary,
+  aiGenerationAvailable,
+} from "@/lib/services/itinerary-generator";
 import {
   buildModeTransitionMetadata,
   type ModeTransitionContext,
@@ -44,9 +49,47 @@ export async function createTripFromOnboarding(
   // 사이클 11b: 인증 시 user.id, 미인증 시 SYSTEM_OWNER_ID
   const ownerId = await getOwnerId();
 
+  // BLOCKER1: AI 일정 생성 시도 → 실패 시 시드 fallback
+  if (aiGenerationAvailable()) {
+    const aiResult = await generateItinerary({
+      destination: input.destination,
+      destinationCode: input.destinationCode,
+      startDate: input.startDate,
+      nights: input.nights,
+      companion: input.companion,
+      preferences: input.preferences,
+    });
+
+    if (aiResult.mode === "ok") {
+      const bundle = await createTripWithAiItems(input, aiResult.items, ownerId);
+      if (bundle) {
+        await writeAuditLog({
+          actorId: ownerId,
+          action: "trip.create",
+          resource: "Trip",
+          resourceId: bundle.trip.id,
+          after: {
+            destination: bundle.trip.destination,
+            nights: bundle.trip.nights,
+            companion: bundle.trip.companion,
+          },
+          metadata: {
+            source: "onboarding",
+            itemCount: bundle.items.length,
+            generatedBy: "ai",
+            model: aiResult.model,
+          },
+        });
+        revalidatePath(`/itinerary/${bundle.trip.id}`);
+        return { id: bundle.trip.id, demo: false };
+      }
+    }
+    // AI 실패 → 시드 fallback (아래로 진행)
+  }
+
+  // 시드 fallback (API 키 없거나 AI 생성 실패)
   const bundle = await createTripWithSeedItinerary(input, ownerId);
   if (!bundle) {
-    // DB 연결 실패 — 데모로 fallback (사용자에겐 동일 화면 노출)
     return { id: DEMO_TRIP_ID, demo: true };
   }
 
@@ -63,7 +106,7 @@ export async function createTripFromOnboarding(
     metadata: {
       source: "onboarding",
       itemCount: bundle.items.length,
-      demoSeed: "phu-quoc",
+      generatedBy: "seed",
     },
   });
 

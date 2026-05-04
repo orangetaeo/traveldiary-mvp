@@ -16,24 +16,26 @@ import { DEMO_TRIP_ID } from "@/lib/seed";
  * - 단계 텍스트는 환각 차단 5단계 검증 명시 (우리 정체성)
  */
 
-const STEPS = [
-  {
-    title: "취향 분석",
-    detail: "맛집 위주 · 사진 명소 · 균형 페이스",
-  },
-  {
-    title: "푸꾸옥 800곳 검토",
-    detail: "도보·차량·페리 동선 후보 정렬",
-  },
-  {
-    title: "동선 최적화",
-    detail: "사오비치 · 빈원더스 · 호국사 거리 계산",
-  },
-  {
-    title: "5단계 환각 차단 검증",
-    detail: "장소 존재 · 영업 상태 · 예약 · 거리 · 가격",
-  },
-];
+function getSteps(dest: string) {
+  return [
+    {
+      title: "취향 분석",
+      detail: "맛집 위주 · 사진 명소 · 균형 페이스",
+    },
+    {
+      title: `${dest} 인기 장소 검토`,
+      detail: "도보·차량 동선 후보 정렬",
+    },
+    {
+      title: "AI 일정 생성",
+      detail: "Claude AI가 최적 동선을 설계합니다",
+    },
+    {
+      title: "5단계 환각 차단 검증",
+      detail: "장소 존재 · 영업 상태 · 예약 · 거리 · 가격",
+    },
+  ];
+}
 
 const STEP_MS = 2800;
 
@@ -49,11 +51,14 @@ function ItineraryCreatingInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tripId = searchParams.get("trip") ?? DEMO_TRIP_ID;
+  const destination = searchParams.get("dest") ?? "베트남";
   const [active, setActive] = useState(0);
   const [done, setDone] = useState(false);
 
+  const steps = getSteps(destination);
+
   useEffect(() => {
-    if (active >= STEPS.length) {
+    if (active >= steps.length) {
       setDone(true);
       const t = setTimeout(() => {
         router.push(`/itinerary/${tripId}`);
@@ -62,9 +67,10 @@ function ItineraryCreatingInner() {
     }
     const t = setTimeout(() => setActive((a) => a + 1), STEP_MS);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, router, tripId]);
 
-  const progress = Math.min(100, Math.round((active / STEPS.length) * 100));
+  const progress = Math.min(100, Math.round((active / steps.length) * 100));
 
   return (
     <main className="min-h-screen p-5 flex flex-col">
@@ -74,7 +80,7 @@ function ItineraryCreatingInner() {
       <h1 className="text-[22px] font-medium leading-tight mb-1">
         AI가 당신의
         <br />
-        푸꾸옥 여행을 그리고 있어요
+        {destination} 여행을 그리고 있어요
       </h1>
       <p className="text-[12px] text-ink-soft mb-5">
         평균 12초 · 백그라운드에서 동작
@@ -94,7 +100,7 @@ function ItineraryCreatingInner() {
       </p>
 
       <ul className="space-y-3">
-        {STEPS.map((s, idx) => {
+        {steps.map((s, idx) => {
           const state =
             idx < active ? "done" : idx === active ? "active" : "pending";
           return (
