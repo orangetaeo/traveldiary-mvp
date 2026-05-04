@@ -425,7 +425,7 @@ export function recordSpend(
   const daily = state.totals.costUsd;
 
   if (t.dailyEmergency > 0 && daily >= t.dailyEmergency) {
-    triggerEmergency(daily, t.dailyEmergency, dir);
+    triggerEmergency(daily, t.dailyEmergency, dir, now);
     return;
   }
   if (t.dailyThrow > 0 && daily >= t.dailyThrow) {
@@ -514,6 +514,7 @@ function triggerEmergency(
   current: number,
   threshold: number,
   dir: string,
+  now: number = Date.now(),
 ): void {
   // 사이클 AAAA5b: 중복 가드 (T16 옵션 E).
   // - audit + console.error는 매번 (보안 신호 dedup 금지 — 반복 발생은 그 자체로 시그널)
@@ -537,7 +538,6 @@ function triggerEmergency(
   // 사이클 AAAA7: emergency 카운터 영속화 (BudgetState.emergency).
   // duplicate 호출도 카운트 증가 — 비정상 반복(비용 폭증 후 다량 호출)을 dashboard에서 가시.
   try {
-    const now = Date.now();
     const state = readBudgetState(now, dir);
     const nowIso = new Date(now).toISOString();
     const e = state.emergency ?? { triggers: 0, duplicates: 0 };
