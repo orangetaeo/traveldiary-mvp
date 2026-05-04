@@ -8,9 +8,11 @@
  * visa/utilities/weather는 city 시드에 채워지면 노출, 없으면 섹션 생략.
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { resolveCity, isVietnamCity } from "@/lib/seed/cities";
+import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { resolveTripsByCityCode, type ResolvedTrip } from "@/lib/services/resolved-trip";
 import { Badge } from "@/components/ui/Badge";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
@@ -49,6 +51,25 @@ const PHRASE_SITUATION_LABEL: Record<SituationalPhrase["situation"], string> = {
   drink: "음료",
 };
 
+const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://traveldiary-mvp-production.up.railway.app";
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const city = resolveCity(params.slug);
+  if (!city) return { title: "도시 가이드" };
+  const title = `${city.name} 여행 가이드 — 응급·결제·교통·시그니처`;
+  const description = `${city.country} ${city.name} 자유여행 완전 가이드. 응급 연락처, 결제·교통 정보, 상황별 베트남어 문장, 시그니처 코스.`;
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: `${BASE}/city/${params.slug}`,
+    },
+  };
+}
+
 export default function CityPage({ params }: { params: { slug: string } }) {
   // 사이클 H (ADR-032): resolveCity로 country 정규화 데이터 merge
   const city = resolveCity(params.slug);
@@ -64,6 +85,11 @@ export default function CityPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-32">
+      <BreadcrumbJsonLd items={[
+        { name: "홈", url: BASE },
+        { name: "여행", url: `${BASE}/trips` },
+        { name: city.name, url: `${BASE}/city/${params.slug}` },
+      ]} />
       {/* TopAppBar */}
       <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
         <div className="flex items-center gap-td-sm">

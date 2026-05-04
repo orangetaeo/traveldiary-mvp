@@ -11,6 +11,7 @@
  *   5. 출국 전 준비 체크리스트
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { resolveCity, isVietnamCity } from "@/lib/seed/cities";
@@ -38,6 +39,15 @@ const CATEGORY_ICON: Record<string, string> = {
   translator: "translate",
   consulate_after_hours: "schedule",
 };
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const city = resolveCity(params.slug);
+  if (!city) return { title: "응급 정보" };
+  return {
+    title: `${city.name} 응급 정보 — 병원·경찰·대사관·분실 가이드`,
+    description: `${city.country} ${city.name} 긴급 연락처, 영사관, 병원, 여권·카드·휴대폰 분실 대응 가이드.`,
+  };
+}
 
 export default function CityEmergencyPage({
   params,
