@@ -391,6 +391,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
             templateSize={DEFAULT_CHECKLIST_TEMPLATE.length}
             isPending={isPending}
             onAddTemplate={handleAddTemplate}
+            onAddManual={() => document.getElementById("add-checklist-form")?.scrollIntoView({ behavior: "smooth" })}
           />
         )}
 

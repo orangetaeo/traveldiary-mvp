@@ -62,7 +62,7 @@ export function AddChecklistForm({ isPending, onSubmit }: Props) {
   }
 
   return (
-    <section className="mt-td-lg bg-surface-card border border-divider rounded-xl p-td-md">
+    <section id="add-checklist-form" className="mt-td-lg bg-surface-card border border-divider rounded-xl p-td-md">
       <h3 className="text-td-card-title text-ink mb-td-sm">항목 추가</h3>
       <form onSubmit={handleSubmit} className="space-y-td-sm">
         <input
