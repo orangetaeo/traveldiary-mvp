@@ -42,6 +42,8 @@ export interface CreateVoteInput {
   question: string;
   optionLabels: string[];
   createdBy?: string | null;
+  /** BLOCKER6 (마이그 0014) — 작성자 user.id. NULL = legacy/DEMO/미인증. */
+  actorId?: string | null;
 }
 
 export async function createVoteRow(
@@ -59,6 +61,7 @@ export async function createVoteRow(
         question: input.question,
         options: options as never,
         createdBy: input.createdBy ?? undefined,
+        actorId: input.actorId ?? undefined,
       },
     });
     return rowToVote(row);
