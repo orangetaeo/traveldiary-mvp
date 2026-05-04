@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createTripFromOnboarding } from "@/actions/trip";
+import { trackFunnelStep } from "@/lib/analytics/funnel";
 
 /**
  * 온보딩 4단계
@@ -41,6 +42,10 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
 
+  // C2: 퍼널 트래킹 — 페이지 진입 + 단계 전환
+  useEffect(() => { trackFunnelStep("view"); }, []);
+  useEffect(() => { trackFunnelStep(`step${step}` as "step1"); }, [step]);
+
   // Step 2: 목적지
   const [destination, setDestination] = useState("푸꾸옥");
 
@@ -69,6 +74,7 @@ export default function OnboardingPage() {
   const [isPending, startTransition] = useTransition();
 
   const handleFinish = () => {
+    trackFunnelStep("submit", { destination, companion });
     startTransition(async () => {
       const result = await createTripFromOnboarding({
         destination,
@@ -82,6 +88,7 @@ export default function OnboardingPage() {
         },
         startDate,
       });
+      trackFunnelStep("complete", { destination, tripId: result.id });
       router.push(`/itinerary/creating?trip=${result.id}&dest=${encodeURIComponent(destination)}`);
     });
   };
