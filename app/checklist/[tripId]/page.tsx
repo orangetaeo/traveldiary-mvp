@@ -7,7 +7,13 @@
  *   - DB 연결 → listChecklistByTrip (시드 trip은 첫 mutation 시 자동 upsert)
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "체크리스트",
+  description: "여행 준비물 체크리스트 — 출발 전 꼭 챙겨야 할 것들",
+};
 import { ChecklistView } from "@/components/checklist/ChecklistView";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 import { listChecklistByTrip } from "@/lib/repositories/checklist.repository";

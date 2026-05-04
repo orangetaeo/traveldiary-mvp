@@ -3,7 +3,13 @@
  * 사이클 XX (ADR-044): 시드 trip 자동 부트스트래핑. 데모 분기 제거.
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "비용 관리",
+  description: "여행 경비 기록 및 정산 — 일별 지출 내역 관리",
+};
 import { CostView } from "@/components/cost/CostView";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 import { listCostByTrip } from "@/lib/repositories/cost.repository";

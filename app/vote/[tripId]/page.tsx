@@ -2,7 +2,13 @@
  * Vote 페이지 — C4 일행 투표 (사이클 E).
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "일행 투표",
+  description: "여행 일정 투표 — 일행과 함께 장소 선택",
+};
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 import { listVotesByTrip } from "@/lib/repositories/vote.repository";
 import { getDemoTrip, DEMO_TRIP_ID } from "@/lib/seed";
