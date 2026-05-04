@@ -51,6 +51,24 @@ ZZZ 회의(R1 CTO P0-1)에서 식별: AUTONOMY.md/HARNESS.md 어디에도 Sonnet
 - **Sonnet**: 70~75% (회의 + 구현 + 검증 본체)
 - **Opus**: 15~25% (R1 게이트 + M1 + 멀티파일 + 최종 QA)
 
+### 분포 측정 (사이클 AAAA5b 도입)
+
+`lib/autonomy/distribution.ts` — `recordSpend.byModel` 누적치를 read-only로 집계 (pickModel은 부수효과 없음 유지, R1+T13 결정).
+
+| 함수 | 반환 |
+|------|------|
+| `classifyModel(name)` | `"haiku"` / `"sonnet"` / `"opus"` / `null` (정규식 매칭) |
+| `getDailyModelDistribution(now?, dir?)` | `{ haiku, sonnet, opus, unclassified, total }` — 각 tier별 count/costUsd/pct (비용 가중) |
+| `isWithinTargetDistribution(dist)` | `{ ok, alerts: string[] }` — Haiku <5%, Sonnet <70%, Opus >25%, unclassified 검출 시 alert |
+
+**측정 단위**: 비용($) 기준 비율. 호출 횟수 기준은 단가 차이(Haiku $1 vs Opus $15)로 왜곡되므로 비용 가중.
+
+**일탈 시그널**:
+- Haiku <5% → Triage가 상위 모델로 처리됨 (Librarian이 Sonnet/Opus 사용)
+- Sonnet <70% → 회의·구현이 Opus 사용 의심
+- Opus >25% → Opus 호출 전 4-체크 미준수 의심
+- unclassified 검출 → 모델 name 패턴 검토 필요 (가격표 갱신 또는 정규식 보강)
+
 ## 트리거 (사이클 처리 상태)
 
 | 트리거 | 후속 | 상태 |
@@ -95,3 +113,4 @@ ZZZ 회의(R1 CTO P0-1)에서 식별: AUTONOMY.md/HARNESS.md 어디에도 Sonnet
 |------|-------|------|
 | 2026-05-04 | AAAA1 | 초기 작성 — 3-tier 매트릭스 + Opus 4-체크 + 분포 목표 |
 | 2026-05-04 | AAAA2 | 트리거 4건 처리 (pickModel + 비용 트래킹 + 임계치 + 영속 카운터(파일)). auto-degrade + pickModel 강제 throw + DB 승격은 AAAA3로 박제 |
+| 2026-05-04 | AAAA5b | 분포 측정 wiring — `lib/autonomy/distribution.ts` 신규 (classifyModel + getDailyModelDistribution + isWithinTargetDistribution). recordSpend.byModel 재활용 read-only reporter (R1+T13 옵션 C, pickModel 부수효과 거부). 비용 가중 측정. |

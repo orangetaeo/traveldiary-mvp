@@ -196,6 +196,27 @@ describe("budget — 자율 모드 비용 트래킹 + 임계치 (사이클 AAAA2
       expect(flag?.thresholdUsd).toBe(100);
     });
 
+    // 사이클 AAAA5b: emergency 중복 가드 (T16 옵션 E)
+    it("AAAA5b: emergency 중복 트리거 시 flag write skip + pausedAt 보존", async () => {
+      process.env.USAGE_BUDGET_DAILY_EMERGENCY = "100";
+      const firstNow = Date.UTC(2026, 4, 4, 13, 0, 0);
+      const secondNow = Date.UTC(2026, 4, 4, 14, 0, 0); // 1시간 후
+
+      // 1차 emergency
+      recordSpend({ provider: "anthropic", inputTokens: 0, outputTokens: 0, costUsd: 100, now: firstNow }, TMP_DIR);
+      const firstFlag = readAutonomyPausedFlag(TMP_DIR);
+      const firstPausedAt = firstFlag?.pausedAt;
+      expect(firstPausedAt).toBeDefined();
+
+      // 2차 emergency 트리거 — 같은 일자, 더 큰 비용
+      recordSpend({ provider: "anthropic", inputTokens: 0, outputTokens: 0, costUsd: 200, now: secondNow }, TMP_DIR);
+      const secondFlag = readAutonomyPausedFlag(TMP_DIR);
+      // pausedAt 보존 (첫 emergency 시각)
+      expect(secondFlag?.pausedAt).toBe(firstPausedAt);
+      // currentUsd/thresholdUsd도 첫 값 보존
+      expect(secondFlag?.currentUsd).toBe(100);
+    });
+
     it("clearAutonomyPausedFlag 호출 시 flag 삭제", () => {
       process.env.USAGE_BUDGET_DAILY_EMERGENCY = "10";
       const now = Date.UTC(2026, 4, 4, 13, 0, 0);

@@ -21,9 +21,23 @@ export type ExternalProvider =
   | "naver-search"
   | "ota";
 
+// 사이클 AAAA5b: attempted/succeeded/blocked 분리 카운터 (R1 옵션 B, T16 보안 가시성).
+// `count`는 기존 호환을 위해 succeeded count 의미 유지. assertQuota cap 비교도 succeeded 기준 유지(회귀 X).
+// `attempted` + `blocked.*`는 관측용 (DoS/공격자 시도 추적).
 interface QuotaState {
-  count: number;
+  count: number; // succeeded
+  attempted: number;
+  blocked: {
+    quota: number;
+    budget: number;
+    emergency: number;
+    total: number;
+  };
   resetAt: number;
+}
+
+function emptyBlockedCounter(): QuotaState["blocked"] {
+  return { quota: 0, budget: 0, emergency: 0, total: 0 };
 }
 
 const DEFAULT_DAILY_CAP: Record<ExternalProvider, number> = {
@@ -60,7 +74,9 @@ function getDailyCap(provider: ExternalProvider): number {
 
 export interface DailyUsage {
   provider: ExternalProvider;
-  count: number;
+  count: number; // succeeded (기존 호환)
+  attempted: number; // AAAA5b
+  blocked: { quota: number; budget: number; emergency: number; total: number }; // AAAA5b
   cap: number;
   remaining: number;
   resetAt: number;
@@ -73,11 +89,21 @@ export function getDailyUsage(
   const cap = getDailyCap(provider);
   const state = STATE.get(provider);
   if (!state || state.resetAt <= now) {
-    return { provider, count: 0, cap, remaining: cap, resetAt: getKstMidnightMs(now) };
+    return {
+      provider,
+      count: 0,
+      attempted: 0,
+      blocked: emptyBlockedCounter(),
+      cap,
+      remaining: cap,
+      resetAt: getKstMidnightMs(now),
+    };
   }
   return {
     provider,
     count: state.count,
+    attempted: state.attempted,
+    blocked: { ...state.blocked },
     cap,
     remaining: Math.max(0, cap - state.count),
     resetAt: state.resetAt,
@@ -108,10 +134,13 @@ export function assertQuota(
 }
 
 /**
- * 옵션 객체 진화 (사이클 AAAA2, 헬퍼 진화 #7).
+ * 옵션 객체 진화 (사이클 AAAA2 #7, AAAA5b #8).
  *
- * - scalar `number`: 기존 호출 패턴 (`now` 타임스탬프). 9 호출처 swap 0.
- * - 옵션 객체: `model`/`inputTokens`/`outputTokens`/`costUsd` 추가 시 `budget.ts`로 forward.
+ * #7 (AAAA2): scalar `number` fallback + `model`/`inputTokens`/`outputTokens`/`costUsd` 옵션. 9 호출처 swap 0.
+ * #8 (AAAA5b): `attempted`/`succeeded`/`blockedBy` 분리 카운터 (R1 옵션 B + T16 가시성).
+ *   - `blockedBy` 명시 시: attempted++, blocked[blockedBy]++, count(succeeded) 변화 X, budget forward X.
+ *   - 그 외 (default 또는 succeeded:true): attempted++, count++ (기존 동작 유지).
+ *   - 9 호출처 scalar/no-op 호출은 영향 0 (기존 의미 = succeeded).
  */
 export interface RecordCallOptions {
   now?: number;
@@ -119,6 +148,9 @@ export interface RecordCallOptions {
   inputTokens?: number;
   outputTokens?: number;
   costUsd?: number;
+  // AAAA5b
+  succeeded?: boolean; // default true (외부 응답 정상 수신)
+  blockedBy?: "quota" | "budget" | "emergency"; // 명시 시 차단된 시도로 기록
 }
 
 export function recordExternalCall(
@@ -129,12 +161,33 @@ export function recordExternalCall(
     typeof optsOrNow === "number" ? { now: optsOrNow } : optsOrNow;
   const now = opts.now ?? Date.now();
 
+  const isBlocked = opts.blockedBy !== undefined;
+  const isSucceeded = !isBlocked && (opts.succeeded ?? true);
+
   const state = STATE.get(provider);
   if (!state || state.resetAt <= now) {
-    STATE.set(provider, { count: 1, resetAt: getKstMidnightMs(now) });
+    const blocked = emptyBlockedCounter();
+    if (isBlocked) {
+      blocked[opts.blockedBy!] = 1;
+      blocked.total = 1;
+    }
+    STATE.set(provider, {
+      count: isSucceeded ? 1 : 0,
+      attempted: 1,
+      blocked,
+      resetAt: getKstMidnightMs(now),
+    });
   } else {
-    state.count += 1;
+    state.attempted += 1;
+    if (isSucceeded) state.count += 1;
+    if (isBlocked) {
+      state.blocked[opts.blockedBy!] += 1;
+      state.blocked.total += 1;
+    }
   }
+
+  // 차단된 시도는 토큰/$ forward 안 함 (외부 응답 미수신)
+  if (!isSucceeded) return;
 
   // 토큰/$ 정보가 있으면 budget.ts로 forward (fire-and-forget)
   const hasSpend =

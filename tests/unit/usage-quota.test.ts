@@ -155,6 +155,80 @@ describe("usage-quota — 외부 API 일일 cap (사이클 ZZZ 안전 킬스위�
     });
   });
 
+  describe("AAAA5b — attempted/succeeded/blockedBy 분리 (R1 옵션 B)", () => {
+    it("scalar 호출은 succeeded count++ + attempted++ (BC 보장)", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordExternalCall("anthropic", now);
+      const u = getDailyUsage("anthropic", now);
+      expect(u.count).toBe(1);
+      expect(u.attempted).toBe(1);
+      expect(u.blocked.total).toBe(0);
+    });
+
+    it("blockedBy='quota' 명시 시 attempted++ + blocked.quota++ + count 변화 X", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordExternalCall("anthropic", { now, blockedBy: "quota" });
+      const u = getDailyUsage("anthropic", now);
+      expect(u.count).toBe(0);
+      expect(u.attempted).toBe(1);
+      expect(u.blocked.quota).toBe(1);
+      expect(u.blocked.total).toBe(1);
+    });
+
+    it("blockedBy='budget' / 'emergency' 분리 카운터", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordExternalCall("anthropic", { now, blockedBy: "budget" });
+      recordExternalCall("anthropic", { now, blockedBy: "emergency" });
+      recordExternalCall("anthropic", { now }); // 정상
+      const u = getDailyUsage("anthropic", now);
+      expect(u.count).toBe(1);
+      expect(u.attempted).toBe(3);
+      expect(u.blocked.budget).toBe(1);
+      expect(u.blocked.emergency).toBe(1);
+      expect(u.blocked.quota).toBe(0);
+      expect(u.blocked.total).toBe(2);
+    });
+
+    it("blockedBy 명시 시 budget forward 안 됨 (외부 응답 미수신)", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordExternalCall("anthropic", {
+        now,
+        blockedBy: "budget",
+        // 차단된 시도이므로 토큰/$ 정보가 있어도 무시되어야 함 (방어적)
+        inputTokens: 1000,
+        outputTokens: 500,
+        costUsd: 100,
+      });
+      const u = getDailyUsage("anthropic", now);
+      expect(u.attempted).toBe(1);
+      expect(u.count).toBe(0);
+    });
+
+    it("succeeded:false 명시 시도 (응답 실패) → attempted++ + count 변화 X", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordExternalCall("anthropic", { now, succeeded: false });
+      const u = getDailyUsage("anthropic", now);
+      expect(u.attempted).toBe(1);
+      expect(u.count).toBe(0);
+      expect(u.blocked.total).toBe(0); // succeeded:false는 blocked가 아님
+    });
+
+    it("assertQuota cap 비교는 succeeded count 기준 (회귀 보장)", () => {
+      process.env.QUOTA_DAILY_CAP_ANTHROPIC = "2";
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      // blocked 시도 100번도 cap 영향 X
+      for (let i = 0; i < 100; i++) {
+        recordExternalCall("anthropic", { now, blockedBy: "budget" });
+      }
+      expect(() => assertQuota("anthropic", now)).not.toThrow();
+
+      // succeeded 2번 → cap 도달
+      recordExternalCall("anthropic", now);
+      recordExternalCall("anthropic", now);
+      expect(() => assertQuota("anthropic", now)).toThrow(QuotaExceededError);
+    });
+  });
+
   describe("KST 자정 자동 리셋", () => {
     it("resetAt 도달 시 count=0으로 리셋", () => {
       const before = Date.UTC(2026, 4, 4, 14, 0, 0); // 2026-05-04 23:00 KST
