@@ -48,7 +48,7 @@ describe("C3 — 공유 페이지 보기 전용 배너", () => {
 
   it("보기 전용 배너 존재", () => {
     expect(src).toContain("보기 전용");
-    expect(src).toContain("visibility");
+    expect(src).toContain("lock");
   });
 
   it("내 여행 만들기 CTA 링크", () => {
@@ -56,8 +56,20 @@ describe("C3 — 공유 페이지 보기 전용 배너", () => {
     expect(src).toContain('href="/onboarding"');
   });
 
-  it("purple-soft 배경 배너 스타일", () => {
-    expect(src).toContain("bg-purple-soft");
+  it("회색 배경 배너 스타일 (C3 DoD: 회색 배지)", () => {
+    expect(src).toContain("bg-gray-100");
+    expect(src).toContain("text-gray-600");
+  });
+
+  it("아이템 카드에 보기 전용 배지", () => {
+    expect(src).toContain("bg-gray-200");
+    // 카드 내부에 "보기 전용" 배지 존재
+    const cardSection = src.slice(src.indexOf("<article"));
+    expect(cardSection).toContain("보기 전용");
+  });
+
+  it("헤더 회색 배지", () => {
+    expect(src).toContain("bg-gray-200 text-gray-600");
   });
 });
 
