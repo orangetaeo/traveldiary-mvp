@@ -28,6 +28,7 @@ import { kakaoAvailable } from "@/lib/auth/kakao";
 import { jwtAvailable } from "@/lib/auth/jwt";
 import { prisma } from "@/lib/prisma";
 
+import { OrganizationJsonLd, WebAppJsonLd } from "@/components/seo/JsonLd";
 import { todayISO } from "@/lib/seed/demo-date";
 const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
 
@@ -83,6 +84,19 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
+      <OrganizationJsonLd
+        name="TRAVELDIARY"
+        url="https://traveldiary-mvp-production.up.railway.app"
+        description="베트남 자유여행자를 위한 AI 여행 동반자"
+        logo="https://traveldiary-mvp-production.up.railway.app/icon-512.png"
+      />
+      <WebAppJsonLd
+        name="TRAVELDIARY"
+        url="https://traveldiary-mvp-production.up.railway.app"
+        description="AI가 추천한 일정에 근거까지. 베트남 6개 도시 완전 지원."
+        applicationCategory="TravelApplication"
+        operatingSystem="Web"
+      />
       {/* TopAppBar */}
       <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
         <div className="flex items-center gap-td-sm">
