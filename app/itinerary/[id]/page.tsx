@@ -12,6 +12,7 @@
  * 사이클 5b 옵션 C (2026-04-30): Stitch HTML 변환.
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ItineraryView } from "@/components/itinerary/ItineraryView";
@@ -24,6 +25,19 @@ import { BottomNav } from "@/components/ui/BottomNav";
 import { todayISO } from "@/lib/seed/demo-date";
 
 const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const bundle = (await fetchTripFromDb(params.id)) ?? getDemoTrip(params.id);
+  if (!bundle) return { title: "일정" };
+  const { trip } = bundle;
+  const title = `${trip.destination} ${trip.nights}박 ${trip.nights + 1}일 일정`;
+  const description = `${trip.destination} 자유여행 일정. AI가 검증한 맛집·명소·쇼핑 코스.`;
+  return { title, description, openGraph: { title, description, type: "website" } };
+}
 
 export default async function ItineraryPage({
   params,
