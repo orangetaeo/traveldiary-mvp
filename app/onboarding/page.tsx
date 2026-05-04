@@ -20,8 +20,10 @@ type Step = 1 | 2 | 3 | 4;
 const DESTINATIONS = [
   { flag: "🇻🇳", name: "푸꾸옥", support: "완전 지원" },
   { flag: "🇻🇳", name: "다낭", support: "완전 지원" },
-  { flag: "🇯🇵", name: "도쿄", support: "기본 지원" },
-  { flag: "🇹🇭", name: "방콕", support: "기본 지원" },
+  { flag: "🇻🇳", name: "호치민", support: "완전 지원" },
+  { flag: "🇻🇳", name: "하노이", support: "완전 지원" },
+  { flag: "🇻🇳", name: "나트랑", support: "완전 지원" },
+  { flag: "🇻🇳", name: "달랏", support: "완전 지원" },
 ];
 
 const COMPANIONS = [
@@ -244,7 +246,7 @@ function Step2({
       </button>
       <h2 className="text-xl font-medium mb-1.5">어디로 떠나세요?</h2>
       <p className="text-[13px] text-ink-soft mb-4">
-        도쿄 · 오사카 · 방콕은 모든 기능이 다 작동해요
+        베트남 6개 도시 완전 지원 — AI 일정 + 실시간 도우미
       </p>
 
       <input
@@ -255,7 +257,7 @@ function Step2({
       <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
         한국인이 자주 가는 곳
       </p>
-      <div className="grid grid-cols-2 gap-2 mb-3">
+      <div className="grid grid-cols-3 gap-2 mb-3">
         {DESTINATIONS.map((d) => (
           <button
             key={d.name}
@@ -485,7 +487,10 @@ function formatStartDateKo(iso: string): string {
 }
 
 function destinationToCode(name: string): string {
-  return ({ "푸꾸옥": "PQC", "다낭": "DAD", "도쿄": "TYO", "방콕": "BKK" } as Record<string, string>)[name] ?? "PQC";
+  return ({
+    "푸꾸옥": "PQC", "다낭": "DAD", "호치민": "SGN",
+    "하노이": "HAN", "나트랑": "NHA", "달랏": "DLI",
+  } as Record<string, string>)[name] ?? "PQC";
 }
 
 function paceLabelToCode(label: string): "relaxed" | "balanced" | "packed" {
