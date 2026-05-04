@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/trips`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/onboarding`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/translate`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/guide`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
   ];
 
   const cityPages: MetadataRoute.Sitemap = cities.flatMap((city) => [
