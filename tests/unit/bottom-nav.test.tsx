@@ -34,12 +34,12 @@ describe("BottomNav — 슬롯 렌더링", () => {
     expect(html).toContain(">Profile<");
   });
 
-  it("href 매핑 — / / /trips / /itinerary/{DEMO_TRIP_ID} / /onboarding", () => {
+  it("href 매핑 — / / /trips / /itinerary/{DEMO_TRIP_ID} / /profile", () => {
     const html = render(<BottomNav active="home" />);
     expect(html).toContain('href="/"');
     expect(html).toContain('href="/trips"');
     expect(html).toContain(`href="/itinerary/${DEMO_TRIP_ID}"`);
-    expect(html).toContain('href="/onboarding"');
+    expect(html).toContain('href="/profile"');
   });
 });
 

@@ -36,7 +36,7 @@ function buildSlots(): SlotDef[] {
       icon: "calendar_today",
       label: "Itinerary",
     },
-    { key: "profile", href: "/onboarding", icon: "person", label: "Profile" },
+    { key: "profile", href: "/profile", icon: "person", label: "Profile" },
   ];
 }
 
