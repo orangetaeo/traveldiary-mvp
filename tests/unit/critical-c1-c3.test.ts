@@ -69,6 +69,6 @@ describe("C2 — 비용 빈 상태 개선", () => {
   });
 
   it("안내 문구 개선", () => {
-    expect(src).toContain("위의 입력 폼에서");
+    expect(src).toContain("여행 경비를 기록하면");
   });
 });
