@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { Suspense, useState, useTransition, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createTripFromOnboarding } from "@/actions/trip";
 import { trackFunnelStep } from "@/lib/analytics/funnel";
@@ -39,6 +39,14 @@ const PACES = ["여유롭게", "균형있게", "최대한 많이"];
 const EXCLUDES = ["새우 알레르기", "매운 거 못 먹음", "비건"];
 
 export default function OnboardingPage() {
+  return (
+    <Suspense>
+      <OnboardingInner />
+    </Suspense>
+  );
+}
+
+function OnboardingInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ref = searchParams.get("ref") ?? undefined; // C2: 초대 코드 추적
