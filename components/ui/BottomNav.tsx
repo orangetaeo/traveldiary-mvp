@@ -62,6 +62,7 @@ export function BottomNav({ active }: BottomNavProps) {
           >
             <span
               className={`material-symbols-outlined ${isActive ? "filled" : ""}`}
+              aria-hidden="true"
             >
               {slot.icon}
             </span>
