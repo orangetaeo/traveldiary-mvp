@@ -90,7 +90,10 @@ export type AuditAction =
   // 자율 모드 안전 회로 (사이클 AAAA3 — fail-closed + quarantine + 입력 가드)
   | "usage.budget.invalid_input"
   | "usage.budget.state_corrupt"
-  | "autonomy.flag_corrupt";
+  | "autonomy.flag_corrupt"
+  // 사이클 AAAA4 P0 — quarantine 무한 루프 가드
+  | "quarantine.rename_failed"
+  | "quarantine.cap_exceeded";
 
 export interface AuditLogInput {
   actorId?: string | null;
