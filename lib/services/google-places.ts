@@ -116,6 +116,8 @@ export async function findPlaceFromText(
     assertQuota("google-places");
   } catch (err) {
     if (err instanceof QuotaExceededError) {
+      // 사이클 AAAA7: 차단 시도도 기록 (anthropic-claude.ts AAAA5b 답습).
+      recordExternalCall("google-places", { blockedBy: "quota" });
       return {
         mode: "error",
         code: "quota_exceeded",
@@ -214,6 +216,8 @@ export async function getPlaceDetails(
     assertQuota("google-places");
   } catch (err) {
     if (err instanceof QuotaExceededError) {
+      // 사이클 AAAA7: 차단 시도도 기록 (anthropic-claude.ts AAAA5b 답습).
+      recordExternalCall("google-places", { blockedBy: "quota" });
       return {
         mode: "error",
         code: "quota_exceeded",

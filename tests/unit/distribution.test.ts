@@ -6,8 +6,13 @@ import {
   classifyModel,
   getDailyModelDistribution,
   isWithinTargetDistribution,
+  getEmergencyStats,
 } from "@/lib/autonomy/distribution";
-import { recordSpend, __resetBudgetForTests } from "@/lib/autonomy/budget";
+import {
+  recordSpend,
+  readBudgetState,
+  __resetBudgetForTests,
+} from "@/lib/autonomy/budget";
 
 const SAVED_ENV = { ...process.env };
 let TMP_DIR: string;
@@ -151,6 +156,62 @@ describe("distribution — ADR-047 모델 라우팅 분포 측정 (사이클 AAA
       const d = getDailyModelDistribution(now, TMP_DIR);
       const result = isWithinTargetDistribution(d);
       expect(result.alerts.some((a) => a.includes("unclassified"))).toBe(true);
+    });
+  });
+
+  describe("getEmergencyStats — emergency 트리거 카운터 (사이클 AAAA7)", () => {
+    it("초기 상태는 triggers=0 + duplicates=0", () => {
+      const stats = getEmergencyStats(Date.now(), TMP_DIR);
+      expect(stats.triggers).toBe(0);
+      expect(stats.duplicates).toBe(0);
+      expect(stats.firstAt).toBeUndefined();
+      expect(stats.lastAt).toBeUndefined();
+    });
+
+    it("emergency 도달 1회 시 triggers=1 + duplicates=0 + firstAt=lastAt", () => {
+      // emergency $200 도달 → 1번째 호출 (duplicate=false)
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordSpend(
+        { provider: "anthropic", model: "claude-opus-4-7", inputTokens: 0, outputTokens: 0, costUsd: 250, now },
+        TMP_DIR,
+      );
+      const stats = getEmergencyStats(now, TMP_DIR);
+      expect(stats.triggers).toBe(1);
+      expect(stats.duplicates).toBe(0);
+      expect(stats.firstAt).toBeDefined();
+      expect(stats.lastAt).toBe(stats.firstAt);
+    });
+
+    it("emergency 반복 호출 시 triggers/duplicates 증분 (AAAA5b duplicate 메타 운영 활용)", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      // 1번째: flag 작성 (duplicate=false)
+      recordSpend(
+        { provider: "anthropic", model: "claude-opus-4-7", inputTokens: 0, outputTokens: 0, costUsd: 250, now },
+        TMP_DIR,
+      );
+      // 2~3번째: flag 이미 존재 (duplicate=true)
+      recordSpend(
+        { provider: "anthropic", model: "claude-opus-4-7", inputTokens: 0, outputTokens: 0, costUsd: 1, now: now + 1 },
+        TMP_DIR,
+      );
+      recordSpend(
+        { provider: "anthropic", model: "claude-opus-4-7", inputTokens: 0, outputTokens: 0, costUsd: 1, now: now + 2 },
+        TMP_DIR,
+      );
+      const stats = getEmergencyStats(now + 2, TMP_DIR);
+      expect(stats.triggers).toBe(3);
+      expect(stats.duplicates).toBe(2);
+    });
+
+    it("BudgetState.emergency 영속화 — 재 read 시 보존", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordSpend(
+        { provider: "anthropic", model: "claude-opus-4-7", inputTokens: 0, outputTokens: 0, costUsd: 250, now },
+        TMP_DIR,
+      );
+      const state = readBudgetState(now, TMP_DIR);
+      expect(state.emergency).toBeDefined();
+      expect(state.emergency?.triggers).toBe(1);
     });
   });
 });

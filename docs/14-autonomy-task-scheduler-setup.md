@@ -125,7 +125,41 @@ Register-ScheduledTask `
 2. **msg toast** (`msg * /TIME:300`) — Win11 Pro/Server는 기본, Home은 부재 가능 (try/catch fallback)
 3. **MEMORY.md 🔴 자동 갱신** — CCCC에서 Stop task에 `Update-MemoryAlert.ps1` 추가 검토 (현재 미구현)
 
-### 3-3. 등록 확인
+### 3-3. Quarantine Cleanup Task (KST 09:30 매일, 사이클 AAAA6 P1)
+
+자율 모드 안전 회로(AAAA3/AAAA4)가 손상 파일을 `memory/quarantine/`에 격리한다. 30일 경과한 격리 파일을 자동 삭제하여 무한 누적 차단.
+
+```powershell
+$workspace = "c:\Projects\traveldiary-mvp"
+$cleanupAction = New-ScheduledTaskAction `
+  -Execute "node" `
+  -Argument "scripts/quarantine-cleanup.mjs --retention-days=30" `
+  -WorkingDirectory $workspace
+
+$cleanupTrigger = New-ScheduledTaskTrigger -Daily -At "09:30"
+
+Register-ScheduledTask `
+  -TaskName "Claude Autonomy Quarantine Cleanup" `
+  -Description "memory/quarantine/ 30일 sweep (사이클 AAAA6 P1)" `
+  -Action $cleanupAction `
+  -Trigger $cleanupTrigger `
+  -RunLevel Highest
+```
+
+**옵션**:
+- `--dry-run`: 삭제 안 하고 목록만 출력 (첫 1주 권장)
+- `--retention-days=N`: 보존 기간 (default 30)
+- `QUARANTINE_DEAD.flag`는 운영자 직접 처리 대상이므로 자동 삭제 X (사이클 AAAA4 P0)
+
+**GitHub Actions 백업**: `.github/workflows/quarantine-cleanup.yml`이 매일 KST 09:30 동시 실행 (sanity probe — repo memory dir은 .gitignore로 비어 있음).
+
+**npm 명령어**:
+```powershell
+npm run quarantine:cleanup -- --dry-run
+npm run quarantine:cleanup -- --retention-days=60
+```
+
+### 3-4. 등록 확인
 
 ```powershell
 Get-ScheduledTask -TaskName "Claude Autonomy*" | Format-Table TaskName, State, NextRunTime
