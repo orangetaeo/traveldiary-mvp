@@ -27,4 +27,5 @@ memory/autonomy_counter_*.json
 memory/project_gate_batch_*.md
 memory/project_context_handoff_*.md
 memory/.lock_cycle_*.json
+memory/AWAKE_CHECK_REQUIRED.txt
 .claude/scheduled_tasks.lock

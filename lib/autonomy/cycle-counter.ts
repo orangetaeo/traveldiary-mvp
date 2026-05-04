@@ -150,3 +150,32 @@ export function isAutonomyHours(now: number = Date.now()): boolean {
   const hour = kst.getUTCHours();
   return hour >= 22 || hour < 9;
 }
+
+export class NotAutonomyHoursError extends Error {
+  readonly nowKstIso: string;
+  constructor(now: number) {
+    const kstIso = new Date(now + KST_OFFSET_MS).toISOString().replace("Z", "+09:00");
+    super(`Not in autonomy hours (KST 22:00~09:00). Now KST: ${kstIso}`);
+    this.name = "NotAutonomyHoursError";
+    this.nowKstIso = kstIso;
+  }
+}
+
+/**
+ * 자율 모드 사이클 진입 통합 게이트 (사이클 BBBB).
+ *
+ * STEP 1 Triage 진입 시 호출. 다음 모두 통과해야 사이클 시작 허용:
+ *   1. 현재 KST가 22:00~09:00 자율 시간대 (NotAutonomyHoursError)
+ *   2. 오늘 사이클 수 < cap (CycleCapExceededError)
+ *
+ * 깨어있는 시간(09:00~22:00)이나 cap 도달 시 throw → STEP 1 정지.
+ */
+export function assertAutonomyEntry(
+  now: number = Date.now(),
+  dir: string = getMemoryDir(),
+): void {
+  if (!isAutonomyHours(now)) {
+    throw new NotAutonomyHoursError(now);
+  }
+  assertCycleCap(now, dir);
+}

@@ -17,6 +17,7 @@
 | **다중 검증 통과 없이 완료 선언 금지** | "한 번 만들어 굴러가니 끝" 금지. 자체 → 리뷰 → QA → CTO 4단계 |
 | **감사 로그 없이 변경 API 금지** | POST/PUT/PATCH/DELETE는 `writeAuditLog()` 동시 구현 |
 | **회고 없이 세션 종료 금지** | T18 Self-Evolution Coach가 학습 메모 저장 |
+| **자율 모드는 PRD를 따른다** | 시나리오 B 자율 모드 활성. 다음 사이클은 [docs/13-mvp-scenario-b-prd.md](../docs/13-mvp-scenario-b-prd.md) §3 시퀀스에서 자동 식별. 게이트 매트릭스는 [AUTONOMY.md](AUTONOMY.md) §1. |
 
 ---
 
@@ -67,6 +68,19 @@
    │  - T18 Self-Evolution Coach가 학습 메모 저장       │
    │  - 새 패턴 발견 시 신규 스킬 추가 또는 기존 갱신   │
    │  - memory/MEMORY.md 업데이트                       │
+   │                                                     │
+   │  자율 모드 한정 (사이클 BBBB):                     │
+   │  - incrementCycleCount(cycleId) 호출               │
+   │  - memory/ENTRY.md "1. 다음 사이클" 1줄 갱신       │
+   │  - 다음 사이클이 자율 영역(Phase 1/6/리팩터)이고   │
+   │    KST 22:00~09:00 + cap 미도달이면:               │
+   │    ScheduleWakeup(                                 │
+   │      prompt="<<autonomous-loop-dynamic>>",         │
+   │      delaySeconds=60~120,                          │
+   │      reason="next cycle <ID>"                      │
+   │    ) 호출 → 같은 세션 내 다음 사이클 자동 시동     │
+   │  - 게이트 발생 또는 자율 시간 종료(09:00):         │
+   │    ScheduleWakeup 호출 안 함 → 세션 자연 종료     │
    └─────────────────────────────────────────────────────┘
 ```
 
