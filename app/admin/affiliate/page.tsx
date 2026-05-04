@@ -136,6 +136,73 @@ export default async function AffiliateDashboard({
               )}
             </section>
 
+            {/* C4 — 도시별 */}
+            <section className="mb-td-lg">
+              <h2 className="text-td-card-title text-ink mb-td-sm">도시별</h2>
+              {summary.byCity.length === 0 ? (
+                <p className="text-td-meta text-ink-soft text-center py-td-md bg-surface-card border border-divider rounded-xl">
+                  도시별 데이터 없음
+                </p>
+              ) : (
+                <div className="space-y-td-xs">
+                  {summary.byCity.map((row) => (
+                    <article
+                      key={row.city}
+                      className="bg-surface-card border border-divider rounded-xl p-td-sm flex items-center justify-between"
+                    >
+                      <span className="text-td-body text-ink font-medium">
+                        {row.cityLabel}
+                      </span>
+                      <div className="text-right">
+                        <p className="text-td-card-title text-ink tabular-nums">
+                          {row.clicks.toLocaleString()}회
+                        </p>
+                        <p className="text-td-caption text-success-deep tabular-nums">
+                          ≈ {row.estimatedCommissionKrw.toLocaleString()}원
+                        </p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* C4 — 인기 오퍼 */}
+            <section className="mb-td-lg">
+              <h2 className="text-td-card-title text-ink mb-td-sm">인기 오퍼 Top 10</h2>
+              {summary.topOffers.length === 0 ? (
+                <p className="text-td-meta text-ink-soft text-center py-td-md bg-surface-card border border-divider rounded-xl">
+                  오퍼 데이터 없음
+                </p>
+              ) : (
+                <ul className="space-y-td-xs">
+                  {summary.topOffers.map((row, i) => (
+                    <li
+                      key={row.offerId}
+                      className="bg-surface-card border border-divider rounded-xl p-td-sm flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-td-xs min-w-0">
+                        <span className="text-td-caption text-ink-mute tabular-nums w-6 text-center flex-shrink-0">
+                          {i + 1}
+                        </span>
+                        <p className="text-td-meta text-ink truncate">
+                          {row.offerId}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-td-xs">
+                        <p className="text-td-meta text-ink tabular-nums">
+                          {row.clicks}회
+                        </p>
+                        <p className="text-td-caption text-success-deep tabular-nums">
+                          ≈ {row.estimatedCommissionKrw.toLocaleString()}원
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
             {/* 최근 클릭 */}
             <section>
               <h2 className="text-td-card-title text-ink mb-td-sm">최근 클릭</h2>
