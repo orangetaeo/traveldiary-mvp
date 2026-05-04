@@ -9,9 +9,9 @@
 ---
 
 ## 1. 다음 사이클
-**AAAA3** — T12+T13 비차단 백로그 P0 2건 (flag 손상 fail-closed + 음수 costUsd 가드) + P1 1건 (JSON 손상 시 데이터 보존). 자율 시동 안전 회로 보강 — R1 권장 1순위.
+**AAAA4** — AAAA3 + AAAA2 NON-BLOCKING 잔여 정리: P0 quarantine 무한 루프 가드 (rename 실패 후 재시도 차단) + P1 30일 quarantine cleanup cron + P2 getKstDateString DRY · emergency 중복 가드 · anthropic usage 부재 silent bypass · ADR-047 분포 측정 wiring.
 
-대안 백로그 (P2): getKstDateString DRY, emergency 중복 가드, anthropic usage 부재 silent bypass, ADR-047 분포 측정 wiring.
+대안 (R1 권장): AAAA4 머지 + 1주일 cap=2~3 실측 후 cap=10 본격 자율 시동 검토 (2026-05-11 이후).
 
 ## 2. 활성 게이트 (batch)
 **없음.** 게이트 발생 시 `memory/project_gate_batch_YYYY_MM_DD.md` 위치 + 본 라인 `🔴 활성 게이트 N건` 갱신.
@@ -40,3 +40,22 @@
 ```
 
 자율 시간대 외이거나 cap 도달 시: `NotAutonomyHoursError` / `CycleCapExceededError` throw → 사용자 호출 (게이트 batch 누적).
+
+## 6. 손상 복구 절차 (사이클 AAAA3 도입)
+
+자율 모드 안전 회로가 fail-closed로 동작하면 손상된 메모리 파일을 격리(`memory/quarantine/`)하고 자율 진입을 차단한다. 사용자 09:00 깨어나면 다음 절차로 복구:
+
+```
+1. memory/quarantine/ 검사
+   ↓ 손상 파일 종류 확인 (AUTONOMY_PAUSED.flag.corrupt-* / usage_quota_*.json.corrupt-*)
+2. audit log에서 원인 이벤트 확인 (autonomy.flag_corrupt / usage.budget.state_corrupt)
+   ↓ severity:"security" metadata 포함
+3. 원인 분석 후 수동 복구:
+   - flag 손상 → 진짜 emergency였다면 그대로 두고 사용자가 PR 머지 후 clearAutonomyPausedFlag(scripts/clear-autonomy-paused.ts) 실행
+   - state 손상 → 그날 누적 데이터 유실 OK. 다음 호출부터 default state로 재시작
+4. 30일 후 quarantine 자동 정리 (AAAA4 백로그)
+```
+
+**중요 (T16 보안)**:
+- `clearAutonomyPausedFlag`는 `scripts/` 또는 `tests/`에서만 호출 허용 (ESLint `no-restricted-imports` 강제).
+- 자율 사이클 코드 경로에서 자동 호출 차단 — 손상으로 인한 fail-closed가 사용자 인지 없이 우회되는 것 방지.

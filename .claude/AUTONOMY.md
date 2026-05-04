@@ -52,6 +52,25 @@
 | **모델 라우팅** (ADR-047) | Triage=Haiku / 회의·구현·검증=Sonnet / R1게이트·M1·5+ 파일·보안=Opus. 분포 목표 H 5~10% / S 70~75% / O 15~25%. | `docs/adr/ADR-047-model-routing-policy.md` — 권장만, 강제 메커니즘은 AAAA2 |
 | **Opus 호출 전 4-체크** | 5+ 파일 / 아키텍처·보안 / Sonnet 2회 실패 / release 전 최종 QA — 모두 Yes일 때만 Opus | ADR-047 |
 
+### 0.5.5 안전 회로 fail-closed + quarantine + 입력 가드 (사이클 AAAA3 도입)
+
+| 항목 | 값 | 위치 |
+|------|----|------|
+| **flag 손상 fail-closed** | `readAutonomyPausedFlag` JSON parse 실패 또는 알 수 없는 reason → quarantine + sentinel `{reason:"flag.corrupt"}` 반환. `assertBudget`/`assertAutonomyEntry`가 sentinel 보고 throw → 자율 진입 차단 | `lib/autonomy/budget.ts` |
+| **state 손상 quarantine** | `readBudgetState` JSON parse 실패 → `memory/quarantine/usage_quota_*.json.corrupt-<timestamp>` 이동 + audit + default 시작 (그날 누적 유실, 다음 호출부터 0) | 동일 |
+| **음수/NaN/Infinity 입력 가드** | `recordSpend` 진입 시 `Number.isFinite + >= 0` 검사. 위반 시 audit `usage.budget.invalid_input` (severity:"security") + silent skip (외부 응답은 사용 가능, 누적만 0) | 동일 |
+| **quarantine 디렉토리** | `memory/quarantine/` (`.gitignore` 등록 — git 추적 차단). 30일 자동 정리는 AAAA4 백로그 | `.gitignore` |
+| **audit log 3 키 추가** | `usage.budget.invalid_input` / `usage.budget.state_corrupt` / `autonomy.flag_corrupt` (모두 severity:"security" metadata) | `lib/audit-log.ts` |
+| **`clearAutonomyPausedFlag` 자동 호출 차단** | ESLint `no-restricted-imports` — `scripts/` + `tests/` 외 호출 차단. 손상 fail-closed 우회 방지 | `.eslintrc.json` |
+| **손상 복구 절차** | ENTRY.md "6. 손상 복구" — 09:00 사용자 검사 → 원인 분석 → 수동 `clearAutonomyPausedFlag` 호출 (CLI/스크립트만) | `memory/ENTRY.md` |
+
+**flag reason 화이트리스트** (T12 권고):
+- `budget.emergency` — AAAA2 emergency 도달
+- `manual` — 수동 일시 정지 (향후)
+- `flag.corrupt` — AAAA3 fail-closed sentinel
+
+이 외 reason은 손상으로 간주하여 quarantine.
+
 ### 0.5.4 비용 트래킹 + 임계치 + 모델 라우팅 헬퍼 (사이클 AAAA2 도입)
 
 | 항목 | 값 | 위치 |
@@ -300,5 +319,6 @@ PRD §4 매트릭스에서 자율/게이트 판정
 | 2026-05-04 | AAAA1 | §0.5.1 보강 + §0.5.2 신규: 6 외부 API 서비스 모두 quota wrap (vision/places/directions/naver/ota{agoda,kkday,klook}) + grep coverage 회귀 + `lib/autonomy/cycle-counter.ts` 메모리 파일 기반 일일 카운터 + `isAutonomyHours()` + ADR-047 모델 라우팅 정책. AAAA2 미룸: 영속 카운터 / 비용 트래킹 / 임계치 / pickModel 헬퍼. |
 | 2026-05-04 | BBBB | §0.5.3 신규 자율 시동 절차: `assertAutonomyEntry()` 시각+카운터 통합 게이트 + `memory/ENTRY.md` 5줄 진입 카드 + `docs/14-autonomy-task-scheduler-setup.md` Windows Task Scheduler 가이드(22:00 시동/09:00 종료) + HARNESS.md STEP 5 ScheduleWakeup 박제. AAAA2 미룸: 비용 트래킹 / 영속 카운터 / pickModel. |
 | 2026-05-04 | AAAA2 | §0.5.4 신규 비용 트래킹 + 임계치 + 모델 라우팅: `lib/autonomy/budget.ts` 비용 누적+3단계 임계치+emergency flag + `lib/autonomy/pick-model.ts` ADR-047 매트릭스 헬퍼 + `lib/autonomy/model-pricing.ts` Claude 단가표 + `assertAutonomyEntry()` 보강(flag 검사 우선) + audit log 4 key 등록 + env 7개. AAAA3 미룸: auto-degrade / pickModel 강제 throw / DB 영속화. |
+| 2026-05-04 | AAAA3 | §0.5.5 신규 안전 회로 fail-closed: `readAutonomyPausedFlag` 손상 시 quarantine + sentinel 반환 (이전 fail-open) + `readBudgetState` 손상 시 quarantine + default + `recordSpend` 음수/NaN 가드 + audit + silent skip + `memory/quarantine/` 디렉토리 + `.gitignore` 등록 + audit log 3 key 추가 (모두 severity:"security") + ESLint `no-restricted-imports` `clearAutonomyPausedFlag` 자동 호출 차단 + ENTRY.md "6. 손상 복구" 절차. AAAA4 미룸: 30일 quarantine cleanup, getKstDateString DRY, emergency 중복 가드, anthropic usage silent bypass, ADR-047 분포 측정. |
 
 > 이후 변경은 게이트 매트릭스 보강이나 자동화 영역 확대 시 갱신.

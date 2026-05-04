@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, existsSync } from "fs";
+import { mkdtempSync, rmSync, existsSync, writeFileSync, readdirSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import {
@@ -258,6 +258,150 @@ describe("budget — 자율 모드 비용 트래킹 + 임계치 (사이클 AAAA2
       // 다른 날짜로 read → mismatch (sentinel과 무관, 파일 자체가 다른 일자임)
       const state = readBudgetState(before, TMP_DIR);
       expect(state.totals.costUsd).toBeCloseTo(1, 6);
+    });
+  });
+
+  describe("AAAA3 — flag 손상 fail-closed (T12+T16)", () => {
+    it("flag JSON 잘림 → quarantine + sentinel reason='flag.corrupt'", () => {
+      const flagPath = getPausedFlagPath(TMP_DIR);
+      writeFileSync(flagPath, '{"reason":"budget.emer', "utf-8");
+      const flag = readAutonomyPausedFlag(TMP_DIR);
+      expect(flag).not.toBeNull();
+      expect(flag?.reason).toBe("flag.corrupt");
+      // quarantine 파일 존재
+      const quarantineDir = `${TMP_DIR}/quarantine`;
+      expect(existsSync(quarantineDir)).toBe(true);
+      const files = readdirSync(quarantineDir);
+      expect(files.some((f) => f.startsWith("AUTONOMY_PAUSED.flag.corrupt-"))).toBe(true);
+    });
+
+    it("flag 빈 파일 → quarantine + sentinel", () => {
+      writeFileSync(getPausedFlagPath(TMP_DIR), "", "utf-8");
+      const flag = readAutonomyPausedFlag(TMP_DIR);
+      expect(flag?.reason).toBe("flag.corrupt");
+    });
+
+    it("flag 알 수 없는 reason → quarantine + sentinel (T12 화이트리스트)", () => {
+      writeFileSync(
+        getPausedFlagPath(TMP_DIR),
+        JSON.stringify({ reason: "unknown_reason", pausedAt: "2026-05-04T13:00:00Z" }),
+        "utf-8",
+      );
+      const flag = readAutonomyPausedFlag(TMP_DIR);
+      expect(flag?.reason).toBe("flag.corrupt");
+    });
+
+    it("정상 reason 'budget.emergency'는 그대로 반환", () => {
+      writeFileSync(
+        getPausedFlagPath(TMP_DIR),
+        JSON.stringify({
+          reason: "budget.emergency",
+          pausedAt: "2026-05-04T13:00:00Z",
+          currentUsd: 250,
+          thresholdUsd: 200,
+        }),
+        "utf-8",
+      );
+      const flag = readAutonomyPausedFlag(TMP_DIR);
+      expect(flag?.reason).toBe("budget.emergency");
+      expect(flag?.currentUsd).toBe(250);
+    });
+
+    it("assertBudget — flag.corrupt sentinel은 AutonomyPausedError throw", () => {
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage", "utf-8");
+      try {
+        assertBudget(Date.now(), TMP_DIR);
+        expect.fail("should throw");
+      } catch (err) {
+        expect(err).toBeInstanceOf(AutonomyPausedError);
+        expect((err as AutonomyPausedError).reason).toBe("flag.corrupt");
+      }
+    });
+  });
+
+  describe("AAAA3 — 음수/NaN/Infinity 입력 가드 (T16 보안)", () => {
+    it("costUsd 음수 → silent skip (누적 0) + audit", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordSpend({ provider: "anthropic", inputTokens: 0, outputTokens: 0, costUsd: -10, now }, TMP_DIR);
+      const state = readBudgetState(now, TMP_DIR);
+      expect(state.totals.count).toBe(0);
+      expect(state.totals.costUsd).toBe(0);
+    });
+
+    it("costUsd NaN → silent skip", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordSpend({ provider: "anthropic", inputTokens: 0, outputTokens: 0, costUsd: NaN, now }, TMP_DIR);
+      const state = readBudgetState(now, TMP_DIR);
+      expect(state.totals.count).toBe(0);
+    });
+
+    it("costUsd Infinity → silent skip", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordSpend(
+        { provider: "anthropic", inputTokens: 0, outputTokens: 0, costUsd: Infinity, now },
+        TMP_DIR,
+      );
+      const state = readBudgetState(now, TMP_DIR);
+      expect(state.totals.count).toBe(0);
+    });
+
+    it("inputTokens 음수 → silent skip", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordSpend({ provider: "anthropic", inputTokens: -5, outputTokens: 0, costUsd: 1, now }, TMP_DIR);
+      const state = readBudgetState(now, TMP_DIR);
+      expect(state.totals.count).toBe(0);
+    });
+
+    it("정상 입력 후 음수 입력 후 정상 입력 — 음수만 skip", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordSpend({ provider: "anthropic", inputTokens: 100, outputTokens: 50, costUsd: 1, now }, TMP_DIR);
+      recordSpend({ provider: "anthropic", inputTokens: 0, outputTokens: 0, costUsd: -5, now }, TMP_DIR);
+      recordSpend({ provider: "anthropic", inputTokens: 200, outputTokens: 100, costUsd: 2, now }, TMP_DIR);
+      const state = readBudgetState(now, TMP_DIR);
+      expect(state.totals.count).toBe(2);
+      expect(state.totals.costUsd).toBeCloseTo(3, 6);
+    });
+  });
+
+  describe("AAAA3 — state JSON 손상 quarantine (T12 P1)", () => {
+    it("state JSON 잘린 파일 → quarantine + default 반환", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      const path = getBudgetStatePath(now, TMP_DIR);
+      writeFileSync(path, '{"kstDate":"2026-05-04","totals":{', "utf-8");
+      const state = readBudgetState(now, TMP_DIR);
+      expect(state.totals.costUsd).toBe(0);
+      expect(state.kstDate).toBe("2026-05-04");
+      // quarantine
+      const quarantineDir = `${TMP_DIR}/quarantine`;
+      expect(existsSync(quarantineDir)).toBe(true);
+      const files = readdirSync(quarantineDir);
+      expect(files.some((f) => f.startsWith("usage_quota_2026-05-04.json.corrupt-"))).toBe(true);
+    });
+
+    it("quarantine 후 다음 recordSpend 정상 동작", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      const path = getBudgetStatePath(now, TMP_DIR);
+      writeFileSync(path, "garbage", "utf-8");
+      // 첫 read → quarantine + default
+      readBudgetState(now, TMP_DIR);
+      // 다음 recordSpend → 정상 누적
+      recordSpend({ provider: "anthropic", inputTokens: 100, outputTokens: 50, costUsd: 1, now }, TMP_DIR);
+      const state = readBudgetState(now, TMP_DIR);
+      expect(state.totals.costUsd).toBeCloseTo(1, 6);
+    });
+
+    it("kstDate mismatch는 quarantine 안 함 (정상 일자 롤오버)", () => {
+      const before = Date.UTC(2026, 4, 4, 13, 0, 0);
+      recordSpend({ provider: "anthropic", inputTokens: 0, outputTokens: 0, costUsd: 1, now: before }, TMP_DIR);
+      // 같은 파일을 다른 날짜로 read → mismatch지만 quarantine 안 함 (AAAA2 회귀 보존)
+      const future = Date.UTC(2026, 4, 4, 16, 0, 0); // KST 익일
+      const state = readBudgetState(future, TMP_DIR);
+      expect(state.totals.costUsd).toBe(0);
+      // quarantine 디렉토리 부재 (또는 비어있음)
+      const quarantineDir = `${TMP_DIR}/quarantine`;
+      if (existsSync(quarantineDir)) {
+        expect(readdirSync(quarantineDir).length).toBe(0);
+      }
     });
   });
 });

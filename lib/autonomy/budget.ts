@@ -19,6 +19,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  renameSync,
   unlinkSync,
   writeFileSync,
 } from "fs";
@@ -116,6 +117,36 @@ export function getPausedFlagPath(dir: string = getMemoryDir()): string {
   return join(dir, "AUTONOMY_PAUSED.flag");
 }
 
+/**
+ * 손상된 파일을 격리 디렉토리로 이동 (사이클 AAAA3, T16 보안 권고).
+ *
+ * - 위치: `<memory_dir>/quarantine/` (`.gitignore`로 git 추적 차단)
+ * - 파일명: `<basename>.corrupt-<ISO timestamp>` (충돌 시 ms 포함으로 자연 분리)
+ * - 실패 시 console.error만 — 호출자 동작은 멈추지 않음 (디스크 풀 등)
+ *
+ * 향후 2번째 영역 등장 시 `lib/file-quarantine.ts`로 추출 (T13 권고).
+ */
+function quarantineFile(
+  srcPath: string,
+  reason: string,
+  dir: string = getMemoryDir(),
+): string | null {
+  if (!existsSync(srcPath)) return null;
+  try {
+    const quarantineDir = join(dir, "quarantine");
+    if (!existsSync(quarantineDir)) mkdirSync(quarantineDir, { recursive: true });
+    const basename = srcPath.split(/[\\/]/).pop() ?? "unknown";
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const targetPath = join(quarantineDir, `${basename}.corrupt-${stamp}`);
+    renameSync(srcPath, targetPath);
+    console.error(`[budget] quarantined corrupt file: ${srcPath} → ${targetPath} (${reason})`);
+    return targetPath;
+  } catch (err) {
+    console.error(`[budget] quarantine rename failed for ${srcPath}:`, err);
+    return null;
+  }
+}
+
 function defaultState(now: number): BudgetState {
   return {
     kstDate: getKstDateString(now),
@@ -142,7 +173,20 @@ export function readBudgetState(
       byProvider: parsed.byProvider ?? {},
       hourly: parsed.hourly ?? [],
     };
-  } catch {
+  } catch (err) {
+    // 사이클 AAAA3: 손상 파일 quarantine + audit (이전: silent default)
+    const quarantinedPath = quarantineFile(path, "state.parse_failed", dir);
+    void writeAuditLog({
+      action: "usage.budget.state_corrupt",
+      resource: "usage_budget",
+      resourceId: "state_file",
+      metadata: {
+        path,
+        quarantinedPath,
+        error: err instanceof Error ? err.message : String(err),
+        severity: "security",
+      },
+    });
     return defaultState(now);
   }
 }
@@ -210,6 +254,33 @@ export function recordSpend(
 ): void {
   const t = getBudgetThresholds();
   if (t.disabled) return;
+
+  // 사이클 AAAA3: 입력 가드 (T16 보안 권고). 음수/NaN/Infinity는 audit + silent skip.
+  // 외부 응답은 이미 받았으므로 호출자 영향 0, 누적만 0 처리.
+  if (
+    !Number.isFinite(input.costUsd) ||
+    input.costUsd < 0 ||
+    !Number.isFinite(input.inputTokens) ||
+    input.inputTokens < 0 ||
+    !Number.isFinite(input.outputTokens) ||
+    input.outputTokens < 0
+  ) {
+    void writeAuditLog({
+      action: "usage.budget.invalid_input",
+      resource: "usage_budget",
+      resourceId: input.provider,
+      metadata: {
+        provider: input.provider,
+        model: input.model,
+        costUsd: Number.isFinite(input.costUsd) ? input.costUsd : String(input.costUsd),
+        inputTokens: Number.isFinite(input.inputTokens) ? input.inputTokens : String(input.inputTokens),
+        outputTokens: Number.isFinite(input.outputTokens) ? input.outputTokens : String(input.outputTokens),
+        severity: "security",
+      },
+    });
+    return;
+  }
+
   const now = input.now ?? Date.now();
   const state = readBudgetState(now, dir);
 
@@ -297,9 +368,10 @@ export function assertBudget(
   const t = getBudgetThresholds();
   if (t.disabled) return;
 
-  // emergency flag 우선 검사 (이전 호출에서 임계치 도달 → flag 생성된 경우)
+  // emergency flag 우선 검사. 사이클 AAAA3: budget.emergency + flag.corrupt + manual 모두 throw.
+  // (readAutonomyPausedFlag는 손상 시 sentinel `{reason: "flag.corrupt"}` 반환 → fail-closed)
   const flag = readAutonomyPausedFlag(dir);
-  if (flag && flag.reason === "budget.emergency") {
+  if (flag) {
     throw new AutonomyPausedError(flag);
   }
 
@@ -393,15 +465,64 @@ export function isAutonomyPaused(dir: string = getMemoryDir()): boolean {
   return existsSync(getPausedFlagPath(dir));
 }
 
+/**
+ * AUTONOMY_PAUSED.flag 읽기 (사이클 AAAA3: fail-closed).
+ *
+ * - 정상 JSON → PausedFlag 반환
+ * - 파일 없음 → null
+ * - **JSON 손상**: quarantine + audit + sentinel `{reason: "flag.corrupt", ...}` 반환
+ *   (호출자 `assertAutonomyEntry`가 sentinel을 보고 `AutonomyPausedError` throw하여 자율 진입 차단)
+ *
+ * 이전(AAAA2)은 catch → null 반환 (fail-open). T12 NON-BLOCKING + T16 BLOCKING으로 fail-closed 전환.
+ */
 export function readAutonomyPausedFlag(
   dir: string = getMemoryDir(),
 ): PausedFlag | null {
   const path = getPausedFlagPath(dir);
   if (!existsSync(path)) return null;
   try {
-    return JSON.parse(readFileSync(path, "utf-8")) as PausedFlag;
-  } catch {
-    return null;
+    const raw = readFileSync(path, "utf-8");
+    const parsed = JSON.parse(raw) as PausedFlag;
+    // 정상 reason 화이트리스트 (T12 권고)
+    const KNOWN_REASONS = ["budget.emergency", "manual", "flag.corrupt"];
+    if (!parsed.reason || !KNOWN_REASONS.includes(parsed.reason)) {
+      // 알 수 없는 reason도 fail-closed (안전 우선)
+      const quarantinedPath = quarantineFile(path, "flag.unknown_reason", dir);
+      void writeAuditLog({
+        action: "autonomy.flag_corrupt",
+        resource: "autonomy_paused_flag",
+        resourceId: "unknown_reason",
+        metadata: {
+          path,
+          quarantinedPath,
+          parsedReason: parsed.reason,
+          severity: "security",
+        },
+      });
+      return {
+        pausedAt: new Date().toISOString(),
+        reason: "flag.corrupt",
+      };
+    }
+    return parsed;
+  } catch (err) {
+    // JSON parse 실패 → quarantine + sentinel 반환 (fail-closed)
+    const quarantinedPath = quarantineFile(path, "flag.parse_failed", dir);
+    void writeAuditLog({
+      action: "autonomy.flag_corrupt",
+      resource: "autonomy_paused_flag",
+      resourceId: "parse_failed",
+      metadata: {
+        path,
+        quarantinedPath,
+        error: err instanceof Error ? err.message : String(err),
+        severity: "security",
+      },
+    });
+    return {
+      pausedAt: new Date().toISOString(),
+      reason: "flag.corrupt",
+    };
   }
 }
 

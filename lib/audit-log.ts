@@ -86,7 +86,11 @@ export type AuditAction =
   | "usage.budget.warn"
   | "usage.budget.throw"
   | "usage.budget.emergency"
-  | "opus.gate.bypass";
+  | "opus.gate.bypass"
+  // 자율 모드 안전 회로 (사이클 AAAA3 — fail-closed + quarantine + 입력 가드)
+  | "usage.budget.invalid_input"
+  | "usage.budget.state_corrupt"
+  | "autonomy.flag_corrupt";
 
 export interface AuditLogInput {
   actorId?: string | null;

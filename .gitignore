@@ -24,6 +24,9 @@ next-env.d.ts
 # memory/MEMORY.md / NEXT_SESSION.md 등 영속 메모리만 git 추적
 # 일자/세션 기반 카운터·batch·핸드오프는 ignore (커밋 noise + 충돌 방지)
 memory/autonomy_counter_*.json
+memory/usage_quota_*.json
+memory/AUTONOMY_PAUSED.flag
+memory/quarantine/
 memory/project_gate_batch_*.md
 memory/project_context_handoff_*.md
 memory/.lock_cycle_*.json
