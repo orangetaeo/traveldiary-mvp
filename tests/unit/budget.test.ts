@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, existsSync, writeFileSync, readdirSync } from "fs";
+import { mkdtempSync, rmSync, existsSync, writeFileSync, readdirSync, unlinkSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import {
@@ -14,9 +14,12 @@ import {
   getHourlySpend,
   getDailySpend,
   getKstDateString,
+  getQuarantineDeadFlagPath,
   BudgetExceededError,
   AutonomyPausedError,
+  MAX_QUARANTINE_ATTEMPTS,
   __resetBudgetForTests,
+  __resetQuarantineForTests,
 } from "@/lib/autonomy/budget";
 
 const SAVED_ENV = { ...process.env };
@@ -360,6 +363,146 @@ describe("budget — 자율 모드 비용 트래킹 + 임계치 (사이클 AAAA2
       const state = readBudgetState(now, TMP_DIR);
       expect(state.totals.count).toBe(2);
       expect(state.totals.costUsd).toBeCloseTo(3, 6);
+    });
+  });
+
+  describe("AAAA4 — quarantine 무한 루프 가드 (P0)", () => {
+    // 트릭: <TMP_DIR>/quarantine 위치에 정규 파일을 작성하면
+    // existsSync(quarantineDir)는 true가 되어 mkdirSync가 skip됨.
+    // 이후 renameSync(srcPath, join(quarantineDir, basename))는 부모가 디렉토리가
+    // 아니라 파일이므로 ENOTDIR로 실패 → renameSync 영속 실패 시뮬.
+    function blockQuarantineDir(): void {
+      const path = join(TMP_DIR, "quarantine");
+      if (existsSync(path)) rmSync(path, { recursive: true, force: true });
+      writeFileSync(path, "blocking-file", "utf-8");
+    }
+
+    function unblockQuarantineDir(): void {
+      const blockingPath = join(TMP_DIR, "quarantine");
+      if (existsSync(blockingPath)) unlinkSync(blockingPath);
+    }
+
+    beforeEach(() => {
+      __resetQuarantineForTests();
+    });
+
+    afterEach(() => {
+      __resetQuarantineForTests();
+    });
+
+    it("MAX_QUARANTINE_ATTEMPTS는 R1 결정값 3", () => {
+      expect(MAX_QUARANTINE_ATTEMPTS).toBe(3);
+    });
+
+    it("renameSync 정상 시 quarantine 작성 + DEAD flag 부재", () => {
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage", "utf-8");
+      readAutonomyPausedFlag(TMP_DIR);
+      const quarantineDir = join(TMP_DIR, "quarantine");
+      expect(existsSync(quarantineDir)).toBe(true);
+      const files = readdirSync(quarantineDir);
+      expect(files.some((f) => f.startsWith("AUTONOMY_PAUSED.flag.corrupt-"))).toBe(true);
+      expect(files.includes("QUARANTINE_DEAD.flag")).toBe(false);
+    });
+
+    it("renameSync 영속 실패 → cap 초과까지 sentinel 정상 반환 (호출자 영향 0)", () => {
+      blockQuarantineDir();
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage", "utf-8");
+
+      for (let i = 0; i < MAX_QUARANTINE_ATTEMPTS + 2; i++) {
+        const flag = readAutonomyPausedFlag(TMP_DIR);
+        expect(flag).not.toBeNull();
+        expect(flag?.reason).toBe("flag.corrupt");
+      }
+    });
+
+    it("DEAD flag 작성 자체가 실패해도 호출자 영향 0 (R1 silent fail)", () => {
+      // quarantine 디렉토리 차단 → DEAD flag 작성도 실패하지만 silent
+      blockQuarantineDir();
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage", "utf-8");
+
+      for (let i = 0; i < MAX_QUARANTINE_ATTEMPTS + 1; i++) {
+        const flag = readAutonomyPausedFlag(TMP_DIR);
+        expect(flag?.reason).toBe("flag.corrupt");
+      }
+      // DEAD flag 작성 시도가 silent 실패함 (quarantine 디렉토리 차단)
+      expect(existsSync(getQuarantineDeadFlagPath(TMP_DIR))).toBe(false);
+    });
+
+    it("rename 성공 시 cap 카운터 + dedup 리셋 (cap 도달 전 일시 장애 회복)", () => {
+      blockQuarantineDir();
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage1", "utf-8");
+
+      // cap 도달 전까지 시도 (cap=3이면 2번)
+      for (let i = 0; i < MAX_QUARANTINE_ATTEMPTS - 1; i++) {
+        readAutonomyPausedFlag(TMP_DIR);
+      }
+
+      // 디스크 일시 장애 회복 — quarantine 디렉토리 차단 해제
+      unblockQuarantineDir();
+
+      // 다음 호출은 정상 quarantine — 카운터 + dedup 리셋
+      readAutonomyPausedFlag(TMP_DIR);
+
+      const quarantineDir = join(TMP_DIR, "quarantine");
+      const files = readdirSync(quarantineDir);
+      const corruptFiles = files.filter((f) => f.startsWith("AUTONOMY_PAUSED.flag.corrupt-"));
+      expect(corruptFiles.length).toBe(1);
+
+      // 리셋 확인: 같은 flag path의 새 손상이 와도 cap=3 다시 보장
+      // (이전 attempts가 0으로 리셋되었으므로 다시 영속 실패해도 cap 도달까지 재시도)
+      blockQuarantineDir();
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage2", "utf-8");
+
+      // cap 도달 전 (2번)
+      for (let i = 0; i < MAX_QUARANTINE_ATTEMPTS - 1; i++) {
+        const flag = readAutonomyPausedFlag(TMP_DIR);
+        expect(flag?.reason).toBe("flag.corrupt");
+      }
+      // DEAD flag 미작성 (cap 도달 전)
+      expect(existsSync(getQuarantineDeadFlagPath(TMP_DIR))).toBe(false);
+    });
+
+    it("cap 도달 후에는 수동 개입 필요 (자동 리셋 X)", () => {
+      blockQuarantineDir();
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage", "utf-8");
+
+      // cap 도달 + 초과 (4번)
+      for (let i = 0; i < MAX_QUARANTINE_ATTEMPTS + 1; i++) {
+        readAutonomyPausedFlag(TMP_DIR);
+      }
+
+      // 디스크 복구 — but cap 카운터는 이미 초과 상태로 잠김
+      unblockQuarantineDir();
+
+      // 다음 호출도 cap 초과로 quarantine 시도 skip
+      readAutonomyPausedFlag(TMP_DIR);
+
+      const quarantineDir = join(TMP_DIR, "quarantine");
+      // unblock 후 디렉토리는 비어있음 (cap 초과로 quarantine 시도 자체 skip)
+      const files = existsSync(quarantineDir) ? readdirSync(quarantineDir) : [];
+      const corruptFiles = files.filter((f) => f.startsWith("AUTONOMY_PAUSED.flag.corrupt-"));
+      expect(corruptFiles.length).toBe(0);
+
+      // 사용자가 __resetQuarantineForTests로 수동 리셋 → 다음 호출은 정상
+      __resetQuarantineForTests();
+      readAutonomyPausedFlag(TMP_DIR);
+      const filesAfter = readdirSync(quarantineDir);
+      expect(filesAfter.some((f) => f.startsWith("AUTONOMY_PAUSED.flag.corrupt-"))).toBe(true);
+    });
+
+    it("__resetQuarantineForTests — production에서 throw", () => {
+      const orig = process.env.NODE_ENV;
+      const origVitest = process.env.VITEST;
+      // @ts-expect-error - NODE_ENV is read-only
+      process.env.NODE_ENV = "production";
+      delete process.env.VITEST;
+      try {
+        expect(() => __resetQuarantineForTests()).toThrow();
+      } finally {
+        // @ts-expect-error - NODE_ENV is read-only
+        process.env.NODE_ENV = orig;
+        if (origVitest) process.env.VITEST = origVitest;
+      }
     });
   });
 

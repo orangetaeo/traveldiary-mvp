@@ -9,9 +9,11 @@
 ---
 
 ## 1. 다음 사이클
-**AAAA4** — AAAA3 + AAAA2 NON-BLOCKING 잔여 정리: P0 quarantine 무한 루프 가드 (rename 실패 후 재시도 차단) + P1 30일 quarantine cleanup cron + P2 getKstDateString DRY · emergency 중복 가드 · anthropic usage 부재 silent bypass · ADR-047 분포 측정 wiring.
+**AAAA5** — AAAA4 후속 정리 + AAAA2 P2 잔여 (R1 결정으로 묶음 처리, budget.ts 컨텍스트 신선할 때):
+1) AAAA4 T12 NON-BLOCKING 3건 (writeAuditLog spy로 dedup 직접 단언 + DEAD flag JSON 5필드 파싱 단언 + top-level `__resetQuarantineForTests` beforeEach 일원화)
+2) P2 4건 (getKstDateString DRY 추출 · emergency 중복 가드 · anthropic usage 부재 silent bypass 처리 · ADR-047 H/S/O 모델 라우팅 분포 측정 wiring).
 
-대안 (R1 권장): AAAA4 머지 + 1주일 cap=2~3 실측 후 cap=10 본격 자율 시동 검토 (2026-05-11 이후).
+이후 AAAA6 (P1 30일 quarantine cleanup cron) → AAAA7 (P3 패턴 박제 3건). 1주일 cap=2~3 dry-run 실측 후 2026-05-11 이후 cap=10 자율 시동 검토.
 
 ## 2. 활성 게이트 (batch)
 **없음.** 게이트 발생 시 `memory/project_gate_batch_YYYY_MM_DD.md` 위치 + 본 라인 `🔴 활성 게이트 N건` 갱신.

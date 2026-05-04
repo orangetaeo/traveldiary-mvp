@@ -52,6 +52,30 @@
 | **모델 라우팅** (ADR-047) | Triage=Haiku / 회의·구현·검증=Sonnet / R1게이트·M1·5+ 파일·보안=Opus. 분포 목표 H 5~10% / S 70~75% / O 15~25%. | `docs/adr/ADR-047-model-routing-policy.md` — 권장만, 강제 메커니즘은 AAAA2 |
 | **Opus 호출 전 4-체크** | 5+ 파일 / 아키텍처·보안 / Sonnet 2회 실패 / release 전 최종 QA — 모두 Yes일 때만 Opus | ADR-047 |
 
+### 0.5.6 quarantine 무한 루프 가드 (사이클 AAAA4 도입)
+
+| 항목 | 값 | 위치 |
+|------|----|------|
+| **인메모리 cap** | `MAX_QUARANTINE_ATTEMPTS = 3` (R1 결정). 동일 srcPath 4번째 호출부터 rename 시도 skip. | `lib/autonomy/budget.ts` `quarantineAttempts: Map<string, number>` |
+| **DEAD flag 영속 sentinel** | cap 도달 시 `<dir>/quarantine/QUARANTINE_DEAD.flag` (JSON: srcPath/reason/attempts/cap/failedAt) 작성. 사용자 가시화 + 운영 모니터링 채널. | 동일 `getQuarantineDeadFlagPath()` |
+| **audit dedup** | `auditedQuarantineFailures: Set<string>` keyed by `${normalizedPath}:rename_failed` / `${normalizedPath}:cap_exceeded`. 동일 path 동일 reason은 1회만 audit. | 동일 |
+| **절대경로 정규화** | `path.resolve(srcPath)`로 normalized. 같은 파일이 다른 표기(상대/절대/심볼릭)로 cap 우회 차단 (T12 권고). | 동일 |
+| **rename 성공 시 리셋** | quarantine 성공 시 `quarantineAttempts.delete()` + 양 dedup 키 delete. 디스크 일시 장애 회복 후 재손상 정상 cap 보장. | 동일 |
+| **DEAD flag silent fail** | DEAD flag write 자체 실패도 try/catch silent (R1: 인메모리 cap이 1차 방어선이므로 충분). | 동일 |
+| **audit log 2 key 추가** | `quarantine.rename_failed` / `quarantine.cap_exceeded` (모두 severity:"security"). | `lib/audit-log.ts` `AuditAction` |
+| **수동 개입 필요** | cap 초과 후 자동 리셋 없음. 사용자가 DEAD flag 보고 디스크 복구 후 `__resetQuarantineForTests` 또는 프로세스 재시작. | `memory/ENTRY.md` "6. 손상 복구" |
+
+**옵션 매트릭스 (회의 합의)**:
+
+| | A 인메모리 cap | B sentinel 파일 | C 즉시 throw | A+B 하이브리드 (채택) |
+|---|---|---|---|---|
+| 안전성 | 중 | 중-상 | 상 | **상** |
+| 영속성 | 프로세스만 | 영속 | 영속 (자율 정지) | **영속** |
+| 운영 부담 | 낮음 | 낮음 | 높음 | **낮음** |
+| DoS 표면 | 없음 | 없음 | **있음** (1바이트 손상으로 영구 정지) | **없음** |
+
+C(즉시 throw) 회피 사유: 공격자가 flag 1바이트 손상시키면 자율 영구 정지 → DoS 표면.
+
 ### 0.5.5 안전 회로 fail-closed + quarantine + 입력 가드 (사이클 AAAA3 도입)
 
 | 항목 | 값 | 위치 |
@@ -320,5 +344,6 @@ PRD §4 매트릭스에서 자율/게이트 판정
 | 2026-05-04 | BBBB | §0.5.3 신규 자율 시동 절차: `assertAutonomyEntry()` 시각+카운터 통합 게이트 + `memory/ENTRY.md` 5줄 진입 카드 + `docs/14-autonomy-task-scheduler-setup.md` Windows Task Scheduler 가이드(22:00 시동/09:00 종료) + HARNESS.md STEP 5 ScheduleWakeup 박제. AAAA2 미룸: 비용 트래킹 / 영속 카운터 / pickModel. |
 | 2026-05-04 | AAAA2 | §0.5.4 신규 비용 트래킹 + 임계치 + 모델 라우팅: `lib/autonomy/budget.ts` 비용 누적+3단계 임계치+emergency flag + `lib/autonomy/pick-model.ts` ADR-047 매트릭스 헬퍼 + `lib/autonomy/model-pricing.ts` Claude 단가표 + `assertAutonomyEntry()` 보강(flag 검사 우선) + audit log 4 key 등록 + env 7개. AAAA3 미룸: auto-degrade / pickModel 강제 throw / DB 영속화. |
 | 2026-05-04 | AAAA3 | §0.5.5 신규 안전 회로 fail-closed: `readAutonomyPausedFlag` 손상 시 quarantine + sentinel 반환 (이전 fail-open) + `readBudgetState` 손상 시 quarantine + default + `recordSpend` 음수/NaN 가드 + audit + silent skip + `memory/quarantine/` 디렉토리 + `.gitignore` 등록 + audit log 3 key 추가 (모두 severity:"security") + ESLint `no-restricted-imports` `clearAutonomyPausedFlag` 자동 호출 차단 + ENTRY.md "6. 손상 복구" 절차. AAAA4 미룸: 30일 quarantine cleanup, getKstDateString DRY, emergency 중복 가드, anthropic usage silent bypass, ADR-047 분포 측정. |
+| 2026-05-04 | AAAA4 P0 | §0.5.6 신규 quarantine 무한 루프 가드: `quarantineFile()` cap=3 인메모리 + DEAD flag 영속 sentinel + audit dedup (rename_failed/cap_exceeded) + `path.resolve()` 정규화 + 성공 시 attempts/dedup 리셋 + DEAD flag silent fail + audit log 2 key 추가 (모두 severity:"security") + `__resetQuarantineForTests` export. 옵션 A+B 하이브리드 채택 (C 즉시 throw는 DoS 표면으로 회피). T12 NON-BLOCKING 3건 + P2 4건은 AAAA5에서 묶음 처리. |
 
 > 이후 변경은 게이트 매트릭스 보강이나 자동화 영역 확대 시 갱신.

@@ -23,7 +23,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "fs";
-import { join } from "path";
+import { join, resolve } from "path";
 import { writeAuditLog } from "@/lib/audit-log";
 
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
@@ -124,14 +124,79 @@ export function getPausedFlagPath(dir: string = getMemoryDir()): string {
  * - 파일명: `<basename>.corrupt-<ISO timestamp>` (충돌 시 ms 포함으로 자연 분리)
  * - 실패 시 console.error만 — 호출자 동작은 멈추지 않음 (디스크 풀 등)
  *
- * 향후 2번째 영역 등장 시 `lib/file-quarantine.ts`로 추출 (T13 권고).
+ * 사이클 AAAA4 P0 (R1 결정 — A+B 하이브리드):
+ *   - 동일 srcPath 재시도 cap=3. 4차부터 rename 시도 skip.
+ *   - cap 초과 시 `<dir>/quarantine/QUARANTINE_DEAD.flag` 영속 sentinel + audit 1회 (운영자 가시).
+ *   - rename_failed audit도 path별 1회만 (audit log 폭증 차단 — T16+T12).
+ *   - srcPath는 path.resolve()로 정규화 (T12 — 동일 파일이 다른 표기로 cap 우회 차단).
+ *   - rename 성공 시 cap 카운터 + dedup 리셋 (디스크 일시 장애 회복 후 재손상 시 정상 cap).
+ *
+ * 향후 2번째 영역 등장 시 `lib/file-quarantine.ts`로 추출 (T13 권고, P3 백로그).
  */
+const MAX_QUARANTINE_ATTEMPTS = 3;
+const quarantineAttempts = new Map<string, number>();
+const auditedQuarantineFailures = new Set<string>();
+
+function getQuarantineDeadFlagPath(dir: string = getMemoryDir()): string {
+  return join(dir, "quarantine", "QUARANTINE_DEAD.flag");
+}
+
 function quarantineFile(
   srcPath: string,
   reason: string,
   dir: string = getMemoryDir(),
 ): string | null {
   if (!existsSync(srcPath)) return null;
+
+  const normalizedPath = resolve(srcPath);
+  const attempts = (quarantineAttempts.get(normalizedPath) ?? 0) + 1;
+  quarantineAttempts.set(normalizedPath, attempts);
+
+  if (attempts > MAX_QUARANTINE_ATTEMPTS) {
+    const dedupKey = `${normalizedPath}:cap_exceeded`;
+    if (!auditedQuarantineFailures.has(dedupKey)) {
+      auditedQuarantineFailures.add(dedupKey);
+      try {
+        const quarantineDir = join(dir, "quarantine");
+        if (!existsSync(quarantineDir)) mkdirSync(quarantineDir, { recursive: true });
+        writeFileSync(
+          getQuarantineDeadFlagPath(dir),
+          JSON.stringify(
+            {
+              srcPath: normalizedPath,
+              reason,
+              attempts,
+              cap: MAX_QUARANTINE_ATTEMPTS,
+              failedAt: new Date().toISOString(),
+            },
+            null,
+            2,
+          ) + "\n",
+          "utf-8",
+        );
+      } catch (err) {
+        // sentinel 작성 자체 실패는 silent (R1: 인메모리 cap이 1차 방어선이므로 충분)
+        console.error("[budget] failed to write QUARANTINE_DEAD.flag:", err);
+      }
+      void writeAuditLog({
+        action: "quarantine.cap_exceeded",
+        resource: "quarantine_file",
+        resourceId: normalizedPath,
+        metadata: {
+          srcPath: normalizedPath,
+          reason,
+          attempts,
+          cap: MAX_QUARANTINE_ATTEMPTS,
+          severity: "security",
+        },
+      });
+      console.error(
+        `[budget] quarantine cap exceeded (${attempts}/${MAX_QUARANTINE_ATTEMPTS}) for ${normalizedPath} — DEAD flag written`,
+      );
+    }
+    return null;
+  }
+
   try {
     const quarantineDir = join(dir, "quarantine");
     if (!existsSync(quarantineDir)) mkdirSync(quarantineDir, { recursive: true });
@@ -140,9 +205,31 @@ function quarantineFile(
     const targetPath = join(quarantineDir, `${basename}.corrupt-${stamp}`);
     renameSync(srcPath, targetPath);
     console.error(`[budget] quarantined corrupt file: ${srcPath} → ${targetPath} (${reason})`);
+    quarantineAttempts.delete(normalizedPath);
+    auditedQuarantineFailures.delete(`${normalizedPath}:rename_failed`);
+    auditedQuarantineFailures.delete(`${normalizedPath}:cap_exceeded`);
     return targetPath;
   } catch (err) {
-    console.error(`[budget] quarantine rename failed for ${srcPath}:`, err);
+    const dedupKey = `${normalizedPath}:rename_failed`;
+    if (!auditedQuarantineFailures.has(dedupKey)) {
+      auditedQuarantineFailures.add(dedupKey);
+      void writeAuditLog({
+        action: "quarantine.rename_failed",
+        resource: "quarantine_file",
+        resourceId: normalizedPath,
+        metadata: {
+          srcPath: normalizedPath,
+          reason,
+          attempts,
+          error: err instanceof Error ? err.message : String(err),
+          severity: "security",
+        },
+      });
+    }
+    console.error(
+      `[budget] quarantine rename failed for ${srcPath} (attempt ${attempts}/${MAX_QUARANTINE_ATTEMPTS}):`,
+      err,
+    );
     return null;
   }
 }
@@ -543,3 +630,16 @@ export function __resetBudgetForTests(dir?: string): void {
   const flagPath = getPausedFlagPath(targetDir);
   if (existsSync(flagPath)) unlinkSync(flagPath);
 }
+
+// 사이클 AAAA4 P0: 인메모리 quarantine cap/dedup 리셋 (테스트 격리용).
+export function __resetQuarantineForTests(): void {
+  if (process.env.NODE_ENV !== "test" && process.env.VITEST !== "true") {
+    throw new Error(
+      "__resetQuarantineForTests is only callable from test environment",
+    );
+  }
+  quarantineAttempts.clear();
+  auditedQuarantineFailures.clear();
+}
+
+export { MAX_QUARANTINE_ATTEMPTS, getQuarantineDeadFlagPath };
