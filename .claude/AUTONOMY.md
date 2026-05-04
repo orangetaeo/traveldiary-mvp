@@ -52,6 +52,28 @@
 | **모델 라우팅** (ADR-047) | Triage=Haiku / 회의·구현·검증=Sonnet / R1게이트·M1·5+ 파일·보안=Opus. 분포 목표 H 5~10% / S 70~75% / O 15~25%. | `docs/adr/ADR-047-model-routing-policy.md` — 권장만, 강제 메커니즘은 AAAA2 |
 | **Opus 호출 전 4-체크** | 5+ 파일 / 아키텍처·보안 / Sonnet 2회 실패 / release 전 최종 QA — 모두 Yes일 때만 Opus | ADR-047 |
 
+### 0.5.4 비용 트래킹 + 임계치 + 모델 라우팅 헬퍼 (사이클 AAAA2 도입)
+
+| 항목 | 값 | 위치 |
+|------|----|------|
+| **비용 트래킹** | 메모리 파일 JSON `memory/usage_quota_YYYY-MM-DD.json`. provider/model별 count + inputTokens + outputTokens + costUsd + 시간당 버킷. KST 자정 자동 리셋. | `lib/autonomy/budget.ts` `recordSpend()` |
+| **임계치 3단계** | warn (log+audit) → throw (BudgetExceededError, 호출자 demo fallback) → emergency (AUTONOMY_PAUSED.flag 생성, 자율 정지) | 동일 |
+| **임계치 기본값** | 시간당 $3 warn / $6 throw, 일일 $30 warn / $50 throw / $200 emergency | env override 7개 |
+| **사전 게이트** | `assertBudget(now?, dir?)` — 외부 API 호출 전 검사. emergency flag 우선, throw 임계치 후순. recordSpend는 누적+audit만, throw는 assertBudget 책임 분리 | `lib/autonomy/budget.ts` |
+| **모델 라우팅 헬퍼** | `pickModel(stage, criteria)` — ADR-047 매트릭스 + Opus 4-체크. 권장 반환만, throw 없음 (R1 결정 c). `forceTier?` + `dryRunCap1?` override 지원 | `lib/autonomy/pick-model.ts` |
+| **모델 단가표** | Haiku $1/$5, Sonnet $3/$15, Opus $15/$75 per MTok. 가격 변경 시 별도 PR | `lib/autonomy/model-pricing.ts` `MODEL_PRICING` + `calculateCostUsd()` |
+| **AUTONOMY_PAUSED.flag** | emergency 도달 시 `memory/AUTONOMY_PAUSED.flag` 생성. `assertAutonomyEntry()`가 시각/cap보다 우선 검사 → AutonomyPausedError throw → 새 사이클 진입 차단 | `lib/autonomy/budget.ts` + cycle-counter.ts |
+| **audit log 4 key** | `usage.budget.warn` / `usage.budget.throw` / `usage.budget.emergency` / `opus.gate.bypass` 사전 등록 | `lib/audit-log.ts` `AuditAction` |
+
+**env override (7개)**:
+- `USAGE_BUDGET_HOURLY_WARN` (default 3)
+- `USAGE_BUDGET_HOURLY_THROW` (default 6)
+- `USAGE_BUDGET_DAILY_WARN` (default 30)
+- `USAGE_BUDGET_DAILY_THROW` (default 50)
+- `USAGE_BUDGET_DAILY_EMERGENCY` (default 200)
+- `USAGE_BUDGET_DISABLED` (1=비활성, 테스트/로컬 우회)
+- 기본 사용은 anthropic-claude.ts에서만 통합 (다른 wrap은 AAAA3에서 추가 예정)
+
 ### 0.5.3 자율 시동 절차 (사이클 BBBB 도입)
 
 | 항목 | 값 | 위치 |
@@ -277,5 +299,6 @@ PRD §4 매트릭스에서 자율/게이트 판정
 | 2026-05-04 | ZZZ | §0.5.1 안전 킬스위치 도입: `lib/usage-quota.ts` 외부 API cap(anthropic wrap 적용, 5개 서비스 AAAA 미룸) · `lib/audit-log.ts` `sanitizeAuditValue` (13 키 패턴 redact, ADR-046) · `.claude/settings.json` deny (자동 머지/승인/force push/`.env` Read) · `.github/workflows/secret-scan.yml` (7 패턴 grep). |
 | 2026-05-04 | AAAA1 | §0.5.1 보강 + §0.5.2 신규: 6 외부 API 서비스 모두 quota wrap (vision/places/directions/naver/ota{agoda,kkday,klook}) + grep coverage 회귀 + `lib/autonomy/cycle-counter.ts` 메모리 파일 기반 일일 카운터 + `isAutonomyHours()` + ADR-047 모델 라우팅 정책. AAAA2 미룸: 영속 카운터 / 비용 트래킹 / 임계치 / pickModel 헬퍼. |
 | 2026-05-04 | BBBB | §0.5.3 신규 자율 시동 절차: `assertAutonomyEntry()` 시각+카운터 통합 게이트 + `memory/ENTRY.md` 5줄 진입 카드 + `docs/14-autonomy-task-scheduler-setup.md` Windows Task Scheduler 가이드(22:00 시동/09:00 종료) + HARNESS.md STEP 5 ScheduleWakeup 박제. AAAA2 미룸: 비용 트래킹 / 영속 카운터 / pickModel. |
+| 2026-05-04 | AAAA2 | §0.5.4 신규 비용 트래킹 + 임계치 + 모델 라우팅: `lib/autonomy/budget.ts` 비용 누적+3단계 임계치+emergency flag + `lib/autonomy/pick-model.ts` ADR-047 매트릭스 헬퍼 + `lib/autonomy/model-pricing.ts` Claude 단가표 + `assertAutonomyEntry()` 보강(flag 검사 우선) + audit log 4 key 등록 + env 7개. AAAA3 미룸: auto-degrade / pickModel 강제 throw / DB 영속화. |
 
 > 이후 변경은 게이트 매트릭스 보강이나 자동화 영역 확대 시 갱신.

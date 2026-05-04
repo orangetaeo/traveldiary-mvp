@@ -217,5 +217,31 @@ describe("cycle-counter — 자율 일일 사이클 카운터 (사이클 AAAA1)"
         expect(err).toBeInstanceOf(NotAutonomyHoursError);
       }
     });
+
+    it("AAAA2: AUTONOMY_PAUSED.flag 존재 시 시각/cap보다 우선 throw (AutonomyPausedError)", async () => {
+      const { writeFileSync } = await import("fs");
+      const { AutonomyPausedError } = await import("@/lib/autonomy/budget");
+      writeFileSync(
+        join(TMP_DIR, "AUTONOMY_PAUSED.flag"),
+        JSON.stringify({
+          pausedAt: "2026-05-04T13:00:00.000Z",
+          reason: "budget.emergency",
+          currentUsd: 250,
+          thresholdUsd: 200,
+        }),
+        "utf-8",
+      );
+      // 자율 시간대 + cap 미만이라도 flag가 우선
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      try {
+        assertAutonomyEntry(now, TMP_DIR);
+        expect.fail("should throw");
+      } catch (err) {
+        expect(err).toBeInstanceOf(AutonomyPausedError);
+        expect((err as InstanceType<typeof AutonomyPausedError>).reason).toBe(
+          "budget.emergency",
+        );
+      }
+    });
   });
 });

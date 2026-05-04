@@ -146,10 +146,29 @@ Get-ScheduledTask -TaskName "Claude Autonomy*" | Format-Table TaskName, State, N
 | `QUOTA_DAILY_CAP_OTA` | OTA 통합 일일 cap | 1000 |
 | `AUTONOMY_MEMORY_DIR` | 카운터/batch 메모리 디렉토리 | `<workspace>/memory` |
 
+**사이클 AAAA2 추가** — 비용 트래킹 임계치 (USD):
+
+| env | 의미 | default |
+|-----|------|--------|
+| `USAGE_BUDGET_HOURLY_WARN` | 시간당 경고 임계치 ($) | 3 |
+| `USAGE_BUDGET_HOURLY_THROW` | 시간당 throw 임계치 ($, BudgetExceededError) | 6 |
+| `USAGE_BUDGET_DAILY_WARN` | 일일 경고 임계치 ($) | 30 |
+| `USAGE_BUDGET_DAILY_THROW` | 일일 throw 임계치 ($, BudgetExceededError) | 50 |
+| `USAGE_BUDGET_DAILY_EMERGENCY` | 일일 emergency-stop ($, AUTONOMY_PAUSED.flag 생성) | 200 |
+| `USAGE_BUDGET_DISABLED` | `1` 설정 시 비용 트래킹 비활성 (테스트/로컬 우회) | (unset) |
+
 시스템 환경변수 등록:
 ```powershell
 [System.Environment]::SetEnvironmentVariable("AUTONOMY_DAILY_CYCLE_CAP", "5", "User")
+[System.Environment]::SetEnvironmentVariable("USAGE_BUDGET_DAILY_THROW", "20", "User")
 ```
+
+**dry-run 모드** (R1 권장 — AAAA2 머지 첫날):
+```powershell
+[System.Environment]::SetEnvironmentVariable("AUTONOMY_DAILY_CYCLE_CAP", "1", "User")
+[System.Environment]::SetEnvironmentVariable("USAGE_BUDGET_DAILY_THROW", "5", "User")
+```
+1 사이클만 + 일일 $5 throw로 안전하게 첫 검증.
 
 ---
 

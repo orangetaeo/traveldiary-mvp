@@ -9,9 +9,9 @@
 ---
 
 ## 1. 다음 사이클
-**AAAA2** — 비용 트래킹 ($/토큰 누적) + `lib/usage-quota.ts` 영속 카운터(in-memory → KV/DB) + `pickModel(stage, criteria)` 자동 선택. R1 권장 1순위 (ADR-047 분포 측정 전제).
+**AAAA3** — T12+T13 비차단 백로그 P0 2건 (flag 손상 fail-closed + 음수 costUsd 가드) + P1 1건 (JSON 손상 시 데이터 보존). 자율 시동 안전 회로 보강 — R1 권장 1순위.
 
-대안: 마이그레이션 1건 동반 시 사용자 액션은 `prisma migrate deploy` (Railway 자동, 별도 작업 0).
+대안 백로그 (P2): getKstDateString DRY, emergency 중복 가드, anthropic usage 부재 silent bypass, ADR-047 분포 측정 wiring.
 
 ## 2. 활성 게이트 (batch)
 **없음.** 게이트 발생 시 `memory/project_gate_batch_YYYY_MM_DD.md` 위치 + 본 라인 `🔴 활성 게이트 N건` 갱신.
