@@ -293,6 +293,31 @@ export default async function HomePage() {
               ))}
           </div>
         </section>
+
+        {/* 여행 가이드 CTA (C3 SEO) */}
+        <section className="px-td-md pb-td-lg">
+          <Link
+            href="/guide"
+            className="block bg-gradient-to-r from-purple/10 to-accent/10 border border-purple/20 rounded-xl p-td-md hover:border-purple/40 transition-colors"
+          >
+            <div className="flex items-center gap-td-sm">
+              <span className="material-symbols-outlined text-purple text-2xl">
+                menu_book
+              </span>
+              <div>
+                <p className="text-td-card-title text-ink font-medium">
+                  베트남 여행 가이드
+                </p>
+                <p className="text-td-caption text-ink-soft">
+                  도시별 시그니처 코스 · 맛집 · 일출 명소
+                </p>
+              </div>
+              <span className="material-symbols-outlined text-ink-mute ml-auto">
+                chevron_right
+              </span>
+            </div>
+          </Link>
+        </section>
       </main>
 
       {/* FAB — Pre-trip 모드에서도 검색·번역 빠른 진입 */}
