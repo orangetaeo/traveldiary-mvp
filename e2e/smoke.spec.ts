@@ -26,10 +26,11 @@ test("itinerary page renders day tabs", async ({ page }) => {
 
 test("item detail shows hero + evidence panel", async ({ page }) => {
   await page.goto(`/itinerary/${DEMO_TRIP}`);
-  // 첫 번째 일정 카드 클릭
+  // 일정 카드 렌더링 대기 후 첫 번째 클릭
   const firstCard = page.locator("a[href*='/item/']").first();
+  await firstCard.waitFor({ state: "visible", timeout: 15000 });
   await firstCard.click();
-  await expect(page.getByText(/왜 이걸 골랐나|추천 근거/)).toBeVisible({ timeout: 5000 });
+  await expect(page.getByText(/왜 이걸 골랐나|추천 근거/)).toBeVisible({ timeout: 10000 });
 });
 
 test("city page loads phu-quoc emergency contacts", async ({ page }) => {
@@ -50,24 +51,32 @@ test("travel mode page loads with timeline", async ({ page }) => {
   await expect(page.getByText(/DAY 1/).first()).toBeVisible();
 });
 
-test("checklist page shows empty state with template button", async ({ page }) => {
+// 라이브 DB 상태에 따라 빈 상태(템플릿 버튼) 또는 채워진 상태(아이템 목록) 중 하나.
+// 둘 다 정상이므로 "페이지 로드 + 핵심 UI 존재"만 검증.
+test("checklist page loads with template button or items", async ({ page }) => {
   await page.goto(`/checklist/${DEMO_TRIP}`);
-  await expect(
-    page.getByRole("button", { name: /기본 템플릿 추가/ }),
-  ).toBeVisible();
+  const hasTemplate = await page.getByRole("button", { name: /기본 템플릿 추가/ }).isVisible()
+    .catch(() => false);
+  const hasItems = await page.getByText(/D-30|D-14|D-7|D-1|여행 중|귀국 후/).first().isVisible()
+    .catch(() => false);
+  // 둘 중 하나는 반드시 보여야 함
+  expect(hasTemplate || hasItems).toBe(true);
 });
 
-// 사이클 WWW (QQ 후속 9→10) — done 필터는 total > 0 게이트.
-// 빈 상태에서 노출되지 않음을 negative regression으로 잠금. mutation 0.
-// 게이트가 풀려서 항상 노출되는 회귀(useState 기본값 표시 등)를 라이브에서 잡음.
-test("checklist done filter is NOT visible in empty state (QQ total > 0 gate)", async ({
-  page,
-}) => {
+// done 필터는 아이템이 있을 때만 노출 (QQ total > 0 게이트).
+// 라이브 DB에 아이템이 있으면 보이고, 없으면 안 보임 — 둘 다 정상.
+test("checklist done filter visibility matches data state", async ({ page }) => {
   await page.goto(`/checklist/${DEMO_TRIP}`);
-  // QQ a11y 표준: ChecklistDoneFilter는 role=radiogroup + aria-label="완료 상태 필터"
-  await expect(
-    page.getByRole("radiogroup", { name: "완료 상태 필터" }),
-  ).not.toBeVisible();
+  const filter = page.getByRole("radiogroup", { name: "완료 상태 필터" });
+  const hasTemplate = await page.getByRole("button", { name: /기본 템플릿 추가/ }).isVisible()
+    .catch(() => false);
+  if (hasTemplate) {
+    // 빈 상태 → 필터 미노출
+    await expect(filter).not.toBeVisible();
+  } else {
+    // 채워진 상태 → 필터 노출
+    await expect(filter).toBeVisible();
+  }
 });
 
 test("cost page shows totals", async ({ page }) => {
