@@ -112,6 +112,8 @@ export async function translateMenuOcr(
     assertBudget();
   } catch (err) {
     if (err instanceof QuotaExceededError) {
+      // 사이클 AAAA5b: 차단된 시도도 기록 (attempted++, blocked.quota++).
+      recordExternalCall("anthropic", { blockedBy: "quota" });
       return {
         mode: "error",
         code: "quota_exceeded",
@@ -119,6 +121,7 @@ export async function translateMenuOcr(
       };
     }
     if (err instanceof BudgetExceededError) {
+      recordExternalCall("anthropic", { blockedBy: "budget" });
       return {
         mode: "error",
         code: "budget_exceeded",
@@ -126,6 +129,7 @@ export async function translateMenuOcr(
       };
     }
     if (err instanceof AutonomyPausedError) {
+      recordExternalCall("anthropic", { blockedBy: "emergency" });
       return {
         mode: "error",
         code: "autonomy_paused",

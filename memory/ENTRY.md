@@ -9,13 +9,11 @@
 ---
 
 ## 1. 다음 사이클
-**AAAA5b** — AAAA5a(DRY+테스트 강화) 머지 후 동일 세션 진행 (R1 권장):
-1) anthropic usage silent bypass (R1: 옵션 B `recordExternalCall({attempted, succeeded, blockedBy})` 시그니처 진화 #8, T16: A+C audit 보강)
-2) emergency 중복 가드 (T16 옵션 E: audit는 매번 기록, write만 skip — 보안 신호 dedup 금지)
-3) ADR-047 분포 측정 wiring (R1+T13: recordSpend.byModel 재활용 + read-only `lib/autonomy/distribution.ts` reporter, pickModel 부수효과 거부)
-4) ADR-047 보강 PR (분포 측정 §성공 지표 구체화)
+**AAAA6** — P1 30일 quarantine cleanup cron + AAAA5b NON-BLOCKING 3건:
+- P1 cron 위치 후보: `.github/workflows/quarantine-cleanup.yml` 또는 Railway scheduled task
+- AAAA5b 백로그: classifyModel JSDoc 한 줄 + emergency duplicate 메타 운영 활용 + 7 외부 API 서비스 blockedBy 패턴 점진 확장
 
-이후 AAAA6 (P1 30일 quarantine cleanup cron) → AAAA7 (P3 패턴 박제 3건). 1주일 cap=2~3 dry-run 실측 후 2026-05-11 이후 cap=10 자율 시동 검토.
+이후 AAAA7 (P3 패턴 박제 3건 — KNOWN_REASONS 상수 + race condition 문서 + input_guard 패턴 박제). 1주일 cap=2~3 dry-run 실측 후 2026-05-11 이후 cap=10 자율 시동 검토.
 
 ## 2. 활성 게이트 (batch)
 **없음.** 게이트 발생 시 `memory/project_gate_batch_YYYY_MM_DD.md` 위치 + 본 라인 `🔴 활성 게이트 N건` 갱신.

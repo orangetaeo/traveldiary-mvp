@@ -500,19 +500,29 @@ function triggerEmergency(
   threshold: number,
   dir: string,
 ): void {
+  // 사이클 AAAA5b: 중복 가드 (T16 옵션 E).
+  // - audit + console.error는 매번 (보안 신호 dedup 금지 — 반복 발생은 그 자체로 시그널)
+  // - flag write만 skip (이미 존재 시) — 최초 emergency 시각(pausedAt) 보존
   console.error(
     `[budget] EMERGENCY: $${current.toFixed(4)} >= $${threshold} — autonomy paused`,
   );
+  const flagPath = getPausedFlagPath(dir);
+  const flagAlreadyExists = existsSync(flagPath);
   void writeAuditLog({
     action: "usage.budget.emergency",
     resource: "usage_budget",
     resourceId: "emergency",
-    metadata: { current, threshold },
+    metadata: {
+      current,
+      threshold,
+      duplicate: flagAlreadyExists, // AAAA5b: 운영자 가시화 — 반복 트리거 추적
+    },
   });
+  if (flagAlreadyExists) return; // write skip — pausedAt 보존
   try {
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
     writeFileSync(
-      getPausedFlagPath(dir),
+      flagPath,
       JSON.stringify(
         {
           pausedAt: new Date().toISOString(),

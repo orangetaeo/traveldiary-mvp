@@ -12,18 +12,20 @@ const ROOT = join(__dirname, "..", "..");
 interface ServiceFixture {
   file: string;
   provider: string;
-  fetchCalls: number; // 호출처 수 (function별)
+  fetchCalls: number; // assertQuota 호출처 수 (function별)
+  recordCalls: number; // recordExternalCall 호출 (AAAA5b: blockedBy 3 + fetch 성공 1 = anthropic 4)
 }
 
 const FIXTURES: ServiceFixture[] = [
-  { file: "lib/services/anthropic-claude.ts", provider: "anthropic", fetchCalls: 1 },
-  { file: "lib/services/google-vision.ts", provider: "google-vision", fetchCalls: 1 },
-  { file: "lib/services/google-places.ts", provider: "google-places", fetchCalls: 2 },
-  { file: "lib/services/google-directions.ts", provider: "google-directions", fetchCalls: 1 },
-  { file: "lib/services/naver-search.ts", provider: "naver-search", fetchCalls: 2 },
-  { file: "lib/services/ota/agoda.ts", provider: "ota", fetchCalls: 1 },
-  { file: "lib/services/ota/kkday.ts", provider: "ota", fetchCalls: 1 },
-  { file: "lib/services/ota/klook.ts", provider: "ota", fetchCalls: 1 },
+  // anthropic-claude는 AAAA5b 진화 #8: catch 분기 3건(blockedBy quota/budget/emergency) + fetch 후 1건 = 4
+  { file: "lib/services/anthropic-claude.ts", provider: "anthropic", fetchCalls: 1, recordCalls: 4 },
+  { file: "lib/services/google-vision.ts", provider: "google-vision", fetchCalls: 1, recordCalls: 1 },
+  { file: "lib/services/google-places.ts", provider: "google-places", fetchCalls: 2, recordCalls: 2 },
+  { file: "lib/services/google-directions.ts", provider: "google-directions", fetchCalls: 1, recordCalls: 1 },
+  { file: "lib/services/naver-search.ts", provider: "naver-search", fetchCalls: 2, recordCalls: 2 },
+  { file: "lib/services/ota/agoda.ts", provider: "ota", fetchCalls: 1, recordCalls: 1 },
+  { file: "lib/services/ota/kkday.ts", provider: "ota", fetchCalls: 1, recordCalls: 1 },
+  { file: "lib/services/ota/klook.ts", provider: "ota", fetchCalls: 1, recordCalls: 1 },
 ];
 
 function readSource(rel: string): string {
@@ -49,12 +51,13 @@ describe("usage-quota wrap coverage — 외부 API 서비스 (사이클 AAAA1)",
         expect(matches?.length ?? 0).toBe(fx.fetchCalls);
       });
 
-      it(`recordExternalCall("${fx.provider}") 호출 ${fx.fetchCalls}회`, () => {
+      it(`recordExternalCall("${fx.provider}") 호출 ${fx.recordCalls}회`, () => {
         // AAAA2: 옵션 객체 진화로 두 번째 인자 (콤마) 또는 단일 인자 (닫는 괄호) 모두 허용
+        // AAAA5b: blockedBy catch 분기로 anthropic은 4회 (다른 service는 추후 동일 패턴 적용 시 갱신)
         const matches = src.match(
           new RegExp(`recordExternalCall\\(\\s*["']${fx.provider}["']\\s*[,)]`, "g"),
         );
-        expect(matches?.length ?? 0).toBe(fx.fetchCalls);
+        expect(matches?.length ?? 0).toBe(fx.recordCalls);
       });
 
       it("outcome union에 quota_exceeded 포함", () => {
