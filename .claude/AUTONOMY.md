@@ -24,7 +24,7 @@
 
 | 항목 | 값 | 사유 |
 |------|----|------|
-| **자율 시간대** | 22:00 ~ 09:00 (매일, 11시간) | default offset 9 (KST). env `AUTONOMY_TZ_OFFSET_HOURS` override 가능 — 베트남/태국 거주 시 7 (사이클 AAAA9). 사용자 자는 시간만 자율. 깨어있는 시간(09:00~22:00)은 동기 모드. |
+| **자율 시간대** | 22:00 ~ 09:00 (매일, 11시간) | default offset 9 (KST). env `AUTONOMY_TZ_OFFSET_HOURS` override 가능 — 베트남/태국 거주 시 7 (사이클 AAAA9). 사용자 자는 시간만 자율. 깨어있는 시간(09:00~22:00)은 동기 모드. **테스트 우회**: env `AUTONOMY_BYPASS_HOURS_GATE=1` (process scope만, 사이클 AAAA10) — audit log 추적. |
 | **자율 사이클 캡** | **10 사이클/일** | 비용 + 컨텍스트 보호. 도달 시 자율 자동 정지(자는 시간 남았어도). |
 | **컨텍스트 가드** | 세션당 **80%** | 80% 도달 시 즉시 핸드오프 작성 + 세션 종료 + 새 세션 자동 시작. |
 | **세션당 사이클** | 최대 **3 사이클** | 컨텍스트 누적 차단. 3 사이클 종료 시 핸드오프 + 새 세션. |
@@ -349,5 +349,6 @@ PRD §4 매트릭스에서 자율/게이트 판정
 | 2026-05-04 | AAAA5b | 옵션 진화 #8 + 거버넌스 관측: `recordExternalCall({attempted, succeeded, blockedBy})` 분리 카운터 (R1 옵션 B, BC 보장 9 호출처 swap 0, anthropic-claude.ts 3 catch 분기 적용) + `triggerEmergency` 중복 가드 (T16 옵션 E, audit 매번 + write skip + duplicate 메타) + `lib/autonomy/distribution.ts` 신규 read-only reporter (R1+T13 옵션 C, classifyModel + getDailyModelDistribution + isWithinTargetDistribution, 비용 가중 %, ADR-047 §분포 목표 wiring) + ADR-047 변경 이력 보강. STEP 3 복귀 0회 (FIXTURES.recordCalls 갱신 1회 hotfix). |
 | 2026-05-04 | AAAA6+AAAA7+AAAA8 | 30일 quarantine cleanup cron + scripts/clear-autonomy-paused.mjs (ENTRY.md §6 누락 해소) + classifyModel JSDoc + BudgetState.emergency 카운터 + getEmergencyStats + google-vision/places blockedBy + lib/autonomy/known-reasons.ts (4 상수 박제) + ADR-048 race condition. PR #30 단일 묶음. vitest 1003→1019 (+16). |
 | 2026-05-04 | AAAA9 | env 인지 시간대 (베트남 거주자 지원): `lib/autonomy/kst.ts` env `AUTONOMY_TZ_OFFSET_HOURS` 도입 (default 9 KST, range -12~14, 입력 가드 + console.warn fallback). KST_OFFSET_MS const → getTzOffsetMs()/getTzOffsetIsoString() 함수 진화 + 4 import swap. `lib/autonomy/cleanup.ts` 추출 (vitest 2.1.9+Node 24의 .mjs transform 회귀 회피, P3 DRY 백로그). vitest 1019→1039 (+20). 사용자 env=7 설정 → 베트남 시간 22:00~09:00 자율. |
+| 2026-05-04 | AAAA10 | 테스트 우회 env: `isAutonomyHours()`가 `AUTONOMY_BYPASS_HOURS_GATE="1"` 인지 시 강제 true + console.warn + audit log `autonomy.hours_gate_bypassed` (severity:"security"). 정확히 "1"만 우회 (0/true/"" 등 부주의 fallback 차단). default OFF로 22:00 자동 시동 영향 0. process scope만 사용 권장 (영구 등록 시 안전 회로 무력화). vitest 1039→1045 (+6). |
 
 > 이후 변경은 게이트 매트릭스 보강이나 자동화 영역 확대 시 갱신.

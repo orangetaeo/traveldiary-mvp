@@ -24,6 +24,7 @@ import {
   getKstDateString,
   getMemoryDir,
 } from "./kst";
+import { writeAuditLog } from "@/lib/audit-log";
 
 // 사이클 AAAA5a: KST 헬퍼는 lib/autonomy/kst.ts로 추출. 외부 호출처 호환을 위해 re-export.
 export { getKstDateString };
@@ -143,7 +144,17 @@ export function incrementCycleCount(
 
 // 자율 시간대 22:00~09:00 내인지 확인 (AUTONOMY §0.5).
 // default KST(+9), env `AUTONOMY_TZ_OFFSET_HOURS` override (사이클 AAAA9 — 베트남 등 거주자 지원).
+//
+// 사이클 AAAA10 — 테스트 우회: env `AUTONOMY_BYPASS_HOURS_GATE=1` 명시 시 강제 true.
+// **default OFF 보장** — 평소 운영(22:00 자동 시동)에 영향 0. 우회 시 console.warn + audit 추적.
+// 사용 시나리오: 낮 시간 자율 모드 검증, 코드 회귀 테스트 시동, 디버깅.
 export function isAutonomyHours(now: number = Date.now()): boolean {
+  if (process.env.AUTONOMY_BYPASS_HOURS_GATE === "1") {
+    console.warn(
+      "[autonomy] hours gate bypassed via AUTONOMY_BYPASS_HOURS_GATE=1 (테스트 모드)",
+    );
+    return true;
+  }
   const kst = new Date(now + getTzOffsetMs());
   const hour = kst.getUTCHours();
   return hour >= 22 || hour < 9;
@@ -182,6 +193,18 @@ export function assertAutonomyEntry(
   }
   if (!isAutonomyHours(now)) {
     throw new NotAutonomyHoursError(now);
+  }
+  // AAAA10: bypass 사용 시 audit 기록 (gate 우회는 보안 신호 — 운영자 추적 가능)
+  if (process.env.AUTONOMY_BYPASS_HOURS_GATE === "1") {
+    void writeAuditLog({
+      action: "autonomy.hours_gate_bypassed",
+      resource: "autonomy_entry",
+      resourceId: "hours_gate",
+      metadata: {
+        now: new Date(now).toISOString(),
+        severity: "security",
+      },
+    });
   }
   assertCycleCap(now, dir);
 }
