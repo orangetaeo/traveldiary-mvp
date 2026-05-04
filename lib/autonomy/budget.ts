@@ -26,6 +26,7 @@ import {
 import { join, resolve } from "path";
 import { writeAuditLog } from "@/lib/audit-log";
 import { KST_OFFSET_MS, getKstDateString, getMemoryDir } from "@/lib/autonomy/kst";
+import { PAUSED_FLAG_REASONS } from "@/lib/autonomy/known-reasons";
 
 export { getKstDateString };
 
@@ -60,6 +61,18 @@ export interface BudgetState {
   byProvider: Record<string, ProviderBucket>;
   /** KST 시간 0~23 버킷. 시간당 임계치 검사용 */
   hourly: Array<{ hour: number; costUsd: number; count: number }>;
+  /**
+   * 사이클 AAAA7: emergency 트리거 카운터 (운영 가시화).
+   *
+   * AAAA5b 가드: emergency 도달 시 audit/console.error 매번 + flag write 1회만.
+   * 본 카운터는 일일 누적 — 비정상 반복 발생 시 신호 (예: 비용 폭증 후 대량 호출).
+   */
+  emergency?: {
+    triggers: number; // 총 호출 (duplicate 포함)
+    duplicates: number; // duplicate=true (이미 flag 존재) 카운트
+    firstAt?: string; // ISO timestamp
+    lastAt?: string;
+  };
 }
 
 export interface BudgetThresholds {
@@ -248,6 +261,7 @@ export function readBudgetState(
       totals: parsed.totals ?? defaultState(now).totals,
       byProvider: parsed.byProvider ?? {},
       hourly: parsed.hourly ?? [],
+      emergency: parsed.emergency,
     };
   } catch (err) {
     // 사이클 AAAA3: 손상 파일 quarantine + audit (이전: silent default)
@@ -518,6 +532,24 @@ function triggerEmergency(
       duplicate: flagAlreadyExists, // AAAA5b: 운영자 가시화 — 반복 트리거 추적
     },
   });
+
+  // 사이클 AAAA7: emergency 카운터 영속화 (BudgetState.emergency).
+  // duplicate 호출도 카운트 증가 — 비정상 반복(비용 폭증 후 다량 호출)을 dashboard에서 가시.
+  try {
+    const now = Date.now();
+    const state = readBudgetState(now, dir);
+    const nowIso = new Date(now).toISOString();
+    const e = state.emergency ?? { triggers: 0, duplicates: 0 };
+    e.triggers += 1;
+    if (flagAlreadyExists) e.duplicates += 1;
+    e.firstAt ??= nowIso;
+    e.lastAt = nowIso;
+    state.emergency = e;
+    writeBudgetState(state, dir);
+  } catch (err) {
+    console.error("[budget] failed to persist emergency counter:", err);
+  }
+
   if (flagAlreadyExists) return; // write skip — pausedAt 보존
   try {
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
@@ -569,9 +601,8 @@ export function readAutonomyPausedFlag(
   try {
     const raw = readFileSync(path, "utf-8");
     const parsed = JSON.parse(raw) as PausedFlag;
-    // 정상 reason 화이트리스트 (T12 권고)
-    const KNOWN_REASONS = ["budget.emergency", "manual", "flag.corrupt"];
-    if (!parsed.reason || !KNOWN_REASONS.includes(parsed.reason)) {
+    // 정상 reason 화이트리스트 (T12 권고). 사이클 AAAA8: lib/autonomy/known-reasons로 박제.
+    if (!parsed.reason || !(PAUSED_FLAG_REASONS as readonly string[]).includes(parsed.reason)) {
       // 알 수 없는 reason도 fail-closed (안전 우선)
       const quarantinedPath = quarantineFile(path, "flag.unknown_reason", dir);
       void writeAuditLog({

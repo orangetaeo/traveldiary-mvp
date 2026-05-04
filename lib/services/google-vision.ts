@@ -74,6 +74,8 @@ export async function ocrFromBase64Image(
     assertQuota("google-vision");
   } catch (err) {
     if (err instanceof QuotaExceededError) {
+      // 사이클 AAAA7: 차단 시도도 기록 (anthropic-claude.ts AAAA5b 답습).
+      recordExternalCall("google-vision", { blockedBy: "quota" });
       return {
         mode: "error",
         code: "quota_exceeded",

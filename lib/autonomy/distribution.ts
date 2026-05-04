@@ -34,6 +34,13 @@ export interface ModelDistribution {
   total: { count: number; costUsd: number };
 }
 
+/**
+ * 모델 이름 → tier 분류 (사이클 AAAA5b, ADR-047 §분포 목표).
+ *
+ * - 케이스 무관 정규식 매칭 (Anthropic 모델 ID `claude-haiku-4-5-20251001` 등)
+ * - 패턴 미일치 시 `null` (호출자 unclassified 버킷 처리). `pickModel`이 권장하지 않은 비표준 모델 추적용.
+ * - 새 Claude 모델 패밀리 출시 시 본 함수 + ADR-047 단가표 동시 갱신 필요.
+ */
 export function classifyModel(modelName: string): ModelTier | null {
   if (HAIKU_PATTERN.test(modelName)) return "haiku";
   if (SONNET_PATTERN.test(modelName)) return "sonnet";
@@ -77,6 +84,31 @@ export function getDailyModelDistribution(
     unclassified: { ...acc.unclassified, pct: pct(acc.unclassified.costUsd) },
     total: acc.total,
   };
+}
+
+export interface EmergencyStats {
+  triggers: number;
+  duplicates: number;
+  firstAt?: string;
+  lastAt?: string;
+}
+
+/**
+ * Emergency 트리거 일일 통계 (사이클 AAAA7).
+ *
+ * AAAA5b duplicate 메타의 운영 활용 — read-only reporter.
+ * - `triggers`: 일일 누적 호출 (`triggerEmergency` 도달 횟수)
+ * - `duplicates`: flag 이미 존재 상태로 호출된 횟수 (반복 발생 시그널)
+ * - `firstAt`/`lastAt`: KST 첫/마지막 호출 시각 ISO
+ *
+ * 일반 운영: triggers <= 1 (최초 emergency만). duplicates > 0이면 이상 신호.
+ */
+export function getEmergencyStats(
+  now: number = Date.now(),
+  dir?: string,
+): EmergencyStats {
+  const state = readBudgetState(now, dir);
+  return state.emergency ?? { triggers: 0, duplicates: 0 };
 }
 
 export interface DistributionAlerts {

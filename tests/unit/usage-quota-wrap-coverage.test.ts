@@ -19,8 +19,9 @@ interface ServiceFixture {
 const FIXTURES: ServiceFixture[] = [
   // anthropic-claude는 AAAA5b 진화 #8: catch 분기 3건(blockedBy quota/budget/emergency) + fetch 후 1건 = 4
   { file: "lib/services/anthropic-claude.ts", provider: "anthropic", fetchCalls: 1, recordCalls: 4 },
-  { file: "lib/services/google-vision.ts", provider: "google-vision", fetchCalls: 1, recordCalls: 1 },
-  { file: "lib/services/google-places.ts", provider: "google-places", fetchCalls: 2, recordCalls: 2 },
+  // 사이클 AAAA7: google-vision/places도 blockedBy="quota" catch 분기 추가
+  { file: "lib/services/google-vision.ts", provider: "google-vision", fetchCalls: 1, recordCalls: 2 },
+  { file: "lib/services/google-places.ts", provider: "google-places", fetchCalls: 2, recordCalls: 4 },
   { file: "lib/services/google-directions.ts", provider: "google-directions", fetchCalls: 1, recordCalls: 1 },
   { file: "lib/services/naver-search.ts", provider: "naver-search", fetchCalls: 2, recordCalls: 2 },
   { file: "lib/services/ota/agoda.ts", provider: "ota", fetchCalls: 1, recordCalls: 1 },

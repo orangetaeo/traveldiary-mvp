@@ -1,0 +1,58 @@
+name: Quarantine Cleanup (30d retention)
+
+# 사이클 AAAA6 P1 — memory/quarantine/ 30일 sweep cron.
+#
+# **목적**: AAAA3/AAAA4에서 생성되는 quarantine 파일이 무한 누적되는 것을 차단.
+#
+# **운영 메모**:
+# - 본 workflow는 GitHub Actions runner에서 실행. 실제 runtime quarantine 파일은
+#   Windows Task Scheduler(local autonomy)에서 매일 KST 09:30에 별도 sweep 권장.
+#   docs/14-autonomy-task-scheduler-setup.md §3-3 참조.
+# - GitHub Actions 실행은 repo의 memory/quarantine/(.gitignore 등록 — 항상 비어 있음)을 sweep.
+#   따라서 실질 효과보다 "스크립트가 매일 정상 동작하는지" 회귀 검증 (sanity probe) 성격.
+# - 향후 Railway production runtime quarantine 통합 시 SSH 또는 Railway CLI step 추가.
+#
+# **수동 트리거**: GitHub Actions 탭 → "Quarantine Cleanup" → Run workflow.
+
+on:
+  schedule:
+    # KST 09:30 = UTC 00:30 (사용자 깨어난 직후, 결과를 첫 작업 시 확인 가능)
+    - cron: "30 0 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (do not delete)"
+        type: boolean
+        default: false
+      retention_days:
+        description: "Retention days"
+        type: string
+        default: "30"
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    name: Sweep memory/quarantine/
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run cleanup script
+        env:
+          AUTONOMY_MEMORY_DIR: ${{ github.workspace }}/memory
+        run: |
+          set -eo pipefail
+          DRY_RUN_FLAG=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+          fi
+          RETENTION="${{ github.event.inputs.retention_days || '30' }}"
+          node scripts/quarantine-cleanup.mjs --retention-days=$RETENTION $DRY_RUN_FLAG

@@ -9,11 +9,17 @@
 ---
 
 ## 1. 다음 사이클
-**AAAA6** — P1 30일 quarantine cleanup cron + AAAA5b NON-BLOCKING 3건:
-- P1 cron 위치 후보: `.github/workflows/quarantine-cleanup.yml` 또는 Railway scheduled task
-- AAAA5b 백로그: classifyModel JSDoc 한 줄 + emergency duplicate 메타 운영 활용 + 7 외부 API 서비스 blockedBy 패턴 점진 확장
+**AAAA7** — AAAA5b NON-BLOCKING 3건 (AAAA6 완료 후):
+- classifyModel JSDoc 한 줄
+- emergency duplicate 메타 운영 활용 (audit log 추적 reporter)
+- google-vision + google-places blockedBy 패턴 확장 (R1 우선순위, 나머지 4 외부 API는 P2 백로그)
 
-이후 AAAA7 (P3 패턴 박제 3건 — KNOWN_REASONS 상수 + race condition 문서 + input_guard 패턴 박제). 1주일 cap=2~3 dry-run 실측 후 2026-05-11 이후 cap=10 자율 시동 검토.
+이후 AAAA8 (P3 패턴 박제 3건 — KNOWN_REASONS 상수 + race condition ADR-048 + input_guard feedback 박제). dry-run 실측 시작 2026-05-04 → 2026-05-11 이후 cap=10 자율 시동 검토 (사용자 결정).
+
+**dry-run 운영 메모** (2026-05-04~05-11):
+- cap=3 sessions/day (AUTONOMY.md §0.5)
+- distribution reporter (AAAA5b) read-only 분포 누적 → 5월 11일 결산 후 ADR-047 enforce 게이트 승격 검토
+- quarantine cleanup cron 매일 KST 09:30 (AAAA6 P1)
 
 ## 2. 활성 게이트 (batch)
 **없음.** 게이트 발생 시 `memory/project_gate_batch_YYYY_MM_DD.md` 위치 + 본 라인 `🔴 활성 게이트 N건` 갱신.

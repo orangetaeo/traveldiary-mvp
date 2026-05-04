@@ -19,7 +19,9 @@
     "test:e2e:live": "PLAYWRIGHT_BASE_URL=https://traveldiary-mvp-production.up.railway.app playwright test",
     "test:e2e:install": "playwright install chromium",
     "test:unit": "vitest run",
-    "test:unit:watch": "vitest"
+    "test:unit:watch": "vitest",
+    "quarantine:cleanup": "node scripts/quarantine-cleanup.mjs",
+    "autonomy:clear-paused": "node scripts/clear-autonomy-paused.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
