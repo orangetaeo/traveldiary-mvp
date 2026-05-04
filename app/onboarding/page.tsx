@@ -82,7 +82,7 @@ export default function OnboardingPage() {
         },
         startDate,
       });
-      router.push(`/itinerary/creating?trip=${result.id}`);
+      router.push(`/itinerary/creating?trip=${result.id}&dest=${encodeURIComponent(destination)}`);
     });
   };
 
