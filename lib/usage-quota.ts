@@ -7,7 +7,11 @@
  * 사이클 AAAA2: `recordExternalCall` 옵션 객체 진화 (헬퍼 진화 #7 답습).
  *   - 토큰/$ 옵션 전달 시 `lib/autonomy/budget.ts`로 forward (영속 + 임계치).
  *   - scalar `number` fallback 유지 (기존 9 호출처 swap 0).
+ *
+ * 사이클 AAAA5a: KST_OFFSET_MS는 lib/autonomy/kst.ts로 추출 (DRY).
  */
+
+import { KST_OFFSET_MS } from "@/lib/autonomy/kst";
 
 export type ExternalProvider =
   | "anthropic"
@@ -33,7 +37,6 @@ const DEFAULT_DAILY_CAP: Record<ExternalProvider, number> = {
 
 const STATE = new Map<ExternalProvider, QuotaState>();
 
-const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 const ONE_DAY_MS = 86_400_000;
 
 export function getKstMidnightMs(now: number = Date.now()): number {

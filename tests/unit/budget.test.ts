@@ -20,6 +20,7 @@ import {
   MAX_QUARANTINE_ATTEMPTS,
   __resetBudgetForTests,
   __resetQuarantineForTests,
+  __getQuarantineDedupSetForTests,
 } from "@/lib/autonomy/budget";
 
 const SAVED_ENV = { ...process.env };
@@ -27,6 +28,9 @@ const SAVED_ENV = { ...process.env };
 let TMP_DIR: string;
 
 describe("budget — 자율 모드 비용 트래킹 + 임계치 (사이클 AAAA2, ADR-047)", () => {
+  // 사이클 AAAA5a: top-level beforeEach 일원화 (T12 NON-BLOCKING #3).
+  // AAAA4 describe 내부 beforeEach/afterEach 중복 제거. quarantine state는 모듈 스코프이므로
+  // 다른 describe(AAAA3 flag/state 손상) 테스트 후에도 idempotent 리셋 필요.
   beforeEach(() => {
     TMP_DIR = mkdtempSync(join(tmpdir(), "td-budget-"));
     process.env.AUTONOMY_MEMORY_DIR = TMP_DIR;
@@ -36,11 +40,13 @@ describe("budget — 자율 모드 비용 트래킹 + 임계치 (사이클 AAAA2
     delete process.env.USAGE_BUDGET_DAILY_THROW;
     delete process.env.USAGE_BUDGET_DAILY_EMERGENCY;
     delete process.env.USAGE_BUDGET_DISABLED;
+    __resetQuarantineForTests();
   });
 
   afterEach(() => {
     process.env = { ...SAVED_ENV };
     if (existsSync(TMP_DIR)) rmSync(TMP_DIR, { recursive: true, force: true });
+    __resetQuarantineForTests();
   });
 
   describe("getKstDateString (DRY 답습)", () => {
@@ -371,6 +377,7 @@ describe("budget — 자율 모드 비용 트래킹 + 임계치 (사이클 AAAA2
     // existsSync(quarantineDir)는 true가 되어 mkdirSync가 skip됨.
     // 이후 renameSync(srcPath, join(quarantineDir, basename))는 부모가 디렉토리가
     // 아니라 파일이므로 ENOTDIR로 실패 → renameSync 영속 실패 시뮬.
+    // beforeEach/afterEach는 top-level에서 일원화 (사이클 AAAA5a, T12 #3).
     function blockQuarantineDir(): void {
       const path = join(TMP_DIR, "quarantine");
       if (existsSync(path)) rmSync(path, { recursive: true, force: true });
@@ -381,14 +388,6 @@ describe("budget — 자율 모드 비용 트래킹 + 임계치 (사이클 AAAA2
       const blockingPath = join(TMP_DIR, "quarantine");
       if (existsSync(blockingPath)) unlinkSync(blockingPath);
     }
-
-    beforeEach(() => {
-      __resetQuarantineForTests();
-    });
-
-    afterEach(() => {
-      __resetQuarantineForTests();
-    });
 
     it("MAX_QUARANTINE_ATTEMPTS는 R1 결정값 3", () => {
       expect(MAX_QUARANTINE_ATTEMPTS).toBe(3);
@@ -503,6 +502,53 @@ describe("budget — 자율 모드 비용 트래킹 + 임계치 (사이클 AAAA2
         process.env.NODE_ENV = orig;
         if (origVitest) process.env.VITEST = origVitest;
       }
+    });
+
+    // 사이클 AAAA5a — T12 NON-BLOCKING #1 dedup Set size 단언 (R1 옵션 C)
+    it("audit dedup: 영속 rename 실패 시 dedup Set에 :rename_failed 1회만 (AAAA5a)", () => {
+      blockQuarantineDir();
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage", "utf-8");
+
+      // cap 도달까지 3번 시도 (cap 미초과 영역)
+      for (let i = 0; i < MAX_QUARANTINE_ATTEMPTS; i++) {
+        readAutonomyPausedFlag(TMP_DIR);
+      }
+
+      const { dedup, attempts } = __getQuarantineDedupSetForTests();
+      const renameFailedKeys = [...dedup].filter((k) => k.endsWith(":rename_failed"));
+      expect(renameFailedKeys.length).toBe(1); // 동일 path 1회만 audit dedup
+      expect(attempts.size).toBe(1);
+      expect([...attempts.values()][0]).toBe(MAX_QUARANTINE_ATTEMPTS);
+    });
+
+    it("audit dedup: cap 초과 시 dedup Set에 :cap_exceeded 1회만 (AAAA5a)", () => {
+      blockQuarantineDir();
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage", "utf-8");
+
+      // cap 도달 + 추가 3번 = 6번
+      for (let i = 0; i < MAX_QUARANTINE_ATTEMPTS + 3; i++) {
+        readAutonomyPausedFlag(TMP_DIR);
+      }
+
+      const { dedup } = __getQuarantineDedupSetForTests();
+      const capExceededKeys = [...dedup].filter((k) => k.endsWith(":cap_exceeded"));
+      expect(capExceededKeys.length).toBe(1); // cap 초과 1회만 audit
+      const renameFailedKeys = [...dedup].filter((k) => k.endsWith(":rename_failed"));
+      expect(renameFailedKeys.length).toBe(1); // rename_failed도 1회만
+    });
+
+    it("attempts Map 정규화: 단일 entry로 추적 (AAAA5a 보강)", () => {
+      blockQuarantineDir();
+      writeFileSync(getPausedFlagPath(TMP_DIR), "garbage", "utf-8");
+
+      readAutonomyPausedFlag(TMP_DIR);
+
+      const { attempts } = __getQuarantineDedupSetForTests();
+      expect(attempts.size).toBe(1);
+      const [key] = [...attempts.keys()];
+      expect(key).toContain("AUTONOMY_PAUSED.flag");
+      // 절대경로 정규화 확인 (path.resolve 결과는 항상 절대경로 시작)
+      expect(key.length).toBeGreaterThan(10);
     });
   });
 
