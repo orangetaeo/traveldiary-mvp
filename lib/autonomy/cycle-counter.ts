@@ -18,8 +18,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { AutonomyPausedError, readAutonomyPausedFlag } from "./budget";
+import { KST_OFFSET_MS, getKstDateString, getMemoryDir } from "./kst";
 
-const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+// 사이클 AAAA5a: KST 헬퍼는 lib/autonomy/kst.ts로 추출. 외부 호출처 호환을 위해 re-export.
+export { getKstDateString };
+
 const DEFAULT_CYCLE_CAP = 10;
 
 export interface CycleCounterState {
@@ -28,18 +31,6 @@ export interface CycleCounterState {
   cycles: number;
   lastCycleAt: string | null; // ISO
   lastCycleId: string | null;
-}
-
-export function getKstDateString(now: number = Date.now()): string {
-  const kst = new Date(now + KST_OFFSET_MS);
-  const y = kst.getUTCFullYear();
-  const m = String(kst.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(kst.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-function getMemoryDir(): string {
-  return process.env.AUTONOMY_MEMORY_DIR ?? join(process.cwd(), "memory");
 }
 
 function getCycleCap(): number {

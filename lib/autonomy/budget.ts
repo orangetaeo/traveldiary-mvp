@@ -25,8 +25,9 @@ import {
 } from "fs";
 import { join, resolve } from "path";
 import { writeAuditLog } from "@/lib/audit-log";
+import { KST_OFFSET_MS, getKstDateString, getMemoryDir } from "@/lib/autonomy/kst";
 
-const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+export { getKstDateString };
 
 export interface SpendRecord {
   provider: string;
@@ -88,18 +89,6 @@ export function getBudgetThresholds(): BudgetThresholds {
     dailyEmergency: readEnvNumber("USAGE_BUDGET_DAILY_EMERGENCY", 200),
     disabled: process.env.USAGE_BUDGET_DISABLED === "1",
   };
-}
-
-function getMemoryDir(): string {
-  return process.env.AUTONOMY_MEMORY_DIR ?? join(process.cwd(), "memory");
-}
-
-export function getKstDateString(now: number = Date.now()): string {
-  const kst = new Date(now + KST_OFFSET_MS);
-  const y = kst.getUTCFullYear();
-  const m = String(kst.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(kst.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
 }
 
 function getKstHour(now: number): number {
@@ -640,6 +629,23 @@ export function __resetQuarantineForTests(): void {
   }
   quarantineAttempts.clear();
   auditedQuarantineFailures.clear();
+}
+
+// 사이클 AAAA5a: dedup Set size 단언으로 audit 1회 호출 검증 (T12 NON-BLOCKING #1, R1 옵션 C).
+// vi.spyOn(audit-log) ESM 비호환 답습 회피 — readonly snapshot 반환.
+export function __getQuarantineDedupSetForTests(): {
+  attempts: ReadonlyMap<string, number>;
+  dedup: ReadonlySet<string>;
+} {
+  if (process.env.NODE_ENV !== "test" && process.env.VITEST !== "true") {
+    throw new Error(
+      "__getQuarantineDedupSetForTests is only callable from test environment",
+    );
+  }
+  return {
+    attempts: new Map(quarantineAttempts),
+    dedup: new Set(auditedQuarantineFailures),
+  };
 }
 
 export { MAX_QUARANTINE_ATTEMPTS, getQuarantineDeadFlagPath };
