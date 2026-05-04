@@ -14,7 +14,27 @@
     "prisma/migrations/",
     "tests/e2e/"
   ],
+  "overrides": [
+    {
+      "files": ["tests/**/*.ts", "tests/**/*.tsx", "scripts/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
   "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "@/lib/autonomy/budget",
+            "importNames": ["clearAutonomyPausedFlag"],
+            "message": "clearAutonomyPausedFlag는 scripts/ 또는 tests/에서만 호출 (T16 보안 권고, 사이클 AAAA3). 자율 사이클 코드 경로에서 자동 호출 금지."
+          }
+        ]
+      }
+    ],
     "jsx-a11y/aria-props": "error",
     "jsx-a11y/aria-proptypes": "error",
     "jsx-a11y/aria-unsupported-elements": "error",
