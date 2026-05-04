@@ -14,6 +14,7 @@ import { resolveCity, isVietnamCity } from "@/lib/seed/cities";
 import { resolveTripsByCityCode, type ResolvedTrip } from "@/lib/services/resolved-trip";
 import { Badge } from "@/components/ui/Badge";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
+import { BottomNav } from "@/components/ui/BottomNav";
 import type {
   City,
   EmergencyContact,
@@ -255,6 +256,8 @@ export default function CityPage({ params }: { params: { slug: string } }) {
           노출. visa/utilities/weather는 사이클 8.5+에서 추가.
         </p>
       </main>
+
+      <BottomNav active="trips" />
     </div>
   );
 }
@@ -416,6 +419,8 @@ function ComingSoonCity({ city }: { city: City }) {
           모델에서 재활성화됩니다.
         </p>
       </main>
+
+      <BottomNav active="trips" />
     </div>
   );
 }

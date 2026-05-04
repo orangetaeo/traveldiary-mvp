@@ -19,6 +19,7 @@ import {
   type LossGuide,
 } from "@/lib/constants/koreanLossContacts";
 import type { EmergencyContact } from "@/lib/types";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 const CATEGORY_LABEL: Record<string, string> = {
   embassy: "영사관",
@@ -178,6 +179,8 @@ export default function CityEmergencyPage({
           출처: 외교부 영사콜센터 0404.go.kr
         </p>
       </main>
+
+      <BottomNav active="trips" />
     </div>
   );
 }

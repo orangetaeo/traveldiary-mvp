@@ -2,7 +2,7 @@
  * Affiliate Commission Dashboard — 사이클 12c.
  *
  * AuditLog "affiliate.click" 행을 OTA별 집계.
- * MVP: 인증 미요구 (단일 운영자 가정). 11d+에서 admin role 체크 추가.
+ * BLOCKER3: ADMIN_SECRET_KEY env 기반 접근 가드 (비인증 시 404).
  *
  * Estimated commission은 OTA별 가정 rate (COMMISSION_RATE).
  * 실 commission은 어필리에이트 콘솔에서 정산 후 비교.
@@ -13,6 +13,7 @@ import { getAffiliateSummary } from "@/lib/repositories/affiliate.repository";
 import { isDbConnected } from "@/lib/prisma";
 import { parseWindow } from "@/lib/admin/window-filter";
 import { TimeWindowFilter } from "@/components/admin/TimeWindowFilter";
+import { assertAdminAccess } from "@/lib/auth/admin-guard";
 
 // 라이브 audit log를 매 요청마다 조회 (build-time 캐시 X) — 사이클 SS (PP 답습)
 export const dynamic = "force-dynamic";
@@ -32,12 +33,13 @@ const OTA_TONE: Record<string, string> = {
 };
 
 interface PageProps {
-  searchParams: { window?: string };
+  searchParams: { window?: string; key?: string };
 }
 
 export default async function AffiliateDashboard({
   searchParams,
 }: PageProps) {
+  assertAdminAccess(searchParams);
   const windowDays = parseWindow(searchParams.window);
 
   if (!isDbConnected) {

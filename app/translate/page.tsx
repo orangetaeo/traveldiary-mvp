@@ -1,4 +1,5 @@
 import { TranslateView } from "@/components/translate/TranslateView";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 /**
  * 카메라 번역 (M4) — `/translate?trip=<id>`
@@ -11,5 +12,10 @@ export default function TranslatePage({
 }: {
   searchParams: { trip?: string };
 }) {
-  return <TranslateView tripId={searchParams.trip} />;
+  return (
+    <>
+      <TranslateView tripId={searchParams.trip} />
+      <BottomNav active="home" />
+    </>
+  );
 }
