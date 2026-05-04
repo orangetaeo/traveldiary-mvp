@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useTransition, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createTripFromOnboarding } from "@/actions/trip";
 import { trackFunnelStep } from "@/lib/analytics/funnel";
 
@@ -39,12 +39,22 @@ const PACES = ["여유롭게", "균형있게", "최대한 많이"];
 const EXCLUDES = ["새우 알레르기", "매운 거 못 먹음", "비건"];
 
 export default function OnboardingPage() {
+  return (
+    <Suspense>
+      <OnboardingInner />
+    </Suspense>
+  );
+}
+
+function OnboardingInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const ref = searchParams.get("ref") ?? undefined; // C2: 초대 코드 추적
   const [step, setStep] = useState<Step>(1);
 
   // C2: 퍼널 트래킹 — 페이지 진입 + 단계 전환
-  useEffect(() => { trackFunnelStep("view"); }, []);
-  useEffect(() => { trackFunnelStep(`step${step}` as "step1"); }, [step]);
+  useEffect(() => { trackFunnelStep("view", ref ? { ref } : undefined); }, [ref]);
+  useEffect(() => { trackFunnelStep(`step${step}` as "step1", ref ? { ref } : undefined); }, [step, ref]);
 
   // Step 2: 목적지
   const [destination, setDestination] = useState("푸꾸옥");
@@ -74,7 +84,7 @@ export default function OnboardingPage() {
   const [isPending, startTransition] = useTransition();
 
   const handleFinish = () => {
-    trackFunnelStep("submit", { destination, companion });
+    trackFunnelStep("submit", { destination, companion, ...(ref ? { ref } : {}) });
     startTransition(async () => {
       const result = await createTripFromOnboarding({
         destination,
@@ -88,7 +98,7 @@ export default function OnboardingPage() {
         },
         startDate,
       });
-      trackFunnelStep("complete", { destination, tripId: result.id });
+      trackFunnelStep("complete", { destination, tripId: result.id, ...(ref ? { ref } : {}) });
       router.push(`/itinerary/creating?trip=${result.id}&dest=${encodeURIComponent(destination)}`);
     });
   };
