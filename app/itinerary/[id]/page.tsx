@@ -24,7 +24,13 @@ import { BottomNav } from "@/components/ui/BottomNav";
 
 const TODAY_ISO = "2026-04-30";
 
-export default async function ItineraryPage({ params }: { params: { id: string } }) {
+export default async function ItineraryPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { day?: string };
+}) {
   const bundle = (await fetchTripFromDb(params.id)) ?? getDemoTrip(params.id);
   if (!bundle) notFound();
 
@@ -128,7 +134,11 @@ export default async function ItineraryPage({ params }: { params: { id: string }
           </div>
         )}
 
-        <ItineraryView trip={trip} initialItems={items} />
+        <ItineraryView
+          trip={trip}
+          initialItems={items}
+          initialDay={parseDayParam(searchParams.day, trip.nights)}
+        />
       </main>
 
       <BottomNav active="itinerary" />
@@ -186,4 +196,12 @@ function paceLabel(p: string): string {
       packed: "꽉 찬 페이스",
     } as Record<string, string>)[p] ?? p
   );
+}
+
+/** C4 — ?day= 파라미터 → 0-based dayIndex. 범위 밖이면 0. */
+function parseDayParam(raw: string | undefined, nights: number): number {
+  if (raw == null) return 0;
+  const n = parseInt(raw, 10);
+  if (Number.isNaN(n) || n < 0 || n > nights) return 0;
+  return n;
 }

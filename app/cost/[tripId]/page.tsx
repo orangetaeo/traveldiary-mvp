@@ -13,8 +13,10 @@ import { BottomNav } from "@/components/ui/BottomNav";
 
 export default async function CostPage({
   params,
+  searchParams,
 }: {
   params: { tripId: string };
+  searchParams: { day?: string };
 }) {
   const dbBundle = await fetchTripFromDb(params.tripId);
   const trip = dbBundle?.trip ?? getDemoTrip(params.tripId)?.trip;
@@ -33,8 +35,17 @@ export default async function CostPage({
         currency={city?.payment.currency ?? "USD"}
         currencySymbol={city?.payment.currencySymbol ?? "$"}
         approxKrwRate={city?.payment.approxKrwRate ?? 1}
+        initialDay={parseDayParam(searchParams.day, trip.nights)}
       />
       <BottomNav active="itinerary" />
     </>
   );
+}
+
+/** C4 — ?day= 파라미터 → 0-based dayIndex. 범위 밖이면 undefined. */
+function parseDayParam(raw: string | undefined, nights: number): number | undefined {
+  if (raw == null) return undefined;
+  const n = parseInt(raw, 10);
+  if (Number.isNaN(n) || n < 0 || n > nights) return undefined;
+  return n;
 }
