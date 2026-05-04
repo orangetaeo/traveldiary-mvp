@@ -11,7 +11,13 @@
  * 필터: ?filter=VN (베트남) / ?filter=coming-soon / 없으면 전체.
  */
 
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "내 여행 — TRAVELDIARY",
+  description: "베트남 여행 일정을 탐색하고 관리하세요.",
+};
 import { listDemoTrips } from "@/lib/seed";
 import { listCities, PRIMARY_COUNTRY_CODE } from "@/lib/seed/cities";
 import { Badge } from "@/components/ui/Badge";
