@@ -10,6 +10,11 @@ import {
   getEvidenceCache,
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
+import {
+  assertQuota,
+  recordExternalCall,
+  QuotaExceededError,
+} from "@/lib/usage-quota";
 
 const LOCAL_URL = "https://openapi.naver.com/v1/search/local.json";
 const BLOG_URL = "https://openapi.naver.com/v1/search/blog.json";
@@ -44,7 +49,11 @@ export interface NaverLocalItem {
 export type NaverLocalOutcome =
   | { mode: "demo" }
   | { mode: "ok"; items: NaverLocalItem[]; cached: boolean }
-  | { mode: "error"; code: "naver_api_error" | "network"; message?: string };
+  | {
+      mode: "error";
+      code: "naver_api_error" | "network" | "quota_exceeded";
+      message?: string;
+    };
 
 export async function searchNaverLocal(
   query: string,
@@ -64,6 +73,19 @@ export async function searchNaverLocal(
   if (cached) return { mode: "ok", items: cached.data.items, cached: true };
 
   try {
+    assertQuota("naver-search");
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+
+  try {
     const params = new URLSearchParams({ query, display: "5" });
     const resp = await fetch(`${LOCAL_URL}?${params.toString()}`, {
       headers: {
@@ -72,6 +94,8 @@ export async function searchNaverLocal(
       },
       cache: "no-store",
     });
+
+    recordExternalCall("naver-search");
 
     if (!resp.ok) {
       return { mode: "error", code: "naver_api_error", message: `HTTP ${resp.status}` };
@@ -137,7 +161,11 @@ export type NaverBlogOutcome =
       positiveHeuristic: number; // 0~100
       cached: boolean;
     }
-  | { mode: "error"; code: "naver_api_error" | "network"; message?: string };
+  | {
+      mode: "error";
+      code: "naver_api_error" | "network" | "quota_exceeded";
+      message?: string;
+    };
 
 const POSITIVE_KEYWORDS = [
   "추천", "맛있", "최고", "강추", "감동", "분위기", "인생", "JMT",
@@ -175,6 +203,19 @@ export async function searchNaverBlog(
   }
 
   try {
+    assertQuota("naver-search");
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+
+  try {
     const params = new URLSearchParams({
       query,
       display: "10",
@@ -187,6 +228,8 @@ export async function searchNaverBlog(
       },
       cache: "no-store",
     });
+
+    recordExternalCall("naver-search");
 
     if (!resp.ok) {
       return { mode: "error", code: "naver_api_error", message: `HTTP ${resp.status}` };

@@ -10,6 +10,11 @@ import {
   getEvidenceCache,
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
+import {
+  assertQuota,
+  recordExternalCall,
+  QuotaExceededError,
+} from "@/lib/usage-quota";
 
 const VISION_URL = "https://vision.googleapis.com/v1/images:annotate";
 const VISION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7일
@@ -19,7 +24,11 @@ export type VisionOcrOutcome =
   | { mode: "demo" }
   | { mode: "ok"; text: string; cached: boolean; fetchDurationMs: number }
   | { mode: "no_text"; cached: boolean; fetchDurationMs: number }
-  | { mode: "error"; code: "vision_api_error" | "network"; message?: string };
+  | {
+      mode: "error";
+      code: "vision_api_error" | "network" | "quota_exceeded";
+      message?: string;
+    };
 
 function getApiKey(): string | null {
   const k = process.env.GOOGLE_VISION_API_KEY;
@@ -62,6 +71,19 @@ export async function ocrFromBase64Image(
   }
 
   try {
+    assertQuota("google-vision");
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+
+  try {
     const resp = await fetch(`${VISION_URL}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -75,6 +97,8 @@ export async function ocrFromBase64Image(
         ],
       }),
     });
+
+    recordExternalCall("google-vision");
 
     if (!resp.ok) {
       return {

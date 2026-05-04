@@ -31,7 +31,7 @@ export type VerifyPlaceResult =
   | { mode: "not_found"; placeExists: false; cached: boolean; fetchDurationMs: number }
   | {
       mode: "error";
-      code: "google_api_error" | "network" | "internal";
+      code: "google_api_error" | "network" | "internal" | "quota_exceeded";
       message?: string;
     };
 

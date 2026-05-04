@@ -10,6 +10,11 @@ import {
   getEvidenceCache,
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
+import {
+  assertQuota,
+  recordExternalCall,
+  QuotaExceededError,
+} from "@/lib/usage-quota";
 import type { OtaOffer } from "@/lib/types";
 
 const TTL_MS = 6 * 60 * 60 * 1000;
@@ -19,7 +24,11 @@ const SEARCH_URL = "https://api.kkday.com/v1/partner/products/search";
 export type KKdayOutcome =
   | { mode: "demo" }
   | { mode: "ok"; offers: OtaOffer[]; cached: boolean }
-  | { mode: "error"; code: "kkday_api_error" | "network"; message?: string };
+  | {
+      mode: "error";
+      code: "kkday_api_error" | "network" | "quota_exceeded";
+      message?: string;
+    };
 
 function getApiKey(): string | null {
   const k = process.env.KKDAY_API_KEY;
@@ -42,6 +51,19 @@ export async function fetchKKdayOffers(
   if (cached) return { mode: "ok", offers: cached.data.offers, cached: true };
 
   try {
+    assertQuota("ota");
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+
+  try {
     const params = new URLSearchParams({ keyword: query });
     if (location) {
       params.set("latitude", String(location.lat));
@@ -51,6 +73,8 @@ export async function fetchKKdayOffers(
       headers: { Authorization: `Bearer ${apiKey}` },
       cache: "no-store",
     });
+
+    recordExternalCall("ota");
 
     if (!resp.ok) {
       return { mode: "error", code: "kkday_api_error", message: `HTTP ${resp.status}` };

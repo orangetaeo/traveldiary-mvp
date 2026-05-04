@@ -12,6 +12,11 @@ import {
   getEvidenceCache,
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
+import {
+  assertQuota,
+  recordExternalCall,
+  QuotaExceededError,
+} from "@/lib/usage-quota";
 import type { OtaOffer } from "@/lib/types";
 
 const TTL_MS = 6 * 60 * 60 * 1000; // 6시간
@@ -23,7 +28,11 @@ const SEARCH_URL = "https://api.klook.com/v1/affiliate/search";
 export type KlookOutcome =
   | { mode: "demo" }
   | { mode: "ok"; offers: OtaOffer[]; cached: boolean }
-  | { mode: "error"; code: "klook_api_error" | "network"; message?: string };
+  | {
+      mode: "error";
+      code: "klook_api_error" | "network" | "quota_exceeded";
+      message?: string;
+    };
 
 function getApiKey(): string | null {
   const k = process.env.KLOOK_API_KEY;
@@ -48,6 +57,19 @@ export async function fetchKlookOffers(
   }
 
   try {
+    assertQuota("ota");
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+
+  try {
     const params = new URLSearchParams({ q: query });
     if (location) {
       params.set("lat", String(location.lat));
@@ -57,6 +79,8 @@ export async function fetchKlookOffers(
       headers: { "X-Klook-Api-Key": apiKey },
       cache: "no-store",
     });
+
+    recordExternalCall("ota");
 
     if (!resp.ok) {
       return { mode: "error", code: "klook_api_error", message: `HTTP ${resp.status}` };
