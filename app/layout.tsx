@@ -45,6 +45,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <link rel="apple-touch-icon" href="/icon-192.png" />
         {/* L1: preconnect — 폰트 CDN 사전 연결 (LCP 개선) */}
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

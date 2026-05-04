@@ -8,6 +8,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listVietnamCities, resolveCity } from "@/lib/seed/cities";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 export const metadata: Metadata = {
   title: "베트남 여행 가이드 — 도시별 코스 추천 | TravelDiary",
@@ -123,6 +124,8 @@ export default function GuidePage() {
           시나리오 C Phase C3 — SEO 콘텐츠
         </p>
       </main>
+
+      <BottomNav active="trips" />
     </div>
   );
 }
