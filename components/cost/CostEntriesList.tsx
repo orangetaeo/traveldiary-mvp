@@ -98,7 +98,7 @@ export function CostEntriesList({ entries, onDelete }: Props) {
                 type="button"
                 onClick={() => onDelete(entry)}
                 aria-label="삭제"
-                className="opacity-0 group-hover:opacity-100 text-ink-mute hover:text-danger transition-opacity ml-td-sm flex-shrink-0"
+                className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity ml-td-sm flex-shrink-0"
               >
                 <span className="material-symbols-outlined text-[18px]">
                   close
