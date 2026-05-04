@@ -9,9 +9,10 @@
  *   - scalar `number` fallback 유지 (기존 9 호출처 swap 0).
  *
  * 사이클 AAAA5a: KST_OFFSET_MS는 lib/autonomy/kst.ts로 추출 (DRY).
+ * 사이클 AAAA9: getTzOffsetMs() — env `AUTONOMY_TZ_OFFSET_HOURS` 인지 시간대.
  */
 
-import { KST_OFFSET_MS } from "@/lib/autonomy/kst";
+import { getTzOffsetMs } from "@/lib/autonomy/kst";
 
 export type ExternalProvider =
   | "anthropic"
@@ -54,9 +55,10 @@ const STATE = new Map<ExternalProvider, QuotaState>();
 const ONE_DAY_MS = 86_400_000;
 
 export function getKstMidnightMs(now: number = Date.now()): number {
-  const nowKst = now + KST_OFFSET_MS;
+  const offset = getTzOffsetMs();
+  const nowKst = now + offset;
   const nextMidnightKst = (Math.floor(nowKst / ONE_DAY_MS) + 1) * ONE_DAY_MS;
-  return nextMidnightKst - KST_OFFSET_MS;
+  return nextMidnightKst - offset;
 }
 
 function envCapKey(provider: ExternalProvider): string {

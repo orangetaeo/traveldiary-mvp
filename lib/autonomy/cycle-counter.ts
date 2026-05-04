@@ -18,7 +18,12 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { AutonomyPausedError, readAutonomyPausedFlag } from "./budget";
-import { KST_OFFSET_MS, getKstDateString, getMemoryDir } from "./kst";
+import {
+  getTzOffsetMs,
+  getTzOffsetIsoString,
+  getKstDateString,
+  getMemoryDir,
+} from "./kst";
 
 // 사이클 AAAA5a: KST 헬퍼는 lib/autonomy/kst.ts로 추출. 외부 호출처 호환을 위해 re-export.
 export { getKstDateString };
@@ -136,9 +141,10 @@ export function incrementCycleCount(
   return next;
 }
 
-// KST 22:00~09:00 자율 시간대 내인지 확인 (AUTONOMY §0.5)
+// 자율 시간대 22:00~09:00 내인지 확인 (AUTONOMY §0.5).
+// default KST(+9), env `AUTONOMY_TZ_OFFSET_HOURS` override (사이클 AAAA9 — 베트남 등 거주자 지원).
 export function isAutonomyHours(now: number = Date.now()): boolean {
-  const kst = new Date(now + KST_OFFSET_MS);
+  const kst = new Date(now + getTzOffsetMs());
   const hour = kst.getUTCHours();
   return hour >= 22 || hour < 9;
 }
@@ -146,8 +152,10 @@ export function isAutonomyHours(now: number = Date.now()): boolean {
 export class NotAutonomyHoursError extends Error {
   readonly nowKstIso: string;
   constructor(now: number) {
-    const kstIso = new Date(now + KST_OFFSET_MS).toISOString().replace("Z", "+09:00");
-    super(`Not in autonomy hours (KST 22:00~09:00). Now KST: ${kstIso}`);
+    const kstIso = new Date(now + getTzOffsetMs())
+      .toISOString()
+      .replace("Z", getTzOffsetIsoString());
+    super(`Not in autonomy hours (22:00~09:00 자율 시간대). Now: ${kstIso}`);
     this.name = "NotAutonomyHoursError";
     this.nowKstIso = kstIso;
   }

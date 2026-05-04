@@ -24,7 +24,7 @@
 
 | 항목 | 값 | 사유 |
 |------|----|------|
-| **자율 시간대** | KST 22:00 ~ 09:00 (매일, 11시간) | 사용자 자는 시간만 자율. 깨어있는 시간(09:00~22:00)은 동기 모드. |
+| **자율 시간대** | 22:00 ~ 09:00 (매일, 11시간) | default offset 9 (KST). env `AUTONOMY_TZ_OFFSET_HOURS` override 가능 — 베트남/태국 거주 시 7 (사이클 AAAA9). 사용자 자는 시간만 자율. 깨어있는 시간(09:00~22:00)은 동기 모드. |
 | **자율 사이클 캡** | **10 사이클/일** | 비용 + 컨텍스트 보호. 도달 시 자율 자동 정지(자는 시간 남았어도). |
 | **컨텍스트 가드** | 세션당 **80%** | 80% 도달 시 즉시 핸드오프 작성 + 세션 종료 + 새 세션 자동 시작. |
 | **세션당 사이클** | 최대 **3 사이클** | 컨텍스트 누적 차단. 3 사이클 종료 시 핸드오프 + 새 세션. |
@@ -347,5 +347,7 @@ PRD §4 매트릭스에서 자율/게이트 판정
 | 2026-05-04 | AAAA4 P0 | §0.5.6 신규 quarantine 무한 루프 가드: `quarantineFile()` cap=3 인메모리 + DEAD flag 영속 sentinel + audit dedup (rename_failed/cap_exceeded) + `path.resolve()` 정규화 + 성공 시 attempts/dedup 리셋 + DEAD flag silent fail + audit log 2 key 추가 (모두 severity:"security") + `__resetQuarantineForTests` export. 옵션 A+B 하이브리드 채택 (C 즉시 throw는 DoS 표면으로 회피). T12 NON-BLOCKING 3건 + P2 4건은 AAAA5에서 묶음 처리. |
 | 2026-05-04 | AAAA5a | DRY 추출 + 테스트 강화: `lib/autonomy/kst.ts` 신규 (KST_OFFSET_MS + getKstDateString + getMemoryDir 3 영역 추출, T16 보안 invariant 격리) + budget/cycle-counter/usage-quota 3 파일 swap + 원위치 re-export 유지 (외부 호환) + `__getQuarantineDedupSetForTests` 신규 export (audit 1회 단언, 옵션 C) + top-level beforeEach 일원화 + dedup 단언 3건 추가. AAAA4 NON-BLOCKING 3건 + DRY 1건 = 4건 동시 처리. STEP 3 복귀 0회. AAAA5b 미룸: silent bypass + emergency 가드 + 분포 측정 + ADR-047 보강. |
 | 2026-05-04 | AAAA5b | 옵션 진화 #8 + 거버넌스 관측: `recordExternalCall({attempted, succeeded, blockedBy})` 분리 카운터 (R1 옵션 B, BC 보장 9 호출처 swap 0, anthropic-claude.ts 3 catch 분기 적용) + `triggerEmergency` 중복 가드 (T16 옵션 E, audit 매번 + write skip + duplicate 메타) + `lib/autonomy/distribution.ts` 신규 read-only reporter (R1+T13 옵션 C, classifyModel + getDailyModelDistribution + isWithinTargetDistribution, 비용 가중 %, ADR-047 §분포 목표 wiring) + ADR-047 변경 이력 보강. STEP 3 복귀 0회 (FIXTURES.recordCalls 갱신 1회 hotfix). |
+| 2026-05-04 | AAAA6+AAAA7+AAAA8 | 30일 quarantine cleanup cron + scripts/clear-autonomy-paused.mjs (ENTRY.md §6 누락 해소) + classifyModel JSDoc + BudgetState.emergency 카운터 + getEmergencyStats + google-vision/places blockedBy + lib/autonomy/known-reasons.ts (4 상수 박제) + ADR-048 race condition. PR #30 단일 묶음. vitest 1003→1019 (+16). |
+| 2026-05-04 | AAAA9 | env 인지 시간대 (베트남 거주자 지원): `lib/autonomy/kst.ts` env `AUTONOMY_TZ_OFFSET_HOURS` 도입 (default 9 KST, range -12~14, 입력 가드 + console.warn fallback). KST_OFFSET_MS const → getTzOffsetMs()/getTzOffsetIsoString() 함수 진화 + 4 import swap. `lib/autonomy/cleanup.ts` 추출 (vitest 2.1.9+Node 24의 .mjs transform 회귀 회피, P3 DRY 백로그). vitest 1019→1039 (+20). 사용자 env=7 설정 → 베트남 시간 22:00~09:00 자율. |
 
 > 이후 변경은 게이트 매트릭스 보강이나 자동화 영역 확대 시 갱신.
