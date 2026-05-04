@@ -209,6 +209,48 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
     });
   }
 
+  // ── 사이클 BLOCKER4 — 화살표 정렬 (모바일 터치 대응) ──────────────────
+  function handleArrowMove(itemId: string, direction: "up" | "down") {
+    const idx = dayItems.findIndex((it) => it.id === itemId);
+    if (idx < 0) return;
+    const neighborIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (neighborIdx < 0 || neighborIdx >= dayItems.length) return;
+
+    const source = dayItems[idx];
+    const target = dayItems[neighborIdx];
+
+    // scheduledAt swap (drag 핸들러와 동일 로직)
+    const newItems = items.map((it) => {
+      if (it.id === source.id) return { ...it, scheduledAt: target.scheduledAt };
+      if (it.id === target.id) return { ...it, scheduledAt: source.scheduledAt };
+      return it;
+    });
+    setItems(newItems);
+
+    startTransition(async () => {
+      const result = await reorderItineraryItems({
+        tripId: trip.id,
+        changes: [
+          { id: source.id, scheduledAt: target.scheduledAt },
+          { id: target.id, scheduledAt: source.scheduledAt },
+        ],
+      });
+      if (!result.ok) {
+        setItems(items);
+        setToast(`정렬 실패: ${result.code}`);
+        setTimeout(() => setToast(null), 3000);
+        return;
+      }
+      if (result.demo) {
+        setToast("순서 변경 (데모 시뮬)");
+      } else {
+        setToast(`순서 변경됨 — ${result.changedCount}건 영속화`);
+        router.refresh();
+      }
+      setTimeout(() => setToast(null), 3000);
+    });
+  }
+
   // ── 사이클 10 — A5 자유 추가 ────────────────────────────────────────
   function handleAddItem(input: {
     dayIndex: number;
@@ -329,7 +371,7 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
           </p>
         )}
 
-        {dayItems.map((item) => (
+        {dayItems.map((item, idx) => (
           <ItineraryItemCard
             key={item.id}
             item={item}
@@ -348,6 +390,10 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
             onDragLeave={handleDragLeave}
             onDragEnd={handleDragEnd}
             onDrop={handleDrop}
+            isFirst={idx === 0}
+            isLast={idx === dayItems.length - 1}
+            onMoveUp={(id) => handleArrowMove(id, "up")}
+            onMoveDown={(id) => handleArrowMove(id, "down")}
           />
         ))}
       </div>

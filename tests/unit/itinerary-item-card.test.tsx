@@ -46,6 +46,10 @@ const BASE_PROPS = {
   onDragLeave: NOOP,
   onDragEnd: NOOP,
   onDrop: NOOP,
+  isFirst: false,
+  isLast: false,
+  onMoveUp: NOOP,
+  onMoveDown: NOOP,
 };
 
 describe("formatItineraryTime", () => {
@@ -166,5 +170,48 @@ describe("사이클 HH — ItineraryItemCard", () => {
       />,
     );
     expect(html).toContain("place");
+  });
+});
+
+describe("사이클 BLOCKER4 — 화살표 정렬 버튼", () => {
+  it("기본 — 위/아래 화살표 버튼 2개 존재", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard item={makeItem()} {...BASE_PROPS} />,
+    );
+    expect(html).toContain("keyboard_arrow_up");
+    expect(html).toContain("keyboard_arrow_down");
+    expect(html).toContain('aria-label="위로 이동"');
+    expect(html).toContain('aria-label="아래로 이동"');
+  });
+
+  it("isFirst=true → 위 버튼 disabled, 아래 버튼 enabled", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard item={makeItem()} {...BASE_PROPS} isFirst={true} isLast={false} />,
+    );
+    const upBtnTag = html.match(/<button[^>]*aria-label="위로 이동"[^>]*>/)?.[0] ?? "";
+    const downBtnTag = html.match(/<button[^>]*aria-label="아래로 이동"[^>]*>/)?.[0] ?? "";
+    // disabled="" 속성 (CSS class 'disabled:...'와 구분)
+    expect(upBtnTag).toContain('disabled=""');
+    expect(downBtnTag).not.toContain('disabled=""');
+  });
+
+  it("isLast=true → 아래 버튼 disabled, 위 버튼 enabled", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard item={makeItem()} {...BASE_PROPS} isFirst={false} isLast={true} />,
+    );
+    const downBtnTag = html.match(/<button[^>]*aria-label="아래로 이동"[^>]*>/)?.[0] ?? "";
+    const upBtnTag = html.match(/<button[^>]*aria-label="위로 이동"[^>]*>/)?.[0] ?? "";
+    expect(downBtnTag).toContain('disabled=""');
+    expect(upBtnTag).not.toContain('disabled=""');
+  });
+
+  it("isFirst + isLast 둘 다 true → 양쪽 모두 disabled", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard item={makeItem()} {...BASE_PROPS} isFirst={true} isLast={true} />,
+    );
+    const upBtnTag = html.match(/<button[^>]*aria-label="위로 이동"[^>]*>/)?.[0] ?? "";
+    const downBtnTag = html.match(/<button[^>]*aria-label="아래로 이동"[^>]*>/)?.[0] ?? "";
+    expect(upBtnTag).toContain('disabled=""');
+    expect(downBtnTag).toContain('disabled=""');
   });
 });
