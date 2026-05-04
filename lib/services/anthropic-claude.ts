@@ -18,6 +18,13 @@ import {
   recordExternalCall,
   QuotaExceededError,
 } from "@/lib/usage-quota";
+import { calculateCostUsd } from "@/lib/autonomy/model-pricing";
+import {
+  assertBudget,
+  AutonomyPausedError,
+  BudgetExceededError,
+  recordSpend,
+} from "@/lib/autonomy/budget";
 
 const API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-4-5-20251001";
@@ -40,7 +47,13 @@ export type ClaudeMenuOutcome =
     }
   | {
       mode: "error";
-      code: "claude_api_error" | "parse_error" | "network" | "quota_exceeded";
+      code:
+        | "claude_api_error"
+        | "parse_error"
+        | "network"
+        | "quota_exceeded"
+        | "budget_exceeded"
+        | "autonomy_paused";
       message?: string;
     };
 
@@ -96,12 +109,27 @@ export async function translateMenuOcr(
 
   try {
     assertQuota("anthropic");
+    assertBudget();
   } catch (err) {
     if (err instanceof QuotaExceededError) {
       return {
         mode: "error",
         code: "quota_exceeded",
         message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    if (err instanceof BudgetExceededError) {
+      return {
+        mode: "error",
+        code: "budget_exceeded",
+        message: `${err.tier} threshold $${err.thresholdUsd} reached (current $${err.currentUsd.toFixed(4)})`,
+      };
+    }
+    if (err instanceof AutonomyPausedError) {
+      return {
+        mode: "error",
+        code: "autonomy_paused",
+        message: `paused at ${err.pausedAt} (${err.reason})`,
       };
     }
     throw err;
@@ -142,7 +170,21 @@ export async function translateMenuOcr(
     const json = (await resp.json()) as {
       content?: Array<{ type: string; text?: string }>;
       error?: { message?: string };
+      usage?: { input_tokens?: number; output_tokens?: number };
     };
+
+    // 사이클 AAAA2: 성공 응답에 한해 토큰/$ 누적 (budget.ts)
+    const inputTokens = json.usage?.input_tokens ?? 0;
+    const outputTokens = json.usage?.output_tokens ?? 0;
+    if (inputTokens > 0 || outputTokens > 0) {
+      recordSpend({
+        provider: "anthropic",
+        model: MODEL,
+        inputTokens,
+        outputTokens,
+        costUsd: calculateCostUsd(MODEL, inputTokens, outputTokens),
+      });
+    }
 
     if (json.error?.message) {
       return {

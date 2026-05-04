@@ -17,6 +17,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import { AutonomyPausedError, readAutonomyPausedFlag } from "./budget";
 
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 const DEFAULT_CYCLE_CAP = 10;
@@ -162,18 +163,24 @@ export class NotAutonomyHoursError extends Error {
 }
 
 /**
- * 자율 모드 사이클 진입 통합 게이트 (사이클 BBBB).
+ * 자율 모드 사이클 진입 통합 게이트 (사이클 BBBB, AAAA2 보강).
  *
  * STEP 1 Triage 진입 시 호출. 다음 모두 통과해야 사이클 시작 허용:
- *   1. 현재 KST가 22:00~09:00 자율 시간대 (NotAutonomyHoursError)
- *   2. 오늘 사이클 수 < cap (CycleCapExceededError)
+ *   1. AUTONOMY_PAUSED.flag 부재 (사이클 AAAA2, budget.emergency 트리거)
+ *   2. 현재 KST가 22:00~09:00 자율 시간대 (NotAutonomyHoursError)
+ *   3. 오늘 사이클 수 < cap (CycleCapExceededError)
  *
- * 깨어있는 시간(09:00~22:00)이나 cap 도달 시 throw → STEP 1 정지.
+ * 어느 게이트라도 실패 시 throw → STEP 1 정지.
  */
 export function assertAutonomyEntry(
   now: number = Date.now(),
   dir: string = getMemoryDir(),
 ): void {
+  // AAAA2: emergency-stop flag 우선 검사 (시간/카운터보다 강력한 게이트)
+  const flag = readAutonomyPausedFlag(dir);
+  if (flag) {
+    throw new AutonomyPausedError(flag);
+  }
   if (!isAutonomyHours(now)) {
     throw new NotAutonomyHoursError(now);
   }

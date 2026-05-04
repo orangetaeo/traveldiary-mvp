@@ -1,15 +1,12 @@
 /**
- * 외부 API 일일 cap 헬퍼 (사이클 ZZZ 안전 킬스위치).
+ * 외부 API 일일 cap 헬퍼 (사이클 ZZZ 안전 킬스위치, AAAA2 옵션 진화).
  *
  * 24시간 자율 모드에서 외부 API 폭주 방지 — provider별 일일 호출 cap.
  * KST 자정 기준 자동 리셋. env override 가능 (`QUOTA_DAILY_CAP_<PROVIDER>`).
  *
- * 사용:
- *   import { assertQuota, recordExternalCall, QuotaExceededError } from "@/lib/usage-quota";
- *
- *   try { assertQuota("anthropic"); } catch (e) { if (e instanceof QuotaExceededError) ... }
- *   const r = await fetch(...);
- *   recordExternalCall("anthropic");
+ * 사이클 AAAA2: `recordExternalCall` 옵션 객체 진화 (헬퍼 진화 #7 답습).
+ *   - 토큰/$ 옵션 전달 시 `lib/autonomy/budget.ts`로 forward (영속 + 임계치).
+ *   - scalar `number` fallback 유지 (기존 9 호출처 swap 0).
  */
 
 export type ExternalProvider =
@@ -107,16 +104,57 @@ export function assertQuota(
   }
 }
 
+/**
+ * 옵션 객체 진화 (사이클 AAAA2, 헬퍼 진화 #7).
+ *
+ * - scalar `number`: 기존 호출 패턴 (`now` 타임스탬프). 9 호출처 swap 0.
+ * - 옵션 객체: `model`/`inputTokens`/`outputTokens`/`costUsd` 추가 시 `budget.ts`로 forward.
+ */
+export interface RecordCallOptions {
+  now?: number;
+  model?: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  costUsd?: number;
+}
+
 export function recordExternalCall(
   provider: ExternalProvider,
-  now: number = Date.now(),
+  optsOrNow: number | RecordCallOptions = {},
 ): void {
+  const opts: RecordCallOptions =
+    typeof optsOrNow === "number" ? { now: optsOrNow } : optsOrNow;
+  const now = opts.now ?? Date.now();
+
   const state = STATE.get(provider);
   if (!state || state.resetAt <= now) {
     STATE.set(provider, { count: 1, resetAt: getKstMidnightMs(now) });
-    return;
+  } else {
+    state.count += 1;
   }
-  state.count += 1;
+
+  // 토큰/$ 정보가 있으면 budget.ts로 forward (fire-and-forget)
+  const hasSpend =
+    opts.inputTokens !== undefined ||
+    opts.outputTokens !== undefined ||
+    opts.costUsd !== undefined;
+  if (hasSpend) {
+    // 동적 import로 순환 의존 회피 + 테스트 격리
+    void import("./autonomy/budget")
+      .then(({ recordSpend }) =>
+        recordSpend({
+          provider,
+          model: opts.model,
+          inputTokens: opts.inputTokens ?? 0,
+          outputTokens: opts.outputTokens ?? 0,
+          costUsd: opts.costUsd ?? 0,
+          now,
+        }),
+      )
+      .catch((err) => {
+        console.warn("[usage-quota] budget forward failed:", err);
+      });
+  }
 }
 
 export function __resetUsageQuotaForTests(): void {

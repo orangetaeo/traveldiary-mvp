@@ -44,14 +44,15 @@ describe("usage-quota wrap coverage — 외부 API 서비스 (사이클 AAAA1)",
 
       it(`assertQuota("${fx.provider}") 호출 ${fx.fetchCalls}회`, () => {
         const matches = src.match(
-          new RegExp(`assertQuota\\(\\s*["']${fx.provider}["']\\s*\\)`, "g"),
+          new RegExp(`assertQuota\\(\\s*["']${fx.provider}["']\\s*[,)]`, "g"),
         );
         expect(matches?.length ?? 0).toBe(fx.fetchCalls);
       });
 
       it(`recordExternalCall("${fx.provider}") 호출 ${fx.fetchCalls}회`, () => {
+        // AAAA2: 옵션 객체 진화로 두 번째 인자 (콤마) 또는 단일 인자 (닫는 괄호) 모두 허용
         const matches = src.match(
-          new RegExp(`recordExternalCall\\(\\s*["']${fx.provider}["']\\s*\\)`, "g"),
+          new RegExp(`recordExternalCall\\(\\s*["']${fx.provider}["']\\s*[,)]`, "g"),
         );
         expect(matches?.length ?? 0).toBe(fx.fetchCalls);
       });

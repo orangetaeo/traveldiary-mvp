@@ -81,7 +81,12 @@ export type AuditAction =
   // M8 (사이클 12a, ADR-025)
   | "affiliate.click"
   | "auth.login"
-  | "auth.logout";
+  | "auth.logout"
+  // 자율 모드 비용 거버넌스 (사이클 AAAA2, ADR-047)
+  | "usage.budget.warn"
+  | "usage.budget.throw"
+  | "usage.budget.emergency"
+  | "opus.gate.bypass";
 
 export interface AuditLogInput {
   actorId?: string | null;

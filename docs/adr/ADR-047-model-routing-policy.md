@@ -51,17 +51,19 @@ ZZZ 회의(R1 CTO P0-1)에서 식별: AUTONOMY.md/HARNESS.md 어디에도 Sonnet
 - **Sonnet**: 70~75% (회의 + 구현 + 검증 본체)
 - **Opus**: 15~25% (R1 게이트 + M1 + 멀티파일 + 최종 QA)
 
-## 트리거 (다음 사이클로 분리)
+## 트리거 (사이클 처리 상태)
 
-| 트리거 | 후속 |
-|---|---|
-| sub-agent 호출 시 모델 자동 선택 헬퍼 (`pickModel(stage, criteria)`) | AAAA2 또는 BBBB |
-| 비용 트래킹 통합 (호출당 input_tokens/output_tokens 누적) | **AAAA2 최우선** (R1 사인오프) |
-| 일일 비용 임계치 (시간당 $3/$6, 일일 $30/$50/$200) + 자동 강등 | AAAA2 |
-| 모델별 토큰 단가 갱신 (Anthropic 가격 변경 시) | 별도 PR |
-| **OTA `provider="ota"` 통합 cap 분리** — 어필리에이트 1개라도 라이브 키 활성 시 `ota.agoda` / `ota.kkday` / `ota.klook` 각자 wrap (현재 1000 통합 → 각 1000) | **AAAA2 또는 BBBB** (R1 사인오프 C2). 라이브 활성 전까지는 통합 cap 유지 |
-| `lib/usage-quota.ts` 영속 카운터 (in-memory STATE → KV/DB) | AAAA2 (다중 세션·서버리스 재시작 대응) |
-| `lib/autonomy/cycle-counter.ts` 영속 (메모리 파일 JSON → DB) | BBBB (필요 시) |
+| 트리거 | 후속 | 상태 |
+|---|---|---|
+| sub-agent 호출 시 모델 자동 선택 헬퍼 (`pickModel(stage, criteria)`) | AAAA2 | ✅ AAAA2 — `lib/autonomy/pick-model.ts` (권장 반환, throw 없음) |
+| 비용 트래킹 통합 (호출당 input_tokens/output_tokens 누적) | AAAA2 | ✅ AAAA2 — `lib/autonomy/budget.ts` `recordSpend()` + anthropic-claude.ts 통합 |
+| 일일 비용 임계치 (시간당 $3/$6, 일일 $30/$50/$200) | AAAA2 | ✅ AAAA2 — `assertBudget()` 사전 게이트 + 3단계(warn/throw/emergency) |
+| auto-degrade (Opus→Sonnet→Haiku) | AAAA3 | ⏳ AAAA2 미룸 (분포 데이터 1주일 누적 후 실측 기반) |
+| `pickModel` 강제 throw | AAAA3 | ⏳ AAAA2 미룸 (현재는 권장 + console.warn) |
+| `lib/usage-quota.ts` 영속화 (in-memory STATE → DB) | AAAA3 | ⏳ AAAA2는 메모리 파일 JSON(R1 (b) 결정), DB 승격은 다중 컨테이너 전환 시 |
+| 모델별 토큰 단가 갱신 (Anthropic 가격 변경 시) | 별도 PR | 📌 `lib/autonomy/model-pricing.ts` 단가표 분리 |
+| **OTA `provider="ota"` 통합 cap 분리** | BBBB 또는 라이브 활성 시 | 🔒 라이브 활성 전 보류 |
+| `lib/autonomy/cycle-counter.ts` 영속 (메모리 파일 → DB) | 필요 시 | 🔒 보류 (현재 단일 세션 충분) |
 
 ## 영향
 
@@ -80,6 +82,16 @@ ZZZ 회의(R1 CTO P0-1)에서 식별: AUTONOMY.md/HARNESS.md 어디에도 Sonnet
 - sub-agent 호출 시 model 명시는 호출처 책임
 
 ## 참조
-- AUTONOMY.md §0.5.2 (사이클 카운터 + 모델 라우팅)
+- AUTONOMY.md §0.5.2 (사이클 카운터 + 모델 라우팅), §0.5.4 (사이클 AAAA2 비용 트래킹)
 - ADR-046 (24h 자율 안전 킬스위치 — 비용 거버넌스의 짝)
 - `lib/autonomy/cycle-counter.ts` (사이클 수 트래킹)
+- `lib/autonomy/budget.ts` (사이클 AAAA2 비용 트래킹 + 임계치 + emergency-stop)
+- `lib/autonomy/pick-model.ts` (사이클 AAAA2 모델 라우팅 헬퍼)
+- `lib/autonomy/model-pricing.ts` (사이클 AAAA2 모델 단가표)
+
+## 변경 이력
+
+| 일자 | 사이클 | 변경 |
+|------|-------|------|
+| 2026-05-04 | AAAA1 | 초기 작성 — 3-tier 매트릭스 + Opus 4-체크 + 분포 목표 |
+| 2026-05-04 | AAAA2 | 트리거 4건 처리 (pickModel + 비용 트래킹 + 임계치 + 영속 카운터(파일)). auto-degrade + pickModel 강제 throw + DB 승격은 AAAA3로 박제 |
