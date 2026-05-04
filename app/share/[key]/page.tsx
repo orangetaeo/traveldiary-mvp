@@ -107,18 +107,24 @@ export default async function SharedTripPage({
       </header>
 
       <main className="max-w-xl mx-auto px-td-md">
+        {/* C3 — 보기 전용 배너 (눈에 띄게) */}
+        <div className="bg-purple-soft border border-purple/20 rounded-lg px-td-md py-td-sm mt-td-sm flex items-center gap-td-sm">
+          <span className="material-symbols-outlined text-purple text-[20px]" aria-hidden>
+            visibility
+          </span>
+          <p className="text-td-meta text-purple-deep">
+            보기 전용 — 편집이 필요하면{" "}
+            <Link href="/onboarding" className="underline font-medium">
+              내 여행 만들기
+            </Link>
+          </p>
+        </div>
+
         <section className="py-td-lg">
           <p className="text-td-meta text-ink-soft mb-td-xxs">
             {trip.destination} · {trip.nights}박 {trip.nights + 1}일 · {trip.startDate}
           </p>
           <h2 className="text-td-title text-ink">{trip.destination} 여행</h2>
-          <p className="text-td-meta text-ink-mute mt-td-xs">
-            💡 이 화면은 보기 전용입니다. 직접 일정을 만들고 싶다면{" "}
-            <Link href="/onboarding" className="text-purple underline">
-              새 여행 계획
-            </Link>
-            을 시작해보세요.
-          </p>
           {link.expiresAt && (
             <p className="text-td-caption text-ink-mute mt-td-xs">
               ⏰ {new Date(link.expiresAt).toLocaleDateString("ko-KR")} 까지 열람 가능

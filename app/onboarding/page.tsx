@@ -43,6 +43,7 @@ export default function OnboardingPage() {
   const [destination, setDestination] = useState("푸꾸옥");
 
   // Step 3: 기간·일행
+  const [startDate] = useState(getDefaultStartDate);
   const [nights, setNights] = useState(4);
   const [companion, setCompanion] = useState<string>("friends");
 
@@ -77,7 +78,7 @@ export default function OnboardingPage() {
           pace: paceLabelToCode(pace),
           excludes,
         },
-        startDate: "2026-05-14",
+        startDate,
       });
       router.push(`/itinerary/creating?trip=${result.id}`);
     });
@@ -118,6 +119,7 @@ export default function OnboardingPage() {
         )}
         {step === 3 && (
           <Step3
+            startDateLabel={formatStartDateKo(startDate)}
             nights={nights}
             setNights={setNights}
             companion={companion}
@@ -286,6 +288,7 @@ function Step2({
 // ─── Step 3 ──────────────────────────────────
 
 function Step3({
+  startDateLabel,
   nights,
   setNights,
   companion,
@@ -293,6 +296,7 @@ function Step3({
   onBack,
   onNext,
 }: {
+  startDateLabel: string;
   nights: number;
   setNights: (n: number) => void;
   companion: string;
@@ -316,7 +320,7 @@ function Step3({
       <div className="grid grid-cols-2 gap-2.5 mb-3">
         <div className="bg-surface-soft rounded-md p-3">
           <p className="text-[10px] text-ink-soft mb-1">출발일</p>
-          <p className="text-sm font-medium">5월 14일 (수)</p>
+          <p className="text-sm font-medium">{startDateLabel}</p>
         </div>
         <div className="bg-surface-soft rounded-md p-3">
           <p className="text-[10px] text-ink-soft mb-1">박수</p>
@@ -463,6 +467,21 @@ function Step4({
       </div>
     </>
   );
+}
+
+/** 출발일 기본값 — 오늘로부터 7일 후 */
+function getDefaultStartDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  return d.toISOString().slice(0, 10);
+}
+
+/** 날짜 문자열을 한국어 표시로 변환 (예: "5월 14일 (수)") */
+function formatStartDateKo(iso: string): string {
+  const d = new Date(iso + "T00:00:00");
+  if (isNaN(d.getTime())) return iso;
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+  return `${d.getMonth() + 1}월 ${d.getDate()}일 (${weekdays[d.getDay()]})`;
 }
 
 function destinationToCode(name: string): string {

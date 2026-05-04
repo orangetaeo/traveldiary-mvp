@@ -40,9 +40,17 @@ export function CostEntriesList({ entries, onDelete }: Props) {
     <section>
       <h3 className="text-td-card-title text-ink mb-td-sm">최근 입력</h3>
       {entries.length === 0 ? (
-        <p className="text-td-body text-ink-soft text-center py-td-lg bg-surface-card border border-divider rounded-xl">
-          아직 입력된 비용이 없어요. 위에서 추가하세요.
-        </p>
+        <div className="text-center py-td-lg bg-surface-card border border-divider rounded-xl px-td-md">
+          <span className="material-symbols-outlined text-ink-mute text-[32px] mb-td-xs block" aria-hidden>
+            receipt_long
+          </span>
+          <p className="text-td-body text-ink-soft">
+            아직 입력된 비용이 없어요.
+          </p>
+          <p className="text-td-caption text-ink-mute mt-td-xxs">
+            위의 입력 폼에서 금액과 카테고리를 선택해 추가하세요.
+          </p>
+        </div>
       ) : (
         <ul className="space-y-td-xs">
           {entries.map((entry) => (
