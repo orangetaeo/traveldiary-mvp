@@ -13,6 +13,11 @@ import {
   getEvidenceCache,
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
+import {
+  assertQuota,
+  recordExternalCall,
+  QuotaExceededError,
+} from "@/lib/usage-quota";
 
 const API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-4-5-20251001";
@@ -33,7 +38,11 @@ export type ClaudeMenuOutcome =
       cached: boolean;
       fetchDurationMs: number;
     }
-  | { mode: "error"; code: "claude_api_error" | "parse_error" | "network"; message?: string };
+  | {
+      mode: "error";
+      code: "claude_api_error" | "parse_error" | "network" | "quota_exceeded";
+      message?: string;
+    };
 
 function getApiKey(): string | null {
   const k = process.env.ANTHROPIC_API_KEY;
@@ -86,6 +95,19 @@ export async function translateMenuOcr(
   }
 
   try {
+    assertQuota("anthropic");
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+
+  try {
     const resp = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -106,6 +128,8 @@ export async function translateMenuOcr(
         ],
       }),
     });
+
+    recordExternalCall("anthropic");
 
     if (!resp.ok) {
       return {

@@ -3,9 +3,48 @@
  *
  * 모든 변경 API(POST/PUT/PATCH/DELETE)는 writeAuditLog()를 동시 호출한다.
  * 감사 로그 쓰기 실패는 비즈니스 로직을 막지 않는다 — 콘솔/모니터링 채널로 흘려보낸다.
+ *
+ * 사이클 ZZZ: before/after/metadata는 sanitizeAuditValue()로 secret 키 redact 후 저장.
  */
 
 import { prisma } from "./prisma";
+
+const SENSITIVE_KEY_PATTERNS: readonly RegExp[] = [
+  /password/i,
+  /passwd/i,
+  /secret/i,
+  /token/i,
+  /api[_-]?key/i,
+  /authorization/i,
+  /bearer/i,
+  /cookie/i,
+  /session(?:[_-]?id)?/i,
+  /credential/i,
+  /private[_-]?key/i,
+  /access[_-]?key/i,
+  /refresh[_-]?token/i,
+];
+
+const REDACTED = "[REDACTED]";
+const MAX_DEPTH = 6;
+
+function isSensitiveKey(key: string): boolean {
+  return SENSITIVE_KEY_PATTERNS.some((p) => p.test(key));
+}
+
+export function sanitizeAuditValue(value: unknown, depth = 0): unknown {
+  if (depth > MAX_DEPTH) return "[DEEP]";
+  if (value === null || value === undefined) return value;
+  if (typeof value !== "object") return value;
+  if (Array.isArray(value)) {
+    return value.map((v) => sanitizeAuditValue(v, depth + 1));
+  }
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    out[k] = isSensitiveKey(k) ? REDACTED : sanitizeAuditValue(v, depth + 1);
+  }
+  return out;
+}
 
 export type AuditAction =
   | "trip.create"
@@ -69,9 +108,9 @@ export async function writeAuditLog(input: AuditLogInput): Promise<void> {
         action: input.action,
         resource: input.resource,
         resourceId: input.resourceId,
-        before: input.before as never,
-        after: input.after as never,
-        metadata: input.metadata as never,
+        before: sanitizeAuditValue(input.before) as never,
+        after: sanitizeAuditValue(input.after) as never,
+        metadata: sanitizeAuditValue(input.metadata) as never,
       },
     });
   } catch (err) {
