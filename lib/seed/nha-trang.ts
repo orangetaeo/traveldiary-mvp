@@ -291,7 +291,8 @@ const nhaTrangPlaces: SeedPlace[] = [
 // ═══════════════════════════════════════════════════════════════════
 
 const TRIP_ID = "demo-trip-nha-trang";
-const START_DATE = "2026-07-16"; // 목요일
+import { demoStartDate } from "./demo-date";
+const START_DATE = demoStartDate(42); // 6주 후 (C1: 고정 날짜 제거)
 
 export const nhaTrangTrip: Trip = {
   id: TRIP_ID,

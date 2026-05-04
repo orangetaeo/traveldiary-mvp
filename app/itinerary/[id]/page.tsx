@@ -15,14 +15,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ItineraryView } from "@/components/itinerary/ItineraryView";
-import { getDemoTrip } from "@/lib/seed";
+import { getDemoTrip, isDemoTrip } from "@/lib/seed";
 import { getCityByCode, resolveCityByCode } from "@/lib/seed/cities";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 import { CityContextStrip } from "@/components/city/CityContextStrip";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { todayISO } from "@/lib/seed/demo-date";
 
-const TODAY_ISO = "2026-04-30";
+const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
 
 export default async function ItineraryPage({
   params,
@@ -76,7 +77,7 @@ export default async function ItineraryPage({
       <main className="max-w-xl mx-auto pt-td-lg">
         {/* Hero */}
         <section className="mb-td-md px-td-md">
-          <div className="mb-td-xxs">
+          <div className="mb-td-xxs flex items-center gap-td-xs">
             <span
               className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                 isOnTrip
@@ -86,6 +87,11 @@ export default async function ItineraryPage({
             >
               {isOnTrip ? "여행 중 · 실시간 동행" : "AI가 24곳 검증 완료"}
             </span>
+            {isDemoTrip(trip.id) && (
+              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold tracking-wider bg-amber-100 text-amber-700">
+                체험 데모
+              </span>
+            )}
           </div>
           <h2 className="text-td-title text-ink mb-td-xxs">
             {trip.destination} {trip.nights}박 {trip.nights + 1}일

@@ -303,7 +303,8 @@ const daNangPlaces: SeedPlace[] = [
 // ═══════════════════════════════════════════════════════════════════
 
 const TRIP_ID = "demo-trip-da-nang";
-const START_DATE = "2026-06-04"; // 목요일
+import { demoStartDate } from "./demo-date";
+const START_DATE = demoStartDate(21); // 3주 후 (C1: 고정 날짜 제거)
 
 export const daNangTrip: Trip = {
   id: TRIP_ID,

@@ -465,7 +465,8 @@ export const phuQuocPlaces: SeedPlace[] = [
 // ═══════════════════════════════════════════════════════════════════
 
 const TRIP_ID = "demo-trip-phu-quoc";
-const START_DATE = "2026-05-14"; // 목요일 출발
+import { demoStartDate } from "./demo-date";
+const START_DATE = demoStartDate(14); // 2주 후 출발 (C1: 고정 날짜 제거)
 
 export const phuQuocTrip: Trip = {
   id: TRIP_ID,

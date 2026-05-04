@@ -294,7 +294,8 @@ const hoChiMinhPlaces: SeedPlace[] = [
 // ═══════════════════════════════════════════════════════════════════
 
 const TRIP_ID = "demo-trip-ho-chi-minh";
-const START_DATE = "2026-06-18"; // 목요일 (다낭 6-04, 푸꾸옥과 겹치지 않게)
+import { demoStartDate } from "./demo-date";
+const START_DATE = demoStartDate(28); // 4주 후 (C1: 고정 날짜 제거)
 
 export const hoChiMinhTrip: Trip = {
   id: TRIP_ID,

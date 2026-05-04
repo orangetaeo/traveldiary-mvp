@@ -305,7 +305,8 @@ const hanoiPlaces: SeedPlace[] = [
 // ═══════════════════════════════════════════════════════════════════
 
 const TRIP_ID = "demo-trip-hanoi";
-const START_DATE = "2026-07-02"; // 목요일 (호치민 6-18, 다낭 6-04 다음)
+import { demoStartDate } from "./demo-date";
+const START_DATE = demoStartDate(35); // 5주 후 (C1: 고정 날짜 제거)
 
 export const hanoiTrip: Trip = {
   id: TRIP_ID,

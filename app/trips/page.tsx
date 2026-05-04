@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "내 여행 — TRAVELDIARY",
   description: "베트남 여행 일정을 탐색하고 관리하세요.",
 };
-import { listDemoTrips } from "@/lib/seed";
+import { listDemoTrips, isDemoTrip } from "@/lib/seed";
 import { listCities, PRIMARY_COUNTRY_CODE } from "@/lib/seed/cities";
 import { Badge } from "@/components/ui/Badge";
 import { BottomNav } from "@/components/ui/BottomNav";
@@ -174,9 +174,16 @@ function TripCard({ data }: { data: TripCardData }) {
       >
         <div className="flex items-start justify-between gap-td-sm mb-td-xs">
           <div className="min-w-0">
-            <p className="text-td-meta text-ink-mute uppercase tabular-nums">
-              {trip.destinationCode} · {city.countryCode}
-            </p>
+            <div className="flex items-center gap-td-xs">
+              <p className="text-td-meta text-ink-mute uppercase tabular-nums">
+                {trip.destinationCode} · {city.countryCode}
+              </p>
+              {isDemoTrip(trip.id) && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700">
+                  체험
+                </span>
+              )}
+            </div>
             <h3 className="text-td-card-title text-ink mt-td-xxs truncate">
               {city.name}
             </h3>
