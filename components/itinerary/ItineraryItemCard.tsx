@@ -49,6 +49,11 @@ interface ItineraryItemCardProps {
   onDragLeave: () => void;
   onDragEnd: () => void;
   onDrop: (e: React.DragEvent, id: string) => void;
+  /** 화살표 정렬 — 사이클 BLOCKER4 (모바일 터치 대응) */
+  isFirst: boolean;
+  isLast: boolean;
+  onMoveUp: (id: string) => void;
+  onMoveDown: (id: string) => void;
 }
 
 export function ItineraryItemCard({
@@ -64,6 +69,10 @@ export function ItineraryItemCard({
   onDragLeave,
   onDragEnd,
   onDrop,
+  isFirst,
+  isLast,
+  onMoveUp,
+  onMoveDown,
 }: ItineraryItemCardProps) {
   const isBooked =
     item.flexibility === "booked" || item.flexibility === "fixed";
@@ -137,6 +146,32 @@ export function ItineraryItemCard({
             <p className="text-td-caption text-ink-soft mt-td-xxs">{en}</p>
           )}
         </Link>
+
+        {/* 사이클 BLOCKER4 — 화살표 정렬 (모바일 터치 대응) */}
+        <div className="flex justify-end gap-td-xxs mt-td-xs">
+          <button
+            type="button"
+            disabled={isFirst}
+            onClick={(e) => { e.stopPropagation(); onMoveUp(item.id); }}
+            className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
+            aria-label="위로 이동"
+          >
+            <span className="material-symbols-outlined text-[18px] text-ink-soft" aria-hidden>
+              keyboard_arrow_up
+            </span>
+          </button>
+          <button
+            type="button"
+            disabled={isLast}
+            onClick={(e) => { e.stopPropagation(); onMoveDown(item.id); }}
+            className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
+            aria-label="아래로 이동"
+          >
+            <span className="material-symbols-outlined text-[18px] text-ink-soft" aria-hidden>
+              keyboard_arrow_down
+            </span>
+          </button>
+        </div>
 
         {showEvidence && (
           <div className="mt-td-sm">
