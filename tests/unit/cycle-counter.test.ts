@@ -4,12 +4,14 @@ import { tmpdir } from "os";
 import { join } from "path";
 import {
   assertCycleCap,
+  assertAutonomyEntry,
   incrementCycleCount,
   readCycleCounter,
   getKstDateString,
   getCounterPath,
   isAutonomyHours,
   CycleCapExceededError,
+  NotAutonomyHoursError,
 } from "@/lib/autonomy/cycle-counter";
 
 const SAVED_ENV = { ...process.env };
@@ -165,6 +167,55 @@ describe("cycle-counter — 자율 일일 사이클 카운터 (사이클 AAAA1)"
       const state = readCycleCounter(future, TMP_DIR);
       expect(state.cycles).toBe(0);
       expect(state.kstDate).toBe("2026-05-05");
+    });
+  });
+
+  describe("assertAutonomyEntry — 통합 게이트 (사이클 BBBB)", () => {
+    it("KST 22:00 + cap 미만 → 통과", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0); // KST 22:00
+      expect(() => assertAutonomyEntry(now, TMP_DIR)).not.toThrow();
+    });
+
+    it("KST 03:00 + cap 미만 → 통과", () => {
+      const now = Date.UTC(2026, 4, 3, 18, 0, 0); // KST 03:00
+      expect(() => assertAutonomyEntry(now, TMP_DIR)).not.toThrow();
+    });
+
+    it("KST 12:00 (자율 시간 외) → NotAutonomyHoursError", () => {
+      const now = Date.UTC(2026, 4, 4, 3, 0, 0); // KST 12:00
+      try {
+        assertAutonomyEntry(now, TMP_DIR);
+        expect.fail("should throw");
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotAutonomyHoursError);
+        expect((err as NotAutonomyHoursError).nowKstIso).toContain("+09:00");
+      }
+    });
+
+    it("KST 22:00 + cap 도달 → CycleCapExceededError (시각 통과 후 cap에서 throw)", () => {
+      process.env.AUTONOMY_DAILY_CYCLE_CAP = "2";
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0); // KST 22:00
+      incrementCycleCount("A", now, TMP_DIR);
+      incrementCycleCount("B", now, TMP_DIR);
+      try {
+        assertAutonomyEntry(now, TMP_DIR);
+        expect.fail("should throw");
+      } catch (err) {
+        expect(err).toBeInstanceOf(CycleCapExceededError);
+      }
+    });
+
+    it("KST 12:00 + cap 도달 → 시각 게이트가 우선 throw (NotAutonomyHoursError)", () => {
+      process.env.AUTONOMY_DAILY_CYCLE_CAP = "1";
+      const before = Date.UTC(2026, 4, 4, 13, 0, 0);
+      incrementCycleCount("A", before, TMP_DIR);
+      const now = Date.UTC(2026, 4, 4, 3, 0, 0); // KST 12:00 (시간 우선)
+      try {
+        assertAutonomyEntry(now, TMP_DIR);
+        expect.fail("should throw");
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotAutonomyHoursError);
+      }
     });
   });
 });

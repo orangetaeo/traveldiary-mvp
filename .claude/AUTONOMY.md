@@ -52,6 +52,17 @@
 | **모델 라우팅** (ADR-047) | Triage=Haiku / 회의·구현·검증=Sonnet / R1게이트·M1·5+ 파일·보안=Opus. 분포 목표 H 5~10% / S 70~75% / O 15~25%. | `docs/adr/ADR-047-model-routing-policy.md` — 권장만, 강제 메커니즘은 AAAA2 |
 | **Opus 호출 전 4-체크** | 5+ 파일 / 아키텍처·보안 / Sonnet 2회 실패 / release 전 최종 QA — 모두 Yes일 때만 Opus | ADR-047 |
 
+### 0.5.3 자율 시동 절차 (사이클 BBBB 도입)
+
+| 항목 | 값 | 위치 |
+|------|----|------|
+| **세션 진입 카드** | 5줄 카드: 다음 사이클 / 활성 게이트 / 오늘 사이클 수 / 핵심 규칙 / 진입 절차. 새 세션 30초 안에 작업 컨텍스트 복원 | `memory/ENTRY.md` (T19 사서 첫 줄) |
+| **사이클 진입 게이트** | `assertAutonomyEntry()` — 시각(KST 22:00~09:00) + 사이클 수 (cap 10) 통합 체크. throw 시 STEP 1 정지 | `lib/autonomy/cycle-counter.ts` |
+| **사이클 → 사이클 자동 트리거** | STEP 5 회고 직후 `ScheduleWakeup(prompt="<<autonomous-loop-dynamic>>", delaySeconds=60~120, reason="next cycle")` 호출. 같은 세션 내 wakeup만 가능 | HARNESS.md STEP 5 박제 |
+| **세션 → 세션 부팅** | Windows Task Scheduler 2 task — 22:00 `claude --resume` 시동, 09:00 `Stop-Process claude` 종료 | `docs/14-autonomy-task-scheduler-setup.md` |
+| **PC 환경 요구** | 24h 전원 + 절전 비활성 + 시간대 KST + Claude CLI 인증 유효 | 동일 |
+| **ENTRY.md 갱신 책임** | STEP 5 T18 회고 시 "1. 다음 사이클" 라인 1줄 갱신 | T18 회고 체크리스트 |
+
 **자는 시간 cron**:
 - 시작: KST 22:00 (UTC 13:00) — `0 13 * * *`
 - 종료: KST 09:00 (UTC 00:00) — `0 0 * * *`
@@ -265,5 +276,6 @@ PRD §4 매트릭스에서 자율/게이트 판정
 | 2026-05-03 | (구체값 박제) | 사용자 결정 반영: 자율 시간대 22:00~09:00 KST · 일일 캡 10 사이클 · 컨텍스트 80% 가드 · 세션당 3 사이클 · 게이트 batch 5건/6시간 · 자율 영역 Phase 1/6 + 리팩터 한정. |
 | 2026-05-04 | ZZZ | §0.5.1 안전 킬스위치 도입: `lib/usage-quota.ts` 외부 API cap(anthropic wrap 적용, 5개 서비스 AAAA 미룸) · `lib/audit-log.ts` `sanitizeAuditValue` (13 키 패턴 redact, ADR-046) · `.claude/settings.json` deny (자동 머지/승인/force push/`.env` Read) · `.github/workflows/secret-scan.yml` (7 패턴 grep). |
 | 2026-05-04 | AAAA1 | §0.5.1 보강 + §0.5.2 신규: 6 외부 API 서비스 모두 quota wrap (vision/places/directions/naver/ota{agoda,kkday,klook}) + grep coverage 회귀 + `lib/autonomy/cycle-counter.ts` 메모리 파일 기반 일일 카운터 + `isAutonomyHours()` + ADR-047 모델 라우팅 정책. AAAA2 미룸: 영속 카운터 / 비용 트래킹 / 임계치 / pickModel 헬퍼. |
+| 2026-05-04 | BBBB | §0.5.3 신규 자율 시동 절차: `assertAutonomyEntry()` 시각+카운터 통합 게이트 + `memory/ENTRY.md` 5줄 진입 카드 + `docs/14-autonomy-task-scheduler-setup.md` Windows Task Scheduler 가이드(22:00 시동/09:00 종료) + HARNESS.md STEP 5 ScheduleWakeup 박제. AAAA2 미룸: 비용 트래킹 / 영속 카운터 / pickModel. |
 
 > 이후 변경은 게이트 매트릭스 보강이나 자동화 영역 확대 시 갱신.
