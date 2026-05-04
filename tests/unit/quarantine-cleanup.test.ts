@@ -10,8 +10,7 @@ import {
 } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-// @ts-expect-error — .mjs 스크립트 직접 import (pure ESM, no type declarations)
-import { cleanupQuarantine } from "../../scripts/quarantine-cleanup.mjs";
+import { cleanupQuarantine } from "@/lib/autonomy/cleanup";
 
 let TMP_DIR: string;
 let QUARANTINE_DIR: string;

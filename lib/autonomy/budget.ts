@@ -25,7 +25,7 @@ import {
 } from "fs";
 import { join, resolve } from "path";
 import { writeAuditLog } from "@/lib/audit-log";
-import { KST_OFFSET_MS, getKstDateString, getMemoryDir } from "@/lib/autonomy/kst";
+import { getTzOffsetMs, getKstDateString, getMemoryDir } from "@/lib/autonomy/kst";
 import { PAUSED_FLAG_REASONS } from "@/lib/autonomy/known-reasons";
 
 export { getKstDateString };
@@ -105,7 +105,7 @@ export function getBudgetThresholds(): BudgetThresholds {
 }
 
 function getKstHour(now: number): number {
-  return new Date(now + KST_OFFSET_MS).getUTCHours();
+  return new Date(now + getTzOffsetMs()).getUTCHours();
 }
 
 export function getBudgetStatePath(

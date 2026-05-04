@@ -174,6 +174,7 @@ Get-ScheduledTask -TaskName "Claude Autonomy*" | Format-Table TaskName, State, N
 | env | 의미 | default |
 |-----|------|--------|
 | `AUTONOMY_DAILY_CYCLE_CAP` | 일일 자율 사이클 캡 | 10 |
+| **`AUTONOMY_TZ_OFFSET_HOURS`** ⭐ | **자율 시간대 offset (hours from UTC). default 9 (KST). 베트남/태국 거주 시 7. 인도 5.5. 범위 -12~14.** | **9** |
 | `QUOTA_DAILY_CAP_ANTHROPIC` | Anthropic API 일일 cap | 1000 |
 | `QUOTA_DAILY_CAP_GOOGLE_VISION` | Vision API 일일 cap | 500 |
 | `QUOTA_DAILY_CAP_NAVER_SEARCH` | Naver API 일일 cap | 5000 |
@@ -196,6 +197,17 @@ Get-ScheduledTask -TaskName "Claude Autonomy*" | Format-Table TaskName, State, N
 [System.Environment]::SetEnvironmentVariable("AUTONOMY_DAILY_CYCLE_CAP", "5", "User")
 [System.Environment]::SetEnvironmentVariable("USAGE_BUDGET_DAILY_THROW", "20", "User")
 ```
+
+**베트남/태국 거주자 (사이클 AAAA9 도입)**:
+```powershell
+# PC OS 시간대가 UTC+7 (베트남/태국)이고 자율을 그 시간대 기준으로 돌리고 싶다면:
+[System.Environment]::SetEnvironmentVariable("AUTONOMY_TZ_OFFSET_HOURS", "7", "User")
+
+# 확인 (새 PowerShell 창 열어서)
+[System.Environment]::GetEnvironmentVariable("AUTONOMY_TZ_OFFSET_HOURS", "User")
+```
+
+이렇게 하면 `isAutonomyHours()` 게이트가 베트남 시간 22:00~09:00을 자율 시간대로 인식. Task Scheduler의 22:00/09:00/09:30 trigger도 OS 시간대 기준 = 베트남 시간 기준으로 정확히 동작.
 
 **dry-run 모드** (R1 권장 — AAAA2 머지 첫날):
 ```powershell
