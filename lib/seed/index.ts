@@ -61,3 +61,8 @@ export function listDemoTrips(): DemoTripBundle[] {
 
 export const DEMO_TRIP_ID = phuQuocTrip.id;
 export const DEMO_TRIP_IDS = bundles.map((b) => b.trip.id);
+
+/** C1 — 데모 trip인지 판별 (체험 라벨 표시용). */
+export function isDemoTrip(tripId: string): boolean {
+  return DEMO_TRIP_IDS.includes(tripId);
+}

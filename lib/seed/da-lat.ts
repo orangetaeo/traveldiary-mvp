@@ -220,7 +220,8 @@ const daLatPlaces: SeedPlace[] = [
 // ═══════════════════════════════════════════════════════════════════
 
 const TRIP_ID = "demo-trip-da-lat";
-const START_DATE = "2026-06-15"; // 월요일
+import { demoStartDate } from "./demo-date";
+const START_DATE = demoStartDate(24); // 24일 후 (C1: 고정 날짜 제거)
 
 export const daLatTrip: Trip = {
   id: TRIP_ID,

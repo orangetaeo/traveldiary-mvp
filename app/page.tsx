@@ -28,7 +28,8 @@ import { kakaoAvailable } from "@/lib/auth/kakao";
 import { jwtAvailable } from "@/lib/auth/jwt";
 import { prisma } from "@/lib/prisma";
 
-const TODAY_ISO = "2026-04-30"; // SSR 안정성: Date.now() 대신 고정값
+import { todayISO } from "@/lib/seed/demo-date";
+const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
 
 function dDay(startDate: string, today: string): number {
   const s = new Date(`${startDate}T00:00:00.000Z`);
@@ -260,9 +261,14 @@ export default async function HomePage() {
                   href={`/itinerary/${b.trip.id}`}
                   className="block p-td-sm bg-surface-card border border-divider rounded-xl hover:border-purple/40 transition-colors"
                 >
-                  <p className="text-td-meta text-ink-soft uppercase tabular-nums">
-                    {b.trip.destinationCode}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-td-meta text-ink-soft uppercase tabular-nums">
+                      {b.trip.destinationCode}
+                    </p>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700">
+                      체험
+                    </span>
+                  </div>
                   <p className="text-td-card-title text-ink mt-td-xxs">
                     {b.trip.destination}
                   </p>

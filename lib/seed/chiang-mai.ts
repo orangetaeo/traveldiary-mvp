@@ -216,7 +216,8 @@ const chiangMaiPlaces: SeedPlace[] = [
 // ═══════════════════════════════════════════════════════════════════
 
 const TRIP_ID = "demo-trip-chiang-mai";
-const START_DATE = "2026-07-12"; // 일요일 (일요 야시장 Day 2 보장)
+import { demoStartDate } from "./demo-date";
+const START_DATE = demoStartDate(45); // 45일 후 (C1: 고정 날짜 제거)
 
 export const chiangMaiTrip: Trip = {
   id: TRIP_ID,
