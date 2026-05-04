@@ -20,6 +20,8 @@ interface TripSecondaryActionsProps {
   isPending: boolean;
   onEnterTravelMode: () => void;
   onShareClick: () => void;
+  /** C4 — 현재 활성 day (0-based). 체크리스트/비용 링크에 ?day= 전달. */
+  activeDay?: number;
 }
 
 export function TripSecondaryActions({
@@ -28,7 +30,9 @@ export function TripSecondaryActions({
   isPending,
   onEnterTravelMode,
   onShareClick,
+  activeDay,
 }: TripSecondaryActionsProps) {
+  const dayParam = activeDay != null && activeDay > 0 ? `?day=${activeDay}` : "";
   return (
     <>
       {!isOnTrip && (
@@ -60,7 +64,7 @@ export function TripSecondaryActions({
         </p>
         <div className="grid grid-cols-2 gap-td-sm">
           <Link
-            href={`/checklist/${tripId}`}
+            href={`/checklist/${tripId}${dayParam}`}
             className="flex items-center gap-1.5 text-td-meta font-semibold text-purple-deep border border-purple/40 rounded-md px-3 py-2 transition-colors hover:bg-purple-soft"
           >
             <span className="material-symbols-outlined text-[18px]" aria-hidden>
@@ -69,7 +73,7 @@ export function TripSecondaryActions({
             체크리스트
           </Link>
           <Link
-            href={`/cost/${tripId}`}
+            href={`/cost/${tripId}${dayParam}`}
             className="flex items-center gap-1.5 text-td-meta font-semibold text-amber-deep border border-amber/40 rounded-md px-3 py-2 transition-colors hover:bg-amber-soft"
           >
             <span className="material-symbols-outlined text-[18px]" aria-hidden>

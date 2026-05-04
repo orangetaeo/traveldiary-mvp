@@ -43,9 +43,12 @@ interface Props {
   trip: Trip;
   initialItems: ChecklistItem[];
   cityName?: string;
+  /** C4 — URL ?day= 파라미터에서 파싱된 dayIndex. 뒤로가기 링크에 전달. */
+  initialDay?: number;
 }
 
-export function ChecklistView({ trip, initialItems, cityName }: Props) {
+export function ChecklistView({ trip, initialItems, cityName, initialDay }: Props) {
+  const dayParam = initialDay != null ? `?day=${initialDay}` : "";
   const router = useRouter();
   const [items, setItems] = useState<ChecklistItem[]>(initialItems);
   const [isPending, startTransition] = useTransition();
@@ -336,7 +339,7 @@ export function ChecklistView({ trip, initialItems, cityName }: Props) {
       <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
         <div className="flex items-center gap-td-sm">
           <Link
-            href={`/itinerary/${trip.id}`}
+            href={`/itinerary/${trip.id}${dayParam}`}
             aria-label="뒤로"
             className="p-2 rounded-full hover:bg-surface-soft transition-colors"
           >

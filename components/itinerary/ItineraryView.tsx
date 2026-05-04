@@ -25,6 +25,8 @@ import { ShareModal } from "@/components/share/ShareModal";
 interface ItineraryViewProps {
   trip: Trip;
   initialItems: ItineraryItem[];
+  /** C4 — URL ?day= 파라미터에서 파싱된 초기 dayIndex (0-based). */
+  initialDay?: number;
 }
 
 /**
@@ -34,10 +36,10 @@ interface ItineraryViewProps {
  * (page에서 data-travel-mode 속성 설정).
  * pre-travel: 보라 / in-travel: 코랄 / post-travel: 그린.
  */
-export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
+export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryViewProps) {
   const router = useRouter();
   const [items, setItems] = useState<ItineraryItem[]>(initialItems);
-  const [activeDay, setActiveDay] = useState(0);
+  const [activeDay, setActiveDay] = useState(initialDay);
   const [replanOpen, setReplanOpen] = useState(false);
   const [appliedLabel, setAppliedLabel] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -416,6 +418,7 @@ export function ItineraryView({ trip, initialItems }: ItineraryViewProps) {
           isPending={isPending}
           onEnterTravelMode={handleEnterTravelMode}
           onShareClick={() => setShareOpen(true)}
+          activeDay={activeDay}
         />
       </section>
 
