@@ -20,6 +20,7 @@ import { getCityByCode, resolveCityByCode } from "@/lib/seed/cities";
 import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 import { CityContextStrip } from "@/components/city/CityContextStrip";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 const TODAY_ISO = "2026-04-30";
 
@@ -129,6 +130,8 @@ export default async function ItineraryPage({ params }: { params: { id: string }
 
         <ItineraryView trip={trip} initialItems={items} />
       </main>
+
+      <BottomNav active="itinerary" />
     </div>
   );
 }

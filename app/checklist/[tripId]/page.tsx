@@ -13,6 +13,7 @@ import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 import { listChecklistByTrip } from "@/lib/repositories/checklist.repository";
 import { getDemoTrip } from "@/lib/seed";
 import { getCityByCode } from "@/lib/seed/cities";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 export default async function ChecklistPage({
   params,
@@ -28,6 +29,9 @@ export default async function ChecklistPage({
   const city = getCityByCode(trip.destinationCode);
 
   return (
-    <ChecklistView trip={trip} initialItems={items} cityName={city?.name} />
+    <>
+      <ChecklistView trip={trip} initialItems={items} cityName={city?.name} />
+      <BottomNav active="itinerary" />
+    </>
   );
 }

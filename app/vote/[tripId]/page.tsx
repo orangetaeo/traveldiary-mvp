@@ -8,6 +8,7 @@ import { listVotesByTrip } from "@/lib/repositories/vote.repository";
 import { getDemoTrip, DEMO_TRIP_ID } from "@/lib/seed";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { VoteListView } from "@/components/vote/VoteListView";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 export default async function VotePage({
   params,
@@ -26,10 +27,13 @@ export default async function VotePage({
   const currentUserId = await getCurrentUserId();
 
   return (
-    <VoteListView
-      trip={trip}
-      initialVotes={votes}
-      currentUserId={currentUserId}
-    />
+    <>
+      <VoteListView
+        trip={trip}
+        initialVotes={votes}
+        currentUserId={currentUserId}
+      />
+      <BottomNav active="itinerary" />
+    </>
   );
 }

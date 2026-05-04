@@ -1,5 +1,5 @@
 /**
- * BottomNav 컴포넌트 단위 테스트 — 사이클 O.
+ * BottomNav 컴포넌트 단위 테스트 — 사이클 O + BLOCKER5a 확장.
  *
  * 추출 후 행위 보존 검증:
  *  - 4슬롯 (home/trips/itinerary/profile) 모두 렌더
@@ -7,11 +7,16 @@
  *  - href 매핑 정확 (DEMO_TRIP_ID 내부 import)
  *  - aria-label "주요 메뉴" 보존
  *
+ * BLOCKER5a 추가:
+ *  - 11 페이지 (2 기존 + 9 신규) BottomNav import + active 슬롯 매핑 구조 검증
+ *
  * status-badge 패턴 답습 — renderToStaticMarkup으로 HTML 문자열 검증.
  */
 
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { BottomNav, type BottomNavSlot } from "@/components/ui/BottomNav";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 
@@ -69,5 +74,47 @@ describe("BottomNav — 시각 무회귀 (사이클 I 토큰 보존)", () => {
     const html = render(<BottomNav active="home" />);
     expect(html).toContain("text-purple");
     expect(html).toContain("text-ink-mute");
+  });
+});
+
+/**
+ * BLOCKER5a — 11 페이지 BottomNav 구조 커버리지.
+ *
+ * 각 페이지 소스 파일을 읽어 BottomNav import + active 슬롯 매핑 검증.
+ * 새 페이지가 BottomNav를 빠뜨리면 이 테스트가 잡아줌.
+ */
+describe("BottomNav — 페이지 커버리지 (BLOCKER5a)", () => {
+  const root = path.resolve(__dirname, "../../app");
+
+  const EXPECTED_PAGES: Array<{
+    pagePath: string;
+    expectedActive: BottomNavSlot;
+    label: string;
+  }> = [
+    { pagePath: "page.tsx", expectedActive: "home", label: "/" },
+    { pagePath: "trips/page.tsx", expectedActive: "trips", label: "/trips" },
+    { pagePath: "itinerary/[id]/page.tsx", expectedActive: "itinerary", label: "/itinerary/[id]" },
+    { pagePath: "cost/[tripId]/page.tsx", expectedActive: "itinerary", label: "/cost/[tripId]" },
+    { pagePath: "checklist/[tripId]/page.tsx", expectedActive: "itinerary", label: "/checklist/[tripId]" },
+    { pagePath: "city/[slug]/page.tsx", expectedActive: "trips", label: "/city/[slug]" },
+    { pagePath: "city/[slug]/emergency/page.tsx", expectedActive: "trips", label: "/city/[slug]/emergency" },
+    { pagePath: "translate/page.tsx", expectedActive: "home", label: "/translate" },
+    { pagePath: "share/[key]/page.tsx", expectedActive: "trips", label: "/share/[key]" },
+    { pagePath: "vote/[tripId]/page.tsx", expectedActive: "itinerary", label: "/vote/[tripId]" },
+    { pagePath: "shared/page.tsx", expectedActive: "trips", label: "/shared" },
+  ];
+
+  it.each(EXPECTED_PAGES)(
+    "$label — BottomNav import + active='$expectedActive'",
+    ({ pagePath, expectedActive }) => {
+      const filePath = path.join(root, pagePath);
+      const src = fs.readFileSync(filePath, "utf-8");
+      expect(src).toContain("BottomNav");
+      expect(src).toContain(`active="${expectedActive}"`);
+    },
+  );
+
+  it("총 11 페이지 커버 (2 기존 + 9 신규)", () => {
+    expect(EXPECTED_PAGES.length).toBe(11);
   });
 });

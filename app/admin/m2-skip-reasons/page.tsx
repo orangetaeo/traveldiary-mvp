@@ -2,7 +2,7 @@
  * M2 Skip Reasons Dashboard — 사이클 PP.
  *
  * AuditLog "trip.mode_transition" 행을 outcome × skipReason × trigger로 집계.
- * MVP: 인증 미요구 (단일 운영자 가정 — affiliate 답습). 11d+에서 admin role 체크.
+ * BLOCKER3: ADMIN_SECRET_KEY env 기반 접근 가드 (비인증 시 404).
  *
  * 좌표·정확도는 AAA `buildModeTransitionMetadata` 화이트리스트 단계에서 차단됨 —
  * 본 dashboard는 raw row를 신뢰해도 안전 (ADR-017 §C).
@@ -18,6 +18,7 @@ import type {
 import { getCityLabelKo } from "@/lib/constants/city-labels";
 import { parseWindow } from "@/lib/admin/window-filter";
 import { TimeWindowFilter } from "@/components/admin/TimeWindowFilter";
+import { assertAdminAccess } from "@/lib/auth/admin-guard";
 
 // 라이브 audit log를 매 요청마다 조회 (build-time 캐시 X)
 export const dynamic = "force-dynamic";
@@ -51,12 +52,13 @@ const TRIGGER_LABEL: Record<ModeTransitionTrigger | "unknown", string> = {
 // 사이클 XXX — TimeWindowFilter / parseWindow / WindowOption도 lib/admin/window-filter로 추출 (RR 인라인 → import).
 
 interface PageProps {
-  searchParams: { window?: string };
+  searchParams: { window?: string; key?: string };
 }
 
 export default async function ModeTransitionStatsDashboard({
   searchParams,
 }: PageProps) {
+  assertAdminAccess(searchParams);
   const windowDays = parseWindow(searchParams.window);
 
   if (!isDbConnected) {

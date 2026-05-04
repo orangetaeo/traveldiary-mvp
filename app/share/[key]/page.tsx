@@ -13,6 +13,7 @@ import { listCommentsByShareLinkId } from "@/lib/repositories/shareComment.repos
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { CommentSection } from "@/components/share/CommentSection";
 import { ReceivedKeyTracker } from "@/components/share/ReceivedKeyTracker";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 export async function generateMetadata({
   params,
@@ -181,6 +182,8 @@ export default async function SharedTripPage({
           disabledReason={disabledReason}
         />
       </main>
+
+      <BottomNav active="trips" />
     </div>
   );
 }

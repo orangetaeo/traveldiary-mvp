@@ -4,7 +4,7 @@
  * LocalStorage(td_received_share_keys)에서 받은 syncKey 목록을 읽고
  * /api/share/lookup으로 실시간 상태(active/revoked/expired) 검증.
  *
- * BottomNav 4슬롯은 변경 X (사이클 I/O 답습 위반 방지) — 헤더 뒤로가기 + /trips 링크만.
+ * 사이클 BLOCKER5a: BottomNav 추가 (PRD §2 BLOCKER 5 — 9 페이지 확장).
  */
 
 "use client";
@@ -28,6 +28,7 @@ import {
 } from "@/lib/share/filterReceived";
 import { MyIdentityPanel } from "@/components/share/MyIdentityPanel";
 import { MyActivitySection } from "@/components/share/MyActivitySection";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 interface LookupItem {
   key: string;
@@ -116,6 +117,7 @@ export default function SharedListPage() {
 
   return (
     <main className="bg-bg min-h-dvh pb-24" aria-label="받은 여행 목록">
+      <BottomNav active="trips" />
       <header className="sticky top-0 z-10 bg-surface-card border-b border-divider">
         <div className="max-w-[420px] mx-auto px-4 h-12 flex items-center justify-between">
           <Link

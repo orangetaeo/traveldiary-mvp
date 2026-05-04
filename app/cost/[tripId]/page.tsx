@@ -9,6 +9,7 @@ import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
 import { listCostByTrip } from "@/lib/repositories/cost.repository";
 import { getDemoTrip } from "@/lib/seed";
 import { resolveCityByCode } from "@/lib/seed/cities";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 export default async function CostPage({
   params,
@@ -25,12 +26,15 @@ export default async function CostPage({
   const city = resolveCityByCode(trip.destinationCode);
 
   return (
-    <CostView
-      trip={trip}
-      initialEntries={entries}
-      currency={city?.payment.currency ?? "USD"}
-      currencySymbol={city?.payment.currencySymbol ?? "$"}
-      approxKrwRate={city?.payment.approxKrwRate ?? 1}
-    />
+    <>
+      <CostView
+        trip={trip}
+        initialEntries={entries}
+        currency={city?.payment.currency ?? "USD"}
+        currencySymbol={city?.payment.currencySymbol ?? "$"}
+        approxKrwRate={city?.payment.approxKrwRate ?? 1}
+      />
+      <BottomNav active="itinerary" />
+    </>
   );
 }
