@@ -245,13 +245,8 @@ function Step2({
         도쿄 · 오사카 · 방콕은 모든 기능이 다 작동해요
       </p>
 
-      <input
-        className="w-full px-3 py-2.5 text-sm border border-divider rounded-md bg-surface-soft mb-3"
-        placeholder="도시 또는 국가 검색"
-      />
-
       <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-        한국인이 자주 가는 곳
+        베트남 인기 여행지
       </p>
       <div className="grid grid-cols-2 gap-2 mb-3">
         {DESTINATIONS.map((d) => (
