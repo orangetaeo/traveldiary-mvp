@@ -34,6 +34,9 @@ const CHIPS: ChipDef[] = [
   { id: "emergency", label: "응급", danger: true },
   { id: "payment", label: "결제" },
   { id: "transport", label: "교통" },
+  { id: "visa", label: "비자" },
+  { id: "utilities", label: "준비물" },
+  { id: "weather", label: "날씨" },
   { id: "phrases", label: "상황별 문장" },
   { id: "guides", label: "시그니처" },
 ];
@@ -277,7 +280,82 @@ export default function CityPage({ params }: { params: { slug: string } }) {
           )}
         </section>
 
-        {/* Section 4: Phrase Book */}
+        {/* Section 4: Visa */}
+        {city.visa && (
+          <section id="visa" className="mb-td-lg scroll-mt-24">
+            <h3 className="text-td-card-title text-ink mb-td-sm">비자·입국</h3>
+            <div className="bg-surface-card border border-divider rounded-xl p-td-md space-y-td-xs">
+              {city.visa.visaFreeDays != null && (
+                <div className="flex items-center gap-td-xs">
+                  <span className="material-symbols-outlined text-success-deep text-[18px]" aria-hidden>check_circle</span>
+                  <p className="text-td-body text-ink">
+                    한국 여권 무비자 <span className="font-bold text-success-deep">{city.visa.visaFreeDays}일</span>
+                  </p>
+                </div>
+              )}
+              <div className="flex items-center gap-td-xs">
+                <span className={`material-symbols-outlined text-[18px] ${city.visa.eVisaRequired ? "text-amber-deep" : "text-success-deep"}`} aria-hidden>
+                  {city.visa.eVisaRequired ? "warning" : "check_circle"}
+                </span>
+                <p className="text-td-body text-ink">
+                  e-Visa {city.visa.eVisaRequired ? "필요" : "불필요"}
+                </p>
+              </div>
+              {city.visa.notes && (
+                <p className="text-td-meta text-ink-soft">{city.visa.notes}</p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Section 5: Utilities */}
+        {city.utilities && (
+          <section id="utilities" className="mb-td-lg scroll-mt-24">
+            <h3 className="text-td-card-title text-ink mb-td-sm">준비물·전기·통신</h3>
+            <div className="bg-surface-card border border-divider rounded-xl p-td-md">
+              <div className="grid grid-cols-3 gap-td-sm text-center">
+                <div>
+                  <span className="material-symbols-outlined text-ink-soft text-[20px]" aria-hidden>electrical_services</span>
+                  <p className="text-td-caption text-ink-soft">전압</p>
+                  <p className="text-td-body text-ink font-medium">{city.utilities.voltage}</p>
+                </div>
+                <div>
+                  <span className="material-symbols-outlined text-ink-soft text-[20px]" aria-hidden>power</span>
+                  <p className="text-td-caption text-ink-soft">플러그</p>
+                  <p className="text-td-body text-ink font-medium">{city.utilities.plugType}</p>
+                </div>
+                <div>
+                  <span className="material-symbols-outlined text-ink-soft text-[20px]" aria-hidden>sim_card</span>
+                  <p className="text-td-caption text-ink-soft">현지 SIM</p>
+                  <p className="text-td-body text-ink font-medium">{city.utilities.simAvailable ? "구매 가능" : "어려움"}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Section 6: Weather */}
+        {city.weather && (
+          <section id="weather" className="mb-td-lg scroll-mt-24">
+            <h3 className="text-td-card-title text-ink mb-td-sm">날씨·기후</h3>
+            <div className="bg-surface-card border border-divider rounded-xl p-td-md space-y-td-xs">
+              <div className="flex items-center gap-td-xs">
+                <span className="material-symbols-outlined text-amber-deep text-[18px]" aria-hidden>thermostat</span>
+                <p className="text-td-body text-ink">{city.weather.season}</p>
+              </div>
+              {city.weather.avgTempC && (
+                <p className="text-td-meta text-ink-soft">
+                  평균 기온 {city.weather.avgTempC.min}°C ~ {city.weather.avgTempC.max}°C
+                </p>
+              )}
+              {city.weather.notes && (
+                <p className="text-td-meta text-ink-soft">{city.weather.notes}</p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Section 7: Phrase Book */}
         <section id="phrases" className="mb-td-lg scroll-mt-24">
           <h3 className="text-td-card-title text-ink mb-td-sm">상황별 문장</h3>
           <div className="space-y-td-sm">
@@ -301,8 +379,7 @@ export default function CityPage({ params }: { params: { slug: string } }) {
 
         {/* Footer note */}
         <p className="text-td-caption text-ink-mute text-center pt-td-md">
-          v2 비전 §4 신규 모델 City. MVP 필드(emergency·payment·transport·phrases)만
-          노출. visa/utilities/weather는 사이클 8.5+에서 추가.
+          v2 비전 §4 City 모델 — 응급·결제·교통·비자·준비물·날씨·문장·시그니처
         </p>
       </main>
 
