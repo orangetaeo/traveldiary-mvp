@@ -55,9 +55,9 @@ describe("BottomNav — active prop 분기", () => {
   it("active=trips — explore 아이콘 filled, home 아이콘 unfilled", () => {
     const html = render(<BottomNav active="trips" />);
     // explore 옆에 'filled' 클래스
-    expect(html).toMatch(/material-symbols-outlined filled[^"]*">explore/);
+    expect(html).toMatch(/material-symbols-outlined filled[^>]*>explore/);
     // home은 filled 아님
-    expect(html).not.toMatch(/material-symbols-outlined filled[^"]*">home/);
+    expect(html).not.toMatch(/material-symbols-outlined filled[^>]*>home/);
   });
 });
 

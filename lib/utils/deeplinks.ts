@@ -23,13 +23,6 @@ export function googleMapsUrl(loc: LatLng, name?: string): string {
 }
 
 /**
- * Google Maps 경로 안내 (현재 위치 → dropoff) — 모바일에서 자동 navigation 모드.
- */
-export function googleMapsDirectionsUrl(dropoff: LatLng): string {
-  return `https://www.google.com/maps/dir/?api=1&destination=${dropoff.lat},${dropoff.lng}&travelmode=driving`;
-}
-
-/**
  * Uber Universal Deeplink — 앱 설치 시 앱 열기, 미설치 시 웹 fallback.
  * D2: 우버 호출.
  */
@@ -69,21 +62,3 @@ export function kakaoMapUrl(loc: LatLng, name?: string): string {
   return `https://map.kakao.com/link/map/${safe},${loc.lat},${loc.lng}`;
 }
 
-/** 카카오맵 길찾기 — 도착지만, 출발은 사용자 현재 위치 */
-export function kakaoMapDirectionsUrl(loc: LatLng, name?: string): string {
-  const safe = name ? encodeURIComponent(name.replace(/,/g, " ")) : "장소";
-  return `https://map.kakao.com/link/to/${safe},${loc.lat},${loc.lng}`;
-}
-
-/** D3: 전화 다이얼 */
-export function phoneDialUrl(phone: string): string {
-  return `tel:${phone.replace(/\s+/g, "")}`;
-}
-
-/** D4: 이메일 mailto */
-export function mailtoUrl(email: string, subject?: string): string {
-  if (subject) {
-    return `mailto:${email}?subject=${encodeURIComponent(subject)}`;
-  }
-  return `mailto:${email}`;
-}

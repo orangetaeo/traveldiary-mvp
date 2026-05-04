@@ -172,7 +172,7 @@ export function ChecklistBucketList({
                           aria-label="위로 이동"
                           className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-5 flex items-center"
                         >
-                          <span className="material-symbols-outlined text-[18px]">
+                          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
                             keyboard_arrow_up
                           </span>
                         </button>
@@ -183,7 +183,7 @@ export function ChecklistBucketList({
                           aria-label="아래로 이동"
                           className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-5 flex items-center"
                         >
-                          <span className="material-symbols-outlined text-[18px]">
+                          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
                             keyboard_arrow_down
                           </span>
                         </button>
@@ -196,7 +196,7 @@ export function ChecklistBucketList({
                         aria-label="삭제"
                         className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0"
                       >
-                        <span className="material-symbols-outlined text-[18px]">
+                        <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
                           close
                         </span>
                       </button>

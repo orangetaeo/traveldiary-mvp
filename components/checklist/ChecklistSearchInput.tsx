@@ -37,7 +37,7 @@ export function ChecklistSearchInput({ value, onChange }: Props) {
           aria-label="검색어 지우기"
           className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-ink-mute hover:text-ink"
         >
-          <span className="material-symbols-outlined text-[18px]">close</span>
+          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
         </button>
       )}
     </div>

@@ -19,6 +19,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   renameSync,
   unlinkSync,
   writeFileSync,
@@ -655,8 +656,14 @@ export function __resetBudgetForTests(dir?: string): void {
     );
   }
   const targetDir = dir ?? getMemoryDir();
-  const path = getBudgetStatePath(Date.now(), targetDir);
-  if (existsSync(path)) unlinkSync(path);
+  // glob 삭제: 테스트가 고정 now로 파일을 생성하면 Date.now() 기준 경로와 불일치할 수 있음
+  if (existsSync(targetDir)) {
+    for (const f of readdirSync(targetDir)) {
+      if (f.startsWith("usage_quota_") && f.endsWith(".json")) {
+        unlinkSync(join(targetDir, f));
+      }
+    }
+  }
   const flagPath = getPausedFlagPath(targetDir);
   if (existsSync(flagPath)) unlinkSync(flagPath);
 }
