@@ -21,7 +21,9 @@ let TMP_DIR: string;
 describe("cycle-counter — 자율 일일 사이클 카운터 (사이클 AAAA1)", () => {
   beforeEach(() => {
     TMP_DIR = mkdtempSync(join(tmpdir(), "td-cycle-counter-"));
+    process.env.AUTONOMY_TZ_OFFSET_HOURS = "9"; // 테스트는 KST(+9) 가정
     delete process.env.AUTONOMY_DAILY_CYCLE_CAP;
+    delete process.env.AUTONOMY_BYPASS_HOURS_GATE; // bypass 비활성화 — 시간대 게이트 테스트 보장
   });
 
   afterEach(() => {

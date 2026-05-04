@@ -34,6 +34,7 @@ describe("budget — 자율 모드 비용 트래킹 + 임계치 (사이클 AAAA2
   beforeEach(() => {
     TMP_DIR = mkdtempSync(join(tmpdir(), "td-budget-"));
     process.env.AUTONOMY_MEMORY_DIR = TMP_DIR;
+    process.env.AUTONOMY_TZ_OFFSET_HOURS = "9"; // 테스트는 KST(+9) 가정
     delete process.env.USAGE_BUDGET_HOURLY_WARN;
     delete process.env.USAGE_BUDGET_HOURLY_THROW;
     delete process.env.USAGE_BUDGET_DAILY_WARN;

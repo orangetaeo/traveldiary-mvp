@@ -13,6 +13,7 @@ const SAVED_ENV = { ...process.env };
 describe("usage-quota — 외부 API 일일 cap (사이클 ZZZ 안전 킬스위치)", () => {
   beforeEach(() => {
     __resetUsageQuotaForTests();
+    process.env.AUTONOMY_TZ_OFFSET_HOURS = "9"; // 테스트는 KST(+9) 가정
     delete process.env.QUOTA_DAILY_CAP_ANTHROPIC;
     delete process.env.QUOTA_DAILY_CAP_GOOGLE_VISION;
     delete process.env.QUOTA_DAILY_CAP_NAVER_SEARCH;
