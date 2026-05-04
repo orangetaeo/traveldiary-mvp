@@ -22,6 +22,27 @@ export const COMMISSION_RATE: Record<OtaProvider, number> = {
   agoda: 0.04,
 };
 
+/** OTA offer ID prefix → 도시 한국어 라벨 (C4 도시별 CTR) */
+export const OFFER_PREFIX_CITY: Record<string, string> = {
+  pq: "푸꾸옥",
+  dn: "다낭",
+  ha: "하노이",
+  hc: "호치민",
+  ho: "호이안",
+  nt: "나트랑",
+  dl: "달랏",
+  ct: "껀터",
+  cm: "치앙마이",
+  bkk: "방콕",
+  tyo: "도쿄",
+};
+
+/** offerId에서 도시 prefix 추출 (e.g., "klook-pq-cablecar" → "pq") */
+export function extractCityFromOfferId(offerId: string): string {
+  const parts = offerId.split("-");
+  return parts.length >= 2 ? parts[1] : "unknown";
+}
+
 export interface AffiliateClickRow {
   id: string;
   createdAt: string;
@@ -39,6 +60,19 @@ export interface AffiliateSummary {
   totalEstimatedCommissionKrw: number;
   byOta: Array<{
     ota: OtaProvider | string;
+    clicks: number;
+    estimatedCommissionKrw: number;
+  }>;
+  /** C4 — 도시별 클릭·commission 집계 */
+  byCity: Array<{
+    city: string;
+    cityLabel: string;
+    clicks: number;
+    estimatedCommissionKrw: number;
+  }>;
+  /** C4 — 인기 오퍼 top N */
+  topOffers: Array<{
+    offerId: string;
     clicks: number;
     estimatedCommissionKrw: number;
   }>;
@@ -115,6 +149,42 @@ export async function getAffiliateSummary(
       .map(([ota, v]) => ({ ota, ...v }))
       .sort((a, b) => b.clicks - a.clicks);
 
+    // C4 — 도시별 집계
+    const cityMap = new Map<
+      string,
+      { clicks: number; estimatedCommissionKrw: number }
+    >();
+    for (const it of items) {
+      const city = extractCityFromOfferId(it.offerId);
+      const cur = cityMap.get(city) ?? { clicks: 0, estimatedCommissionKrw: 0 };
+      cur.clicks += 1;
+      cur.estimatedCommissionKrw += it.estimatedCommissionKrw;
+      cityMap.set(city, cur);
+    }
+    const byCity = Array.from(cityMap.entries())
+      .map(([city, v]) => ({
+        city,
+        cityLabel: OFFER_PREFIX_CITY[city] ?? city,
+        ...v,
+      }))
+      .sort((a, b) => b.clicks - a.clicks);
+
+    // C4 — 인기 오퍼 집계 (top 10)
+    const offerMap = new Map<
+      string,
+      { clicks: number; estimatedCommissionKrw: number }
+    >();
+    for (const it of items) {
+      const cur = offerMap.get(it.offerId) ?? { clicks: 0, estimatedCommissionKrw: 0 };
+      cur.clicks += 1;
+      cur.estimatedCommissionKrw += it.estimatedCommissionKrw;
+      offerMap.set(it.offerId, cur);
+    }
+    const topOffers = Array.from(offerMap.entries())
+      .map(([offerId, v]) => ({ offerId, ...v }))
+      .sort((a, b) => b.clicks - a.clicks)
+      .slice(0, 10);
+
     return {
       totalClicks: items.length,
       totalEstimatedCommissionKrw: items.reduce(
@@ -122,6 +192,8 @@ export async function getAffiliateSummary(
         0,
       ),
       byOta,
+      byCity,
+      topOffers,
       recent: items.slice(0, limit),
     };
   } catch (err) {
