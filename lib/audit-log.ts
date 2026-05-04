@@ -93,7 +93,9 @@ export type AuditAction =
   | "autonomy.flag_corrupt"
   // 사이클 AAAA4 P0 — quarantine 무한 루프 가드
   | "quarantine.rename_failed"
-  | "quarantine.cap_exceeded";
+  | "quarantine.cap_exceeded"
+  // 사이클 AAAA10 — hours gate 테스트 우회 추적
+  | "autonomy.hours_gate_bypassed";
 
 export interface AuditLogInput {
   actorId?: string | null;

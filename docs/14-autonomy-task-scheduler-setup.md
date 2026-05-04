@@ -175,6 +175,7 @@ Get-ScheduledTask -TaskName "Claude Autonomy*" | Format-Table TaskName, State, N
 |-----|------|--------|
 | `AUTONOMY_DAILY_CYCLE_CAP` | 일일 자율 사이클 캡 | 10 |
 | **`AUTONOMY_TZ_OFFSET_HOURS`** ⭐ | **자율 시간대 offset (hours from UTC). default 9 (KST). 베트남/태국 거주 시 7. 인도 5.5. 범위 -12~14.** | **9** |
+| **`AUTONOMY_BYPASS_HOURS_GATE`** ⚠️ | **테스트 전용** — `"1"` 시 자율 시간대 게이트 우회 (낮 시간 사이클 진입 강제). 다른 값은 우회 X. 우회 시 audit 기록. **process scope만 사용** (영구 등록 시 22:00 정상 시동도 우회). | unset |
 | `QUOTA_DAILY_CAP_ANTHROPIC` | Anthropic API 일일 cap | 1000 |
 | `QUOTA_DAILY_CAP_GOOGLE_VISION` | Vision API 일일 cap | 500 |
 | `QUOTA_DAILY_CAP_NAVER_SEARCH` | Naver API 일일 cap | 5000 |
@@ -197,6 +198,19 @@ Get-ScheduledTask -TaskName "Claude Autonomy*" | Format-Table TaskName, State, N
 [System.Environment]::SetEnvironmentVariable("AUTONOMY_DAILY_CYCLE_CAP", "5", "User")
 [System.Environment]::SetEnvironmentVariable("USAGE_BUDGET_DAILY_THROW", "20", "User")
 ```
+
+**테스트 모드 — 자율 시간대 게이트 우회 (사이클 AAAA10)**:
+```powershell
+# 같은 PowerShell 창에서만 (process scope — 영구 미설정)
+$env:AUTONOMY_BYPASS_HOURS_GATE="1"
+cd c:\Projects\traveldiary-mvp
+claude --resume
+```
+- env가 `"1"` 일 때만 우회. `"0"`/`"true"`/`""` 등은 우회 X (부주의 fallback 차단)
+- 우회 시 `console.warn` + `audit log` (`autonomy.hours_gate_bypassed`, severity:"security")
+- **process scope env 사용 — 같은 창 종료 시 자동 제거**. Task Scheduler 22:00 자동 시동에는 영향 0
+- **영구 등록 절대 금지**: `[System.Environment]::SetEnvironmentVariable` 으로 등록하면 22:00 정상 시동도 우회 = 안전 회로 무력화
+- 종료 후 검증: 새 PowerShell 창에서 `$env:AUTONOMY_BYPASS_HOURS_GATE` → 빈 줄 (미설정) 확인
 
 **베트남/태국 거주자 (사이클 AAAA9 도입)**:
 ```powershell

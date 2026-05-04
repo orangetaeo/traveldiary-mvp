@@ -32,7 +32,7 @@
 - **PR 머지 흐름** (`feedback_branch_protection_pr_flow`) — `gh pr merge --admin/--auto/--approve` deny
 - **writeAuditLog 절대 규칙** (S-13) + sanitizeAuditValue 13키 redact (ADR-046)
 - **베트남 단일 국가 정책** (`feedback_vietnam_only_focus`)
-- **자율 시간대** 22:00~09:00 (default KST, env `AUTONOMY_TZ_OFFSET_HOURS` override — 베트남 7, 사이클 AAAA9)
+- **자율 시간대** 22:00~09:00 (default KST, env `AUTONOMY_TZ_OFFSET_HOURS` override — 베트남 7, 사이클 AAAA9). 테스트 우회: `AUTONOMY_BYPASS_HOURS_GATE=1` (process scope, AAAA10)
 
 ## 5. 진입 절차
 ```

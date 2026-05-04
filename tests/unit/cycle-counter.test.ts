@@ -73,6 +73,42 @@ describe("cycle-counter — 자율 일일 사이클 카운터 (사이클 AAAA1)"
     });
   });
 
+  describe("isAutonomyHours — AUTONOMY_BYPASS_HOURS_GATE 우회 (사이클 AAAA10)", () => {
+    afterEach(() => {
+      delete process.env.AUTONOMY_BYPASS_HOURS_GATE;
+    });
+
+    it("env=1 + 자율 시간대 외 (KST 12:00) → 강제 true", () => {
+      process.env.AUTONOMY_BYPASS_HOURS_GATE = "1";
+      expect(isAutonomyHours(Date.UTC(2026, 4, 4, 3, 0, 0))).toBe(true);
+    });
+
+    it("env=1 + 자율 시간대 안 (KST 22:00) → 그대로 true", () => {
+      process.env.AUTONOMY_BYPASS_HOURS_GATE = "1";
+      expect(isAutonomyHours(Date.UTC(2026, 4, 4, 13, 0, 0))).toBe(true);
+    });
+
+    it("env 미설정 + 자율 시간대 외 → false (default 게이트 동작)", () => {
+      delete process.env.AUTONOMY_BYPASS_HOURS_GATE;
+      expect(isAutonomyHours(Date.UTC(2026, 4, 4, 3, 0, 0))).toBe(false);
+    });
+
+    it("env=0 → 우회 안 됨 (1만 우회 — 부주의 fallback 차단)", () => {
+      process.env.AUTONOMY_BYPASS_HOURS_GATE = "0";
+      expect(isAutonomyHours(Date.UTC(2026, 4, 4, 3, 0, 0))).toBe(false);
+    });
+
+    it("env='true' → 우회 안 됨 (정확히 '1'만 우회)", () => {
+      process.env.AUTONOMY_BYPASS_HOURS_GATE = "true";
+      expect(isAutonomyHours(Date.UTC(2026, 4, 4, 3, 0, 0))).toBe(false);
+    });
+
+    it("env='' → 우회 안 됨", () => {
+      process.env.AUTONOMY_BYPASS_HOURS_GATE = "";
+      expect(isAutonomyHours(Date.UTC(2026, 4, 4, 3, 0, 0))).toBe(false);
+    });
+  });
+
   describe("readCycleCounter (초기 상태)", () => {
     it("파일 없으면 cycles=0 + cap=10 (default)", () => {
       const now = Date.UTC(2026, 4, 4, 13, 0, 0);
