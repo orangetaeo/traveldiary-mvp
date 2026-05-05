@@ -30,34 +30,13 @@ import { prisma } from "@/lib/prisma";
 
 import { OrganizationJsonLd, WebAppJsonLd } from "@/components/seo/JsonLd";
 import { todayISO } from "@/lib/seed/demo-date";
+import { splitName, formatTime, CATEGORY_ICON } from "@/lib/utils/item-display";
 const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
 
 function dDay(startDate: string, today: string): number {
   const s = new Date(`${startDate}T00:00:00.000Z`);
   const t = new Date(`${today}T00:00:00.000Z`);
   return Math.ceil((s.getTime() - t.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-function categoryIcon(cat: string): string {
-  switch (cat) {
-    case "food":     return "restaurant";
-    case "spot":     return "photo_camera";
-    case "shopping": return "shopping_bag";
-    case "rest":     return "bed";
-    default:         return "place";
-  }
-}
-
-function timeFromIso(iso: string): string {
-  const d = new Date(iso);
-  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
-}
-
-function splitName(name: string): { ko: string; en: string } {
-  // "즈엉동 야시장 (Dinh Cậu Night Market)" → ko / en
-  const m = name.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
-  if (m) return { ko: m[1].trim(), en: m[2].trim() };
-  return { ko: name, en: "" };
 }
 
 export default async function HomePage() {
@@ -181,7 +160,7 @@ export default async function HomePage() {
 
           {day1Items.map((item) => {
             const isFeatured = item.id === featuredId;
-            const time = timeFromIso(item.scheduledAt);
+            const time = formatTime(item.scheduledAt);
             const { ko, en } = splitName(item.name);
             const isBooked =
               item.flexibility === "booked" || item.flexibility === "fixed";
@@ -202,7 +181,7 @@ export default async function HomePage() {
                   aria-hidden
                 >
                   <span className="material-symbols-outlined text-[16px]">
-                    {categoryIcon(item.category)}
+                    {CATEGORY_ICON[item.category] ?? "place"}
                   </span>
                 </div>
 
