@@ -114,7 +114,7 @@ describe("C3 — /guide SEO 목록 페이지", () => {
   it("가이드 카드에 emoji + 단계 수 표시", () => {
     expect(src).toContain("hero?.emoji");
     expect(src).toContain("sections.length");
-    expect(src).toContain("단계 코스");
+    expect(src).toContain("개 스팟");
   });
 
   it("도시 정보 링크", () => {

@@ -16,8 +16,8 @@ describe("온보딩 — UX 정리", () => {
     expect(src).not.toContain('placeholder="도시 또는 국가 검색"');
   });
 
-  it("베트남 인기 여행지 라벨", () => {
-    expect(src).toContain("베트남 인기 여행지");
+  it("베트남 도시 지원 라벨", () => {
+    expect(src).toContain("베트남 6개 도시 완전 지원");
   });
 
   it("한국인이 자주 가는 곳 라벨 제거 (베트남 전용으로 전환)", () => {

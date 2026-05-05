@@ -103,30 +103,26 @@ function OnboardingInner() {
     });
   };
 
-  const stepTitle = { 1: "시작", 2: "목적지", 3: "기간·일행", 4: "취향" }[step];
-
   return (
-    <main className="min-h-screen p-4 flex flex-col">
-      {/* 진행률 표시 */}
-      <div className="flex justify-between items-center mb-1 px-1">
-        <span className="text-[11px] text-ink-soft">
-          <span className="text-accent font-medium">{step}</span> / 4
-        </span>
-        <span className="text-[11px] text-ink-soft">{stepTitle}</span>
-      </div>
-      <div className="flex gap-1 mb-4">
-        {[1, 2, 3, 4].map((n) => (
-          <div key={n} className="flex-1 h-[3px] bg-surface-soft rounded-full overflow-hidden">
-            <div
-              className="h-full bg-accent rounded-full transition-all"
-              style={{ width: n <= step ? "100%" : "0%" }}
-            />
+    <main className="min-h-screen flex flex-col px-td-md pt-td-sm pb-td-md">
+      {/* 진행률 — Step 1에서는 숨김 */}
+      {step > 1 && (
+        <div className="flex items-center gap-td-xs mb-td-sm">
+          <div className="flex-1 flex gap-1">
+            {[1, 2, 3, 4].map((n) => (
+              <div
+                key={n}
+                className={`h-1 flex-1 rounded-full transition-all ${
+                  n <= step ? "bg-accent" : "bg-surface-soft"
+                }`}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
-      {/* 화면 컨테이너 */}
-      <div className="bg-surface-card border border-divider rounded-lg p-5 flex-1 flex flex-col">
+      {/* 화면 컨테���너 — 풀 블리드 */}
+      <div className="flex-1 flex flex-col">
         {step === 1 && <Step1 onNext={() => setStep(2)} />}
         {step === 2 && (
           <Step2
@@ -170,73 +166,72 @@ function OnboardingInner() {
 function Step1({ onNext }: { onNext: () => void }) {
   return (
     <>
-      <p className="text-[11px] font-medium text-accent tracking-widest mb-2">
+      <span className="text-td-caption font-medium text-accent tracking-widest block mb-td-xs">
         TRAVELDIARY
-      </p>
-      <h1 className="text-[22px] font-medium leading-tight mb-1.5">
-        3분 안에
+      </span>
+      <h1 className="text-td-title mb-td-sm">
+        3분 안에 당신의 여행을
         <br />
-        당신의 여행을 그려드려요
+        그려드려요
       </h1>
-      <p className="text-[13px] text-ink-soft leading-relaxed mb-4">
-        AI가 추천한 일정에 왜 이걸 골랐는지 근거까지.
-        <br />
-        여행 중에는 살아 움직여요.
+      <p className="text-td-body text-ink-soft mb-td-lg">
+        AI가 추천한 일정에 왜 이걸 골랐는지 근거까지. 여행 중에는 살아 움직여요.
       </p>
 
-      {/* 미니 데모 */}
-      <div className="bg-surface-soft rounded-md p-3.5 mb-4">
-        <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-          예시 · 푸꾸옥 3박 4일 Day 1
-        </p>
-        <DemoRow time="14:00" name="호텔 체크인" tagText="휴식" tagColor="success" />
-        <DemoRow time="18:30" name="즈엉동 야시장" tagText="맛집" tagColor="amber" />
-        <DemoRow time="20:30" name="디아동 야경" tagText="관광" tagColor="purple" last />
+      {/* 미니 데모 카드 */}
+      <div className="bg-surface-soft rounded-xl p-td-sm border border-divider mb-td-md">
+        <div className="flex justify-between items-center mb-td-sm">
+          <span className="text-td-meta text-ink-soft">예시 · 푸꾸옥 3박 4일 Day 1</span>
+          <span className="material-symbols-outlined text-purple text-[18px]">auto_awesome</span>
+        </div>
+        <div className="space-y-td-sm">
+          <DemoRow name="킹콩마트 장보기" tagText="가성비" dotColor="bg-success" tagColor="success" />
+          <DemoRow name="즈엉동 야시장 투어" tagText="로컬맛집" dotColor="bg-amber" tagColor="amber" connector />
+          <DemoRow name="빈펄 사파리" tagText="아이동반" dotColor="bg-purple" tagColor="purple" />
+        </div>
       </div>
 
       <div className="flex-1" />
 
-      <button
-        className="bg-ink text-white py-3.5 rounded-md text-sm font-medium w-full"
-        onClick={onNext}
-      >
-        시작하기
-      </button>
-      <p className="text-[10px] text-ink-mute text-center mt-2.5">
-        로그인 없이 바로 일정을 만들 수 있어요
-      </p>
+      <div className="space-y-td-sm text-center">
+        <button
+          className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-xl active:scale-[0.98] transition-transform"
+          onClick={onNext}
+        >
+          시작하기
+        </button>
+        <p className="text-td-meta text-ink-soft">
+          로그인 없이 바로 일정을 만들 수 있어요
+        </p>
+      </div>
     </>
   );
 }
 
 function DemoRow({
-  time,
   name,
   tagText,
+  dotColor,
   tagColor,
-  last,
+  connector,
 }: {
-  time: string;
   name: string;
   tagText: string;
+  dotColor: string;
   tagColor: "purple" | "amber" | "success";
-  last?: boolean;
+  connector?: boolean;
 }) {
   const tagStyle = {
-    purple: "bg-purple-soft text-purple-deep",
+    purple: "bg-purple-soft text-purple",
     amber: "bg-amber-soft text-amber-deep",
-    success: "bg-success-soft text-success-deep",
+    success: "bg-success-soft text-success",
   }[tagColor];
 
   return (
-    <div
-      className={`flex justify-between items-center py-1.5 text-xs ${
-        !last ? "border-b border-black/[0.06]" : ""
-      }`}
-    >
-      <span className="text-ink-soft min-w-[40px]">{time}</span>
-      <span className="flex-1 px-2">{name}</span>
-      <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${tagStyle}`}>
+    <div className={`flex items-center gap-td-sm ${connector ? "border-l-2 border-dashed border-divider ml-[3px] pl-[9px]" : ""}`}>
+      <div className={`w-2 h-2 rounded-full ${dotColor} shrink-0`} />
+      <div className="flex-1 text-td-body">{name}</div>
+      <span className={`text-td-caption px-td-xs py-[2px] rounded-full ${tagStyle}`}>
         {tagText}
       </span>
     </div>
@@ -258,39 +253,41 @@ function Step2({
 }) {
   return (
     <>
-      <button className="text-[13px] text-ink-soft self-start mb-2" onClick={onBack}>
-        ‹ 뒤로
+      <button className="flex items-center text-td-body text-ink-soft mb-td-sm" onClick={onBack}>
+        <span className="material-symbols-outlined text-[20px] mr-0.5">chevron_left</span> 뒤로
       </button>
-      <h2 className="text-xl font-medium mb-1.5">어디로 떠나세요?</h2>
-      <p className="text-[13px] text-ink-soft mb-4">
-        베트남 6개 도시 완전 지원 — AI 일정 + 실시간 도우미
+      <h2 className="text-td-title mb-td-xxs">어디로 떠나세요?</h2>
+      <p className="text-td-body text-ink-soft mb-td-lg">
+        베트남 6개 도시 완전 지원
       </p>
 
-      <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-        베트남 인기 여행지
-      </p>
-      <div className="grid grid-cols-3 gap-2 mb-3">
+      <div className="grid grid-cols-3 gap-td-sm flex-1">
         {DESTINATIONS.map((d) => (
           <button
             key={d.name}
-            className={`p-3 rounded-md text-left transition-all ${
+            className={`aspect-square flex flex-col items-center justify-center rounded-xl p-td-xs transition-all relative ${
               destination === d.name
-                ? "border-2 border-accent bg-accent-soft"
-                : "border border-divider"
+                ? "border-2 border-accent bg-white shadow-sm"
+                : "border border-divider bg-white active:bg-surface-soft"
             }`}
             onClick={() => onSelect(d.name)}
           >
-            <span className="text-lg">{d.flag}</span>
-            <p className="text-[13px] font-medium mt-1">{d.name}</p>
-            <p className="text-[10px] text-ink-soft">{d.support}</p>
+            <span className="text-2xl mb-td-xxs">{d.flag}</span>
+            <span className="text-td-body font-medium">{d.name}</span>
+            {destination === d.name && (
+              <span className="text-td-caption text-accent mt-0.5">{d.support}</span>
+            )}
+            {destination === d.name && (
+              <span className="material-symbols-outlined text-accent text-sm absolute top-1 right-1" style={{ fontVariationSettings: "'FILL' 1" }}>
+                check_circle
+              </span>
+            )}
           </button>
         ))}
       </div>
 
-      <div className="flex-1" />
-
       <button
-        className="bg-ink text-white py-3.5 rounded-md text-sm font-medium w-full"
+        className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-xl mt-td-lg"
         onClick={onNext}
       >
         다음
@@ -320,68 +317,58 @@ function Step3({
 }) {
   return (
     <>
-      <button className="text-[13px] text-ink-soft self-start mb-2" onClick={onBack}>
-        ‹ 뒤로
+      <button className="flex items-center text-td-body text-ink-soft mb-td-sm" onClick={onBack}>
+        <span className="material-symbols-outlined text-[20px] mr-0.5">chevron_left</span> 뒤로
       </button>
-      <h2 className="text-xl font-medium mb-1.5">언제, 누구와?</h2>
-      <p className="text-[13px] text-ink-soft mb-4">
-        대략적으로만 알려주세요. 나중에 바꿀 수 있어요.
-      </p>
+      <h2 className="text-td-title mb-td-lg">언제, 누구와?</h2>
 
-      <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-        기간
-      </p>
-      <div className="grid grid-cols-2 gap-2.5 mb-3">
-        <div className="bg-surface-soft rounded-md p-3">
-          <p className="text-[10px] text-ink-soft mb-1">출발일</p>
-          <p className="text-sm font-medium">{startDateLabel}</p>
-        </div>
-        <div className="bg-surface-soft rounded-md p-3">
-          <p className="text-[10px] text-ink-soft mb-1">박수</p>
-          <div className="flex items-center gap-2.5 mt-0.5">
-            <button
-              className="w-6 h-6 rounded-full border border-divider bg-white text-sm"
-              onClick={() => setNights(Math.max(1, nights - 1))}
-            >
-              −
-            </button>
-            <span className="text-[13px] font-medium min-w-[16px] text-center">
-              {nights}
-            </span>
-            <button
-              className="w-6 h-6 rounded-full border border-divider bg-white text-sm"
-              onClick={() => setNights(Math.min(30, nights + 1))}
-            >
-              +
-            </button>
+      <div className="space-y-td-lg flex-1">
+        {/* 기간 */}
+        <div className="flex gap-td-sm">
+          <div className="flex-1 bg-surface-soft border border-divider rounded-xl p-td-sm">
+            <p className="text-td-meta text-ink-soft mb-td-xxs">출발일</p>
+            <p className="text-td-card-title">{startDateLabel}</p>
+          </div>
+          <div className="flex-1 bg-surface-soft border border-divider rounded-xl p-td-sm flex flex-col justify-between">
+            <p className="text-td-meta text-ink-soft mb-td-xxs">박수</p>
+            <div className="flex items-center justify-between">
+              <button
+                className="material-symbols-outlined text-ink-soft text-lg"
+                onClick={() => setNights(Math.max(1, nights - 1))}
+              >
+                remove
+              </button>
+              <span className="text-td-card-title">{nights}</span>
+              <button
+                className="material-symbols-outlined text-accent text-lg"
+                onClick={() => setNights(Math.min(30, nights + 1))}
+              >
+                add
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-        동행
-      </p>
-      <div className="grid grid-cols-2 gap-2 mb-3">
-        {COMPANIONS.map((c) => (
-          <button
-            key={c.id}
-            className={`p-2.5 rounded-md text-center transition-all ${
-              companion === c.id
-                ? "border-2 border-accent bg-accent-soft"
-                : "border border-divider"
-            }`}
-            onClick={() => setCompanion(c.id)}
-          >
-            <p className="text-xs font-medium mb-0.5">{c.name}</p>
-            <p className="text-[10px] text-ink-soft">{c.desc}</p>
-          </button>
-        ))}
+        {/* 동행 */}
+        <div className="grid grid-cols-2 gap-td-xs">
+          {COMPANIONS.map((c) => (
+            <button
+              key={c.id}
+              className={`h-14 flex items-center justify-center rounded-xl text-td-body transition-all ${
+                companion === c.id
+                  ? "bg-purple text-white font-medium border border-purple"
+                  : "bg-white border border-divider"
+              }`}
+              onClick={() => setCompanion(c.id)}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
       </div>
-
-      <div className="flex-1" />
 
       <button
-        className="bg-ink text-white py-3.5 rounded-md text-sm font-medium w-full"
+        className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-xl mt-td-lg"
         onClick={onNext}
       >
         다음
@@ -415,68 +402,72 @@ function Step4({
 }) {
   return (
     <>
-      <button className="text-[13px] text-ink-soft self-start mb-2" onClick={onBack}>
-        ‹ 뒤로
+      <button className="flex items-center text-td-body text-ink-soft mb-td-sm" onClick={onBack}>
+        <span className="material-symbols-outlined text-[20px] mr-0.5">chevron_left</span> 뒤로
       </button>
-      <h2 className="text-xl font-medium mb-1.5">취향을 알려주세요</h2>
-      <p className="text-[13px] text-ink-soft mb-4">
-        선택할수록 정확해져요. 건너뛰어도 돼요.
-      </p>
+      <h2 className="text-td-title mb-td-lg">취향을 알려주세요</h2>
 
-      <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-        분위기 · 1~3개 선택
-      </p>
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        {VIBES.map((v) => (
-          <Chip key={v} active={vibes.includes(v)} onClick={() => toggleVibe(v)}>
-            {v}
-          </Chip>
-        ))}
+      <div className="space-y-td-lg flex-1 overflow-y-auto">
+        {/* 분위기 */}
+        <div>
+          <h3 className="text-td-body font-semibold mb-td-sm">여행의 분위기</h3>
+          <div className="flex flex-wrap gap-td-xs">
+            {VIBES.map((v) => (
+              <Chip key={v} active={vibes.includes(v)} onClick={() => toggleVibe(v)}>
+                {v}
+              </Chip>
+            ))}
+          </div>
+        </div>
+
+        {/* 페이스 */}
+        <div>
+          <h3 className="text-td-body font-semibold mb-td-sm">일정의 강도</h3>
+          <div className="flex flex-wrap gap-td-xs">
+            {PACES.map((p) => (
+              <Chip key={p} active={pace === p} onClick={() => setPace(p)}>
+                {p}
+              </Chip>
+            ))}
+          </div>
+        </div>
+
+        {/* 기피 항목 */}
+        <div>
+          <h3 className="text-td-body font-semibold mb-td-sm text-danger flex items-center gap-1">
+            <span className="material-symbols-outlined text-[18px]">warning</span> 기피 항목
+          </h3>
+          <div className="flex flex-wrap gap-td-xs">
+            {EXCLUDES.map((e) => (
+              <Chip
+                key={e}
+                active={excludes.includes(e)}
+                danger
+                onClick={() => toggleExclude(e)}
+              >
+                {e}
+              </Chip>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-        페이스
-      </p>
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        {PACES.map((p) => (
-          <Chip key={p} active={pace === p} onClick={() => setPace(p)}>
-            {p}
-          </Chip>
-        ))}
-      </div>
-
-      <p className="text-[10px] font-medium text-ink-soft tracking-wider mb-2">
-        제외할 것 · 알레르기 · 건너뛰기 가능
-      </p>
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        {EXCLUDES.map((e) => (
-          <Chip
-            key={e}
-            active={excludes.includes(e)}
-            danger
-            onClick={() => toggleExclude(e)}
-          >
-            {e}
-          </Chip>
-        ))}
-      </div>
-
-      <div className="flex-1" />
-
-      <div className="flex gap-2 items-center">
+      <div className="flex items-center gap-td-sm mt-td-lg">
         <button
-          className="text-xs text-ink-soft px-3 py-3"
+          className="flex-1 h-[52px] text-ink-soft text-td-body underline"
           onClick={onFinish}
           disabled={isPending}
         >
           건너뛰기
         </button>
         <button
-          className="flex-1 bg-ink text-white py-3.5 rounded-md text-sm font-medium disabled:opacity-60"
+          className="flex-[2] h-[52px] bg-ink text-white text-td-card-title rounded-xl flex items-center justify-center gap-1 disabled:opacity-60"
           onClick={onFinish}
           disabled={isPending}
         >
-          {isPending ? "일정 만드는 중…" : "일정 만들기 →"}
+          {isPending ? "일정 만드는 중…" : (
+            <>일정 만들기 <span className="material-symbols-outlined text-lg">arrow_forward</span></>
+          )}
         </button>
       </div>
     </>
@@ -524,18 +515,16 @@ function Chip({
 }) {
   let style = "";
   if (active && danger) {
-    style = "bg-danger-soft text-danger-deep border border-danger";
+    style = "bg-danger-soft text-danger border border-danger font-medium";
   } else if (active) {
     style = "bg-purple text-white border border-purple";
-  } else if (danger) {
-    style = "bg-transparent text-ink-soft border border-danger/40";
   } else {
-    style = "bg-transparent text-ink-soft border border-divider";
+    style = "bg-surface-soft border border-divider text-ink-soft";
   }
 
   return (
     <button
-      className={`text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap ${style}`}
+      className={`text-td-body px-td-sm py-td-xs rounded-full whitespace-nowrap transition-colors ${style}`}
       onClick={onClick}
     >
       {children}
