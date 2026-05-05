@@ -370,13 +370,3 @@ export default function CityPage({ params }: { params: { slug: string } }) {
     </div>
   );
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// Sub-components
-// ═══════════════════════════════════════════════════════════════════
-
-/**
- * 사이클 J (ADR-034) — city→trip 역방향 CTA.
- *  - trip 있는 city: 큰 카드 (도시·기간·일정·검증) + "일정 보기 →"
- *  - trip 없는 city (HOI 등): amber 안내 + "다른 도시 일정" → /trips
- */
