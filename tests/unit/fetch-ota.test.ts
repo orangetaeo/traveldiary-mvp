@@ -1,8 +1,8 @@
 /**
- * OTA fetch 공통 래퍼 — fetchOtaWithCache + OtaHttpError 직접 단위 테스트.
+ * OTA fetch 공통 래퍼 — fetchOtaWithCache + normalizeMatchTag + OtaHttpError 단위 테스트.
  *
  * 커버리지: demo / 캐시 히트 / quota 차단 / 정상 fetch / OtaHttpError / 네트워크 에러 /
- *           location 포함 캐시 키 / setEvidenceCache TTL.
+ *           location 포함 캐시 키 / setEvidenceCache TTL / normalizeMatchTag 5건.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -23,7 +23,7 @@ vi.mock("@/lib/usage-quota", () => ({
   checkQuotaOrBlock: (...args: unknown[]) => mockCheckQuotaOrBlock(...args),
 }));
 
-import { fetchOtaWithCache, OtaHttpError } from "@/lib/services/ota/fetch-ota";
+import { fetchOtaWithCache, normalizeMatchTag, OtaHttpError } from "@/lib/services/ota/fetch-ota";
 import type { OtaFetchConfig } from "@/lib/services/ota/fetch-ota";
 import type { OtaOffer } from "@/lib/types";
 
@@ -157,6 +157,29 @@ describe("ota/fetch-ota — fetchOtaWithCache", () => {
       expect(result.offers).toEqual([]);
       expect(result.cached).toBe(false);
     }
+  });
+});
+
+describe("normalizeMatchTag", () => {
+  it("소문자 변환 + 공백→하이픈", () => {
+    expect(normalizeMatchTag("Da Nang Tour")).toBe("da-nang-tour");
+  });
+
+  it("연속 공백 → 단일 하이픈", () => {
+    expect(normalizeMatchTag("foo   bar")).toBe("foo-bar");
+  });
+
+  it("40자 초과 잘림", () => {
+    const long = "a".repeat(50);
+    expect(normalizeMatchTag(long)).toHaveLength(40);
+  });
+
+  it("빈 문자열 → 빈 문자열", () => {
+    expect(normalizeMatchTag("")).toBe("");
+  });
+
+  it("한국어 키워드 보존", () => {
+    expect(normalizeMatchTag("다낭 바나힐")).toBe("다낭-바나힐");
   });
 });
 

@@ -7,7 +7,7 @@ import "server-only";
 
 import type { OtaOffer } from "@/lib/types";
 import { getEnvKey } from "@/lib/utils/env";
-import { fetchOtaWithCache, OtaHttpError, type OtaOutcome } from "./fetch-ota";
+import { fetchOtaWithCache, normalizeMatchTag, OtaHttpError, type OtaOutcome } from "./fetch-ota";
 
 const SEARCH_URL = "https://api.kkday.com/v1/partner/products/search";
 
@@ -52,7 +52,7 @@ export async function fetchKKdayOffers(
         .filter((r) => r.product_id && r.product_name && r.price?.sale_price)
         .map((r): OtaOffer => ({
           id: `kkday-${r.product_id}`,
-          matchTag: query.toLowerCase().replace(/\s+/g, "-").slice(0, 40),
+          matchTag: normalizeMatchTag(query),
           ota: "kkday" as const,
           title: r.product_name!,
           priceKrw: r.price!.sale_price!,

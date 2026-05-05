@@ -9,7 +9,7 @@ import "server-only";
 
 import type { OtaOffer } from "@/lib/types";
 import { getEnvKey } from "@/lib/utils/env";
-import { fetchOtaWithCache, OtaHttpError, type OtaOutcome } from "./fetch-ota";
+import { fetchOtaWithCache, normalizeMatchTag, OtaHttpError, type OtaOutcome } from "./fetch-ota";
 
 // Stub — 어필리에이트 계약 후 실제 endpoint 갱신
 const SEARCH_URL = "https://api.klook.com/v1/affiliate/search";
@@ -55,7 +55,7 @@ export async function fetchKlookOffers(
         .filter((r) => r.activity_id && r.title && r.price?.selling_price)
         .map((r): OtaOffer => ({
           id: `klook-${r.activity_id}`,
-          matchTag: query.toLowerCase().replace(/\s+/g, "-").slice(0, 40),
+          matchTag: normalizeMatchTag(query),
           ota: "klook" as const,
           title: r.title!,
           priceKrw: Math.round(r.price!.selling_price! * 1300), // USD→KRW 가정 (실 endpoint는 KRW 직접)
