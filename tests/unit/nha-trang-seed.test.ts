@@ -16,6 +16,7 @@ import {
 import { findOffersByKeyword } from "@/lib/seed/ota-offers";
 import { getDemoTrip, listDemoTrips } from "@/lib/seed";
 import { describeOtaReach } from "./helpers/ota-reach";
+import { assertSeedIntegrity } from "./helpers/city-seed-integrity";
 
 // ═══════════════════════════════════════════════════════════════════
 // 무결성
@@ -36,27 +37,7 @@ describe("nhaTrang 시드 — 무결성", () => {
     expect(days).toEqual(new Set([0, 1, 2, 3]));
   });
 
-  it("모든 일정의 tripId = NHA_TRANG_TRIP_ID", () => {
-    for (const it of nhaTrangItinerary) {
-      expect(it.tripId).toBe(NHA_TRANG_TRIP_ID);
-    }
-  });
-
-  it("같은 day 안에서 scheduledAt 오름차순", () => {
-    for (let dayIdx = 0; dayIdx <= 3; dayIdx++) {
-      const dayItems = nhaTrangItinerary
-        .filter((it) => it.dayIndex === dayIdx)
-        .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
-      const original = nhaTrangItinerary.filter((it) => it.dayIndex === dayIdx);
-      expect(original.map((it) => it.id)).toEqual(dayItems.map((it) => it.id));
-    }
-  });
-
-  it("좌표 모두 (0,0) 아님", () => {
-    for (const it of nhaTrangItinerary) {
-      expect(it.location.lat !== 0 || it.location.lng !== 0).toBe(true);
-    }
-  });
+  assertSeedIntegrity({ tripId: NHA_TRANG_TRIP_ID, itinerary: nhaTrangItinerary, maxDayIndex: 3 });
 
   it("DAG dependencies — day 경계 무의존성", () => {
     expect(nhaTrangItinerary[0].dependencies).toEqual([]);

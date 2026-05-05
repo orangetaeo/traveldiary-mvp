@@ -16,6 +16,7 @@ import {
 import { findOffersByKeyword } from "@/lib/seed/ota-offers";
 import { getDemoTrip, listDemoTrips } from "@/lib/seed";
 import { describeOtaReach } from "./helpers/ota-reach";
+import { assertSeedIntegrity } from "./helpers/city-seed-integrity";
 
 // ═══════════════════════════════════════════════════════════════════
 // 무결성
@@ -36,27 +37,7 @@ describe("hanoi 시드 — 무결성", () => {
     expect(days).toEqual(new Set([0, 1, 2, 3]));
   });
 
-  it("모든 일정의 tripId = HANOI_TRIP_ID", () => {
-    for (const it of hanoiItinerary) {
-      expect(it.tripId).toBe(HANOI_TRIP_ID);
-    }
-  });
-
-  it("같은 day 안에서 scheduledAt 오름차순", () => {
-    for (let dayIdx = 0; dayIdx <= 3; dayIdx++) {
-      const dayItems = hanoiItinerary
-        .filter((it) => it.dayIndex === dayIdx)
-        .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
-      const original = hanoiItinerary.filter((it) => it.dayIndex === dayIdx);
-      expect(original.map((it) => it.id)).toEqual(dayItems.map((it) => it.id));
-    }
-  });
-
-  it("좌표 모두 (0,0) 아님", () => {
-    for (const it of hanoiItinerary) {
-      expect(it.location.lat !== 0 || it.location.lng !== 0).toBe(true);
-    }
-  });
+  assertSeedIntegrity({ tripId: HANOI_TRIP_ID, itinerary: hanoiItinerary, maxDayIndex: 3 });
 
   it("DAG dependencies — 같은 day 안에서 직전 슬롯이 선행", () => {
     expect(hanoiItinerary[0].dependencies).toEqual([]);
