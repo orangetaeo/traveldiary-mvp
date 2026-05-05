@@ -100,6 +100,14 @@ export async function fetchTripFromDb(tripId: string): Promise<TripBundle | null
 }
 
 /**
+ * DB → 시드 fallback 통합 조회.
+ * 페이지에서 반복되던 `(await fetchTripFromDb(id)) ?? getDemoTrip(id)` 패턴 추출.
+ */
+export async function resolveTripBundle(tripId: string): Promise<TripBundle | null> {
+  return (await fetchTripFromDb(tripId)) ?? getDemoTrip(tripId);
+}
+
+/**
  * 새 Trip + 12개 ItineraryItem + 의존성 엣지를 시드에서 복제.
  * 트랜잭션으로 일괄 처리.
  *

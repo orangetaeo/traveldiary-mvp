@@ -11,9 +11,8 @@ export const metadata: Metadata = {
   description: "여행 경비 기록 및 정산 — 일별 지출 내역 관리",
 };
 import { CostView } from "@/components/cost/CostView";
-import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
+import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { listCostByTrip } from "@/lib/repositories/cost.repository";
-import { getDemoTrip } from "@/lib/seed";
 import { resolveCityByCode } from "@/lib/seed/cities";
 import { BottomNav } from "@/components/ui/BottomNav";
 
@@ -24,9 +23,9 @@ export default async function CostPage({
   params: { tripId: string };
   searchParams: { day?: string };
 }) {
-  const dbBundle = await fetchTripFromDb(params.tripId);
-  const trip = dbBundle?.trip ?? getDemoTrip(params.tripId)?.trip;
-  if (!trip) notFound();
+  const bundle = await resolveTripBundle(params.tripId);
+  if (!bundle) notFound();
+  const { trip } = bundle;
 
   const entries = (await listCostByTrip(params.tripId)) ?? [];
 

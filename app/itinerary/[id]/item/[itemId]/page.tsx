@@ -12,8 +12,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
-import { getDemoItem, getDemoTrip } from "@/lib/seed";
-import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
+import { getDemoItem } from "@/lib/seed";
+import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { validateItemAction } from "@/actions/place";
 import type { VerifyPlaceResult } from "@/lib/services/place-verification";
 import { ValidationBadges } from "@/components/itinerary/ValidationBadges";
@@ -56,8 +56,7 @@ export default async function ItineraryItemPage({
 }: {
   params: { id: string; itemId: string };
 }) {
-  const dbBundle = await fetchTripFromDb(params.id);
-  const bundle = dbBundle ?? getDemoTrip(params.id);
+  const bundle = await resolveTripBundle(params.id);
   const item =
     bundle?.items.find((it) => it.id === params.itemId) ??
     getDemoItem(params.id, params.itemId);

@@ -82,8 +82,7 @@ describe("C3 — /itinerary/[id] generateMetadata", () => {
     expect(src).toContain("trip.nights");
   });
 
-  it("DB fallback → demo 시드", () => {
-    expect(src).toContain("fetchTripFromDb");
-    expect(src).toContain("getDemoTrip");
+  it("DB fallback → demo 시드 (resolveTripBundle)", () => {
+    expect(src).toContain("resolveTripBundle");
   });
 });

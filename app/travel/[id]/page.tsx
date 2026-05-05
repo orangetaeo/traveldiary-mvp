@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { TravelHome } from "@/components/travel/TravelHome";
-import { getDemoTrip } from "@/lib/seed";
 import { resolveCityByCode } from "@/lib/seed/cities";
-import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
+import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 
 /**
  * 여행 중 홈 (M2 매직 모먼트 LEVEL 1) — `/travel/[id]`
@@ -13,7 +12,7 @@ import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
  * 사이클 H (ADR-032): resolveCityByCode로 country 정규화 데이터 merge.
  */
 export default async function TravelPage({ params }: { params: { id: string } }) {
-  const bundle = (await fetchTripFromDb(params.id)) ?? getDemoTrip(params.id);
+  const bundle = await resolveTripBundle(params.id);
   if (!bundle) notFound();
 
   const city = resolveCityByCode(bundle.trip.destinationCode);

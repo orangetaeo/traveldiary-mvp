@@ -16,9 +16,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ItineraryView } from "@/components/itinerary/ItineraryView";
-import { getDemoTrip, isDemoTrip } from "@/lib/seed";
+import { isDemoTrip } from "@/lib/seed";
 import { getCityByCode, resolveCityByCode } from "@/lib/seed/cities";
-import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
+import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { CityContextStrip } from "@/components/city/CityContextStrip";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 import { BottomNav } from "@/components/ui/BottomNav";
@@ -31,7 +31,7 @@ export async function generateMetadata({
 }: {
   params: { id: string };
 }): Promise<Metadata> {
-  const bundle = (await fetchTripFromDb(params.id)) ?? getDemoTrip(params.id);
+  const bundle = await resolveTripBundle(params.id);
   if (!bundle) return { title: "일정" };
   const { trip } = bundle;
   const title = `${trip.destination} ${trip.nights}박 ${trip.nights + 1}일 일정`;
@@ -46,7 +46,7 @@ export default async function ItineraryPage({
   params: { id: string };
   searchParams: { day?: string };
 }) {
-  const bundle = (await fetchTripFromDb(params.id)) ?? getDemoTrip(params.id);
+  const bundle = await resolveTripBundle(params.id);
   if (!bundle) notFound();
 
   const { trip, items } = bundle;
