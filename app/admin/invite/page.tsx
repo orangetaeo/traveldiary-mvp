@@ -27,13 +27,14 @@ export default async function InviteDashboard({
 }: PageProps) {
   assertAdminAccess(searchParams);
   const windowDays = parseWindow(searchParams.window);
+  const adminLink = searchParams.key ? `/admin?key=${searchParams.key}` : "/admin";
 
   if (!isDbConnected) {
     return (
       <div className="min-h-screen bg-surface-soft text-ink p-td-md">
-        <DashboardHeader />
+        <DashboardHeader adminLink={adminLink} />
         <main className="max-w-2xl mx-auto py-td-lg">
-          <div className="bg-amber-soft border border-amber/40 rounded-xl p-td-md text-center">
+          <div className="bg-amber-soft border border-amber/40 rounded-md p-td-md text-center">
             <p className="text-td-body text-amber-deep">
               DB 미연결 — 초대 통계 조회 불가
             </p>
@@ -47,7 +48,7 @@ export default async function InviteDashboard({
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
-      <DashboardHeader />
+      <DashboardHeader adminLink={adminLink} />
 
       <main className="max-w-2xl mx-auto px-td-md">
         <div className="pt-td-md">
@@ -59,7 +60,7 @@ export default async function InviteDashboard({
 
         {/* 초대 링크 생성 가이드 */}
         <section className="py-td-md">
-          <div className="bg-purple-soft border border-purple/30 rounded-xl p-td-md">
+          <div className="bg-purple-soft border border-purple/30 rounded-md p-td-md">
             <p className="text-td-caption text-purple-deep font-bold mb-td-xs">
               초대 링크 형식
             </p>
@@ -81,13 +82,13 @@ export default async function InviteDashboard({
           <>
             {/* 요약 */}
             <section className="pb-td-lg grid grid-cols-2 gap-td-sm">
-              <div className="bg-surface-card border border-divider rounded-xl p-td-sm text-center">
+              <div className="bg-surface-card border border-divider rounded-md p-td-sm text-center">
                 <p className="text-td-caption text-ink-soft">총 사용</p>
                 <p className="text-td-title text-ink tabular-nums">
                   {summary.totalUses}
                 </p>
               </div>
-              <div className="bg-surface-card border border-divider rounded-xl p-td-sm text-center">
+              <div className="bg-surface-card border border-divider rounded-md p-td-sm text-center">
                 <p className="text-td-caption text-ink-soft">고유 코드</p>
                 <p className="text-td-title text-purple-deep tabular-nums">
                   {summary.uniqueCodes}
@@ -99,7 +100,7 @@ export default async function InviteDashboard({
             <section className="mb-td-lg">
               <h2 className="text-td-card-title text-ink mb-td-sm">코드별 사용</h2>
               {summary.byCodes.length === 0 ? (
-                <p className="text-td-meta text-ink-soft text-center py-td-md bg-surface-card border border-divider rounded-xl">
+                <p className="text-td-meta text-ink-soft text-center py-td-md bg-surface-card border border-divider rounded-md">
                   아직 초대 사용 기록이 없어요.
                 </p>
               ) : (
@@ -107,7 +108,7 @@ export default async function InviteDashboard({
                   {summary.byCodes.map((row) => (
                     <li
                       key={row.code}
-                      className="bg-surface-card border border-divider rounded-xl p-td-sm"
+                      className="bg-surface-card border border-divider rounded-md p-td-sm"
                     >
                       <div className="flex items-center justify-between mb-td-xxs">
                         <code className="text-td-body text-purple-deep font-medium">
@@ -143,22 +144,24 @@ export default async function InviteDashboard({
   );
 }
 
-function DashboardHeader() {
+function DashboardHeader({ adminLink }: { adminLink: string }) {
   return (
-    <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
+    <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider flex items-center justify-between px-4 h-16">
       <div className="flex items-center gap-td-sm">
         <Link
-          href="/"
-          aria-label="홈"
+          href={adminLink}
+          aria-label="Admin 대시보드로 돌아가기"
           className="p-2 rounded-full hover:bg-surface-soft transition-colors"
         >
-          <span className="material-symbols-outlined text-ink">home</span>
+          <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
         <h1 className="text-lg font-bold text-ink tracking-tight">
-          초대 코드 통계
+          초대 코드
         </h1>
+        <span className="px-2 py-0.5 bg-surface-soft text-ink-soft text-[10px] font-bold rounded uppercase">
+          Admin
+        </span>
       </div>
-      <span className="text-td-caption text-ink-mute">C2 · 시나리오 C</span>
     </header>
   );
 }

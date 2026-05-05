@@ -60,13 +60,14 @@ export default async function ModeTransitionStatsDashboard({
 }: PageProps) {
   assertAdminAccess(searchParams);
   const windowDays = parseWindow(searchParams.window);
+  const adminLink = searchParams.key ? `/admin?key=${searchParams.key}` : "/admin";
 
   if (!isDbConnected) {
     return (
       <div className="min-h-screen bg-surface-soft text-ink p-td-md">
-        <DashboardHeader />
+        <DashboardHeader adminLink={adminLink} />
         <main className="max-w-2xl mx-auto py-td-lg">
-          <div className="bg-amber-soft border border-amber/40 rounded-xl p-td-md text-center">
+          <div className="bg-amber-soft border border-amber/40 rounded-md p-td-md text-center">
             <p className="text-td-body text-amber-deep">
               DB 미연결 — M2 통계 미사용 가능
             </p>
@@ -83,7 +84,7 @@ export default async function ModeTransitionStatsDashboard({
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
-      <DashboardHeader />
+      <DashboardHeader adminLink={adminLink} />
 
       <main className="max-w-2xl mx-auto px-td-md">
         {/* 사이클 RR — 시간 윈도우 필터 (전체/7일/30일). 항상 노출. */}
@@ -118,13 +119,13 @@ export default async function ModeTransitionStatsDashboard({
                 {stats.totalAttempts.toLocaleString()}회
               </p>
               <div className="mt-td-md grid grid-cols-2 gap-td-sm">
-                <div className="bg-success-soft rounded-xl p-td-sm">
+                <div className="bg-success-soft rounded-md p-td-sm">
                   <p className="text-td-caption text-success-deep/80">성공</p>
                   <p className="text-td-card-title text-success-deep tabular-nums">
                     {stats.applied.toLocaleString()}회
                   </p>
                 </div>
-                <div className="bg-amber-soft rounded-xl p-td-sm">
+                <div className="bg-amber-soft rounded-md p-td-sm">
                   <p className="text-td-caption text-amber-deep/80">스킵</p>
                   <p className="text-td-card-title text-amber-deep tabular-nums">
                     {stats.skipped.toLocaleString()}회
@@ -154,7 +155,7 @@ export default async function ModeTransitionStatsDashboard({
                 스킵 사유 분포
               </h2>
               {stats.byReason.length === 0 ? (
-                <p className="text-td-meta text-ink-soft text-center py-td-md bg-surface-card border border-divider rounded-xl">
+                <p className="text-td-meta text-ink-soft text-center py-td-md bg-surface-card border border-divider rounded-md">
                   스킵 데이터가 없어요.
                 </p>
               ) : (
@@ -167,7 +168,7 @@ export default async function ModeTransitionStatsDashboard({
                     return (
                       <article
                         key={row.reason}
-                        className="bg-surface-card border border-divider rounded-xl p-td-sm flex items-center justify-between gap-td-sm"
+                        className="bg-surface-card border border-divider rounded-md p-td-sm flex items-center justify-between gap-td-sm"
                       >
                         <span
                           className={`px-2 py-0.5 rounded-full text-td-caption font-bold whitespace-nowrap ${
@@ -200,7 +201,7 @@ export default async function ModeTransitionStatsDashboard({
                 {stats.byTrigger.map((row) => (
                   <article
                     key={row.trigger}
-                    className="bg-surface-card border border-divider rounded-xl p-td-sm flex items-center justify-between"
+                    className="bg-surface-card border border-divider rounded-md p-td-sm flex items-center justify-between"
                   >
                     <span className="text-td-meta text-ink">
                       {TRIGGER_LABEL[row.trigger]}
@@ -226,7 +227,7 @@ export default async function ModeTransitionStatsDashboard({
                     return (
                       <article
                         key={d.code}
-                        className="bg-surface-card border border-divider rounded-xl p-td-sm flex items-center justify-between gap-td-sm"
+                        className="bg-surface-card border border-divider rounded-md p-td-sm flex items-center justify-between gap-td-sm"
                       >
                         <div className="min-w-0">
                           <p className="text-td-meta text-ink truncate">
@@ -255,7 +256,7 @@ export default async function ModeTransitionStatsDashboard({
             <section>
               <h2 className="text-td-card-title text-ink mb-td-sm">최근 시도</h2>
               {stats.recent.length === 0 ? (
-                <p className="text-td-meta text-ink-soft text-center py-td-md bg-surface-card border border-divider rounded-xl">
+                <p className="text-td-meta text-ink-soft text-center py-td-md bg-surface-card border border-divider rounded-md">
                   최근 시도가 없어요.
                 </p>
               ) : (
@@ -263,7 +264,7 @@ export default async function ModeTransitionStatsDashboard({
                   {stats.recent.map((row) => (
                     <li
                       key={row.id}
-                      className="bg-surface-card border border-divider rounded-xl p-td-sm"
+                      className="bg-surface-card border border-divider rounded-md p-td-sm"
                     >
                       <div className="flex items-center justify-between mb-td-xxs flex-wrap gap-td-xxs">
                         <div className="flex items-center gap-td-xs flex-wrap">
@@ -331,22 +332,24 @@ export default async function ModeTransitionStatsDashboard({
   );
 }
 
-function DashboardHeader() {
+function DashboardHeader({ adminLink }: { adminLink: string }) {
   return (
-    <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
+    <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider flex items-center justify-between px-4 h-16">
       <div className="flex items-center gap-td-sm">
         <Link
-          href="/"
-          aria-label="홈"
+          href={adminLink}
+          aria-label="Admin 대시보드로 돌아가기"
           className="p-2 rounded-full hover:bg-surface-soft transition-colors"
         >
-          <span className="material-symbols-outlined text-ink">home</span>
+          <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
         <h1 className="text-lg font-bold text-ink tracking-tight">
-          M2 자동 전환 통계
+          M2 스킵 사유
         </h1>
+        <span className="px-2 py-0.5 bg-surface-soft text-ink-soft text-[10px] font-bold rounded uppercase">
+          Admin
+        </span>
       </div>
-      <span className="text-td-caption text-ink-mute">M2 · 사이클 RR</span>
     </header>
   );
 }
