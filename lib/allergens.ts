@@ -135,12 +135,26 @@ export function buildWarning(matches: AllergenMatch[]): string | null {
 // 사용자 인터페이스용 선택지 (Translate 화면 칩)
 // ═══════════════════════════════════════════════════════════════════
 
-export const ALLERGEN_CHIPS: Array<{ label: string; raw: string }> = [
-  { label: "새우 알레르기", raw: "새우 알레르기" },
-  { label: "갑각류 알레르기", raw: "갑각류 알레르기" },
-  { label: "조개 알레르기", raw: "조개 알레르기" },
-  { label: "땅콩 알레르기", raw: "땅콩 알레르기" },
-  { label: "우유 알레르기", raw: "우유 알레르기" },
-  { label: "돼지고기", raw: "돼지고기 안 먹음" },
-  { label: "비건", raw: "비건" },
+/**
+ * AllergenFilterChips 컴포넌트가 받는 chip 항목 형태.
+ * lib에 도메인 타입 정의 (components → lib import는 정상, 역방향 지양).
+ *
+ * - severity: "danger" = 알레르기·식이 제한 (빨강 시각), "neutral" = 관심사
+ * - icon: Material Symbols Outlined 아이콘 이름 (block / hot_tub / eco / egg / opacity)
+ */
+export interface AllergenChipItem {
+  raw: string;
+  label: string;
+  severity?: "danger" | "neutral";
+  icon?: string;
+}
+
+export const ALLERGEN_CHIPS: AllergenChipItem[] = [
+  { label: "새우 알레르기", raw: "새우 알레르기", severity: "danger", icon: "block" },
+  { label: "갑각류 알레르기", raw: "갑각류 알레르기", severity: "danger", icon: "block" },
+  { label: "조개 알레르기", raw: "조개 알레르기", severity: "danger", icon: "block" },
+  { label: "땅콩 알레르기", raw: "땅콩 알레르기", severity: "danger", icon: "block" },
+  { label: "우유 알레르기", raw: "우유 알레르기", severity: "danger", icon: "opacity" },
+  { label: "돼지고기", raw: "돼지고기 안 먹음", severity: "danger", icon: "block" },
+  { label: "비건", raw: "비건", severity: "danger", icon: "eco" },
 ];
