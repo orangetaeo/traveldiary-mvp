@@ -334,7 +334,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-32">
       {/* TopAppBar */}
-      <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
+      <header className="bg-surface-card/90 backdrop-blur-md border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-14">
         <div className="flex items-center gap-td-sm">
           <Link
             href={`/itinerary/${trip.id}${dayParam}`}
@@ -480,7 +480,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
             type="button"
             onClick={() => handleBulkToggle(false)}
             disabled={selectedCount === 0 || isPending}
-            className="px-3 py-2 rounded-lg text-td-meta font-semibold text-ink border border-divider disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-soft"
+            className="px-3 py-2 rounded-md text-td-meta font-semibold text-ink border border-divider disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-soft"
           >
             미완료
           </button>
@@ -488,7 +488,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
             type="button"
             onClick={() => handleBulkToggle(true)}
             disabled={selectedCount === 0 || isPending}
-            className="px-3 py-2 rounded-lg text-td-meta font-semibold text-white bg-purple disabled:opacity-40 disabled:cursor-not-allowed hover:bg-purple-deep"
+            className="px-3 py-2 rounded-md text-td-meta font-semibold text-white bg-purple disabled:opacity-40 disabled:cursor-not-allowed hover:bg-purple-deep"
           >
             완료
           </button>
@@ -497,7 +497,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
             type="button"
             onClick={handleBulkDelete}
             disabled={selectedCount === 0 || isPending}
-            className="px-3 py-2 rounded-lg text-td-meta font-semibold text-danger border border-danger disabled:opacity-40 disabled:cursor-not-allowed hover:bg-danger-soft"
+            className="px-3 py-2 rounded-md text-td-meta font-semibold text-danger border border-danger disabled:opacity-40 disabled:cursor-not-allowed hover:bg-danger-soft"
           >
             삭제
           </button>

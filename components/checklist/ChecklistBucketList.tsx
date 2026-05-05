@@ -81,7 +81,7 @@ export function ChecklistBucketList({
         return (
           <article
             key={bucket}
-            className="bg-surface-card border border-divider rounded-xl overflow-hidden"
+            className="bg-surface-card border border-divider rounded-md overflow-hidden"
           >
             <header className="px-td-md py-td-sm flex justify-between items-center bg-surface-soft border-b border-divider">
               <h3 className="text-td-card-title text-ink">

@@ -163,7 +163,7 @@ export function CostView({
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-32">
       {/* TopAppBar */}
-      <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
+      <header className="bg-surface-card/90 backdrop-blur-md border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-14">
         <div className="flex items-center gap-td-sm">
           <Link
             href={`/itinerary/${trip.id}${dayParam}`}

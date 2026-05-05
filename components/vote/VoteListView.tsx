@@ -86,7 +86,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
-      <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
+      <header className="bg-surface-card/90 backdrop-blur-md border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-14">
         <div className="flex items-center gap-td-sm">
           <Link
             href={`/itinerary/${trip.id}`}
@@ -101,7 +101,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
 
       <main className="max-w-xl mx-auto px-td-md py-td-lg space-y-td-lg">
         {/* 새 투표 생성 */}
-        <section className="bg-surface-card border border-divider rounded-xl p-td-md">
+        <section className="bg-surface-card border border-divider rounded-md p-td-md">
           <h2 className="text-td-card-title text-ink mb-td-sm">새 투표</h2>
           <form onSubmit={handleCreate} className="space-y-td-sm">
             <input
@@ -110,7 +110,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
               value={draftQuestion}
               onChange={(e) => setDraftQuestion(e.target.value)}
               maxLength={120}
-              className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft focus:outline focus:outline-purple"
+              className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
             />
             {draftOptions.map((opt, i) => (
               <input
@@ -124,7 +124,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
                   setDraftOptions(next);
                 }}
                 maxLength={80}
-                className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft"
+                className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft"
               />
             ))}
             <div className="flex gap-td-sm">
@@ -138,7 +138,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="ml-auto px-td-md py-2 bg-purple text-white rounded-lg text-td-meta font-semibold hover:opacity-90 disabled:opacity-60"
+                className="ml-auto px-td-md py-2 bg-purple text-white rounded-md text-td-meta font-semibold hover:opacity-90 disabled:opacity-60"
               >
                 {isPending ? "생성 중…" : "투표 생성"}
               </button>
@@ -150,7 +150,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         <section>
           <h2 className="text-td-card-title text-ink mb-td-sm">진행 중 투표</h2>
           {votes.length === 0 ? (
-            <p className="text-td-body text-ink-soft text-center py-td-lg bg-surface-card border border-divider rounded-xl">
+            <p className="text-td-body text-ink-soft text-center py-td-lg bg-surface-card border border-divider rounded-md">
               아직 투표가 없어요.
             </p>
           ) : (
@@ -158,7 +158,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
               {votes.map((vote) => (
                 <li
                   key={vote.id}
-                  className="bg-surface-card border border-divider rounded-xl p-td-md"
+                  className="bg-surface-card border border-divider rounded-md p-td-md"
                 >
                   <h3 className="text-td-card-title text-ink mb-td-sm">
                     {vote.question}
@@ -184,7 +184,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
                             type="button"
                             onClick={() => handleCast(vote.id, i)}
                             disabled={isPending}
-                            className={`w-full text-left p-td-sm rounded-lg border transition-colors ${
+                            className={`w-full text-left p-td-sm rounded-md border transition-colors ${
                               myVote
                                 ? "bg-purple-soft border-purple"
                                 : "bg-surface-soft border-divider hover:border-purple/40"
