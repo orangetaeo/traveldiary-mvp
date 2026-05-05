@@ -85,7 +85,7 @@ export function SettlementCard({
   return (
     <section
       aria-label="일행 정산 흐름"
-      className="bg-surface-card border border-divider rounded-xl p-td-md"
+      className="bg-surface-card border border-divider rounded-md p-td-md"
     >
       <header className="mb-td-sm">
         <h3 className="text-td-body font-semibold text-ink">

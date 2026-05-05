@@ -28,7 +28,7 @@ export function ChecklistSearchInput({ value, onChange }: Props) {
         onChange={(e) => onChange(e.target.value)}
         placeholder="항목·도시 메모 검색"
         aria-label="체크리스트 검색"
-        className="w-full pl-10 pr-10 py-2 rounded-lg border border-divider bg-surface-card text-td-meta text-ink placeholder-ink-mute focus:outline-none focus:border-purple"
+        className="w-full pl-10 pr-10 py-2 rounded-md border border-divider bg-surface-card text-td-meta text-ink placeholder-ink-mute focus:outline-none focus:border-purple"
       />
       {hasValue && (
         <button

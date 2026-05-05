@@ -48,19 +48,19 @@ export function CostTotals({
         합계 {totals.total.toLocaleString()}원
       </h2>
       <div className="grid grid-cols-3 gap-td-xs mt-td-md">
-        <div className="bg-success-soft p-td-sm rounded-lg">
+        <div className="bg-success-soft p-td-sm rounded-md">
           <p className="text-td-caption text-success-deep uppercase">결제</p>
           <p className="text-td-card-title text-success-deep tabular-nums">
             {totals.paid.toLocaleString()}원
           </p>
         </div>
-        <div className="bg-purple-soft p-td-sm rounded-lg">
+        <div className="bg-purple-soft p-td-sm rounded-md">
           <p className="text-td-caption text-purple-deep uppercase">예약</p>
           <p className="text-td-card-title text-purple-deep tabular-nums">
             {totals.booked.toLocaleString()}원
           </p>
         </div>
-        <div className="bg-amber-soft p-td-sm rounded-lg">
+        <div className="bg-amber-soft p-td-sm rounded-md">
           <p className="text-td-caption text-amber-deep uppercase">예정</p>
           <p className="text-td-card-title text-amber-deep tabular-nums">
             {totals.planned.toLocaleString()}원

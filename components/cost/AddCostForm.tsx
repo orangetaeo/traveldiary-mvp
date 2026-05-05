@@ -135,7 +135,7 @@ export function AddCostForm({
   }
 
   return (
-    <section id="add-cost-form" className="bg-surface-card border border-divider rounded-xl p-td-md mb-td-lg">
+    <section id="add-cost-form" className="bg-surface-card border border-divider rounded-md p-td-md mb-td-lg">
       <h3 className="text-td-card-title text-ink mb-td-sm">비용 추가</h3>
       <form onSubmit={handleSubmit} className="space-y-td-sm">
         <input
@@ -143,7 +143,7 @@ export function AddCostForm({
           placeholder="항목명 (예: 즈엉동 야시장 저녁)"
           value={draftLabel}
           onChange={(e) => setDraftLabel(e.target.value)}
-          className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft focus:outline focus:outline-purple"
+          className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
           maxLength={50}
           aria-label="항목명"
         />
@@ -155,7 +155,7 @@ export function AddCostForm({
               placeholder="원"
               value={draftAmountKrw}
               onChange={(e) => setDraftAmountKrw(e.target.value)}
-              className="px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft tabular-nums"
+              className="px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft tabular-nums"
               min="0"
               step="100"
             />
@@ -169,7 +169,7 @@ export function AddCostForm({
               placeholder={currencySymbol}
               value={draftAmountLocal}
               onChange={(e) => setDraftAmountLocal(e.target.value)}
-              className="px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft tabular-nums"
+              className="px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft tabular-nums"
               min="0"
             />
           </label>
@@ -181,7 +181,7 @@ export function AddCostForm({
           <select
             value={draftCategory}
             onChange={(e) => setDraftCategory(e.target.value)}
-            className="px-td-sm py-2 border border-divider rounded-lg text-td-meta bg-surface-soft"
+            className="px-td-sm py-2 border border-divider rounded-md text-td-meta bg-surface-soft"
             aria-label="카테고리"
           >
             {CATEGORY_OPTIONS.map((c) => (
@@ -193,7 +193,7 @@ export function AddCostForm({
           <select
             value={draftStatus}
             onChange={(e) => setDraftStatus(e.target.value as CostStatus)}
-            className="px-td-sm py-2 border border-divider rounded-lg text-td-meta bg-surface-soft"
+            className="px-td-sm py-2 border border-divider rounded-md text-td-meta bg-surface-soft"
             aria-label="결제 상태"
           >
             <option value="paid">결제 완료</option>
@@ -204,7 +204,7 @@ export function AddCostForm({
             type="date"
             value={draftDate}
             onChange={(e) => setDraftDate(e.target.value)}
-            className="px-td-sm py-2 border border-divider rounded-lg text-td-meta bg-surface-soft"
+            className="px-td-sm py-2 border border-divider rounded-md text-td-meta bg-surface-soft"
             aria-label="결제 일자"
           />
         </div>
@@ -218,7 +218,7 @@ export function AddCostForm({
               placeholder="결제자 (예: 나)"
               value={draftPayer}
               onChange={(e) => setDraftPayer(e.target.value.slice(0, 30))}
-              className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft"
+              className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft"
               aria-label="결제자"
             />
             <input
@@ -228,7 +228,7 @@ export function AddCostForm({
               onChange={(e) =>
                 setDraftSplitMembers(e.target.value.slice(0, 200))
               }
-              className="w-full px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft"
+              className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft"
               aria-label="함께 부담한 사람"
             />
             <p className="text-td-caption text-ink-mute">
@@ -240,7 +240,7 @@ export function AddCostForm({
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-2 bg-purple text-white rounded-lg text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
+          className="w-full py-2 bg-purple text-white rounded-md text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
         >
           {isPending ? "추가 중…" : "비용 추가"}
         </button>

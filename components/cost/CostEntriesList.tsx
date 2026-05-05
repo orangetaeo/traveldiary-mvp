@@ -40,7 +40,7 @@ export function CostEntriesList({ entries, onDelete }: Props) {
     <section>
       <h3 className="text-td-card-title text-ink mb-td-sm">최근 입력</h3>
       {entries.length === 0 ? (
-        <div className="text-center py-td-lg bg-surface-card border border-divider rounded-xl px-td-md">
+        <div className="text-center py-td-lg bg-surface-card border border-divider rounded-md px-td-md">
           <span className="material-symbols-outlined text-ink-mute text-[32px] mb-td-xs block" aria-hidden>
             receipt_long
           </span>
@@ -53,7 +53,7 @@ export function CostEntriesList({ entries, onDelete }: Props) {
           <button
             type="button"
             onClick={() => document.getElementById("add-cost-form")?.scrollIntoView({ behavior: "smooth" })}
-            className="bg-purple text-white py-2 px-td-md rounded-lg text-td-body font-semibold hover:opacity-90 transition-opacity"
+            className="bg-purple text-white py-2 px-td-md rounded-md text-td-body font-semibold hover:opacity-90 transition-opacity"
           >
             첫 비용 기록하기
           </button>
@@ -63,7 +63,7 @@ export function CostEntriesList({ entries, onDelete }: Props) {
           {entries.map((entry) => (
             <li
               key={entry.id}
-              className="bg-surface-card border border-divider rounded-xl p-td-sm flex items-start justify-between group"
+              className="bg-surface-card border border-divider rounded-md p-td-sm flex items-start justify-between group"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-td-xs flex-wrap mb-td-xxs">
