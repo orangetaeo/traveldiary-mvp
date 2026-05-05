@@ -21,10 +21,12 @@ vi.mock("@/lib/repositories/evidence-cache.repository", () => ({
 
 const mockAssertQuota = vi.fn();
 const mockRecordExternalCall = vi.fn();
+const mockCheckQuotaOrBlock = vi.fn().mockReturnValue(null);
 class TestQuotaExceededError extends Error { name = "QuotaExceededError"; cap = 5; resetAt = Date.now() + 3600000; }
 vi.mock("@/lib/usage-quota", () => ({
   assertQuota: (...args: unknown[]) => mockAssertQuota(...args),
   recordExternalCall: (...args: unknown[]) => mockRecordExternalCall(...args),
+  checkQuotaOrBlock: (...args: unknown[]) => mockCheckQuotaOrBlock(...args),
   QuotaExceededError: TestQuotaExceededError,
 }));
 
@@ -90,7 +92,7 @@ describe("services — ocrFromBase64Image", () => {
 
   it("QuotaExceeded → error + 'quota_exceeded'", async () => {
     process.env.GOOGLE_VISION_API_KEY = "key123";
-    mockAssertQuota.mockImplementation(() => { throw new TestQuotaExceededError(); });
+    mockCheckQuotaOrBlock.mockReturnValue({ mode: "error", code: "quota_exceeded", message: "cap=5" });
     const { ocrFromBase64Image } = await import("@/lib/services/google-vision");
     const result = await ocrFromBase64Image("img");
     expect(result.mode).toBe("error");

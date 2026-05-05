@@ -12,21 +12,22 @@ const ROOT = join(__dirname, "..", "..");
 interface ServiceFixture {
   file: string;
   provider: string;
-  fetchCalls: number; // assertQuota 호출처 수 (function별)
-  recordCalls: number; // recordExternalCall 호출 (AAAA5b: blockedBy 3 + fetch 성공 1 = anthropic 4)
+  /** assertQuota 또는 checkQuotaOrBlock 호출 수 (function별) */
+  quotaChecks: number;
+  /** recordExternalCall 소스 호출 수 (checkQuotaOrBlock 내부 호출 제외) */
+  recordCalls: number;
 }
 
 const FIXTURES: ServiceFixture[] = [
   // anthropic-claude는 AAAA5b 진화 #8: catch 분기 3건(blockedBy quota/budget/emergency) + fetch 후 1건 = 4
-  { file: "lib/services/anthropic-claude.ts", provider: "anthropic", fetchCalls: 1, recordCalls: 4 },
-  // 사이클 AAAA7: google-vision/places도 blockedBy="quota" catch 분기 추가
-  { file: "lib/services/google-vision.ts", provider: "google-vision", fetchCalls: 1, recordCalls: 2 },
-  { file: "lib/services/google-places.ts", provider: "google-places", fetchCalls: 2, recordCalls: 4 },
-  // blockedBy="quota" catch 분기 추가 (잔여 4 API 표준화)
-  { file: "lib/services/google-directions.ts", provider: "google-directions", fetchCalls: 1, recordCalls: 2 },
-  { file: "lib/services/naver-search.ts", provider: "naver-search", fetchCalls: 2, recordCalls: 4 },
+  { file: "lib/services/anthropic-claude.ts", provider: "anthropic", quotaChecks: 1, recordCalls: 4 },
+  // checkQuotaOrBlock 표준 전환: quota recording은 헬퍼 내부로 이동, 소스에는 fetch 성공/에러 recordCalls만 잔존
+  { file: "lib/services/google-vision.ts", provider: "google-vision", quotaChecks: 1, recordCalls: 1 },
+  { file: "lib/services/google-places.ts", provider: "google-places", quotaChecks: 2, recordCalls: 2 },
+  { file: "lib/services/google-directions.ts", provider: "google-directions", quotaChecks: 1, recordCalls: 1 },
+  { file: "lib/services/naver-search.ts", provider: "naver-search", quotaChecks: 2, recordCalls: 2 },
   // OTA 3사 공통 래퍼 (agoda/kkday/klook → fetch-ota.ts로 DRY 추출)
-  { file: "lib/services/ota/fetch-ota.ts", provider: "ota", fetchCalls: 1, recordCalls: 2 },
+  { file: "lib/services/ota/fetch-ota.ts", provider: "ota", quotaChecks: 1, recordCalls: 2 },
 ];
 
 function readSource(rel: string): string {
@@ -40,29 +41,37 @@ describe("usage-quota wrap coverage — 외부 API 서비스 (사이클 AAAA1)",
 
       it("usage-quota import 존재", () => {
         expect(src).toMatch(/from\s+["']@\/lib\/usage-quota["']/);
-        expect(src).toContain("assertQuota");
+        // assertQuota 또는 checkQuotaOrBlock 중 하나 이상 import
+        const hasAssert = src.includes("assertQuota");
+        const hasCheck = src.includes("checkQuotaOrBlock");
+        expect(hasAssert || hasCheck).toBe(true);
         expect(src).toContain("recordExternalCall");
-        expect(src).toContain("QuotaExceededError");
       });
 
-      it(`assertQuota("${fx.provider}") 호출 ${fx.fetchCalls}회`, () => {
-        const matches = src.match(
+      it(`quota 체크 ("${fx.provider}") ${fx.quotaChecks}회`, () => {
+        // assertQuota("provider") 또는 checkQuotaOrBlock("provider") 매칭
+        const assertMatches = src.match(
           new RegExp(`assertQuota\\(\\s*["']${fx.provider}["']\\s*[,)]`, "g"),
         );
-        expect(matches?.length ?? 0).toBe(fx.fetchCalls);
+        const checkMatches = src.match(
+          new RegExp(`checkQuotaOrBlock\\(\\s*["']${fx.provider}["']\\s*[,)]`, "g"),
+        );
+        const total = (assertMatches?.length ?? 0) + (checkMatches?.length ?? 0);
+        expect(total).toBe(fx.quotaChecks);
       });
 
-      it(`recordExternalCall("${fx.provider}") 호출 ${fx.recordCalls}회`, () => {
-        // AAAA2: 옵션 객체 진화로 두 번째 인자 (콤마) 또는 단일 인자 (닫는 괄호) 모두 허용
-        // AAAA5b: blockedBy catch 분기로 anthropic은 4회 (다른 service는 추후 동일 패턴 적용 시 갱신)
+      it(`recordExternalCall("${fx.provider}") 소스 호출 ${fx.recordCalls}회`, () => {
         const matches = src.match(
           new RegExp(`recordExternalCall\\(\\s*["']${fx.provider}["']\\s*[,)]`, "g"),
         );
         expect(matches?.length ?? 0).toBe(fx.recordCalls);
       });
 
-      it("outcome union에 quota_exceeded 포함", () => {
-        expect(src).toContain("quota_exceeded");
+      it("quota_exceeded 핸들링 보장", () => {
+        // checkQuotaOrBlock 사용 시 헬퍼가 quota_exceeded를 반환하므로 소스에 리터럴 불필요
+        const hasLiteral = src.includes("quota_exceeded");
+        const usesHelper = src.includes("checkQuotaOrBlock");
+        expect(hasLiteral || usesHelper).toBe(true);
       });
     });
   }

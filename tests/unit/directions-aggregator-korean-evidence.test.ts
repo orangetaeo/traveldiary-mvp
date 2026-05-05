@@ -22,6 +22,7 @@ vi.mock("@/lib/repositories/evidence-cache.repository", () => ({
 
 const mockAssertQuota = vi.fn();
 const mockRecordExternalCall = vi.fn();
+const mockCheckQuotaOrBlock = vi.fn().mockReturnValue(null);
 class TestQuotaExceededError extends Error {
   name = "QuotaExceededError";
   cap = 5;
@@ -30,6 +31,7 @@ class TestQuotaExceededError extends Error {
 vi.mock("@/lib/usage-quota", () => ({
   assertQuota: (...args: unknown[]) => mockAssertQuota(...args),
   recordExternalCall: (...args: unknown[]) => mockRecordExternalCall(...args),
+  checkQuotaOrBlock: (...args: unknown[]) => mockCheckQuotaOrBlock(...args),
   QuotaExceededError: TestQuotaExceededError,
 }));
 
@@ -132,7 +134,7 @@ describe("services — fetchDirections", () => {
 
   it("QuotaExceeded → error + 'quota_exceeded'", async () => {
     process.env.GOOGLE_DIRECTIONS_API_KEY = "key123";
-    mockAssertQuota.mockImplementation(() => { throw new TestQuotaExceededError(); });
+    mockCheckQuotaOrBlock.mockReturnValue({ mode: "error", code: "quota_exceeded", message: "cap=5" });
     const { fetchDirections } = await import("@/lib/services/google-directions");
     const result = await fetchDirections(input);
     expect(result.mode).toBe("error");

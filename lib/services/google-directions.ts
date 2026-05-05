@@ -19,9 +19,8 @@ import {
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
 import {
-  assertQuota,
+  checkQuotaOrBlock,
   recordExternalCall,
-  QuotaExceededError,
 } from "@/lib/usage-quota";
 import type { TravelMode } from "./distance-rules";
 import { getEnvKey } from "@/lib/utils/env";
@@ -93,19 +92,8 @@ export async function fetchDirections(
     return { mode: "not_found", cached: true };
   }
 
-  try {
-    assertQuota("google-directions");
-  } catch (err) {
-    if (err instanceof QuotaExceededError) {
-      recordExternalCall("google-directions", { blockedBy: "quota" });
-      return {
-        mode: "error",
-        code: "quota_exceeded",
-        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
-      };
-    }
-    throw err;
-  }
+  const quotaBlocked = checkQuotaOrBlock("google-directions");
+  if (quotaBlocked) return quotaBlocked;
 
   try {
     const params = new URLSearchParams({
