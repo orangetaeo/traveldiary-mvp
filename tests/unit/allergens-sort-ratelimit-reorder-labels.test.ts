@@ -18,6 +18,7 @@ import {
 } from "@/lib/allergens";
 import { sortReceived, SORT_LABELS } from "@/lib/share/sortReceived";
 import { swapWithinBucket } from "@/lib/checklist-reorder";
+import type { ChecklistItem } from "@/lib/types";
 import { getCityLabelKo, CITY_LABEL_KO } from "@/lib/constants/city-labels";
 
 vi.mock("server-only", () => ({}));
@@ -236,25 +237,37 @@ describe("share/lookupRateLimit — checkIpRate", () => {
  * ════════════════════════════════════════════ */
 
 describe("checklist-reorder — swapWithinBucket", () => {
-  const items = [
-    { id: "a", dDayBucket: "D-7", sortOrder: 0, name: "A", isDone: false, tripId: "t1" },
-    { id: "b", dDayBucket: "D-7", sortOrder: 1, name: "B", isDone: false, tripId: "t1" },
-    { id: "c", dDayBucket: "D-7", sortOrder: 2, name: "C", isDone: false, tripId: "t1" },
-    { id: "d", dDayBucket: "D-1", sortOrder: 0, name: "D", isDone: false, tripId: "t1" },
-  ] as any;
+  const makeCI = (id: string, bucket: string, order: number): ChecklistItem => ({
+    id,
+    tripId: "t1",
+    category: "general",
+    text: id,
+    dDayBucket: bucket as ChecklistItem["dDayBucket"],
+    done: false,
+    sortOrder: order,
+    createdAt: "2026-05-10T00:00:00Z",
+    updatedAt: "2026-05-10T00:00:00Z",
+  });
+
+  const items: ChecklistItem[] = [
+    makeCI("a", "D-7", 0),
+    makeCI("b", "D-7", 1),
+    makeCI("c", "D-7", 2),
+    makeCI("d", "D-1", 0),
+  ];
 
   it("down → sortOrder swap", () => {
     const result = swapWithinBucket(items, "a", "down");
-    const a = result.find((it: any) => it.id === "a")!;
-    const b = result.find((it: any) => it.id === "b")!;
+    const a = result.find((it) => it.id === "a")!;
+    const b = result.find((it) => it.id === "b")!;
     expect(a.sortOrder).toBe(1);
     expect(b.sortOrder).toBe(0);
   });
 
   it("up → sortOrder swap", () => {
     const result = swapWithinBucket(items, "b", "up");
-    const a = result.find((it: any) => it.id === "a")!;
-    const b = result.find((it: any) => it.id === "b")!;
+    const a = result.find((it) => it.id === "a")!;
+    const b = result.find((it) => it.id === "b")!;
     expect(a.sortOrder).toBe(1);
     expect(b.sortOrder).toBe(0);
   });
@@ -271,7 +284,7 @@ describe("checklist-reorder — swapWithinBucket", () => {
 
   it("다른 bucket 영향 없음", () => {
     const result = swapWithinBucket(items, "a", "down");
-    const d = result.find((it: any) => it.id === "d")!;
+    const d = result.find((it) => it.id === "d")!;
     expect(d.sortOrder).toBe(0); // D-1 버킷 불변
   });
 
