@@ -73,6 +73,7 @@ export async function searchNaverLocal(
     assertQuota("naver-search");
   } catch (err) {
     if (err instanceof QuotaExceededError) {
+      recordExternalCall("naver-search", { blockedBy: "quota" });
       return {
         mode: "error",
         code: "quota_exceeded",
@@ -200,6 +201,7 @@ export async function searchNaverBlog(
     assertQuota("naver-search");
   } catch (err) {
     if (err instanceof QuotaExceededError) {
+      recordExternalCall("naver-search", { blockedBy: "quota" });
       return {
         mode: "error",
         code: "quota_exceeded",
