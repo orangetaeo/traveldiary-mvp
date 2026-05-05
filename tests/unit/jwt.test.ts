@@ -101,8 +101,10 @@ describe("auth — jwt", () => {
       process.env.JWT_SECRET = VALID_SECRET;
       const { signToken, verifyToken } = await import("@/lib/auth/jwt");
       const token = await signToken("user-x", "access");
-      // 마지막 문자 변조
-      const tampered = token!.slice(0, -1) + (token!.endsWith("A") ? "B" : "A");
+      // 시그니처 부분을 완전히 다른 값으로 교체
+      const parts = token!.split(".");
+      parts[2] = "AAAA" + parts[2].slice(4).split("").reverse().join("");
+      const tampered = parts.join(".");
 
       const payload = await verifyToken(tampered);
       expect(payload).toBeNull();
