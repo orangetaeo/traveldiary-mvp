@@ -5,116 +5,62 @@
 
 import "server-only";
 
-import {
-  getEvidenceCache,
-  setEvidenceCache,
-} from "@/lib/repositories/evidence-cache.repository";
-import {
-  assertQuota,
-  recordExternalCall,
-  QuotaExceededError,
-} from "@/lib/usage-quota";
 import type { OtaOffer } from "@/lib/types";
 import { getEnvKey } from "@/lib/utils/env";
-import { hashCacheKey } from "@/lib/utils/cache-key";
+import { fetchOtaWithCache, OtaHttpError, type OtaOutcome } from "./fetch-ota";
 
-const TTL_MS = 6 * 60 * 60 * 1000;
-const PLATFORM = "ota.kkday";
 const SEARCH_URL = "https://api.kkday.com/v1/partner/products/search";
 
-export type KKdayOutcome =
-  | { mode: "demo" }
-  | { mode: "ok"; offers: OtaOffer[]; cached: boolean }
-  | {
-      mode: "error";
-      code: "kkday_api_error" | "network" | "quota_exceeded";
-      message?: string;
-    };
-
-function getApiKey(): string | null {
-  return getEnvKey("KKDAY_API_KEY");
-}
+export type KKdayOutcome = OtaOutcome;
 
 export async function fetchKKdayOffers(
   query: string,
   location?: { lat: number; lng: number },
 ): Promise<KKdayOutcome> {
-  const apiKey = getApiKey();
-  if (!apiKey) return { mode: "demo" };
+  return fetchOtaWithCache({
+    prefix: "kkday",
+    platform: "ota.kkday",
+    apiKey: getEnvKey("KKDAY_API_KEY"),
+    query,
+    location,
+    apiErrorCode: "kkday_api_error",
+    doFetch: async (apiKey) => {
+      const params = new URLSearchParams({ keyword: query });
+      if (location) {
+        params.set("latitude", String(location.lat));
+        params.set("longitude", String(location.lng));
+      }
+      const resp = await fetch(`${SEARCH_URL}?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        cache: "no-store",
+      });
 
-  const cacheKey = hashCacheKey(`kkday:${query}:${location ? `${location.lat},${location.lng}` : ""}`);
+      if (!resp.ok) throw new OtaHttpError(resp.status);
 
-  const cached = await getEvidenceCache<{ offers: OtaOffer[] }>(cacheKey, PLATFORM);
-  if (cached) return { mode: "ok", offers: cached.data.offers, cached: true };
-
-  try {
-    assertQuota("ota");
-  } catch (err) {
-    if (err instanceof QuotaExceededError) {
-      return {
-        mode: "error",
-        code: "quota_exceeded",
-        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      const json = (await resp.json()) as {
+        data?: Array<{
+          product_id?: string;
+          product_name?: string;
+          price?: { sale_price?: number; original_price?: number };
+          rating_avg?: number;
+          rating_count?: number;
+          product_url?: string;
+        }>;
       };
-    }
-    throw err;
-  }
 
-  try {
-    const params = new URLSearchParams({ keyword: query });
-    if (location) {
-      params.set("latitude", String(location.lat));
-      params.set("longitude", String(location.lng));
-    }
-    const resp = await fetch(`${SEARCH_URL}?${params.toString()}`, {
-      headers: { Authorization: `Bearer ${apiKey}` },
-      cache: "no-store",
-    });
-
-    recordExternalCall("ota");
-
-    if (!resp.ok) {
-      return { mode: "error", code: "kkday_api_error", message: `HTTP ${resp.status}` };
-    }
-
-    const json = (await resp.json()) as {
-      data?: Array<{
-        product_id?: string;
-        product_name?: string;
-        price?: { sale_price?: number; original_price?: number };
-        rating_avg?: number;
-        rating_count?: number;
-        product_url?: string;
-      }>;
-    };
-
-    const offers: OtaOffer[] = (json.data ?? [])
-      .filter((r) => r.product_id && r.product_name && r.price?.sale_price)
-      .map((r) => ({
-        id: `kkday-${r.product_id}`,
-        matchTag: query.toLowerCase().replace(/\s+/g, "-").slice(0, 40),
-        ota: "kkday" as const,
-        title: r.product_name!,
-        priceKrw: r.price!.sale_price!,
-        originalPriceKrw: r.price!.original_price ?? undefined,
-        rating: r.rating_avg,
-        reviewCount: r.rating_count,
-        url: r.product_url ?? `https://www.kkday.com/product/${r.product_id}`,
-      }));
-
-    await setEvidenceCache({
-      placeId: cacheKey,
-      platform: PLATFORM,
-      data: { offers },
-      ttlMs: TTL_MS,
-    });
-
-    return { mode: "ok", offers, cached: false };
-  } catch (err) {
-    return {
-      mode: "error",
-      code: "network",
-      message: err instanceof Error ? err.message : "unknown",
-    };
-  }
+      return (json.data ?? [])
+        .filter((r) => r.product_id && r.product_name && r.price?.sale_price)
+        .map((r): OtaOffer => ({
+          id: `kkday-${r.product_id}`,
+          matchTag: query.toLowerCase().replace(/\s+/g, "-").slice(0, 40),
+          ota: "kkday" as const,
+          title: r.product_name!,
+          priceKrw: r.price!.sale_price!,
+          originalPriceKrw: r.price!.original_price ?? undefined,
+          rating: r.rating_avg,
+          reviewCount: r.rating_count,
+          url: r.product_url ?? `https://www.kkday.com/product/${r.product_id}`,
+        }));
+    },
+  });
 }
