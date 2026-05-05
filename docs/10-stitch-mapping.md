@@ -1,6 +1,6 @@
 # Stitch ↔ 코드 매핑
 
-> **목적**: Google Stitch에서 만든 TravelDiary Design System의 22개 화면과 현재 코드(`app/`)를 1:1 매핑하고, 디자인 토큰 갭과 신규 페이지 로드맵을 정리합니다.
+> **목적**: Google Stitch에서 만든 TravelDiary Design System의 55개 화면과 현재 코드(`app/`)를 1:1 매핑하고, 디자인 토큰 갭과 신규 페이지 로드맵을 정리합니다.
 > **작성**: 2026-04-30 · 사이클 5b 준비 단계 · 옵션 A (인벤토리 + 매핑 표만, 코드 변경 0)
 > **다음 단계**: 옵션 B (디자인 토큰 정렬) → 옵션 C (시범 화면 풀 매핑)
 
@@ -108,6 +108,96 @@
 
 ---
 
+### 2.9 Admin (6종 — Phase 7 세션 C)
+
+| # | screenId | title | size | 비고 |
+|---|----------|-------|------|------|
+| 23 | `f11edd83c0534c1fb0a29cac262ea2d0` | Admin Main Dashboard | 780×2258 | ✅ 정답 |
+| 24 | `09f5f91339754692bf1cc1c84493d085` | Admin Onboarding Funnel Analysis | 780×2600 | ✅ 정답 |
+| 25 | `64c99f14051a4bd8b751f2a8669e9b24` | Admin M2 Skip Reasons | 780×2448 | ✅ 정답 |
+| 26 | `8071e0472dbb407f951b9f37ff638378` | Admin Invite Code Management | 780×2242 | ✅ 정답 |
+| 27 | `be06128b10b44e768208d1559fbdd543` | Admin A/B Testing Dashboard | 780×2244 | ✅ 정답 |
+| 28 | `b6b53fe497e8491d9c7c30676aea02e5` | Admin Affiliate Tracking (M8) | 780×2986 | ✅ 정답 |
+
+### 2.10 Permission (2종 — Phase 7 세션 C)
+
+| # | screenId | title | size | 비고 |
+|---|----------|-------|------|------|
+| 29 | `be02d344ea0d41e1a62295980785b548` | Location Permission Request | 780×1768 | ✅ 정답 |
+| 30 | `21c8027a5f0a4fda8bfb9794d58126ac` | Permission Request — 알림 (Notification) | 780×2172 | ✅ 정답 |
+
+### 2.11 Settings (1종 — Phase 7 세션 C)
+
+| # | screenId | title | size | 비고 |
+|---|----------|-------|------|------|
+| 31 | `d15ebd366d5e4b068a6ba3c6818357fc` | Settings Page — 설정 | 780×2842 | ✅ 정답 |
+
+### 2.12 Trip Wrap-up (1종 — Phase 7 세션 C)
+
+| # | screenId | title | size | 비고 |
+|---|----------|-------|------|------|
+| 32 | `154333c2456640819976e9279cc0e8f0` | Trip Wrap-up — 여행 마무리 (Pretendard) | 780×3034 | ✅ 정답 |
+
+### 2.13 Booking (1종 — Phase 7 세션 C)
+
+| # | screenId | title | size | 비고 |
+|---|----------|-------|------|------|
+| 33 | `e1a59aa5ba2d4033b4c9a05433361daf` | Booking Confirmation — 예약 완료 (Klook) | 780×2728 | ✅ 정답 |
+
+### 2.14 Camera Extension (1종 — Phase 7 세션 C)
+
+| # | screenId | title | size | M# | 비고 |
+|---|----------|-------|------|----|------|
+| 34 | `ad305e925eeb4056a16fb056f3f1db2e` | Camera Translation — Allergen Alert (M4) | 780×1864 | M4 | 알레르기 매칭 강조 변형 |
+
+### 2.15 OTA Interstitial (1종 — Phase 7 세션 C)
+
+| # | screenId | title | size | M# | 비고 |
+|---|----------|-------|------|----|------|
+| 35 | `904155d409d0425680539808c160df06` | OTA Affiliate Interstitial — 외부 이동 안내 | 780×1864 | M8 | 모달/Interstitial |
+
+### 2.16 Live Replan Conflict (1종 — Phase 7 세션 C)
+
+| # | screenId | title | size | M# | 비고 |
+|---|----------|-------|------|----|------|
+| 36 | `196f55b628d142989234edb8fb0ce602` | Live Replan Conflict — 충돌 해소 가이드 | 780×1768 | M3 | ReplanModal 확장 |
+
+### 2.17 Session A 리스타일링 (10종 — Phase 7 세션 A)
+
+| # | screenId | title | size | 비고 |
+|---|----------|-------|------|------|
+| 37 | `e6ec700d62464e6d8cc64abd44c48545` | Onboarding (Pretendard) — 4-step wizard | 780×7072 | ✅ |
+| 38 | `9b8f828c46854596937f351f30dc6ba0` | Profile / My Page (BLOCKER 2) | 780×2008 | ✅ |
+| 39 | `a184a5fba935488d9d2bb21ea47fbdea` | Trips — Listing Hub (Pretendard) | 780×4232 | ✅ |
+| 40 | `cf0e42c1fe264da3941b69f645f078a8` | Shared Trips — 받은 여행 목록 (Pretendard) | 780×3504 | ✅ |
+| 41 | `0d4d9885abb24a45ad6c86524473c8f1` | 여행 준비물 체크리스트 (D-Day Checklist) | 780×2200 | ✅ |
+| 42 | `7cfe30457ce643c59fd522ccc3dfd83c` | Travel Cost & Settlement | 780×2190 | ✅ |
+| 43 | `67bcb02240a642e685b5ec677da3b828` | Vote — 일행 투표 (Pretendard) | 780×2092 | ✅ |
+| 44 | `37b82488387f47fcad912c939af88056` | Vietnam Travel Guide Index (Pretendard) | 780×3132 | ✅ |
+| 45 | `c628b086ed0744e6bd7f6e2304345c67` | City Emergency (Pretendard) | 780×2762 | ✅ |
+| 46 | `80b23ee177b548f28eb2cd38ab5377a2` | Itinerary Creating (Pretendard) | 780×1768 | ✅ |
+
+### 2.18 Session B 컴포넌트 (6종 — Phase 7 세션 B)
+
+| # | screenId | title | size | 비고 |
+|---|----------|-------|------|------|
+| 47 | `a66c84466c91426d8833d271e5fa6459` | Toast / Snackbar Notification Variants | 780×2310 | 컴포넌트 spec |
+| 48 | `9ea27f2d0ef84ec8852527b8933f57ed` | TravelDiary Empty States (4-up) | 780×5840 | 컴포넌트 spec |
+| 49 | `722acf9e5dbb44ce98900330f5309738` | Error & Exception States (3-up) | 780×4928 | 컴포넌트 spec |
+| 50 | `9c891984bcfd4c51a6f0bb2913784d37` | EvidencePanel (M1) — 왜 이걸 골랐나 | 780×2298 | 컴포넌트 spec |
+| 51 | `3d3e1a364719434f8a0e8d0459a689ae` | Allergen Filter Chips Component Spec | 814×1928 | 컴포넌트 spec |
+| 52 | `3ab6bad319854d6483bc148cd01bb0fc` | ImpactDisplay Component Spec | 780×3184 | 컴포넌트 spec |
+
+### 2.19 기타 (세션 공통 참조)
+
+| # | screenId | title | size | 비고 |
+|---|----------|-------|------|------|
+| 53 | `e8139bbb1c384e51a509583aaeb7313d` | 카카오 로그인 환영 | 908×1938 | 세션 A (Kakao OAuth) |
+| 54 | `2aa52adec90742b5a19a3f39328d450e` | AI Generation Loading State | 780×1768 | 세션 A (M1 로딩) |
+| 55 | `d3791575a14e46c3a8d42cddb1f69604` | Profile — My Page (Comparison) | 780×3504 | 비교용 |
+
+---
+
 ## 3. 코드 ↔ Stitch 매핑
 
 ### 3.1 페이지 매핑 (1:1 또는 1:N)
@@ -128,6 +218,22 @@
 |------------|-------------|----|-------|
 | `app/city/[slug]/page.tsx` | #20 또는 #21 City Guide (Phu Quoc) | M5 | **8** |
 | `app/share/[id]/page.tsx` | #22 Share & Collaborate | M7 | **11** |
+| `app/wrap-up/[tripId]/page.tsx` | #32 Trip Wrap-up (Pretendard) | M2 | **Phase 7** |
+| `app/permission/location/page.tsx` | #29 Location Permission Request | — | **Phase 7** |
+| `app/permission/notification/page.tsx` | #30 Permission Notification | — | **Phase 7** |
+| `app/settings/page.tsx` | #31 Settings Page — 설정 | — | **Phase 7** |
+| `app/booking/[bookingId]/page.tsx` | #33 Booking Confirmation (Klook) | M8 | **Phase 7** |
+
+### 3.2b Admin 페이지 (기존 코드 → 디자인 적용)
+
+| 코드 페이지 | Stitch 화면 | 사이클 | 상태 |
+|------------|------------|-------|------|
+| `app/admin/page.tsx` | #23 Admin Main Dashboard | Phase 7 | ⬜ |
+| `app/admin/funnel/page.tsx` | #24 Admin Onboarding Funnel | Phase 7 | ⬜ |
+| `app/admin/affiliate/page.tsx` | #28 Admin Affiliate Tracking | Phase 7 | ⬜ |
+| `app/admin/m2-skip-reasons/page.tsx` | #25 Admin M2 Skip Reasons | Phase 7 | ⬜ |
+| `app/admin/invite/page.tsx` | #26 Admin Invite Code Management | Phase 7 | ⬜ |
+| `app/admin/ab/page.tsx` | #27 Admin A/B Testing Dashboard | Phase 7 | ⬜ |
 
 ### 3.3 신규 컴포넌트 (페이지 아님)
 
@@ -219,3 +325,4 @@
 | 2026-04-30 | 5b | 옵션 B 완료 — 디자인 토큰 정렬 (lib/design-tokens.ts, tailwind.config.ts, globals.css 등) |
 | 2026-04-30 | 5b | 옵션 C #1 Home (Pre-trip) 적용 — app/page.tsx Stitch 디자인 변환, Material Symbols CDN 추가 |
 | 2026-04-30 | 5b | 옵션 C #2~#10 일괄 적용 — Item Detail / Itinerary / Travel On-trip / Translate 2-step / Replan Modal. Stitch 22개 중 11개 한국어 정답 화면이 모두 코드에 매핑 (#7 OTA, #11 Share는 사이클 12/11 보류) |
+| 2026-05-05 | Phase 7 | 화면 인벤토리 22→55개 확장. Admin 6 + Permission 2 + Settings 1 + Wrap-up 1 + Booking 1 + Extension 3 + Session A 10 + Session B 6 + 기타 3. 3 세션 병렬 매핑. |

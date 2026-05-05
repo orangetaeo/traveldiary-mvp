@@ -114,9 +114,62 @@
 [Phase 4: M1]       ✅ PR #42
 [Phase 5: 사업]     ⏳ BLOCKER 7 사업 액션 대기
 [Phase 6: 출시 준비] ✅ PR #43~#50
+[Phase 7: 디자인]   🔄 Stitch 시안 적용 (3 세션 병렬)
 ```
 
 **결과**: 코드 가능 항목 전부 완료. BLOCKER 7 + 카카오 OAuth 활성(사용자 액션) 잔여.
+
+---
+
+### Phase 7 — 디자인 적용 (3 세션 병렬)
+
+> **목적**: Stitch 시안을 실제 코드에 적용하여 출시 수준 UI/UX 달성.
+> **방식**: 3 세션 동시 작업 (충돌 방지 매트릭스 아래).
+> **시작**: 2026-05-05
+
+#### 세션 분할 매트릭스
+
+| 세션 | Branch | 담당 영역 | 작업 내용 |
+|------|--------|----------|----------|
+| **A** | `auto/session-a-pages-restyle` | 기존 10 페이지 리스타일링 | onboarding, profile, trips, shared, checklist, cost, vote, city, guide, itinerary/creating |
+| **B** | `auto/session-b-components` | 공유 UI 컴포넌트 | Toast, EmptyState, ErrorState, EvidencePanel, Allergen, Impact |
+| **C** | `auto/session-c-new-pages` | 신규 페이지 + Admin 디자인 + 공유 파일 | admin/*, wrap-up, permission, settings, booking |
+
+#### 공유 파일 단일 라이터 (세션 C 전담)
+
+- `prisma/schema.prisma` + `prisma/migrations/`
+- `tailwind.config.ts`, `app/globals.css`, `lib/design-tokens.ts`
+- `docs/13-mvp-scenario-b-prd.md`, `docs/10-stitch-mapping.md`
+- `package.json` (의존성 추가 — R1 CTO 게이트 후)
+
+#### 충돌 방지 규칙
+
+1. 매 사이클 시작 시 `git fetch origin && git pull origin main --rebase`
+2. 세션 B 컴포넌트가 머지되기 전: import를 stub으로 두고 페이지 구조만 진행
+3. 마이그레이션 번호: git fetch 후 다음 번호 확인
+4. 새 npm 의존성: R1 CTO 게이트 + 사용자 결정
+
+#### Phase 7 작업 목록
+
+| # | 작업 | 세션 | Stitch 시안 | 상태 |
+|---|------|------|------------|------|
+| 7-1 | PRD §3 + stitch-mapping 갱신 | C | — | 🔄 |
+| 7-2 | /admin 메인 디자인 | C | Admin Main | ⬜ |
+| 7-3 | /admin/funnel 디자인 | C | Admin Funnel | ⬜ |
+| 7-4 | /admin/affiliate 디자인 | C | Admin Affiliate | ⬜ |
+| 7-5 | /admin/m2-skip-reasons 디자인 | C | Admin M2 Skip Reasons | ⬜ |
+| 7-6 | /admin/invite 디자인 | C | Admin Invite | ⬜ |
+| 7-7 | /admin/ab 디자인 | C | Admin A/B Test | ⬜ |
+| 7-8 | /wrap-up/[tripId] 신규 | C | Trip Wrap-up | ⬜ |
+| 7-9 | /permission/location 신규 | C | Permission Location | ⬜ |
+| 7-10 | /permission/notification 신규 | C | Permission Notification | ⬜ |
+| 7-11 | /settings 신규 | C | Settings | ⬜ |
+| 7-12 | /booking/[bookingId] 신규 | C | Booking Confirmation | ⬜ |
+| 7-13 | Camera 알레르기 매칭 강조 | C | Camera 알레르기 변형 | ⬜ |
+| 7-14 | OTA Affiliate Interstitial 모달 | C | OTA Affiliate Interstitial | ⬜ |
+| 7-15 | Live Replan Conflict 모달 | C | Live Replan Conflict | ⬜ |
+| 7-A1~A10 | 기존 10 페이지 리스타일링 | A | (각 페이지 시안) | ⬜ |
+| 7-B1~B6 | 공유 UI 컴포넌트 | B | (각 컴포넌트 시안) | ⬜ |
 
 ---
 
@@ -182,5 +235,6 @@
 |------|-------|------|
 | 2026-05-03 | (신규) | 초기 작성. 시나리오 B 결정 + 7 BLOCKER + 자율-게이트 매트릭스. |
 | 2026-05-04 | PR #33~#50 | Phase 1~4, 6 전부 완료. BLOCKER 1~6 + CRITICAL C1~C5 + L1 + A11 + E2E. Code-Complete 선언. |
+| 2026-05-05 | Phase 7 | 디자인 적용 Phase 추가. 3 세션 병렬 분할 (A 리스타일 / B 컴포넌트 / C 신규 페이지+Admin). |
 
 > 다음 단계: 시나리오 C PRD (`docs/15-mvp-scenario-c-prd.md`) 참조.
