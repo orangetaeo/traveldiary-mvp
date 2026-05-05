@@ -9,33 +9,11 @@
 
 import { useState } from "react";
 import type { ChecklistCategory, DDayBucket } from "@/lib/types";
-
-const BUCKET_ORDER: DDayBucket[] = [
-  "D-30",
-  "D-14",
-  "D-7",
-  "D-1",
-  "during",
-  "after",
-];
-
-const BUCKET_LABEL: Record<DDayBucket, string> = {
-  "D-30": "D-30 · 사전 준비",
-  "D-14": "D-14 · 예약 마감",
-  "D-7": "D-7 · 짐 준비",
-  "D-1": "D-1 · 출발 직전",
-  during: "여행 중",
-  after: "귀국 후",
-};
-
-const CATEGORY_LABEL: Record<ChecklistCategory, string> = {
-  documents: "서류",
-  clothing: "의류",
-  electronics: "전자",
-  forbidden: "반입 금지",
-  declarable: "신고 대상",
-  custom: "기타",
-};
+import {
+  BUCKET_ORDER,
+  BUCKET_LABEL,
+  CHECKLIST_CATEGORY_LABEL,
+} from "@/lib/utils/checklist-constants";
 
 export interface AddChecklistFormSubmit {
   text: string;
@@ -81,9 +59,9 @@ export function AddChecklistForm({ isPending, onSubmit }: Props) {
             onChange={(e) => setCategory(e.target.value as ChecklistCategory)}
             className="px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft"
           >
-            {(Object.keys(CATEGORY_LABEL) as ChecklistCategory[]).map((c) => (
+            {(Object.keys(CHECKLIST_CATEGORY_LABEL) as ChecklistCategory[]).map((c) => (
               <option key={c} value={c}>
-                {CATEGORY_LABEL[c]}
+                {CHECKLIST_CATEGORY_LABEL[c]}
               </option>
             ))}
           </select>

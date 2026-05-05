@@ -8,6 +8,11 @@
  */
 
 import type { ChecklistCategory, ChecklistItem } from "@/lib/types";
+import {
+  CHECKLIST_CATEGORY_LABEL,
+  CATEGORY_ORDER,
+  CATEGORY_ACTIVE_TONE,
+} from "@/lib/utils/checklist-constants";
 
 export type CategoryFilterValue = ChecklistCategory | "all";
 
@@ -16,33 +21,6 @@ interface Props {
   value: CategoryFilterValue;
   onChange: (next: CategoryFilterValue) => void;
 }
-
-const CATEGORY_LABEL: Record<ChecklistCategory, string> = {
-  documents: "서류",
-  clothing: "의류",
-  electronics: "전자",
-  forbidden: "반입 금지",
-  declarable: "신고 대상",
-  custom: "기타",
-};
-
-const CATEGORY_ORDER: ChecklistCategory[] = [
-  "documents",
-  "clothing",
-  "electronics",
-  "forbidden",
-  "declarable",
-  "custom",
-];
-
-const CATEGORY_ACTIVE_TONE: Record<ChecklistCategory, string> = {
-  documents: "bg-purple text-white border-purple",
-  clothing: "bg-success-deep text-white border-success-deep",
-  electronics: "bg-amber-deep text-white border-amber-deep",
-  forbidden: "bg-danger-deep text-white border-danger-deep",
-  declarable: "bg-accent-deep text-white border-accent-deep",
-  custom: "bg-ink text-white border-ink",
-};
 
 export function ChecklistCategoryFilter({ items, value, onChange }: Props) {
   const total = items.length;
@@ -88,7 +66,7 @@ export function ChecklistCategoryFilter({ items, value, onChange }: Props) {
               isActive ? CATEGORY_ACTIVE_TONE[cat] : inactive
             } disabled:opacity-40 disabled:cursor-not-allowed`}
           >
-            {CATEGORY_LABEL[cat]}
+            {CHECKLIST_CATEGORY_LABEL[cat]}
             <span className="tabular-nums opacity-80">{count}</span>
           </button>
         );
@@ -148,7 +126,7 @@ export function applyChecklistFilters(
   const q = filters.search.trim().toLowerCase();
   if (q.length === 0) return byDone;
   return byDone.filter((it) => {
-    const hay = `${it.text}${it.cityNote ?? ""}`.toLowerCase();
+    const hay = `${it.text}${it.cityNote ?? ""}`.toLowerCase();
     return hay.includes(q);
   });
 }

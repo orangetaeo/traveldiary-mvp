@@ -10,17 +10,9 @@
 import { useState } from "react";
 import type { CostStatus } from "@/lib/types";
 import { parseSplitToken } from "@/lib/services/settlement";
+import { COST_CATEGORY_OPTIONS } from "@/lib/utils/cost-constants";
 
 const TODAY_ISO = new Date().toISOString().slice(0, 10);
-
-const CATEGORY_OPTIONS = [
-  { id: "food", label: "식비" },
-  { id: "transport", label: "교통" },
-  { id: "accommodation", label: "숙박" },
-  { id: "shopping", label: "쇼핑" },
-  { id: "activity", label: "액티비티" },
-  { id: "other", label: "기타" },
-];
 
 export interface AddCostFormSubmit {
   label: string;
@@ -184,7 +176,7 @@ export function AddCostForm({
             className="px-td-sm py-2 border border-divider rounded-md text-td-meta bg-surface-soft"
             aria-label="카테고리"
           >
-            {CATEGORY_OPTIONS.map((c) => (
+            {COST_CATEGORY_OPTIONS.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.label}
               </option>
