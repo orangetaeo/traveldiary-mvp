@@ -5,11 +5,12 @@ import type { ToastData, ToastVariant } from "@/lib/hooks/useToast";
 /**
  * 토스트 메시지 표시 컴포넌트 (Stitch 시안 a66c84466c91426d8833d271e5fa6459).
  *
- * 두 가지 호출 모드:
+ * 호출 모드:
  *   1) BC — <Toast message={message} className?={...} />
- *      단순 ink pill (기존 6+ 호출처). variant 없음.
- *   2) 신규 — <Toast toast={toast} />
- *      variant + subtitle + action (시안 5 variants 매칭).
+ *      단순 ink pill (기존 호출처). className은 wrapper 전체 override.
+ *   2) variant — <Toast toast={toast} className?={...} />
+ *      variant + subtitle + action. className은 wrapper "위치"만 override
+ *      (variant 색·구조는 보존). 호출처가 BottomNav 회피 등 위치 customization 시 사용.
  *
  * variant:
  *   neutral — 기본 ink-dark
@@ -27,13 +28,20 @@ export interface ToastProps {
   message?: string | null;
   /** 신규: variant + subtitle + action */
   toast?: ToastData | null;
-  /** BC: 외부 className override (host가 위치/스타일 조정) */
+  /**
+   * className 의미:
+   *   - BC mode (message): wrapper 전체 override (위치+스타일 모두)
+   *   - variant mode (toast): wrapper "위치"만 override. variant 색·구조 보존.
+   */
   className?: string;
 }
 
+const DEFAULT_VARIANT_POSITION =
+  "fixed bottom-24 left-1/2 -translate-x-1/2 z-40 w-[min(420px,90vw)]";
+
 export function Toast({ message, toast, className }: ToastProps) {
   if (toast) {
-    return <ToastVariantRender toast={toast} />;
+    return <ToastVariantRender toast={toast} positionClass={className} />;
   }
   if (!message) return null;
   return (
@@ -103,13 +111,20 @@ const VARIANT_STYLES: Record<ToastVariant, VariantStyle> = {
   },
 };
 
-function ToastVariantRender({ toast }: { toast: ToastData }) {
+function ToastVariantRender({
+  toast,
+  positionClass,
+}: {
+  toast: ToastData;
+  positionClass?: string;
+}) {
   const style = VARIANT_STYLES[toast.variant];
+  const wrapperPosition = positionClass ?? DEFAULT_VARIANT_POSITION;
 
   return (
     <div
       role="status"
-      className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-40 w-[min(420px,90vw)] flex items-center gap-td-md min-h-[52px] ${style.bg} ${style.border} rounded-md shadow-lg px-td-md py-td-sm`}
+      className={`${wrapperPosition} flex items-center gap-td-md min-h-[52px] ${style.bg} ${style.border} rounded-md shadow-lg px-td-md py-td-sm`}
     >
       {style.icon && (
         <span
