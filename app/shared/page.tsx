@@ -116,23 +116,23 @@ export default function SharedListPage() {
   }
 
   return (
-    <main className="bg-bg min-h-dvh pb-24" aria-label="받은 여행 목록">
+    <main className="bg-surface min-h-dvh pb-24" aria-label="받은 여행 목록">
       <BottomNav active="trips" />
-      <header className="sticky top-0 z-10 bg-surface-card border-b border-divider">
-        <div className="max-w-[420px] mx-auto px-4 h-12 flex items-center justify-between">
+      <header className="sticky top-0 z-10 bg-surface-card/95 backdrop-blur-sm border-b border-divider">
+        <div className="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
           <Link
             href="/trips"
-            className="text-ink-mute text-sm hover:text-purple"
+            className="text-purple transition-colors"
             aria-label="Trips으로"
           >
-            ← 뒤로
+            <span className="material-symbols-outlined">arrow_back</span>
           </Link>
-          <h1 className="text-base font-semibold text-ink">받은 여행</h1>
-          <span className="w-12" aria-hidden />
+          <h1 className="text-lg font-semibold text-ink">받은 여행</h1>
+          <span className="w-10" aria-hidden />
         </div>
       </header>
 
-      <div className="max-w-[420px] mx-auto px-4 py-4">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         {/* 사이클 SS — 내 정보 (clientUuid + nickname) */}
         <MyIdentityPanel />
 
@@ -155,70 +155,67 @@ export default function SharedListPage() {
 
         {state.kind === "list" && (
           <>
-            {/* 사이클 KK — 검색 input */}
-            <div className="mb-3">
+            {/* 검색 input */}
+            <div className="relative mb-3">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute text-[20px]">
+                search
+              </span>
               <input
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value.slice(0, 50))}
-                placeholder="도시명 검색 (예: 다낭)"
-                className="w-full px-3 py-2 border border-divider rounded-lg text-sm bg-surface-soft focus:outline focus:outline-purple"
+                placeholder="도시명 검색"
+                className="w-full pl-10 pr-4 py-2.5 bg-surface border border-divider rounded-xl text-td-body focus:ring-2 focus:ring-purple focus:border-transparent outline-none"
                 aria-label="도시명 검색"
               />
             </div>
 
-            {/* 사이클 KK — 상태 필터 + 정렬 (둘 다 select로 일관성) */}
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-              <label className="flex items-center gap-2 text-xs text-ink-mute">
-                상태
-                <select
-                  value={statusFilter}
-                  onChange={(e) =>
-                    setStatusFilter(e.target.value as ReceivedStatusFilter)
-                  }
-                  className="border border-divider rounded-md px-2 py-1 text-xs bg-surface-soft"
-                  aria-label="상태 필터"
-                >
-                  {(
-                    Object.keys(
-                      STATUS_FILTER_LABELS,
-                    ) as ReceivedStatusFilter[]
-                  ).map((f) => (
-                    <option key={f} value={f}>
-                      {STATUS_FILTER_LABELS[f]}
+            {/* 상태 필터 + 정렬 */}
+            <div className="flex gap-2 mb-3">
+              <select
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as ReceivedStatusFilter)
+                }
+                className="flex-1 bg-surface border border-divider rounded-lg px-3 py-2 text-td-meta appearance-none focus:ring-1 focus:ring-purple outline-none"
+                aria-label="상태 필터"
+              >
+                {(
+                  Object.keys(
+                    STATUS_FILTER_LABELS,
+                  ) as ReceivedStatusFilter[]
+                ).map((f) => (
+                  <option key={f} value={f}>
+                    {STATUS_FILTER_LABELS[f]}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={sortMode}
+                onChange={(e) =>
+                  setSortMode(e.target.value as ReceivedSortMode)
+                }
+                className="flex-1 bg-surface border border-divider rounded-lg px-3 py-2 text-td-meta appearance-none focus:ring-1 focus:ring-purple outline-none"
+                aria-label="정렬 기준"
+              >
+                {(Object.keys(SORT_LABELS) as ReceivedSortMode[]).map(
+                  (mode) => (
+                    <option key={mode} value={mode}>
+                      {SORT_LABELS[mode]}
                     </option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex items-center gap-2 text-xs text-ink-mute">
-                정렬
-                <select
-                  value={sortMode}
-                  onChange={(e) =>
-                    setSortMode(e.target.value as ReceivedSortMode)
-                  }
-                  className="border border-divider rounded-md px-2 py-1 text-xs bg-surface-soft"
-                  aria-label="정렬 기준"
-                >
-                  {(Object.keys(SORT_LABELS) as ReceivedSortMode[]).map(
-                    (mode) => (
-                      <option key={mode} value={mode}>
-                        {SORT_LABELS[mode]}
-                      </option>
-                    ),
-                  )}
-                </select>
-              </label>
+                  ),
+                )}
+              </select>
             </div>
 
-            <p className="text-xs text-ink-mute tabular-nums mb-3">
+            <p className="text-td-caption text-ink-mute tabular-nums mb-3">
               {visibleItems.length === state.items.length
                 ? `${state.items.length}개`
                 : `${visibleItems.length}개 / ${state.items.length}개 중`}
             </p>
 
             {visibleItems.length === 0 ? (
-              <p className="text-sm text-ink-mute text-center py-8 bg-surface-card border border-divider rounded-xl">
+              <p className="text-td-body text-ink-mute text-center py-8 bg-white border border-divider rounded-xl">
                 조건에 맞는 여행이 없어요.
               </p>
             ) : (
@@ -226,24 +223,28 @@ export default function SharedListPage() {
               {visibleItems.map((it) => (
               <li
                 key={it.key}
-                className="bg-surface-card rounded-xl border border-divider overflow-hidden"
+                className={`bg-white rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] ${
+                  it.status === "active"
+                    ? "border-2 border-purple"
+                    : "border border-divider opacity-60"
+                }`}
               >
                 {it.status === "active" ? (
                   <Link
                     href={`/share/${it.key}`}
-                    className="block p-4 hover:bg-surface-hover"
+                    className="block p-4 hover:bg-surface-soft transition-colors"
                   >
                     <ActiveCard item={it} />
                   </Link>
                 ) : (
-                  <div className="p-4 opacity-60">
+                  <div className="p-4">
                     <InactiveCard item={it} />
                   </div>
                 )}
                 <div className="border-t border-divider px-4 py-2 flex justify-end">
                   <button
                     type="button"
-                    className="text-xs text-ink-mute hover:text-red-600"
+                    className="text-td-caption text-ink-mute hover:text-red-600 transition-colors"
                     onClick={() => handleRemove(it.key)}
                   >
                     내 목록에서 삭제
@@ -349,27 +350,21 @@ function ActiveCard({
   item: LookupItem & { addedAt: number };
 }) {
   return (
-    <div className="flex items-center justify-between gap-3">
-      <div>
-        <p className="text-base font-semibold text-ink">
+    <div className="flex items-center gap-3">
+      <div className="flex-1 min-w-0">
+        <h4 className="text-td-card-title text-ink truncate">
           {item.destination ?? "여행"}
-          {typeof item.nights === "number" && (
-            <span className="text-sm font-normal text-ink-mute ml-2">
-              {item.nights}박 {item.nights + 1}일
-            </span>
-          )}
+        </h4>
+        <p className="text-td-meta text-ink-mute">
+          {typeof item.nights === "number" && `${item.nights}박 ${item.nights + 1}일`}
+          {item.startDate && ` · ${item.startDate.slice(0, 10)}`}
         </p>
-        {item.startDate && (
-          <p className="text-xs text-ink-mute mt-1">
-            출발 {item.startDate.slice(0, 10)}
-          </p>
-        )}
-        <p className="text-xs text-ink-mute mt-1">
-          받은 날 {new Date(item.addedAt).toLocaleDateString("ko-KR")}
-        </p>
+        <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-purple/10 text-purple text-[10px] font-bold">
+          활성
+        </span>
       </div>
-      <span className="text-purple text-xl" aria-hidden>
-        →
+      <span className="material-symbols-outlined text-purple" aria-hidden>
+        chevron_right
       </span>
     </div>
   );
@@ -383,11 +378,16 @@ function InactiveCard({ item }: { item: LookupItem & { addedAt: number } }) {
         ? "만료됨"
         : "더 이상 찾을 수 없음";
   return (
-    <div>
-      <p className="text-base font-semibold text-ink">
-        {item.destination ?? "여행"}
-      </p>
-      <p className="text-xs text-amber-700 mt-1">{label}</p>
+    <div className="flex items-center gap-3">
+      <div className="flex-1 min-w-0">
+        <h4 className="text-td-card-title text-ink truncate">
+          {item.destination ?? "여행"}
+        </h4>
+        <div className="mt-1 inline-flex items-center gap-1 text-amber-700 text-[10px] font-bold">
+          <span className="material-symbols-outlined text-[12px]">link_off</span>
+          {label}
+        </div>
+      </div>
     </div>
   );
 }

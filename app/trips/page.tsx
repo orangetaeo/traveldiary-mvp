@@ -20,7 +20,6 @@ export const metadata: Metadata = {
 };
 import { listDemoTrips, isDemoTrip } from "@/lib/seed";
 import { listCities, PRIMARY_COUNTRY_CODE } from "@/lib/seed/cities";
-import { Badge } from "@/components/ui/Badge";
 import { BottomNav } from "@/components/ui/BottomNav";
 import {
   buildCards,
@@ -61,90 +60,91 @@ export default function TripsPage({
   };
 
   return (
-    <div className="min-h-screen bg-surface-soft text-ink pb-24">
+    <div className="min-h-screen bg-surface text-ink pb-24">
       {/* TopAppBar */}
-      <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
-        <div className="flex items-center gap-td-sm">
-          <Link
-            href="/"
-            aria-label="뒤로"
-            className="p-2 rounded-full hover:bg-surface-soft transition-colors"
-          >
-            <span className="material-symbols-outlined text-ink">arrow_back</span>
-          </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">여행 둘러보기</h1>
+      <header className="fixed top-0 w-full z-50 bg-surface-card/95 backdrop-blur-sm border-b border-divider flex items-center px-4 h-16">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              aria-label="뒤로"
+              className="text-purple transition-colors"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+            </Link>
+            <h1 className="font-semibold text-lg text-ink">여행 둘러보기</h1>
+          </div>
+          <span className="text-td-meta text-ink-mute tabular-nums">
+            {cards.length}개
+          </span>
         </div>
-        <span className="text-td-meta text-ink-mute tabular-nums">
-          {cards.length}개
-        </span>
       </header>
 
-      <main className="max-w-xl mx-auto px-td-md">
+      <main className="pt-16 max-w-md mx-auto w-full">
         {/* Hero */}
-        <section className="py-td-lg">
-          <h2 className="text-td-title text-ink mb-td-xxs">
+        <section className="px-6 py-6 bg-surface">
+          <h2 className="text-td-title text-ink mb-1">
             어디로 떠날까요?
           </h2>
-          <p className="text-td-body text-ink-soft">
+          <p className="text-td-body text-ink-soft mb-3">
             한국인 자유여행자 큐레이션 도시 {allCards.length}곳 ·{" "}
             데모 일정 {listDemoTrips().length}건
           </p>
           <Link
             href="/shared"
-            className="mt-td-sm inline-flex items-center gap-td-xxs text-td-caption text-purple hover:text-purple-dark"
+            className="inline-flex items-center gap-1 text-td-caption text-purple font-medium hover:underline"
             aria-label="받은 여행 목록"
           >
-            <span className="material-symbols-outlined text-[18px]">inbox</span>
-            받은 여행 보기
-            <span aria-hidden>→</span>
+            📥 받은 여행 보기 →
           </Link>
         </section>
 
         {/* Sticky chip filter */}
         <nav
           aria-label="도시 필터"
-          className="sticky top-16 z-30 bg-surface-soft/90 backdrop-blur-sm py-td-xs flex gap-td-xs overflow-x-auto hide-scrollbar -mx-td-md px-td-md mb-td-md"
+          className="sticky top-16 z-40 bg-white/80 backdrop-blur-md px-4 py-3 flex gap-2 overflow-x-auto hide-scrollbar"
         >
           {FILTER_CHIPS.map((chip) => {
-            const active = chip.key === filter;
+            const isActive = chip.key === filter;
             const href = chip.key === "all" ? "/trips" : `/trips?filter=${chip.key}`;
             return (
               <Link
                 key={chip.key}
                 href={href}
-                className={`flex-none px-td-sm py-td-xxs rounded-full border text-td-caption font-medium tabular-nums transition-colors ${
-                  active
-                    ? "bg-purple text-white border-purple"
-                    : "border-divider text-ink-soft hover:border-purple/40"
+                className={`flex-none px-4 py-2 rounded-full text-td-body font-medium tabular-nums transition-colors ${
+                  isActive
+                    ? "bg-purple text-white"
+                    : "border border-divider text-ink-soft bg-surface"
                 }`}
-                aria-current={active ? "page" : undefined}
+                aria-current={isActive ? "page" : undefined}
               >
-                {chip.label} <span className="opacity-70">{counts[chip.key]}</span>
+                {chip.label} {counts[chip.key]}
               </Link>
             );
           })}
         </nav>
 
-        {/* Card list (1열) */}
-        {cards.length === 0 ? (
-          <p className="text-td-body text-ink-mute text-center py-td-xl">
-            해당 필터에 도시가 없어요.
-          </p>
-        ) : (
-          <ul className="space-y-td-sm">
-            {cards.map((c) => (
-              <li key={cardSurface(c).code}>{renderCard(c)}</li>
-            ))}
-          </ul>
-        )}
+        {/* Card list */}
+        <div className="px-4 py-4 flex flex-col gap-4">
+          {cards.length === 0 ? (
+            <p className="text-td-body text-ink-mute text-center py-8">
+              해당 필터에 도시가 없어요.
+            </p>
+          ) : (
+            cards.map((c) => (
+              <div key={cardSurface(c).code}>{renderCard(c)}</div>
+            ))
+          )}
+        </div>
 
-        <p className="text-td-caption text-ink-mute text-center pt-td-md">
-          사이클 I (ADR-033) — /trips 라우트.{" "}
-          {PRIMARY_COUNTRY_CODE === "VN" && "베트남 우선 출시 정책 적용 중."}
-        </p>
+        {/* Footer */}
+        <footer className="py-6 px-4 text-center">
+          <p className="text-td-caption text-ink-mute opacity-60">
+            {PRIMARY_COUNTRY_CODE === "VN" && "베트남 우선 출시 정책 적용 중"}
+          </p>
+        </footer>
       </main>
 
-      {/* Bottom Nav — 사이클 O 컴포넌트 추출 (사이클 I ADR-033) */}
       <BottomNav active="trips" />
     </div>
   );
@@ -161,49 +161,47 @@ function renderCard(c: CardData) {
 }
 
 function TripCard({ data }: { data: TripCardData }) {
-  // 사이클 J (ADR-034) — ResolvedTrip 기반 (city 항상 보장됨)
   const { trip, city, itemCount, verifiedCount } = data.resolved;
   const days = trip.nights + 1;
 
   return (
-    <article className="bg-surface-card border border-divider rounded-xl shadow-sm overflow-hidden hover:border-purple/40 transition-colors">
+    <article className="bg-white rounded-xl border border-divider overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-all active:scale-[0.98]">
       <Link
         href={`/itinerary/${trip.id}`}
         aria-label={`${city.name} ${trip.nights}박 ${days}일 일정 보기`}
-        className="block p-td-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple"
+        className="block p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple"
       >
-        <div className="flex items-start justify-between gap-td-sm mb-td-xs">
-          <div className="min-w-0">
-            <div className="flex items-center gap-td-xs">
-              <p className="text-td-meta text-ink-mute uppercase tabular-nums">
-                {trip.destinationCode} · {city.countryCode}
-              </p>
-              {isDemoTrip(trip.id) && (
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700">
-                  체험
-                </span>
-              )}
-            </div>
-            <h3 className="text-td-card-title text-ink mt-td-xxs truncate">
-              {city.name}
-            </h3>
+        <div className="flex justify-between items-start mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-td-meta text-ink-mute uppercase tabular-nums">
+              {trip.destinationCode} · {city.countryCode}
+            </span>
+            {isDemoTrip(trip.id) && (
+              <span className="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 text-td-caption font-medium">
+                체험
+              </span>
+            )}
           </div>
           {verifiedCount > 0 && (
-            <Badge tone="success">AI 검증 {verifiedCount}곳</Badge>
+            <span className="px-2 py-0.5 rounded-lg bg-green-50 text-green-700 border border-green-200 text-td-caption font-medium flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px]">check_circle</span>
+              AI 검증 {verifiedCount}곳
+            </span>
           )}
         </div>
-        <p className="text-td-meta text-ink-soft tabular-nums">
+        <h3 className="text-td-card-title text-ink mb-1 truncate">
+          {city.name}
+        </h3>
+        <p className="text-td-meta text-ink-mute tabular-nums mb-3">
           {trip.nights}박 {days}일 · {itemCount} 일정
         </p>
+        <hr className="border-divider mb-3" />
+        <div className="flex justify-between items-center">
+          <span className="text-td-body text-purple font-medium">
+            도시 가이드 →
+          </span>
+        </div>
       </Link>
-      <div className="border-t border-divider px-td-md py-td-xs flex justify-end">
-        <Link
-          href={`/city/${city.slug}`}
-          className="text-td-caption text-purple-deep hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple rounded"
-        >
-          도시 가이드 →
-        </Link>
-      </div>
     </article>
   );
 }
@@ -211,29 +209,34 @@ function TripCard({ data }: { data: TripCardData }) {
 function CityOnlyCard({ data }: { data: CityOnlyCardData }) {
   const { city } = data;
   return (
-    <Link
-      href={`/city/${city.slug}`}
-      aria-label={`${city.name} 도시 가이드 보기`}
-      className="block bg-surface-card border border-divider rounded-xl shadow-sm p-td-md hover:border-amber/60 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber"
-    >
-      <div className="flex items-start justify-between gap-td-sm mb-td-xs">
-        <div className="min-w-0">
-          <p className="text-td-meta text-ink-mute uppercase tabular-nums">
+    <article className="bg-white rounded-xl border border-divider overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-all active:scale-[0.98]">
+      <Link
+        href={`/city/${city.slug}`}
+        aria-label={`${city.name} 도시 가이드 보기`}
+        className="block p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-td-meta text-ink-mute uppercase tabular-nums">
             {city.code} · {city.countryCode}
-          </p>
-          <h3 className="text-td-card-title text-ink mt-td-xxs truncate">
-            {city.name}
-          </h3>
+          </span>
+          <span className="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 text-td-caption font-medium">
+            도시 가이드만
+          </span>
         </div>
-        <Badge tone="amber">도시 가이드만</Badge>
-      </div>
-      <p className="text-td-meta text-ink-soft">
-        응급·결제·교통·상황별 문장 ·{" "}
-        {city.curatedGuides.length > 0
-          ? `시그니처 가이드 ${city.curatedGuides.length}건`
-          : "큐레이션 가이드"}
-      </p>
-    </Link>
+        <h3 className="text-td-card-title text-ink mb-1 truncate">
+          {city.name}
+        </h3>
+        <p className="text-td-meta text-ink-mute mb-3">
+          응급·결제·교통·상황별 문장 ·{" "}
+          {city.curatedGuides.length > 0
+            ? `시그니처 가이드 ${city.curatedGuides.length}건`
+            : "큐레이션 가이드"}
+        </p>
+        <span className="text-td-body text-purple font-medium">
+          상세 정보 보기 →
+        </span>
+      </Link>
+    </article>
   );
 }
 
@@ -241,22 +244,19 @@ function ComingSoonCard({ data }: { data: ComingSoonCardData }) {
   const { city } = data;
   return (
     <div
-      aria-disabled="true"
-      className="bg-surface-card border border-divider rounded-xl shadow-sm p-td-md opacity-60 cursor-not-allowed"
+      className="opacity-60 bg-white rounded-xl border border-divider overflow-hidden p-4"
     >
-      <div className="flex items-start justify-between gap-td-sm mb-td-xs">
-        <div className="min-w-0">
-          <p className="text-td-meta text-ink-mute uppercase tabular-nums">
-            {city.code} · {city.countryCode}
-          </p>
-          <h3 className="text-td-card-title text-ink mt-td-xxs truncate">
-            {city.name}
-          </h3>
-        </div>
-        <span className="inline-block bg-surface-soft text-ink-mute border border-divider px-td-xs py-0.5 rounded-full text-td-caption font-bold">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-td-meta text-ink-mute uppercase tabular-nums">
+          {city.code} · {city.countryCode}
+        </span>
+        <span className="px-2 py-0.5 rounded-lg bg-surface-soft text-ink-mute text-td-caption font-medium">
           준비 중
         </span>
       </div>
+      <h3 className="text-td-card-title text-ink mb-1 truncate">
+        {city.name}
+      </h3>
       <p className="text-td-meta text-ink-mute">
         {city.country} · 다음 단계에서 정식 공개됩니다
       </p>

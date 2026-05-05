@@ -66,36 +66,36 @@ export default function CityEmergencyPage({
   );
 
   return (
-    <div className="min-h-screen bg-surface-soft text-ink pb-24">
+    <div className="min-h-screen bg-surface text-ink pb-24">
       {/* TopAppBar */}
-      <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
-        <div className="flex items-center gap-td-sm">
+      <header className="bg-surface-card/95 backdrop-blur-sm border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-4 h-16">
+        <div className="flex items-center gap-3">
           <Link
             href={`/city/${city.slug}`}
             aria-label="도시 가이드로 돌아가기"
-            className="p-2 rounded-full hover:bg-surface-soft transition-colors"
+            className="text-purple transition-colors"
           >
-            <span className="material-symbols-outlined text-ink">arrow_back</span>
+            <span className="material-symbols-outlined">arrow_back</span>
           </Link>
           <div>
-            <p className="text-td-caption text-ink-mute">{city.name} 응급</p>
+            <p className="text-td-caption text-ink-mute">{city.name}</p>
             <h1 className="text-td-card-title text-danger-deep font-bold">
-              안전망
+              응급 안전망
             </h1>
           </div>
         </div>
         <span
-          className="material-symbols-outlined filled text-danger"
+          className="material-symbols-outlined text-danger text-[28px]"
           aria-hidden
         >
           emergency
         </span>
       </header>
 
-      <main className="max-w-xl mx-auto px-td-md">
+      <main className="max-w-md mx-auto px-4 py-6 space-y-6">
         {/* Hero */}
-        <section className="py-td-lg">
-          <h2 className="text-td-title text-ink mb-td-xxs">
+        <section className="space-y-1">
+          <h2 className="text-td-title text-ink">
             응급·분실 통합 안내
           </h2>
           <p className="text-td-body text-ink-soft">
@@ -105,59 +105,53 @@ export default function CityEmergencyPage({
 
         {/* 통역 콜센터 강조 카드 */}
         {translator && (
-          <section className="mb-td-lg">
-            <div className="bg-purple-soft border-l-4 border-purple rounded-lg shadow-sm p-td-md">
-              <div className="flex items-center gap-td-xs mb-td-xs">
-                <span
-                  className="material-symbols-outlined text-purple-deep"
-                  aria-hidden
-                >
-                  translate
-                </span>
-                <span className="text-td-caption text-purple-deep font-bold uppercase">
-                  외교부 24시간 한국어 통역
-                </span>
+          <section className="bg-purple-soft border-l-4 border-purple p-4 rounded-lg shadow-sm">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="text-td-body font-semibold text-purple-deep mb-1">
+                  {translator.label}
+                </h3>
+                <p className="text-td-card-title font-bold text-ink tabular-nums">
+                  {translator.phone}
+                </p>
               </div>
-              <p className="text-td-body text-ink mb-td-xs">{translator.label}</p>
-              <p className="text-td-card-title text-purple-deep tabular-nums mb-td-xs">
-                {translator.phone}
-              </p>
-              {translator.notes && (
-                <p className="text-td-meta text-ink-soft">{translator.notes}</p>
-              )}
-              {translator.phone && (
-                <a
-                  href={`tel:${translator.phone.replace(/\s/g, "")}`}
-                  className="inline-block mt-td-sm bg-purple text-white px-td-md py-td-xs rounded-full text-td-meta font-medium hover:opacity-90 transition-opacity"
-                >
-                  지금 연결
-                </a>
-              )}
+              <span className="material-symbols-outlined text-purple" aria-hidden>
+                support_agent
+              </span>
             </div>
+            {translator.notes && (
+              <p className="text-td-meta text-ink-soft mb-3">{translator.notes}</p>
+            )}
+            {translator.phone && (
+              <a
+                href={`tel:${translator.phone.replace(/\s/g, "")}`}
+                className="inline-flex items-center gap-1 bg-purple text-white px-4 py-2.5 rounded-xl text-td-body font-medium hover:opacity-90 transition-opacity active:scale-95"
+              >
+                <span className="material-symbols-outlined text-[18px]">call</span>
+                전화하기
+              </a>
+            )}
           </section>
         )}
 
         {/* 도시별 응급 contacts */}
-        <section id="city-contacts" className="mb-td-lg">
-          <h3 className="text-td-card-title text-ink mb-td-sm">
-            {city.name} 현지 응급 연락처
+        <section id="city-contacts" className="space-y-3">
+          <h3 className="text-td-card-title text-ink font-semibold">
+            {city.name} 응급 연락처
           </h3>
-          <ul className="space-y-td-sm">
+          <div className="space-y-2">
             {cityContacts.map((c, i) => (
               <ContactCard key={i} contact={c} />
             ))}
-          </ul>
+          </div>
         </section>
 
         {/* 분실 통합 가이드 */}
-        <section id="loss-guides" className="mb-td-lg">
-          <h3 className="text-td-card-title text-ink mb-td-sm">
-            분실·도난 통합 가이드
+        <section id="loss-guides" className="space-y-3">
+          <h3 className="text-td-card-title text-ink font-semibold">
+            상황별 대응 가이드
           </h3>
-          <p className="text-td-meta text-ink-soft mb-td-md">
-            패닉 상황에서 가장 먼저 할 일을 단계별로 안내해요.
-          </p>
-          <div className="space-y-td-md">
+          <div className="space-y-3">
             {KOREAN_LOSS_GUIDES.map((g) => (
               <LossGuideCard key={g.category} guide={g} />
             ))}
@@ -165,13 +159,13 @@ export default function CityEmergencyPage({
         </section>
 
         {/* 출국 전 준비 체크리스트 */}
-        <section id="preparation" className="mb-td-lg">
-          <h3 className="text-td-card-title text-ink mb-td-sm">
+        <section id="preparation" className="space-y-3">
+          <h3 className="text-td-card-title text-ink font-semibold">
             출국 전 준비
           </h3>
-          <ul className="bg-surface-card border border-divider rounded-lg p-td-md space-y-td-xs">
+          <ul className="bg-white border border-divider rounded-xl p-4 space-y-2">
             {KOREAN_LOSS_GUIDES.filter((g) => g.preparation).map((g) => (
-              <li key={g.category} className="flex items-start gap-td-xs">
+              <li key={g.category} className="flex items-start gap-2">
                 <span className="text-[16px]" aria-hidden>
                   {g.emoji}
                 </span>
@@ -184,8 +178,7 @@ export default function CityEmergencyPage({
           </ul>
         </section>
 
-        <p className="text-td-caption text-ink-mute text-center pt-td-md">
-          사이클 P (ADR-035) — M5 응급/실용/도시 컨텍스트 강화 ·
+        <p className="text-td-caption text-ink-mute text-center opacity-60">
           출처: 외교부 영사콜센터 0404.go.kr
         </p>
       </main>
@@ -204,68 +197,65 @@ function ContactCard({ contact }: { contact: EmergencyContact }) {
   const label = CATEGORY_LABEL[contact.category ?? ""] ?? "연락처";
 
   return (
-    <li className="bg-surface-card border border-divider rounded-lg p-td-md shadow-sm">
-      <div className="flex items-start justify-between gap-td-sm">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1 mb-td-xxs">
-            <span
-              className="material-symbols-outlined text-danger text-[16px]"
-              aria-hidden
-            >
-              {icon}
-            </span>
-            <span className="text-td-caption text-danger-deep font-bold uppercase">
-              {label}
-            </span>
+    <div className="bg-white border border-divider p-3 rounded-xl flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="bg-surface-soft p-2 rounded-lg text-danger shrink-0">
+          <span className="material-symbols-outlined" aria-hidden>
+            {icon}
+          </span>
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <p className="text-td-body font-semibold text-ink truncate">{contact.label}</p>
             {contact.hours && (
-              <span className="text-td-caption text-ink-mute ml-1">
-                · {contact.hours}
+              <span className="text-td-caption text-ink-mute">
+                {contact.hours}
               </span>
             )}
           </div>
-          <p className="text-td-body text-ink font-medium">{contact.label}</p>
           {contact.phone && (
-            <p className="text-td-card-title text-ink tabular-nums mt-td-xxs">
+            <p className="text-td-meta text-ink-mute tabular-nums">
               {contact.phone}
             </p>
           )}
           {contact.notes && (
-            <p className="text-td-meta text-ink-soft mt-td-xxs">
+            <p className="text-td-caption text-danger mt-0.5">
               {contact.notes}
             </p>
           )}
         </div>
-        {contact.phone && (
-          <a
-            href={`tel:${contact.phone.replace(/\s/g, "")}`}
-            className="bg-danger text-white px-td-sm py-td-xs rounded-full text-td-caption font-medium hover:bg-danger-deep transition-colors flex-shrink-0"
-          >
-            전화
-          </a>
-        )}
       </div>
-    </li>
+      {contact.phone && (
+        <a
+          href={`tel:${contact.phone.replace(/\s/g, "")}`}
+          className="text-ink-mute shrink-0"
+          aria-label={`${label} 전화`}
+        >
+          <span className="material-symbols-outlined">call</span>
+        </a>
+      )}
+    </div>
   );
 }
 
 function LossGuideCard({ guide }: { guide: LossGuide }) {
   return (
-    <article className="bg-surface-card border border-divider rounded-xl shadow-sm overflow-hidden">
-      <header className="bg-amber-soft border-b border-amber/30 px-td-md py-td-sm flex items-center gap-td-xs">
+    <article className="bg-white border border-divider rounded-xl shadow-[0_4px_12px_rgba(15,23,42,0.05)] overflow-hidden">
+      <header className="bg-amber-50 border-b border-amber-200 px-4 py-3 flex items-center gap-2">
         <span className="text-[24px]" aria-hidden>
           {guide.emoji}
         </span>
-        <h4 className="text-td-card-title text-amber-deep font-bold">
+        <h4 className="text-td-body font-bold text-amber-900">
           {guide.title}
         </h4>
       </header>
-      <div className="p-td-md space-y-td-md">
+      <div className="p-4 space-y-4">
         {/* Steps */}
         <div>
-          <p className="text-td-caption text-ink-mute uppercase mb-td-xs">
+          <p className="text-td-caption text-ink-mute uppercase mb-2">
             단계
           </p>
-          <ol className="space-y-td-xs">
+          <ol className="space-y-1.5">
             {guide.steps.map((step, i) => (
               <li
                 key={i}
@@ -280,10 +270,10 @@ function LossGuideCard({ guide }: { guide: LossGuide }) {
         {/* Contacts */}
         {guide.contacts.length > 0 && (
           <div>
-            <p className="text-td-caption text-ink-mute uppercase mb-td-xs">
+            <p className="text-td-caption text-ink-mute uppercase mb-2">
               연락·자료
             </p>
-            <ul className="space-y-td-xs">
+            <ul className="space-y-1.5">
               {guide.contacts.map((c, i) => (
                 <li
                   key={i}
@@ -293,7 +283,7 @@ function LossGuideCard({ guide }: { guide: LossGuide }) {
                   {c.phone && (
                     <a
                       href={`tel:${c.phone.replace(/\s/g, "")}`}
-                      className="block text-purple-deep tabular-nums mt-0.5 hover:underline"
+                      className="block text-purple tabular-nums mt-0.5 hover:underline"
                     >
                       {c.phone}
                     </a>
@@ -303,7 +293,7 @@ function LossGuideCard({ guide }: { guide: LossGuide }) {
                       href={c.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block text-purple-deep mt-0.5 hover:underline truncate"
+                      className="block text-purple mt-0.5 hover:underline truncate"
                     >
                       {c.url}
                     </a>
