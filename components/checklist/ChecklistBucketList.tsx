@@ -9,10 +9,14 @@
  */
 
 import type {
-  ChecklistCategory,
   ChecklistItem,
-  DDayBucket,
 } from "@/lib/types";
+import {
+  BUCKET_ORDER,
+  BUCKET_LABEL,
+  CHECKLIST_CATEGORY_LABEL,
+  CATEGORY_TONE,
+} from "@/lib/utils/checklist-constants";
 
 interface Props {
   items: ChecklistItem[];
@@ -24,42 +28,6 @@ interface Props {
   selectedIds?: Set<string>;
   onSelectToggle?: (item: ChecklistItem) => void;
 }
-
-const BUCKET_ORDER: DDayBucket[] = [
-  "D-30",
-  "D-14",
-  "D-7",
-  "D-1",
-  "during",
-  "after",
-];
-
-const BUCKET_LABEL: Record<DDayBucket, string> = {
-  "D-30": "D-30 · 사전 준비",
-  "D-14": "D-14 · 예약 마감",
-  "D-7": "D-7 · 짐 준비",
-  "D-1": "D-1 · 출발 직전",
-  during: "여행 중",
-  after: "귀국 후",
-};
-
-const CATEGORY_LABEL: Record<ChecklistCategory, string> = {
-  documents: "서류",
-  clothing: "의류",
-  electronics: "전자",
-  forbidden: "반입 금지",
-  declarable: "신고 대상",
-  custom: "기타",
-};
-
-const CATEGORY_TONE: Record<ChecklistCategory, string> = {
-  documents: "bg-purple-soft text-purple-deep",
-  clothing: "bg-success-soft text-success-deep",
-  electronics: "bg-amber-soft text-amber-deep",
-  forbidden: "bg-danger-soft text-danger-deep",
-  declarable: "bg-accent-soft text-accent-deep",
-  custom: "bg-surface-soft text-ink-soft",
-};
 
 export function ChecklistBucketList({
   items,
@@ -145,7 +113,7 @@ export function ChecklistBucketList({
                             CATEGORY_TONE[item.category]
                           }`}
                         >
-                          {CATEGORY_LABEL[item.category]}
+                          {CHECKLIST_CATEGORY_LABEL[item.category]}
                         </span>
                         <p
                           className={`text-td-body ${

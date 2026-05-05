@@ -7,33 +7,17 @@
  * 책임: 비용 entry 카드 리스트 + 빈 상태 + 삭제 버튼. 삭제 액션은 부모 콜백.
  */
 
-import type { CostEntry, CostStatus } from "@/lib/types";
+import type { CostEntry } from "@/lib/types";
+import {
+  COST_CATEGORY_LABEL,
+  STATUS_LABEL,
+  STATUS_TONE,
+} from "@/lib/utils/cost-constants";
 
 interface Props {
   entries: CostEntry[];
   onDelete: (entry: CostEntry) => void;
 }
-
-const STATUS_LABEL: Record<CostStatus, string> = {
-  paid: "결제 완료",
-  booked: "예약 (선결제)",
-  planned: "예정",
-};
-
-const STATUS_TONE: Record<CostStatus, string> = {
-  paid: "bg-success-soft text-success-deep",
-  booked: "bg-purple-soft text-purple-deep",
-  planned: "bg-amber-soft text-amber-deep",
-};
-
-const CATEGORY_LABEL: Record<string, string> = {
-  food: "식비",
-  transport: "교통",
-  accommodation: "숙박",
-  shopping: "쇼핑",
-  activity: "액티비티",
-  other: "기타",
-};
 
 export function CostEntriesList({ entries, onDelete }: Props) {
   return (
@@ -79,7 +63,7 @@ export function CostEntriesList({ entries, onDelete }: Props) {
                   </span>
                   {entry.category && (
                     <span className="text-td-caption text-ink-soft">
-                      · {CATEGORY_LABEL[entry.category] ?? entry.category}
+                      · {COST_CATEGORY_LABEL[entry.category] ?? entry.category}
                     </span>
                   )}
                 </div>

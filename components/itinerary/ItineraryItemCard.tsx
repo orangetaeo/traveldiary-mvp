@@ -14,27 +14,16 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import type { ItineraryItem } from "@/lib/types";
+import {
+  splitName,
+  formatTime,
+  CATEGORY_ICON,
+} from "@/lib/utils/item-display";
 
-const CATEGORY_ICON: Record<string, string> = {
-  food: "restaurant",
-  spot: "photo_camera",
-  shopping: "shopping_bag",
-  rest: "bed",
-};
-
-export function formatItineraryTime(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(
-    d.getUTCMinutes(),
-  ).padStart(2, "0")}`;
-}
-
-export function splitItemName(name: string): { ko: string; en: string } {
-  const m = name.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
-  if (m) return { ko: m[1].trim(), en: m[2].trim() };
-  return { ko: name, en: "" };
-}
+/** @deprecated splitName re-export (기존 테스트 호환) */
+export const splitItemName = splitName;
+/** @deprecated formatTime re-export (기존 테스트 호환) */
+export const formatItineraryTime = formatTime;
 
 interface ItineraryItemCardProps {
   item: ItineraryItem;
@@ -76,8 +65,8 @@ export function ItineraryItemCard({
 }: ItineraryItemCardProps) {
   const isBooked =
     item.flexibility === "booked" || item.flexibility === "fixed";
-  const time = formatItineraryTime(item.scheduledAt);
-  const { ko, en } = splitItemName(item.name);
+  const time = formatTime(item.scheduledAt);
+  const { ko, en } = splitName(item.name);
   const icon = CATEGORY_ICON[item.category] ?? "place";
 
   return (

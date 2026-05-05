@@ -14,6 +14,7 @@ import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { CommentSection } from "@/components/share/CommentSection";
 import { ReceivedKeyTracker } from "@/components/share/ReceivedKeyTracker";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { formatTime } from "@/lib/utils/item-display";
 
 export async function generateMetadata({
   params,
@@ -198,10 +199,3 @@ export default async function SharedTripPage({
   );
 }
 
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(
-    d.getUTCMinutes()
-  ).padStart(2, "0")}`;
-}
