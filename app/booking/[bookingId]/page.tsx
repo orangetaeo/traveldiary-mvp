@@ -27,7 +27,7 @@ const DEMO_BOOKING = {
   includes: ["왕복 셔틀", "입장권", "케이블카", "점심 뷔페"],
 };
 
-export default function BookingConfirmationPage({ params }: PageProps) {
+export default function BookingConfirmationPage({ params: _params }: PageProps) {
   const booking = DEMO_BOOKING; // 추후 bookingId 기반 조회로 교체
 
   return (

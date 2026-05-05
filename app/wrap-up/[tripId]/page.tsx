@@ -11,7 +11,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { resolveTrip } from "@/lib/services/resolved-trip";
-import { listResolvedTrips } from "@/lib/services/resolved-trip";
 
 interface PageProps {
   params: { tripId: string };
