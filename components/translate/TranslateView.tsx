@@ -4,10 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Toast } from "@/components/ui/Toast";
-import {
-  AllergenFilterChips,
-  type AllergenChipItem,
-} from "@/components/allergen/AllergenFilterChips";
+import { AllergenFilterChips } from "@/components/allergen/AllergenFilterChips";
 import { useToast } from "@/lib/hooks/useToast";
 import {
   ALLERGEN_CHIPS,
@@ -20,29 +17,6 @@ import {
   type MenuItem,
 } from "@/lib/seed/menu-phu-quoc";
 import { translateMenuPhotoAction } from "@/actions/translate";
-
-/**
- * ALLERGEN_CHIPS(label/raw) → AllergenFilterChips 입력 변환.
- *
- * 모든 ALLERGEN_CHIPS 항목은 severity="danger" (알레르기·식이 제한).
- * 아이콘 매핑(시안 spec sheet 5종): block / hot_tub / eco / egg / opacity.
- */
-const ALLERGEN_CHIP_ICON: Record<string, string> = {
-  "새우 알레르기": "block",
-  "갑각류 알레르기": "block",
-  "조개 알레르기": "block",
-  "땅콩 알레르기": "block",
-  "우유 알레르기": "opacity",
-  돼지고기: "block",
-  비건: "eco",
-};
-
-const ALLERGEN_CHIP_ITEMS: AllergenChipItem[] = ALLERGEN_CHIPS.map((c) => ({
-  raw: c.raw,
-  label: c.label,
-  severity: "danger",
-  icon: ALLERGEN_CHIP_ICON[c.label] ?? "block",
-}));
 
 /**
  * 카메라 번역 (M4) — Stitch #9 + #10 매핑.
@@ -372,7 +346,7 @@ function ResultsView({
           {/* Allergy Chips — AllergenFilterChips 통합 (시안 매칭) */}
           <div className="-mx-td-md mb-td-md">
             <AllergenFilterChips
-              items={ALLERGEN_CHIP_ITEMS}
+              items={ALLERGEN_CHIPS}
               selected={excludes}
               onToggle={toggle}
               ariaLabel="알레르기·식이 필터"

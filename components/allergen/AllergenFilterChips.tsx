@@ -1,5 +1,7 @@
 "use client";
 
+import type { AllergenChipItem } from "@/lib/allergens";
+
 /**
  * AllergenFilterChips — 알레르기/식이/관심사 가로 스크롤 필터 바.
  *
@@ -13,20 +15,12 @@
  *   - active neutral = bg-purple 채움 (white 텍스트)
  *
  * 데이터:
- *   - lib/allergens.ts ALLERGEN_CHIPS와 호환
+ *   - lib/allergens.ts ALLERGEN_CHIPS와 호환 (AllergenChipItem 도메인 타입)
  *   - severity 명시 안 하면 neutral 처리
  */
 
-export interface AllergenChipItem {
-  /** matchAllergens 등에 그대로 넘길 원본 키 */
-  raw: string;
-  /** 사용자에게 보여줄 라벨 */
-  label: string;
-  /** "danger" = 알레르기·식이 제한, "neutral" = 관심사·선호 */
-  severity?: "danger" | "neutral";
-  /** Material Symbols Outlined 아이콘 이름 (block, hot_tub, eco, egg, opacity 등) */
-  icon?: string;
-}
+// AllergenChipItem 타입은 lib/allergens.ts가 정본. 외부 호출처 편의를 위해 re-export.
+export type { AllergenChipItem };
 
 interface AllergenFilterChipsProps {
   items: AllergenChipItem[];
