@@ -9,9 +9,10 @@
 
 import { describe, it, expect } from "vitest";
 import { daNangTrip, daNangItinerary, DA_NANG_TRIP_ID } from "@/lib/seed/da-nang";
-import { findOffersForItem, findOffersByKeyword } from "@/lib/seed/ota-offers";
-import { comparePriceVerification, toKrw } from "@/lib/services/price-verification";
+import { findOffersByKeyword } from "@/lib/seed/ota-offers";
 import { getDemoTrip } from "@/lib/seed";
+import { describeOtaReach } from "./helpers/ota-reach";
+import { assertSeedIntegrity } from "./helpers/city-seed-integrity";
 
 // ═══════════════════════════════════════════════════════════════════
 // 무결성
@@ -31,27 +32,7 @@ describe("daNang 시드 — 무결성", () => {
     expect(days).toEqual(new Set([0, 1, 2, 3]));
   });
 
-  it("모든 일정의 tripId = TRIP_ID", () => {
-    for (const it of daNangItinerary) {
-      expect(it.tripId).toBe(DA_NANG_TRIP_ID);
-    }
-  });
-
-  it("같은 day 안에서 scheduledAt 오름차순", () => {
-    for (let dayIdx = 0; dayIdx <= 3; dayIdx++) {
-      const dayItems = daNangItinerary
-        .filter((it) => it.dayIndex === dayIdx)
-        .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
-      const original = daNangItinerary.filter((it) => it.dayIndex === dayIdx);
-      expect(original.map((it) => it.id)).toEqual(dayItems.map((it) => it.id));
-    }
-  });
-
-  it("좌표 모두 (0,0) 아님", () => {
-    for (const it of daNangItinerary) {
-      expect(it.location.lat !== 0 || it.location.lng !== 0).toBe(true);
-    }
-  });
+  assertSeedIntegrity({ tripId: DA_NANG_TRIP_ID, itinerary: daNangItinerary, maxDayIndex: 3 });
 
   it("DAG dependencies — 같은 day 안에서 직전 슬롯이 선행", () => {
     // dn-item-0 (Day 0 첫번째) 의존성 없음
@@ -83,87 +64,21 @@ describe("다낭 데모 trip — getDemoTrip 진입", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════
-// 도달률 측정 — OTA 매칭 + verified 카운트
-//   ota-aggregator의 매칭 흐름 답습:
-//     findOffersForItem(item.id)  → 0건이면 keyword fallback
-//   item.id는 dn-item-N 형식이므로 실제 매칭은 name 기반 keyword
+// 도달률 측정 — OTA 매칭 + verified (공통 헬퍼)
 // ═══════════════════════════════════════════════════════════════════
 
-function getOffersForItem(item: { id: string; name: string }) {
-  const exact = findOffersForItem(item.id);
-  if (exact.length > 0) return exact;
-  return findOffersByKeyword(item.name);
-}
-
-describe("다낭 도달률 — OTA 매칭 + verified", () => {
-  // OTA 매칭 가능 일정 6건 (item.id 기준 — plan 순서)
-  // dn-item-1: 한시장 / 3: 바나힐 / 5: 미선 / 7: 호이안 / 9: 마블 / 10: 미케
-  const expectedItemIds = [
-    "dn-item-1",
-    "dn-item-3",
-    "dn-item-5",
-    "dn-item-7",
-    "dn-item-9",
-    "dn-item-10",
-  ];
-
-  it("OTA 매칭 가능 일정 = 6건", () => {
-    const matched = daNangItinerary.filter(
-      (it) => getOffersForItem(it).length > 0,
-    );
-    expect(matched.length).toBe(6);
-    expect(new Set(matched.map((it) => it.id))).toEqual(new Set(expectedItemIds));
-  });
-
-  it("다낭 12 일정 분모 도달률 = 50% (6/12)", () => {
-    const matched = daNangItinerary.filter(
-      (it) => getOffersForItem(it).length > 0,
-    );
-    expect(matched.length / daNangItinerary.length).toBe(0.5);
-  });
-
-  it.each(
-    expectedItemIds.map((id) => ({ id })),
-  )("$id — comparePriceVerification → verified", ({ id }) => {
-    const item = daNangItinerary.find((it) => it.id === id);
-    expect(item).toBeDefined();
-    if (!item) return;
-
-    const offers = getOffersForItem(item);
-    expect(offers.length).toBeGreaterThanOrEqual(2);
-
-    const krw = item.estimatedPrice
-      ? toKrw(item.estimatedPrice.amount, item.estimatedPrice.currency)
-      : undefined;
-    expect(krw).not.toBeNull();
-
-    const result = comparePriceVerification({
-      estimatedPriceKrw: krw ?? undefined,
-      offers,
-    });
-    expect(result.status).toBe("verified");
-    expect(result.verified).toBe(true);
-    expect(Math.abs(result.deltaPct ?? 0)).toBeLessThanOrEqual(20);
-  });
-
-  it("검증 가능 일정 분모 도달률 = 100% (6 verified / 6 검증가능)", () => {
-    const verifiedCount = expectedItemIds
-      .map((id) => {
-        const item = daNangItinerary.find((it) => it.id === id);
-        if (!item) return false;
-        const offers = getOffersForItem(item);
-        const krw = item.estimatedPrice
-          ? toKrw(item.estimatedPrice.amount, item.estimatedPrice.currency)
-          : undefined;
-        const result = comparePriceVerification({
-          estimatedPriceKrw: krw ?? undefined,
-          offers,
-        });
-        return result.status === "verified";
-      })
-      .filter(Boolean).length;
-    expect(verifiedCount).toBe(6);
-  });
+describeOtaReach({
+  cityName: "다낭",
+  itinerary: daNangItinerary,
+  expectedItemIds: [
+    "dn-item-1",  // 한시장
+    "dn-item-3",  // 바나힐
+    "dn-item-5",  // 미선
+    "dn-item-7",  // 호이안
+    "dn-item-9",  // 마블
+    "dn-item-10", // 미케
+  ],
+  expectedReachRatio: 6 / 12,
 });
 
 // ═══════════════════════════════════════════════════════════════════

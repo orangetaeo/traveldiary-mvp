@@ -40,76 +40,75 @@ export default function GuidePage() {
   );
 
   return (
-    <div className="min-h-screen bg-surface-soft text-ink pb-24">
-      {/* 헤더 */}
-      <header className="bg-gradient-to-br from-purple to-purple-deep text-white px-td-md py-td-xl">
-        <div className="max-w-2xl mx-auto">
-          <Link
-            href="/"
-            className="text-white/70 text-td-caption hover:text-white transition-colors"
-          >
-            ← 홈
-          </Link>
-          <h1 className="text-2xl font-bold mt-td-sm tracking-tight">
-            베트남 여행 가이드
-          </h1>
-          <p className="text-white/80 text-td-body mt-td-xs">
-            {guideCities.length}개 도시, {totalGuides}개 시그니처 코스
-          </p>
-        </div>
-      </header>
+    <div className="min-h-screen bg-surface text-ink pb-24">
+      {/* Hero Header */}
+      <section className="relative w-full bg-gradient-to-br from-purple to-purple-deep text-white px-4 py-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-white/80 text-td-meta mb-3 hover:text-white transition-colors"
+        >
+          <span className="material-symbols-outlined text-sm">arrow_back</span>
+          홈
+        </Link>
+        <h1 className="text-[28px] font-bold leading-tight mb-1">
+          베트남 여행 가이드
+        </h1>
+        <p className="text-white/80 text-td-body">
+          {guideCities.length}개 도시, {totalGuides}개 시그니처 코스
+        </p>
+      </section>
 
       {/* 도시별 가이드 카드 */}
-      <main className="max-w-2xl mx-auto px-td-md pt-td-lg">
-        <div className="space-y-td-lg">
-          {guideCities.map((city) => {
-            if (!city) return null;
-            const guides = city.curatedGuides ?? [];
-            return (
-              <section key={city.slug}>
-                <div className="flex items-center justify-between mb-td-sm">
-                  <h2 className="text-td-title text-ink font-bold">
-                    {city.name}
-                  </h2>
+      <main className="bg-white max-w-md mx-auto w-full">
+        {guideCities.map((city) => {
+          if (!city) return null;
+          const guides = city.curatedGuides ?? [];
+          return (
+            <section key={city.slug} className="px-4 pt-6">
+              <div className="flex justify-between items-end mb-3">
+                <h2 className="text-td-title text-ink">
+                  {city.name}
+                </h2>
+                <Link
+                  href={`/city/${city.slug}`}
+                  className="text-td-meta text-purple flex items-center gap-1 hover:underline"
+                >
+                  도시 정보
+                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                </Link>
+              </div>
+              <div className="space-y-2">
+                {guides.map((guide) => (
                   <Link
-                    href={`/city/${city.slug}`}
-                    className="text-td-caption text-purple hover:underline"
+                    key={guide.id}
+                    href={`/city/${city.slug}#curated`}
+                    className="block p-3 bg-surface-soft border border-divider rounded-xl hover:border-purple/40 transition-colors"
                   >
-                    도시 정보 →
-                  </Link>
-                </div>
-                <div className="space-y-td-sm">
-                  {guides.map((guide) => (
-                    <Link
-                      key={guide.id}
-                      href={`/city/${city.slug}#curated`}
-                      className="block bg-surface-card border border-divider rounded-xl p-td-md hover:border-purple/40 transition-colors"
-                    >
-                      <div className="flex items-start gap-td-sm">
-                        <span className="text-2xl">{guide.hero?.emoji ?? "📍"}</span>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-td-card-title text-ink font-medium">
-                            {guide.title}
-                          </h3>
-                          <p className="text-td-caption text-ink-soft mt-td-xxs">
-                            {guide.subtitle}
-                          </p>
-                          <p className="text-td-meta text-ink-mute mt-td-xs">
-                            {guide.sections.length}단계 코스
-                          </p>
+                    <div className="flex items-start gap-3">
+                      <span className="text-2xl mt-0.5">{guide.hero?.emoji ?? "📍"}</span>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-td-card-title text-ink mb-0.5">
+                          {guide.title}
+                        </h3>
+                        <p className="text-td-caption text-ink-soft mb-1.5">
+                          {guide.subtitle}
+                        </p>
+                        <div className="flex items-center gap-1 text-ink-mute">
+                          <span className="material-symbols-outlined text-[14px]">route</span>
+                          <span className="text-td-meta">{guide.sections.length}개 스팟</span>
                         </div>
                       </div>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          );
+        })}
 
         {/* SEO 보조 텍스트 */}
-        <section className="mt-td-xl border-t border-divider pt-td-lg">
-          <h2 className="text-td-card-title text-ink mb-td-sm">
+        <section className="px-4 mt-8 border-t border-divider pt-6">
+          <h2 className="text-td-card-title text-ink mb-2">
             베트남 자유여행, 어디서 시작할까?
           </h2>
           <p className="text-td-body text-ink-soft leading-relaxed">
@@ -120,8 +119,8 @@ export default function GuidePage() {
           </p>
         </section>
 
-        <p className="text-td-caption text-ink-mute text-center mt-td-lg pb-td-md">
-          시나리오 C Phase C3 — SEO 콘텐츠
+        <p className="text-td-caption text-ink-mute text-center mt-6 pb-4 opacity-60">
+          베트남 우선 출시 정책 적용 중
         </p>
       </main>
 

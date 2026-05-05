@@ -44,73 +44,81 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-soft text-ink pb-24">
+    <div className="min-h-screen bg-surface text-ink pb-24">
       {/* TopAppBar */}
-      <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
-        <div className="flex items-center gap-td-sm">
-          <Link
-            href="/"
-            aria-label="홈"
-            className="p-2 rounded-full hover:bg-surface-soft transition-colors"
-          >
-            <span className="material-symbols-outlined text-ink">home</span>
-          </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">내 프로필</h1>
-        </div>
+      <header className="bg-surface-card/95 backdrop-blur-sm border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-4 h-16">
+        <Link
+          href="/"
+          aria-label="홈"
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-soft transition-colors"
+        >
+          <span className="material-symbols-outlined text-ink">home</span>
+        </Link>
+        <h1 className="text-xl font-black text-ink">내 프로필</h1>
+        <span className="w-10 h-10 flex items-center justify-center rounded-full">
+          <span className="material-symbols-outlined text-ink-mute">settings</span>
+        </span>
       </header>
 
-      <main className="max-w-xl mx-auto px-td-md pt-td-lg space-y-td-lg">
-        {/* 인증 상태 카드 */}
-        <section className="bg-surface-card border border-divider rounded-xl p-td-md shadow-sm">
-          <div className="flex items-center justify-between mb-td-md">
-            <h2 className="text-td-card-title text-ink font-bold">계정</h2>
-            <LoginButton
-              currentUserId={currentUserId}
-              currentUserName={userName}
-              oauthAvailable={oauthAvailable}
-            />
-          </div>
+      <main className="max-w-md mx-auto px-4 pt-6 pb-8">
+        {/* 계정 섹션 */}
+        <section className="mb-6">
+          <h2 className="text-td-title mb-3">계정</h2>
 
           {currentUserId ? (
-            <div className="space-y-td-xs">
-              <InfoRow label="이름" value={userName ?? "미설정"} />
-              {userEmail && <InfoRow label="이메일" value={userEmail} />}
-              <InfoRow label="사용자 ID" value={currentUserId.slice(0, 8) + "…"} muted />
+            <div className="bg-white border border-divider rounded-xl p-4 flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-purple-soft border border-divider flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-purple text-[28px]">person</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-td-card-title font-medium text-ink truncate">
+                  {userName ?? "미설정"}
+                </p>
+                <p className="text-td-meta text-ink-mute truncate">
+                  {userEmail ?? "이메일 미설정"}
+                </p>
+              </div>
+              <span className="material-symbols-outlined text-ink-mute">chevron_right</span>
             </div>
           ) : (
-            <div className="bg-purple-soft rounded-lg p-td-sm">
-              <p className="text-td-meta text-purple-deep font-medium mb-td-xxs">
+            <div className="bg-purple/5 border border-purple/20 rounded-xl p-4">
+              <p className="text-td-body text-ink-soft mb-3 leading-relaxed text-center">
                 카카오 로그인으로 내 여행을 안전하게 관리하세요
               </p>
-              <p className="text-td-caption text-purple-deep/70">
-                로그인하면 기기 간 여행 동기화, 내 여행 분리가 가능해요.
-              </p>
+              <LoginButton
+                currentUserId={currentUserId}
+                currentUserName={userName}
+                oauthAvailable={oauthAvailable}
+              />
             </div>
           )}
         </section>
 
-        {/* 통계 카드 — 클라이언트 컴포넌트 (LocalStorage 접근) */}
-        <ProfileStats
-          tripCount={tripCount}
-          isAuthenticated={!!currentUserId}
-        />
+        {/* 통계 */}
+        <section className="mb-6">
+          <h2 className="text-td-title mb-3">통계</h2>
+          <ProfileStats
+            tripCount={tripCount}
+            isAuthenticated={!!currentUserId}
+          />
+        </section>
 
-        {/* 빠른 링크 */}
-        <section className="space-y-td-sm">
-          <h2 className="text-td-card-title text-ink font-bold">바로가기</h2>
-          <div className="grid grid-cols-2 gap-td-sm">
-            <QuickLink href="/trips" icon="explore" label="내 여행" />
-            <QuickLink href="/shared" icon="inbox" label="받은 여행" />
-            <QuickLink href="/translate" icon="photo_camera" label="카메라 번역" />
-            <QuickLink href="/onboarding" icon="add_circle" label="새 여행 계획" />
+        {/* 바로가기 */}
+        <section className="mb-6">
+          <h2 className="text-td-title mb-3">바로가기</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <QuickLink href="/trips" icon="map" label="내 여행" />
+            <QuickLink href="/shared" icon="ios_share" label="받은 여행" />
+            <QuickLink href="/translate" icon="translate" label="카메라 번역" />
+            <QuickLink href="/onboarding" icon="add_circle" label="새 여행 계획" highlight />
           </div>
         </section>
 
-        {/* 앱 정보 */}
-        <section className="text-center pt-td-md">
-          <p className="text-td-caption text-ink-mute">TravelDiary v0.1.0 (MVP)</p>
-          <p className="text-td-caption text-ink-mute">베트남 자유여행 AI 동반자</p>
-        </section>
+        {/* Footer */}
+        <footer className="mt-6 text-center">
+          <p className="text-td-caption text-ink-mute mb-0.5">v0.1.0 (MVP)</p>
+          <p className="text-td-caption text-ink-mute">베트남 자유여행 AI 동반자 TravelDiary</p>
+        </footer>
       </main>
 
       <BottomNav active="profile" />
@@ -118,43 +126,34 @@ export default async function ProfilePage() {
   );
 }
 
-function InfoRow({
-  label,
-  value,
-  muted,
-}: {
-  label: string;
-  value: string;
-  muted?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between py-td-xxs">
-      <span className="text-td-meta text-ink-soft">{label}</span>
-      <span className={`text-td-meta font-medium ${muted ? "text-ink-mute" : "text-ink"}`}>
-        {value}
-      </span>
-    </div>
-  );
-}
 
 function QuickLink({
   href,
   icon,
   label,
+  highlight,
 }: {
   href: string;
   icon: string;
   label: string;
+  highlight?: boolean;
 }) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-td-xs bg-surface-card border border-divider rounded-lg p-td-sm hover:border-purple/40 transition-colors"
+      className={`bg-white border rounded-xl p-4 text-left hover:bg-surface-soft transition-colors shadow-[0_4px_12px_rgba(15,23,42,0.05)] ${
+        highlight ? "border-2 border-purple" : "border-divider"
+      }`}
     >
-      <span className="material-symbols-outlined text-purple text-[20px]" aria-hidden>
+      <span
+        className="material-symbols-outlined text-purple mb-3 block text-[24px]"
+        aria-hidden
+      >
         {icon}
       </span>
-      <span className="text-td-meta text-ink font-medium">{label}</span>
+      <span className={`text-td-body ${highlight ? "text-purple font-bold" : "text-ink font-medium"}`}>
+        {label}
+      </span>
     </Link>
   );
 }

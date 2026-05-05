@@ -23,7 +23,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
   const router = useRouter();
   const [votes, setVotes] = useState<Vote[]>(initialVotes);
   const [isPending, startTransition] = useTransition();
-  const { message: toast, show: showToast } = useToast();
+  const { toast, show: showToast } = useToast();
   const [draftQuestion, setDraftQuestion] = useState("");
   const [draftOptions, setDraftOptions] = useState<string[]>(["", ""]);
 
@@ -33,7 +33,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
       .map((l) => l.trim())
       .filter((l) => l.length > 0);
     if (!draftQuestion.trim() || labels.length < 2) {
-      showToast("질문 + 옵션 2개 이상 입력해주세요.");
+      showToast("질문 + 옵션 2개 이상 입력해주세요.", { variant: "warning" });
       return;
     }
     startTransition(async () => {
@@ -43,14 +43,14 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         optionLabels: labels,
       });
       if (!result.ok) {
-        showToast(`생성 실패: ${result.code}`);
+        showToast(`생성 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (result.demo) {
-        showToast("데모 모드 — 실 저장 X");
+        showToast("데모 모드 — 실 저장 X", { variant: "info" });
       } else {
         setVotes((prev) => [result.data, ...prev]);
-        showToast("투표 생성됨");
+        showToast("투표 생성됨", { variant: "success" });
         router.refresh();
       }
       setDraftQuestion("");
@@ -60,7 +60,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
 
   function handleCast(voteId: string, optionIndex: number) {
     if (!currentUserId) {
-      showToast("로그인이 필요해요.");
+      showToast("로그인이 필요해요.", { variant: "warning" });
       return;
     }
     startTransition(async () => {
@@ -70,7 +70,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         optionIndex,
       });
       if (!result.ok) {
-        showToast(`투표 실패: ${result.code}`);
+        showToast(`투표 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (!result.demo) {
@@ -79,7 +79,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         );
         router.refresh();
       } else {
-        showToast("데모 모드 시뮬");
+        showToast("데모 모드 시뮬", { variant: "info" });
       }
     });
   }
@@ -223,7 +223,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         </section>
       </main>
 
-      <Toast message={toast} />
+      <Toast toast={toast} />
     </div>
   );
 }

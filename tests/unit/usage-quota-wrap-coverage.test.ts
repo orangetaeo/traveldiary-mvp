@@ -22,11 +22,11 @@ const FIXTURES: ServiceFixture[] = [
   // 사이클 AAAA7: google-vision/places도 blockedBy="quota" catch 분기 추가
   { file: "lib/services/google-vision.ts", provider: "google-vision", fetchCalls: 1, recordCalls: 2 },
   { file: "lib/services/google-places.ts", provider: "google-places", fetchCalls: 2, recordCalls: 4 },
-  { file: "lib/services/google-directions.ts", provider: "google-directions", fetchCalls: 1, recordCalls: 1 },
-  { file: "lib/services/naver-search.ts", provider: "naver-search", fetchCalls: 2, recordCalls: 2 },
-  { file: "lib/services/ota/agoda.ts", provider: "ota", fetchCalls: 1, recordCalls: 1 },
-  { file: "lib/services/ota/kkday.ts", provider: "ota", fetchCalls: 1, recordCalls: 1 },
-  { file: "lib/services/ota/klook.ts", provider: "ota", fetchCalls: 1, recordCalls: 1 },
+  // blockedBy="quota" catch 분기 추가 (잔여 4 API 표준화)
+  { file: "lib/services/google-directions.ts", provider: "google-directions", fetchCalls: 1, recordCalls: 2 },
+  { file: "lib/services/naver-search.ts", provider: "naver-search", fetchCalls: 2, recordCalls: 4 },
+  // OTA 3사 공통 래퍼 (agoda/kkday/klook → fetch-ota.ts로 DRY 추출)
+  { file: "lib/services/ota/fetch-ota.ts", provider: "ota", fetchCalls: 1, recordCalls: 2 },
 ];
 
 function readSource(rel: string): string {

@@ -97,6 +97,7 @@ export async function fetchDirections(
     assertQuota("google-directions");
   } catch (err) {
     if (err instanceof QuotaExceededError) {
+      recordExternalCall("google-directions", { blockedBy: "quota" });
       return {
         mode: "error",
         code: "quota_exceeded",

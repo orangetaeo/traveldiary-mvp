@@ -54,7 +54,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
   const router = useRouter();
   const [items, setItems] = useState<ChecklistItem[]>(initialItems);
   const [isPending, startTransition] = useTransition();
-  const { message: toast, show: showToast } = useToast();
+  const { toast, show: showToast } = useToast();
 
   // 사이클 II — 멀티 선택 모드
   const [selectionMode, setSelectionMode] = useState(false);
@@ -114,7 +114,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
             it.id === item.id ? { ...it, done: item.done } : it,
           ),
         );
-        showToast(`토글 실패: ${result.code}`);
+        showToast(`토글 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (!result.demo) router.refresh();
@@ -131,7 +131,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
     startTransition(async () => {
       const result = await addFromTemplate({ tripId: trip.id });
       if (!result.ok) {
-        showToast(`템플릿 추가 실패: ${result.code}`);
+        showToast(`템플릿 추가 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (result.demo) {
@@ -152,9 +152,9 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
           }),
         );
         setItems((prev) => [...prev, ...simulated]);
-        showToast(`기본 템플릿 ${simulated.length}건 추가 (데모 시뮬)`);
+        showToast(`기본 템플릿 ${simulated.length}건 추가 (데모 시뮬)`, { variant: "info" });
       } else {
-        showToast(`기본 템플릿 ${result.data.length}건 추가됨 (DB 영속화)`);
+        showToast(`기본 템플릿 ${result.data.length}건 추가됨 (DB 영속화)`, { variant: "success" });
         router.refresh();
       }
     });
@@ -169,7 +169,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
         dDayBucket: input.dDayBucket,
       });
       if (!result.ok) {
-        showToast(`추가 실패: ${result.code}`);
+        showToast(`추가 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (result.demo) {
@@ -188,9 +188,9 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
             updatedAt: now,
           },
         ]);
-        showToast("항목 추가 (데모 시뮬)");
+        showToast("항목 추가 (데모 시뮬)", { variant: "info" });
       } else {
-        showToast("항목 추가됨 (DB 영속화)");
+        showToast("항목 추가됨 (DB 영속화)", { variant: "success" });
         router.refresh();
       }
     });
@@ -209,7 +209,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
       });
       if (!result.ok) {
         setItems(snapshot);
-        showToast(`정렬 실패: ${result.code}`);
+        showToast(`정렬 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (!result.demo) router.refresh();
@@ -256,14 +256,14 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
       });
       if (!result.ok) {
         setItems(snapshot);
-        showToast(`일괄 변경 실패: ${result.code}`);
+        showToast(`일괄 변경 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       const label = targetDone ? "완료" : "미완료";
       if (result.demo) {
-        showToast(`${ids.length}개 ${label} (데모 시뮬)`);
+        showToast(`${ids.length}개 ${label} (데모 시뮬)`, { variant: "info" });
       } else {
-        showToast(`${result.data.updatedCount}개 ${label} 처리됨`);
+        showToast(`${result.data.updatedCount}개 ${label} 처리됨`, { variant: "success" });
         router.refresh();
       }
       // 선택 해제 + 모드 종료
@@ -292,13 +292,13 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
       });
       if (!result.ok) {
         setItems(snapshot);
-        showToast(`일괄 삭제 실패: ${result.code}`);
+        showToast(`일괄 삭제 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (result.demo) {
-        showToast(`${ids.length}개 삭제 (데모 시뮬)`);
+        showToast(`${ids.length}개 삭제 (데모 시뮬)`, { variant: "info" });
       } else {
-        showToast(`${result.data.deletedCount}개 삭제됨 (DB 영속화)`);
+        showToast(`${result.data.deletedCount}개 삭제됨 (DB 영속화)`, { variant: "success" });
         router.refresh();
       }
       setSelectedIds(new Set());
@@ -319,14 +319,14 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
       if (!result.ok) {
         // 롤백
         setItems((prev) => [...prev, item]);
-        showToast(`삭제 실패: ${result.code}`);
+        showToast(`삭제 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (!result.demo) {
-        showToast("삭제됨 (DB 영속화)");
+        showToast("삭제됨 (DB 영속화)", { variant: "success" });
         router.refresh();
       } else {
-        showToast("삭제 (데모 시뮬)");
+        showToast("삭제 (데모 시뮬)", { variant: "info" });
       }
     });
   }
@@ -504,7 +504,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
         </div>
       )}
 
-      <Toast message={toast} />
+      <Toast toast={toast} />
     </div>
   );
 }

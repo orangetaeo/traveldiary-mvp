@@ -13,9 +13,10 @@ import {
   hoChiMinhItinerary,
   HO_CHI_MINH_TRIP_ID,
 } from "@/lib/seed/ho-chi-minh";
-import { findOffersForItem, findOffersByKeyword } from "@/lib/seed/ota-offers";
-import { comparePriceVerification, toKrw } from "@/lib/services/price-verification";
+import { findOffersByKeyword } from "@/lib/seed/ota-offers";
 import { getDemoTrip, listDemoTrips } from "@/lib/seed";
+import { describeOtaReach } from "./helpers/ota-reach";
+import { assertSeedIntegrity } from "./helpers/city-seed-integrity";
 
 // ═══════════════════════════════════════════════════════════════════
 // 무결성
@@ -36,27 +37,7 @@ describe("hoChiMinh 시드 — 무결성", () => {
     expect(days).toEqual(new Set([0, 1, 2, 3]));
   });
 
-  it("모든 일정의 tripId = HO_CHI_MINH_TRIP_ID", () => {
-    for (const it of hoChiMinhItinerary) {
-      expect(it.tripId).toBe(HO_CHI_MINH_TRIP_ID);
-    }
-  });
-
-  it("같은 day 안에서 scheduledAt 오름차순", () => {
-    for (let dayIdx = 0; dayIdx <= 3; dayIdx++) {
-      const dayItems = hoChiMinhItinerary
-        .filter((it) => it.dayIndex === dayIdx)
-        .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
-      const original = hoChiMinhItinerary.filter((it) => it.dayIndex === dayIdx);
-      expect(original.map((it) => it.id)).toEqual(dayItems.map((it) => it.id));
-    }
-  });
-
-  it("좌표 모두 (0,0) 아님", () => {
-    for (const it of hoChiMinhItinerary) {
-      expect(it.location.lat !== 0 || it.location.lng !== 0).toBe(true);
-    }
-  });
+  assertSeedIntegrity({ tripId: HO_CHI_MINH_TRIP_ID, itinerary: hoChiMinhItinerary, maxDayIndex: 3 });
 
   it("DAG dependencies — 같은 day 안에서 직전 슬롯이 선행", () => {
     expect(hoChiMinhItinerary[0].dependencies).toEqual([]);
@@ -96,83 +77,20 @@ describe("호치민 데모 trip — getDemoTrip 진입", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════
-// 도달률 측정 — OTA 매칭 + verified 카운트
+// 도달률 측정 — OTA 매칭 + verified (공통 헬퍼)
 // ═══════════════════════════════════════════════════════════════════
 
-function getOffersForItem(item: { id: string; name: string }) {
-  const exact = findOffersForItem(item.id);
-  if (exact.length > 0) return exact;
-  return findOffersByKeyword(item.name);
-}
-
-describe("호치민 도달률 — OTA 매칭 + verified", () => {
-  // OTA 매칭 가능 일정 5건 (plan 순서)
-  // hcm-item-1: 벤탄 푸드 / 3: 통일궁 / 5: 디너 크루즈 / 6: 메콩 / 9: 시클로
-  const expectedItemIds = [
-    "hcm-item-1",
-    "hcm-item-3",
-    "hcm-item-5",
-    "hcm-item-6",
-    "hcm-item-9",
-  ];
-
-  it("OTA 매칭 가능 일정 = 5건", () => {
-    const matched = hoChiMinhItinerary.filter(
-      (it) => getOffersForItem(it).length > 0,
-    );
-    expect(matched.length).toBe(5);
-    expect(new Set(matched.map((it) => it.id))).toEqual(new Set(expectedItemIds));
-  });
-
-  it("호치민 12 일정 분모 도달률 ≈ 41.7% (5/12)", () => {
-    const matched = hoChiMinhItinerary.filter(
-      (it) => getOffersForItem(it).length > 0,
-    );
-    expect(matched.length / hoChiMinhItinerary.length).toBeCloseTo(5 / 12, 3);
-  });
-
-  it.each(
-    expectedItemIds.map((id) => ({ id })),
-  )("$id — comparePriceVerification → verified", ({ id }) => {
-    const item = hoChiMinhItinerary.find((it) => it.id === id);
-    expect(item).toBeDefined();
-    if (!item) return;
-
-    const offers = getOffersForItem(item);
-    expect(offers.length).toBeGreaterThanOrEqual(2);
-
-    const krw = item.estimatedPrice
-      ? toKrw(item.estimatedPrice.amount, item.estimatedPrice.currency)
-      : undefined;
-    expect(krw).not.toBeNull();
-
-    const result = comparePriceVerification({
-      estimatedPriceKrw: krw ?? undefined,
-      offers,
-    });
-    expect(result.status).toBe("verified");
-    expect(result.verified).toBe(true);
-    expect(Math.abs(result.deltaPct ?? 0)).toBeLessThanOrEqual(20);
-  });
-
-  it("검증 가능 일정 분모 도달률 = 100% (5 verified / 5 검증가능)", () => {
-    const verifiedCount = expectedItemIds
-      .map((id) => {
-        const item = hoChiMinhItinerary.find((it) => it.id === id);
-        if (!item) return false;
-        const offers = getOffersForItem(item);
-        const krw = item.estimatedPrice
-          ? toKrw(item.estimatedPrice.amount, item.estimatedPrice.currency)
-          : undefined;
-        const result = comparePriceVerification({
-          estimatedPriceKrw: krw ?? undefined,
-          offers,
-        });
-        return result.status === "verified";
-      })
-      .filter(Boolean).length;
-    expect(verifiedCount).toBe(5);
-  });
+describeOtaReach({
+  cityName: "호치민",
+  itinerary: hoChiMinhItinerary,
+  expectedItemIds: [
+    "hcm-item-1", // 벤탄 푸드
+    "hcm-item-3", // 통일궁
+    "hcm-item-5", // 디너 크루즈
+    "hcm-item-6", // 메콩
+    "hcm-item-9", // 시클로
+  ],
+  expectedReachRatio: 5 / 12,
 });
 
 // ═══════════════════════════════════════════════════════════════════
