@@ -5,7 +5,6 @@
 
 import "server-only";
 
-import { createHash } from "crypto";
 import {
   getEvidenceCache,
   setEvidenceCache,
@@ -15,6 +14,8 @@ import {
   recordExternalCall,
   QuotaExceededError,
 } from "@/lib/usage-quota";
+import { getEnvKey } from "@/lib/utils/env";
+import { hashCacheKey } from "@/lib/utils/cache-key";
 
 const VISION_URL = "https://vision.googleapis.com/v1/images:annotate";
 const VISION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7일
@@ -31,8 +32,7 @@ export type VisionOcrOutcome =
     };
 
 function getApiKey(): string | null {
-  const k = process.env.GOOGLE_VISION_API_KEY;
-  return k && k.length > 0 ? k : null;
+  return getEnvKey("GOOGLE_VISION_API_KEY");
 }
 
 export const visionAvailable = (): boolean => getApiKey() !== null;
@@ -45,10 +45,7 @@ export async function ocrFromBase64Image(
   const startedAt = Date.now();
 
   // 캐시 키: 이미지 해시
-  const cacheKey = createHash("sha256")
-    .update(imageBase64)
-    .digest("hex")
-    .slice(0, 32);
+  const cacheKey = hashCacheKey(imageBase64);
 
   const cached = await getEvidenceCache<{ text: string | null }>(
     cacheKey,

@@ -10,7 +10,6 @@
 
 import "server-only";
 
-import { createHash } from "crypto";
 import {
   getEvidenceCache,
   setEvidenceCache,
@@ -20,6 +19,8 @@ import {
   recordExternalCall,
   QuotaExceededError,
 } from "@/lib/usage-quota";
+import { getEnvKey } from "@/lib/utils/env";
+import { hashCacheKey } from "@/lib/utils/cache-key";
 
 const FIND_PLACE_TTL_MS = 60 * 60 * 1000; // 1시간
 const DETAILS_TTL_MS = 24 * 60 * 60 * 1000; // 24시간
@@ -82,8 +83,7 @@ export type DetailsOutcome =
 // ═══════════════════════════════════════════════════════════════════
 
 function getApiKey(): string | null {
-  const key = process.env.GOOGLE_PLACES_API_KEY;
-  return key && key.length > 0 ? key : null;
+  return getEnvKey("GOOGLE_PLACES_API_KEY");
 }
 
 export const googlePlacesAvailable = (): boolean => getApiKey() !== null;
@@ -313,5 +313,5 @@ function hashKey(query: string, location?: { lat: number; lng: number }): string
   const seed = location
     ? `${query}|${location.lat.toFixed(3)},${location.lng.toFixed(3)}`
     : query;
-  return createHash("sha256").update(seed).digest("hex").slice(0, 32);
+  return hashCacheKey(seed);
 }

@@ -5,7 +5,6 @@
 
 import "server-only";
 
-import { createHash } from "crypto";
 import {
   getEvidenceCache,
   setEvidenceCache,
@@ -16,6 +15,8 @@ import {
   QuotaExceededError,
 } from "@/lib/usage-quota";
 import type { OtaOffer } from "@/lib/types";
+import { getEnvKey } from "@/lib/utils/env";
+import { hashCacheKey } from "@/lib/utils/cache-key";
 
 const TTL_MS = 6 * 60 * 60 * 1000;
 const PLATFORM = "ota.agoda";
@@ -31,8 +32,7 @@ export type AgodaOutcome =
     };
 
 function getApiKey(): string | null {
-  const k = process.env.AGODA_API_KEY;
-  return k && k.length > 0 ? k : null;
+  return getEnvKey("AGODA_API_KEY");
 }
 
 export async function fetchAgodaOffers(
@@ -42,10 +42,7 @@ export async function fetchAgodaOffers(
   const apiKey = getApiKey();
   if (!apiKey) return { mode: "demo" };
 
-  const cacheKey = createHash("sha256")
-    .update(`agoda:${query}:${location ? `${location.lat},${location.lng}` : ""}`)
-    .digest("hex")
-    .slice(0, 32);
+  const cacheKey = hashCacheKey(`agoda:${query}:${location ? `${location.lat},${location.lng}` : ""}`);
 
   const cached = await getEvidenceCache<{ offers: OtaOffer[] }>(cacheKey, PLATFORM);
   if (cached) return { mode: "ok", offers: cached.data.offers, cached: true };

@@ -14,7 +14,6 @@
 
 import "server-only";
 
-import { createHash } from "crypto";
 import {
   getEvidenceCache,
   setEvidenceCache,
@@ -25,6 +24,8 @@ import {
   QuotaExceededError,
 } from "@/lib/usage-quota";
 import type { TravelMode } from "./distance-rules";
+import { getEnvKey } from "@/lib/utils/env";
+import { hashCacheKey } from "@/lib/utils/cache-key";
 
 const DIRECTIONS_TTL_MS = 24 * 60 * 60 * 1000; // 24시간
 const DIRECTIONS_PLATFORM = "google.directions";
@@ -60,8 +61,7 @@ export interface DirectionsInput {
 // ═══════════════════════════════════════════════════════════════════
 
 function getApiKey(): string | null {
-  const key = process.env.GOOGLE_DIRECTIONS_API_KEY;
-  return key && key.length > 0 ? key : null;
+  return getEnvKey("GOOGLE_DIRECTIONS_API_KEY");
 }
 
 export const googleDirectionsAvailable = (): boolean => getApiKey() !== null;
@@ -201,5 +201,5 @@ export async function fetchDirections(
 
 function hashKey(input: DirectionsInput): string {
   const seed = `${input.origin.lat.toFixed(4)},${input.origin.lng.toFixed(4)}|${input.destination.lat.toFixed(4)},${input.destination.lng.toFixed(4)}|${input.mode}`;
-  return createHash("sha256").update(seed).digest("hex").slice(0, 32);
+  return hashCacheKey(seed);
 }
