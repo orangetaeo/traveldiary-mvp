@@ -73,9 +73,9 @@ describe("C4 — /admin/funnel 대시보드 UI", () => {
   });
 
   it("STEP_LABEL 7단계 한국어 라벨", () => {
-    expect(src).toContain("페이지 진입");
-    expect(src).toContain("생성 요청");
-    expect(src).toContain("완료");
+    expect(src).toContain("도착");
+    expect(src).toContain("일정 생성");
+    expect(src).toContain("완성");
   });
 
   it("요약 카드 (진입·완료·전환율)", () => {
