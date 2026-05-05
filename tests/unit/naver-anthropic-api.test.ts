@@ -21,10 +21,12 @@ vi.mock("@/lib/repositories/evidence-cache.repository", () => ({
 
 const mockAssertQuota = vi.fn();
 const mockRecordExternalCall = vi.fn();
+const mockCheckQuotaOrBlock = vi.fn().mockReturnValue(null);
 class TestQuotaExceededError extends Error { name = "QuotaExceededError"; cap = 10; resetAt = Date.now() + 3600000; }
 vi.mock("@/lib/usage-quota", () => ({
   assertQuota: (...args: unknown[]) => mockAssertQuota(...args),
   recordExternalCall: (...args: unknown[]) => mockRecordExternalCall(...args),
+  checkQuotaOrBlock: (...args: unknown[]) => mockCheckQuotaOrBlock(...args),
   QuotaExceededError: TestQuotaExceededError,
 }));
 
@@ -99,7 +101,7 @@ describe("services — searchNaverLocal", () => {
   it("QuotaExceeded → error + 'quota_exceeded'", async () => {
     process.env.NAVER_CLIENT_ID = "id";
     process.env.NAVER_CLIENT_SECRET = "secret";
-    mockAssertQuota.mockImplementation(() => { throw new TestQuotaExceededError(); });
+    mockCheckQuotaOrBlock.mockReturnValue({ mode: "error", code: "quota_exceeded", message: "cap=10" });
     const { searchNaverLocal } = await import("@/lib/services/naver-search");
     const result = await searchNaverLocal("다낭");
     expect(result.mode).toBe("error");

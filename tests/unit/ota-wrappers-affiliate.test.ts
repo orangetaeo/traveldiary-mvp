@@ -23,6 +23,7 @@ vi.mock("@/lib/repositories/evidence-cache.repository", () => ({
 
 const mockAssertQuota = vi.fn();
 const mockRecordExternalCall = vi.fn();
+const mockCheckQuotaOrBlock = vi.fn().mockReturnValue(null);
 class TestQuotaExceededError extends Error {
   name = "QuotaExceededError";
   cap = 5;
@@ -31,6 +32,7 @@ class TestQuotaExceededError extends Error {
 vi.mock("@/lib/usage-quota", () => ({
   assertQuota: (...args: unknown[]) => mockAssertQuota(...args),
   recordExternalCall: (...args: unknown[]) => mockRecordExternalCall(...args),
+  checkQuotaOrBlock: (...args: unknown[]) => mockCheckQuotaOrBlock(...args),
   QuotaExceededError: TestQuotaExceededError,
 }));
 
@@ -76,7 +78,7 @@ describe("ota/klook — fetchKlookOffers", () => {
 
   it("QuotaExceeded → error + 'quota_exceeded'", async () => {
     process.env.KLOOK_API_KEY = "test-key";
-    mockAssertQuota.mockImplementation(() => { throw new TestQuotaExceededError(); });
+    mockCheckQuotaOrBlock.mockReturnValue({ mode: "error", code: "quota_exceeded", message: "cap=5" });
     const { fetchKlookOffers } = await import("@/lib/services/ota/klook");
     const result = await fetchKlookOffers("투어");
     expect(result.mode).toBe("error");
@@ -197,7 +199,7 @@ describe("ota/kkday — fetchKKdayOffers", () => {
 
   it("QuotaExceeded → error + 'quota_exceeded'", async () => {
     process.env.KKDAY_API_KEY = "test-key";
-    mockAssertQuota.mockImplementation(() => { throw new TestQuotaExceededError(); });
+    mockCheckQuotaOrBlock.mockReturnValue({ mode: "error", code: "quota_exceeded", message: "cap=5" });
     const { fetchKKdayOffers } = await import("@/lib/services/ota/kkday");
     const result = await fetchKKdayOffers("투어");
     expect(result.mode).toBe("error");
@@ -306,7 +308,7 @@ describe("ota/agoda — fetchAgodaOffers", () => {
 
   it("QuotaExceeded → error + 'quota_exceeded'", async () => {
     process.env.AGODA_API_KEY = "test-key";
-    mockAssertQuota.mockImplementation(() => { throw new TestQuotaExceededError(); });
+    mockCheckQuotaOrBlock.mockReturnValue({ mode: "error", code: "quota_exceeded", message: "cap=5" });
     const { fetchAgodaOffers } = await import("@/lib/services/ota/agoda");
     const result = await fetchAgodaOffers("투어");
     expect(result.mode).toBe("error");

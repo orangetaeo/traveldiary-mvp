@@ -15,9 +15,8 @@ import {
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
 import {
-  assertQuota,
+  checkQuotaOrBlock,
   recordExternalCall,
-  QuotaExceededError,
 } from "@/lib/usage-quota";
 import { getEnvKey } from "@/lib/utils/env";
 import { hashCacheKey } from "@/lib/utils/cache-key";
@@ -112,20 +111,8 @@ export async function findPlaceFromText(
     return { mode: "not_found", cached: true };
   }
 
-  try {
-    assertQuota("google-places");
-  } catch (err) {
-    if (err instanceof QuotaExceededError) {
-      // 사이클 AAAA7: 차단 시도도 기록 (anthropic-claude.ts AAAA5b 답습).
-      recordExternalCall("google-places", { blockedBy: "quota" });
-      return {
-        mode: "error",
-        code: "quota_exceeded",
-        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
-      };
-    }
-    throw err;
-  }
+  const quotaBlocked = checkQuotaOrBlock("google-places");
+  if (quotaBlocked) return quotaBlocked;
 
   try {
     const params = new URLSearchParams({
@@ -212,20 +199,8 @@ export async function getPlaceDetails(
     return { mode: "not_found", cached: true };
   }
 
-  try {
-    assertQuota("google-places");
-  } catch (err) {
-    if (err instanceof QuotaExceededError) {
-      // 사이클 AAAA7: 차단 시도도 기록 (anthropic-claude.ts AAAA5b 답습).
-      recordExternalCall("google-places", { blockedBy: "quota" });
-      return {
-        mode: "error",
-        code: "quota_exceeded",
-        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
-      };
-    }
-    throw err;
-  }
+  const quotaBlocked = checkQuotaOrBlock("google-places");
+  if (quotaBlocked) return quotaBlocked;
 
   try {
     const params = new URLSearchParams({

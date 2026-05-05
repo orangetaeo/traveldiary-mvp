@@ -215,6 +215,40 @@ export function recordExternalCall(
   }
 }
 
+/**
+ * assertQuota + recordExternalCall(blockedBy: "quota") 원패턴 헬퍼.
+ * quota 차단 시 에러 객체 반환, 통과 시 null.
+ *
+ * 사용:
+ *   const blocked = checkQuotaOrBlock("google-places");
+ *   if (blocked) return blocked;
+ */
+export type QuotaBlockedResult = {
+  mode: "error";
+  code: "quota_exceeded";
+  message: string;
+};
+
+export function checkQuotaOrBlock(
+  provider: ExternalProvider,
+  now?: number,
+): QuotaBlockedResult | null {
+  try {
+    assertQuota(provider, now);
+    return null;
+  } catch (err) {
+    if (err instanceof QuotaExceededError) {
+      recordExternalCall(provider, { blockedBy: "quota", now });
+      return {
+        mode: "error",
+        code: "quota_exceeded",
+        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
+      };
+    }
+    throw err;
+  }
+}
+
 export function __resetUsageQuotaForTests(): void {
   if (process.env.NODE_ENV !== "test" && process.env.VITEST !== "true") {
     throw new Error(

@@ -10,9 +10,8 @@ import {
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
 import {
-  assertQuota,
+  checkQuotaOrBlock,
   recordExternalCall,
-  QuotaExceededError,
 } from "@/lib/usage-quota";
 import { getEnvKey } from "@/lib/utils/env";
 import { hashCacheKey } from "@/lib/utils/cache-key";
@@ -67,20 +66,8 @@ export async function ocrFromBase64Image(
     };
   }
 
-  try {
-    assertQuota("google-vision");
-  } catch (err) {
-    if (err instanceof QuotaExceededError) {
-      // 사이클 AAAA7: 차단 시도도 기록 (anthropic-claude.ts AAAA5b 답습).
-      recordExternalCall("google-vision", { blockedBy: "quota" });
-      return {
-        mode: "error",
-        code: "quota_exceeded",
-        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
-      };
-    }
-    throw err;
-  }
+  const quotaBlocked = checkQuotaOrBlock("google-vision");
+  if (quotaBlocked) return quotaBlocked;
 
   try {
     const resp = await fetch(`${VISION_URL}?key=${apiKey}`, {

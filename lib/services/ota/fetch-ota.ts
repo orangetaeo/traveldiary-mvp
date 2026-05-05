@@ -11,9 +11,8 @@ import {
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
 import {
-  assertQuota,
+  checkQuotaOrBlock,
   recordExternalCall,
-  QuotaExceededError,
 } from "@/lib/usage-quota";
 import type { OtaOffer } from "@/lib/types";
 import { hashCacheKey } from "@/lib/utils/cache-key";
@@ -58,18 +57,8 @@ export async function fetchOtaWithCache(config: OtaFetchConfig): Promise<OtaOutc
   const cached = await getEvidenceCache<{ offers: OtaOffer[] }>(cacheKey, platform);
   if (cached) return { mode: "ok", offers: cached.data.offers, cached: true };
 
-  try {
-    assertQuota("ota");
-  } catch (err) {
-    if (err instanceof QuotaExceededError) {
-      return {
-        mode: "error",
-        code: "quota_exceeded",
-        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
-      };
-    }
-    throw err;
-  }
+  const quotaBlocked = checkQuotaOrBlock("ota");
+  if (quotaBlocked) return quotaBlocked;
 
   try {
     const offers = await doFetch(apiKey);

@@ -10,9 +10,8 @@ import {
   setEvidenceCache,
 } from "@/lib/repositories/evidence-cache.repository";
 import {
-  assertQuota,
+  checkQuotaOrBlock,
   recordExternalCall,
-  QuotaExceededError,
 } from "@/lib/usage-quota";
 import { hashCacheKey } from "@/lib/utils/cache-key";
 
@@ -69,19 +68,8 @@ export async function searchNaverLocal(
   );
   if (cached) return { mode: "ok", items: cached.data.items, cached: true };
 
-  try {
-    assertQuota("naver-search");
-  } catch (err) {
-    if (err instanceof QuotaExceededError) {
-      recordExternalCall("naver-search", { blockedBy: "quota" });
-      return {
-        mode: "error",
-        code: "quota_exceeded",
-        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
-      };
-    }
-    throw err;
-  }
+  const quotaBlocked = checkQuotaOrBlock("naver-search");
+  if (quotaBlocked) return quotaBlocked;
 
   try {
     const params = new URLSearchParams({ query, display: "5" });
@@ -197,19 +185,8 @@ export async function searchNaverBlog(
     };
   }
 
-  try {
-    assertQuota("naver-search");
-  } catch (err) {
-    if (err instanceof QuotaExceededError) {
-      recordExternalCall("naver-search", { blockedBy: "quota" });
-      return {
-        mode: "error",
-        code: "quota_exceeded",
-        message: `cap=${err.cap}, resetAt=${new Date(err.resetAt).toISOString()}`,
-      };
-    }
-    throw err;
-  }
+  const quotaBlocked = checkQuotaOrBlock("naver-search");
+  if (quotaBlocked) return quotaBlocked;
 
   try {
     const params = new URLSearchParams({
