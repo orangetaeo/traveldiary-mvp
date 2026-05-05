@@ -243,8 +243,7 @@ function CityOnlyCard({ data }: { data: CityOnlyCardData }) {
 function ComingSoonCard({ data }: { data: ComingSoonCardData }) {
   const { city } = data;
   return (
-    <article
-      aria-disabled="true"
+    <div
       className="opacity-60 bg-white rounded-xl border border-divider overflow-hidden p-4"
     >
       <div className="flex items-center gap-2 mb-2">
@@ -261,7 +260,7 @@ function ComingSoonCard({ data }: { data: ComingSoonCardData }) {
       <p className="text-td-meta text-ink-mute">
         {city.country} · 다음 단계에서 정식 공개됩니다
       </p>
-    </article>
+    </div>
   );
 }
 
