@@ -17,39 +17,24 @@ import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { validateItemAction } from "@/actions/place";
 import type { VerifyPlaceResult } from "@/lib/services/place-verification";
 import { ValidationBadges } from "@/components/itinerary/ValidationBadges";
-import {
-  googleMapsUrl,
-  uberUrl,
-  grabUrl,
-  kakaoMapUrl,
-} from "@/lib/utils/deeplinks";
 import { OtaCompareSection } from "@/components/itinerary/OtaCompareSection";
 import { aggregateOffersForItem } from "@/lib/services/ota-aggregator";
 import { ItineraryMap } from "@/components/itinerary/ItineraryMap";
 import { ItineraryMapWithDirections } from "@/components/itinerary/ItineraryMapWithDirections";
 import { gatherKoreanEvidenceAction } from "@/actions/evidence";
+import { GoogleVerificationBadge } from "@/components/itinerary/GoogleVerificationBadge";
+import { DirectionsGrid } from "@/components/itinerary/DirectionsGrid";
+import {
+  splitName,
+  formatTime,
+  durationLabel,
+  priceLevelOf,
+  flexibilityKr,
+  CATEGORY_LABEL,
+  CATEGORY_ICON,
+  CATEGORY_GRADIENT,
+} from "@/lib/utils/item-display";
 import type { Evidence } from "@/lib/types";
-
-const CATEGORY_LABEL: Record<string, string> = {
-  food: "음식점",
-  spot: "관광",
-  shopping: "쇼핑",
-  rest: "휴식",
-};
-
-const CATEGORY_ICON: Record<string, string> = {
-  food: "restaurant",
-  spot: "photo_camera",
-  shopping: "shopping_bag",
-  rest: "bed",
-};
-
-const CATEGORY_GRADIENT: Record<string, string> = {
-  food: "bg-gradient-to-br from-accent to-amber-deep",
-  spot: "bg-gradient-to-br from-purple to-purple-deep",
-  shopping: "bg-gradient-to-br from-amber to-accent-deep",
-  rest: "bg-gradient-to-br from-success-deep to-purple-deep",
-};
 
 export default async function ItineraryItemPage({
   params,
@@ -308,75 +293,7 @@ export default async function ItineraryItemPage({
 
         {/* 길찾기 deeplink (사이클 7 D1·D2 + G 카카오맵) */}
         {item.location.lat !== 0 && item.location.lng !== 0 && (
-          <section className="px-td-md py-td-sm">
-            <h3 className="text-td-card-title text-ink mb-td-sm">길찾기</h3>
-            <div className="grid grid-cols-4 gap-td-xs">
-              <a
-                href={googleMapsUrl(item.location, ko)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-purple/40 transition-colors"
-              >
-                <span
-                  className="material-symbols-outlined text-purple text-[24px]"
-                  aria-hidden
-                >
-                  map
-                </span>
-                <span className="text-td-caption text-ink font-semibold">
-                  Google
-                </span>
-              </a>
-              <a
-                href={kakaoMapUrl(item.location, ko)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-amber/40 transition-colors"
-              >
-                <span
-                  className="material-symbols-outlined text-amber-deep text-[24px]"
-                  aria-hidden
-                >
-                  pin_drop
-                </span>
-                <span className="text-td-caption text-ink font-semibold">
-                  카카오맵
-                </span>
-              </a>
-              <a
-                href={uberUrl(item.location, ko)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-ink/30 transition-colors"
-              >
-                <span
-                  className="material-symbols-outlined text-ink text-[24px]"
-                  aria-hidden
-                >
-                  local_taxi
-                </span>
-                <span className="text-td-caption text-ink font-semibold">
-                  Uber
-                </span>
-              </a>
-              <a
-                href={grabUrl(item.location, ko)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-success/40 transition-colors"
-              >
-                <span
-                  className="material-symbols-outlined text-success text-[24px]"
-                  aria-hidden
-                >
-                  directions_car
-                </span>
-                <span className="text-td-caption text-ink font-semibold">
-                  Grab
-                </span>
-              </a>
-            </div>
-          </section>
+          <DirectionsGrid location={item.location} placeName={ko} />
         )}
       </main>
 
@@ -406,111 +323,4 @@ function Mini({ label, value }: { label: string; value: string }) {
       <p className="text-td-meta text-ink font-medium mt-0.5">{value}</p>
     </div>
   );
-}
-
-/**
- * Google Places 검증 배지 — ADR-018.
- * 모든 모드(demo/verified/not_found/error)에서 회귀 안전.
- */
-function GoogleVerificationBadge({ result }: { result: VerifyPlaceResult }) {
-  if (result.mode === "demo") {
-    return (
-      <div className="flex items-center gap-td-xs p-td-sm bg-surface-soft border border-divider rounded-xl">
-        <span className="material-symbols-outlined text-ink-mute" aria-hidden>
-          help_outline
-        </span>
-        <span className="text-td-meta text-ink-soft">
-          Google 검증 미실행 (데모 모드)
-        </span>
-      </div>
-    );
-  }
-
-  if (result.mode === "verified") {
-    const isOpen = result.operatingStatus === "open";
-    const tone = isOpen
-      ? "bg-purple-soft border-purple-soft text-purple-deep"
-      : "bg-amber-soft border-amber-soft text-amber-deep";
-    return (
-      <div className={`flex items-center gap-td-xs p-td-sm border rounded-xl ${tone}`}>
-        <span className="material-symbols-outlined filled" aria-hidden>
-          {isOpen ? "verified" : "schedule"}
-        </span>
-        <span className="text-td-body">
-          Google 검증 — {isOpen ? "운영 중" : "현재 운영 외 시간"}
-          {typeof result.rating === "number" && (
-            <>
-              {" "}· ★ <span className="font-bold tabular-nums">
-                {result.rating.toFixed(1)}
-              </span>
-              {typeof result.userRatingsTotal === "number" && result.userRatingsTotal > 0 && (
-                <>
-                  {" "}
-                  <span className="text-td-caption opacity-80">
-                    ({result.userRatingsTotal.toLocaleString()}건)
-                  </span>
-                </>
-              )}
-            </>
-          )}
-        </span>
-      </div>
-    );
-  }
-
-  if (result.mode === "not_found") {
-    return (
-      <div className="flex items-center gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-xl">
-        <span className="material-symbols-outlined filled text-danger" aria-hidden>
-          error
-        </span>
-        <span className="text-td-body text-danger-deep">
-          Google에서 장소를 찾지 못했어요. 사용자 검토 권장.
-        </span>
-      </div>
-    );
-  }
-
-  // mode: "error" — 무표시 (회귀 안전. 시드 evidence가 fallback)
-  return null;
-}
-
-function splitName(name: string): { ko: string; en: string } {
-  const m = name.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
-  if (m) return { ko: m[1].trim(), en: m[2].trim() };
-  return { ko: name, en: "" };
-}
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(
-    d.getUTCMinutes()
-  ).padStart(2, "0")}`;
-}
-
-function durationLabel(minutes: number): string {
-  if (minutes < 60) return `${minutes}분`;
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return m > 0 ? `${h}시간 ${m}분` : `${h}시간`;
-}
-
-function priceLevelOf(amount: number | undefined): {
-  label: string;
-  dotClass: string;
-} {
-  if (!amount || amount === 0) return { label: "무료", dotClass: "bg-success" };
-  if (amount < 200000) return { label: "낮음", dotClass: "bg-success" };
-  if (amount < 600000) return { label: "보통", dotClass: "bg-amber" };
-  return { label: "높음", dotClass: "bg-accent" };
-}
-
-function flexibilityKr(f: string): string {
-  switch (f) {
-    case "fixed":    return "고정";
-    case "booked":   return "예약";
-    case "flexible": return "유연";
-    default:         return f;
-  }
 }
