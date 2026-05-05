@@ -7,7 +7,7 @@ import "server-only";
 
 import type { OtaOffer } from "@/lib/types";
 import { getEnvKey } from "@/lib/utils/env";
-import { fetchOtaWithCache, OtaHttpError, type OtaOutcome } from "./fetch-ota";
+import { fetchOtaWithCache, normalizeMatchTag, OtaHttpError, type OtaOutcome } from "./fetch-ota";
 
 const SEARCH_URL = "https://affiliateapi.agoda.com/api/v3/activities/search";
 
@@ -58,7 +58,7 @@ export async function fetchAgodaOffers(
         .filter((r) => r.id && r.name && r.price?.current)
         .map((r): OtaOffer => ({
           id: `agoda-${r.id}`,
-          matchTag: query.toLowerCase().replace(/\s+/g, "-").slice(0, 40),
+          matchTag: normalizeMatchTag(query),
           ota: "agoda" as const,
           title: r.name!,
           priceKrw: r.price!.current!,

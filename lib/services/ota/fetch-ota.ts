@@ -19,6 +19,11 @@ import { hashCacheKey } from "@/lib/utils/cache-key";
 
 const TTL_MS = 6 * 60 * 60 * 1000;
 
+/** OTA 쿼리 → matchTag 정규화 (소문자, 공백→하이픈, 40자 제한) */
+export function normalizeMatchTag(query: string): string {
+  return query.toLowerCase().replace(/\s+/g, "-").slice(0, 40);
+}
+
 export type OtaOutcome =
   | { mode: "demo" }
   | { mode: "ok"; offers: OtaOffer[]; cached: boolean }
