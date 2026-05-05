@@ -15,9 +15,8 @@ export const metadata: Metadata = {
   description: "여행 준비물 체크리스트 — 출발 전 꼭 챙겨야 할 것들",
 };
 import { ChecklistView } from "@/components/checklist/ChecklistView";
-import { fetchTripFromDb } from "@/lib/repositories/trip.repository";
+import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { listChecklistByTrip } from "@/lib/repositories/checklist.repository";
-import { getDemoTrip } from "@/lib/seed";
 import { getCityByCode } from "@/lib/seed/cities";
 import { BottomNav } from "@/components/ui/BottomNav";
 
@@ -28,9 +27,9 @@ export default async function ChecklistPage({
   params: { tripId: string };
   searchParams: { day?: string };
 }) {
-  const dbBundle = await fetchTripFromDb(params.tripId);
-  const trip = dbBundle?.trip ?? getDemoTrip(params.tripId)?.trip;
-  if (!trip) notFound();
+  const bundle = await resolveTripBundle(params.tripId);
+  if (!bundle) notFound();
+  const { trip } = bundle;
 
   const items = (await listChecklistByTrip(params.tripId)) ?? [];
 
