@@ -21,6 +21,8 @@ import {
 } from "@/actions/itinerary";
 import { AddItemModal } from "./AddItemModal";
 import { ShareModal } from "@/components/share/ShareModal";
+import { useToast } from "@/lib/hooks/useToast";
+import { Toast } from "@/components/ui/Toast";
 
 interface ItineraryViewProps {
   trip: Trip;
@@ -42,7 +44,7 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
   const [activeDay, setActiveDay] = useState(initialDay);
   const [replanOpen, setReplanOpen] = useState(false);
   const [appliedLabel, setAppliedLabel] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const { message: toast, show: showToast } = useToast();
   const [isPending, startTransition] = useTransition();
   // 사이클 10 — A2 드래그 + A5 자유 추가
   const [addOpen, setAddOpen] = useState(false);
@@ -109,33 +111,31 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
 
       if (!result.ok) {
         if (result.code === "conflict") {
-          setToast("일정이 다른 탭에서 변경됐어요. 새로고침합니다.");
+          showToast("일정이 다른 탭에서 변경됐어요. 새로고침합니다.", 4000);
           router.refresh();
         } else {
-          setToast(`적용 실패: ${result.code}`);
+          showToast(`적용 실패: ${result.code}`, 4000);
         }
-        setTimeout(() => setToast(null), 4000);
         return;
       }
 
       const dayLabel = `Day ${(demoTriggerItem?.dayIndex ?? 0) + 1}`;
       if (result.demo) {
-        setToast(`${option.label} 옵션 적용 — ${dayLabel} (데모 시뮬)`);
+        showToast(`${option.label} 옵션 적용 — ${dayLabel} (데모 시뮬)`, 4000);
       } else {
-        setToast(
+        showToast(
           `${option.label} 적용됨 — ${dayLabel} ${result.changedCount}건 DB 영속화`,
+          4000,
         );
         router.refresh();
       }
-      setTimeout(() => setToast(null), 4000);
     });
   }
 
   function handleReset() {
     setItems(initialItems);
     setAppliedLabel(null);
-    setToast("초기 일정으로 되돌림 (클라이언트 상태)");
-    setTimeout(() => setToast(null), 3000);
+    showToast("초기 일정으로 되돌림 (클라이언트 상태)", 3000);
   }
 
   // ── 사이클 10 — A2 드래그 정렬 ──────────────────────────────────────
@@ -172,8 +172,7 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
     const target = items.find((it) => it.id === targetId);
     if (!source || !target) return;
     if (source.dayIndex !== target.dayIndex) {
-      setToast("같은 Day 내에서만 순서를 바꿀 수 있어요.");
-      setTimeout(() => setToast(null), 3000);
+      showToast("같은 Day 내에서만 순서를 바꿀 수 있어요.", 3000);
       return;
     }
 
@@ -197,17 +196,15 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
       if (!result.ok) {
         // 롤백
         setItems(items);
-        setToast(`정렬 실패: ${result.code}`);
-        setTimeout(() => setToast(null), 3000);
+        showToast(`정렬 실패: ${result.code}`, 3000);
         return;
       }
       if (result.demo) {
-        setToast("순서 변경 (데모 시뮬)");
+        showToast("순서 변경 (데모 시뮬)", 3000);
       } else {
-        setToast(`순서 변경됨 — ${result.changedCount}건 영속화`);
+        showToast(`순서 변경됨 — ${result.changedCount}건 영속화`, 3000);
         router.refresh();
       }
-      setTimeout(() => setToast(null), 3000);
     });
   }
 
@@ -239,17 +236,15 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
       });
       if (!result.ok) {
         setItems(items);
-        setToast(`정렬 실패: ${result.code}`);
-        setTimeout(() => setToast(null), 3000);
+        showToast(`정렬 실패: ${result.code}`, 3000);
         return;
       }
       if (result.demo) {
-        setToast("순서 변경 (데모 시뮬)");
+        showToast("순서 변경 (데모 시뮬)", 3000);
       } else {
-        setToast(`순서 변경됨 — ${result.changedCount}건 영속화`);
+        showToast(`순서 변경됨 — ${result.changedCount}건 영속화`, 3000);
         router.refresh();
       }
-      setTimeout(() => setToast(null), 3000);
     });
   }
 
@@ -279,8 +274,7 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
       });
 
       if (!result.ok) {
-        setToast(`추가 실패: ${result.code}`);
-        setTimeout(() => setToast(null), 3000);
+        showToast(`추가 실패: ${result.code}`, 3000);
         return;
       }
 
@@ -308,13 +302,12 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
         };
         setItems((prev) => [...prev, simulated]);
         setActiveDay(input.dayIndex);
-        setToast(`'${input.name}' 추가 (데모 시뮬)`);
+        showToast(`'${input.name}' 추가 (데모 시뮬)`, 3000);
       } else {
-        setToast(`'${input.name}' 추가됨 (DB 영속화)`);
+        showToast(`'${input.name}' 추가됨 (DB 영속화)`, 3000);
         setActiveDay(input.dayIndex);
         router.refresh();
       }
-      setTimeout(() => setToast(null), 3000);
     });
   }
 
@@ -335,11 +328,10 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
 
       if (!result.ok) {
         if (result.code === "conflict") {
-          setToast("다른 탭에서 변경됐어요. 새로고침합니다.");
+          showToast("다른 탭에서 변경됐어요. 새로고침합니다.", 4000);
           router.refresh();
         } else {
-          setToast(`전환 실패: ${result.code}`);
-          setTimeout(() => setToast(null), 4000);
+          showToast(`전환 실패: ${result.code}`, 4000);
         }
         return;
       }
@@ -449,14 +441,7 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
         onClose={() => setShareOpen(false)}
       />
 
-      {toast && (
-        <div
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 bg-ink text-white text-td-meta px-4 py-2.5 rounded-full shadow-lg"
-          role="status"
-        >
-          {toast}
-        </div>
-      )}
+      <Toast message={toast} />
     </>
   );
 }
