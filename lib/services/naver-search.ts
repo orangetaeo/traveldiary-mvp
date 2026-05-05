@@ -5,7 +5,6 @@
 
 import "server-only";
 
-import { createHash } from "crypto";
 import {
   getEvidenceCache,
   setEvidenceCache,
@@ -15,6 +14,7 @@ import {
   recordExternalCall,
   QuotaExceededError,
 } from "@/lib/usage-quota";
+import { hashCacheKey } from "@/lib/utils/cache-key";
 
 const LOCAL_URL = "https://openapi.naver.com/v1/search/local.json";
 const BLOG_URL = "https://openapi.naver.com/v1/search/blog.json";
@@ -61,10 +61,7 @@ export async function searchNaverLocal(
   const cred = getCredentials();
   if (!cred) return { mode: "demo" };
 
-  const cacheKey = createHash("sha256")
-    .update(`local:${query}`)
-    .digest("hex")
-    .slice(0, 32);
+  const cacheKey = hashCacheKey(`local:${query}`);
 
   const cached = await getEvidenceCache<{ items: NaverLocalItem[] }>(
     cacheKey,
@@ -182,10 +179,7 @@ export async function searchNaverBlog(
   const cred = getCredentials();
   if (!cred) return { mode: "demo" };
 
-  const cacheKey = createHash("sha256")
-    .update(`blog:${query}`)
-    .digest("hex")
-    .slice(0, 32);
+  const cacheKey = hashCacheKey(`blog:${query}`);
 
   const cached = await getEvidenceCache<{
     items: NaverBlogItem[];

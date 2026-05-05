@@ -23,6 +23,7 @@ import {
 } from "@/lib/autonomy/budget";
 import { calculateCostUsd } from "@/lib/autonomy/model-pricing";
 import type { ItineraryItem } from "@/lib/types";
+import { getEnvKey } from "@/lib/utils/env";
 
 const API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-4-5-20251001";
@@ -121,8 +122,7 @@ ${excludes ? `- ${excludes}` : ""}
 // ═══════════════════════════════════════════
 
 function getApiKey(): string | null {
-  const k = process.env.ANTHROPIC_API_KEY;
-  return k && k.length > 0 ? k : null;
+  return getEnvKey("ANTHROPIC_API_KEY");
 }
 
 export function aiGenerationAvailable(): boolean {

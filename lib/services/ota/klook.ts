@@ -7,7 +7,6 @@
 
 import "server-only";
 
-import { createHash } from "crypto";
 import {
   getEvidenceCache,
   setEvidenceCache,
@@ -18,6 +17,8 @@ import {
   QuotaExceededError,
 } from "@/lib/usage-quota";
 import type { OtaOffer } from "@/lib/types";
+import { getEnvKey } from "@/lib/utils/env";
+import { hashCacheKey } from "@/lib/utils/cache-key";
 
 const TTL_MS = 6 * 60 * 60 * 1000; // 6시간
 const PLATFORM = "ota.klook";
@@ -35,8 +36,7 @@ export type KlookOutcome =
     };
 
 function getApiKey(): string | null {
-  const k = process.env.KLOOK_API_KEY;
-  return k && k.length > 0 ? k : null;
+  return getEnvKey("KLOOK_API_KEY");
 }
 
 export async function fetchKlookOffers(
@@ -46,10 +46,7 @@ export async function fetchKlookOffers(
   const apiKey = getApiKey();
   if (!apiKey) return { mode: "demo" };
 
-  const cacheKey = createHash("sha256")
-    .update(`klook:${query}:${location ? `${location.lat},${location.lng}` : ""}`)
-    .digest("hex")
-    .slice(0, 32);
+  const cacheKey = hashCacheKey(`klook:${query}:${location ? `${location.lat},${location.lng}` : ""}`);
 
   const cached = await getEvidenceCache<{ offers: OtaOffer[] }>(cacheKey, PLATFORM);
   if (cached) {

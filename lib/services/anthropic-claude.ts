@@ -8,7 +8,6 @@
 
 import "server-only";
 
-import { createHash } from "crypto";
 import {
   getEvidenceCache,
   setEvidenceCache,
@@ -25,6 +24,8 @@ import {
   BudgetExceededError,
   recordSpend,
 } from "@/lib/autonomy/budget";
+import { getEnvKey } from "@/lib/utils/env";
+import { hashCacheKey } from "@/lib/utils/cache-key";
 
 const API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-4-5-20251001";
@@ -58,8 +59,7 @@ export type ClaudeMenuOutcome =
     };
 
 function getApiKey(): string | null {
-  const k = process.env.ANTHROPIC_API_KEY;
-  return k && k.length > 0 ? k : null;
+  return getEnvKey("ANTHROPIC_API_KEY");
 }
 
 export const claudeAvailable = (): boolean => getApiKey() !== null;
@@ -89,10 +89,7 @@ export async function translateMenuOcr(
   if (!apiKey) return { mode: "demo" };
   const startedAt = Date.now();
 
-  const cacheKey = createHash("sha256")
-    .update(ocrText.trim())
-    .digest("hex")
-    .slice(0, 32);
+  const cacheKey = hashCacheKey(ocrText.trim());
 
   const cached = await getEvidenceCache<{ items: MenuItemTranslation[] }>(
     cacheKey,
