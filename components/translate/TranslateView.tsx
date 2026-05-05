@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Toast } from "@/components/ui/Toast";
+import {
+  AllergenFilterChips,
+  type AllergenChipItem,
+} from "@/components/allergen/AllergenFilterChips";
 import { useToast } from "@/lib/hooks/useToast";
 import {
   ALLERGEN_CHIPS,
@@ -16,6 +20,29 @@ import {
   type MenuItem,
 } from "@/lib/seed/menu-phu-quoc";
 import { translateMenuPhotoAction } from "@/actions/translate";
+
+/**
+ * ALLERGEN_CHIPS(label/raw) → AllergenFilterChips 입력 변환.
+ *
+ * 모든 ALLERGEN_CHIPS 항목은 severity="danger" (알레르기·식이 제한).
+ * 아이콘 매핑(시안 spec sheet 5종): block / hot_tub / eco / egg / opacity.
+ */
+const ALLERGEN_CHIP_ICON: Record<string, string> = {
+  "새우 알레르기": "block",
+  "갑각류 알레르기": "block",
+  "조개 알레르기": "block",
+  "땅콩 알레르기": "block",
+  "우유 알레르기": "opacity",
+  돼지고기: "block",
+  비건: "eco",
+};
+
+const ALLERGEN_CHIP_ITEMS: AllergenChipItem[] = ALLERGEN_CHIPS.map((c) => ({
+  raw: c.raw,
+  label: c.label,
+  severity: "danger",
+  icon: ALLERGEN_CHIP_ICON[c.label] ?? "block",
+}));
 
 /**
  * 카메라 번역 (M4) — Stitch #9 + #10 매핑.
@@ -338,30 +365,15 @@ function ResultsView({
             )}
           </div>
 
-          {/* Allergy Chips */}
-          <section className="flex items-center gap-td-xs overflow-x-auto pb-td-xs mb-td-md -mx-td-md px-td-md">
-            <p className="text-td-caption text-ink-soft mr-1 shrink-0">필터:</p>
-            {ALLERGEN_CHIPS.map((chip) => {
-              const active = excludes.includes(chip.raw);
-              return (
-                <button
-                  key={chip.raw}
-                  type="button"
-                  onClick={() => toggle(chip.raw)}
-                  className={`flex items-center gap-1 px-td-sm py-td-xs rounded-full text-td-meta font-medium whitespace-nowrap border transition-colors ${
-                    active
-                      ? "bg-danger-soft border-danger text-danger-deep"
-                      : "bg-surface-soft border-divider text-ink-soft hover:border-ink-mute"
-                  }`}
-                >
-                  {active && (
-                    <span className="material-symbols-outlined text-[14px]">block</span>
-                  )}
-                  {chip.label}
-                </button>
-              );
-            })}
-          </section>
+          {/* Allergy Chips — AllergenFilterChips 통합 (시안 매칭) */}
+          <div className="-mx-td-md mb-td-md">
+            <AllergenFilterChips
+              items={ALLERGEN_CHIP_ITEMS}
+              selected={excludes}
+              onToggle={toggle}
+              ariaLabel="알레르기·식이 필터"
+            />
+          </div>
 
           {/* Result List */}
           <section className="space-y-td-xs">

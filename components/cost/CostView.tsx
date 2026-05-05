@@ -43,7 +43,7 @@ export function CostView({
   const router = useRouter();
   const [entries, setEntries] = useState<CostEntry[]>(initialEntries);
   const [isPending, startTransition] = useTransition();
-  const { message: toast, show: showToast } = useToast();
+  const { toast, show: showToast } = useToast();
 
   function handleAdd(input: {
     label: string;
@@ -66,7 +66,7 @@ export function CostView({
         splitWith: input.splitWith,
       });
       if (!result.ok) {
-        showToast(`추가 실패: ${result.code}`);
+        showToast(`추가 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (result.demo) {
@@ -87,9 +87,9 @@ export function CostView({
           },
           ...prev,
         ]);
-        showToast("비용 추가 (데모 시뮬)");
+        showToast("비용 추가 (데모 시뮬)", { variant: "info" });
       } else {
-        showToast(`비용 추가됨 — ${input.amountKrw.toLocaleString()}원`);
+        showToast(`비용 추가됨 — ${input.amountKrw.toLocaleString()}원`, { variant: "success" });
         router.refresh();
       }
     });
@@ -123,15 +123,16 @@ export function CostView({
             e.id === entry.id ? { ...e, settledAt: prevSettledAt } : e,
           ),
         );
-        showToast(`정산 처리 실패: ${result.code}`);
+        showToast(`정산 처리 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (result.demo) {
         showToast(
           settled ? "정산 완료 (데모 시뮬)" : "정산 되돌림 (데모 시뮬)",
+          { variant: "info" },
         );
       } else {
-        showToast(settled ? "정산 완료" : "정산 되돌림");
+        showToast(settled ? "정산 완료" : "정산 되돌림", { variant: "success" });
         router.refresh();
       }
     });
@@ -147,14 +148,14 @@ export function CostView({
       if (!result.ok) {
         // 롤백
         setEntries((prev) => [entry, ...prev]);
-        showToast(`삭제 실패: ${result.code}`);
+        showToast(`삭제 실패: ${result.code}`, { variant: "danger" });
         return;
       }
       if (!result.demo) {
-        showToast("삭제됨 (DB 영속화)");
+        showToast("삭제됨 (DB 영속화)", { variant: "success" });
         router.refresh();
       } else {
-        showToast("삭제 (데모 시뮬)");
+        showToast("삭제 (데모 시뮬)", { variant: "info" });
       }
     });
   }
@@ -191,7 +192,7 @@ export function CostView({
           approxKrwRate={approxKrwRate}
           isPending={isPending}
           onSubmit={handleAdd}
-          onError={showToast}
+          onError={(msg) => showToast(msg, { variant: "warning" })}
         />
 
         {/* 사이클 E1 + RR — 정산 흐름 카드 + 현지 통화 병기 */}
@@ -207,7 +208,7 @@ export function CostView({
         <CostEntriesList entries={entries} onDelete={handleDelete} />
       </main>
 
-      <Toast message={toast} />
+      <Toast toast={toast} />
     </div>
   );
 }
