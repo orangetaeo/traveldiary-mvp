@@ -36,7 +36,7 @@ interface AutoModeDetectorProps {
 export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const { message: toast, show: showToast } = useToast(4000);
+  const { toast, show: showToast } = useToast(4000);
   const [denied, setDenied] = useState(false);
 
   function handleClick() {
@@ -53,7 +53,7 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
           trigger: "geolocation",
           context: { destinationCode: trip.destinationCode },
         });
-        showToast("이 기기에서 위치 기능을 지원하지 않아요.");
+        showToast("이 기기에서 위치 기능을 지원하지 않아요.", { variant: "warning" });
         return;
       }
       if (loc.mode === "denied") {
@@ -65,7 +65,7 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
           context: { destinationCode: trip.destinationCode },
         });
         setDenied(true);
-        showToast("위치 권한이 거부됐어요. 수동 전환 버튼을 활용해주세요.");
+        showToast("위치 권한이 거부됐어요. 수동 전환 버튼을 활용해주세요.", { variant: "warning" });
         return;
       }
       if (loc.mode === "unavailable" || loc.mode === "timeout") {
@@ -80,6 +80,7 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
           loc.mode === "timeout"
             ? "시간 초과 — 다시 시도해주세요."
             : "현재 위치를 가져올 수 없어요. 잠시 후 다시 시도.",
+          { variant: "warning" },
         );
         return;
       }
@@ -105,6 +106,7 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
         });
         showToast(
           `${trip.destination} 도시 안에 있지 않거나 출발 전이라 자동 전환 안 됨`,
+          { variant: "info" },
         );
         return;
       }
@@ -117,7 +119,7 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
           trigger: "geolocation",
           context: { dDay, boundaryHit, destinationCode: trip.destinationCode },
         });
-        showToast("이미 여행 중 모드로 설정돼 있어요.");
+        showToast("이미 여행 중 모드로 설정돼 있어요.", { variant: "info" });
         return;
       }
 
@@ -136,18 +138,18 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
 
       if (!result.ok) {
         if (result.code === "conflict") {
-          showToast("다른 탭에서 변경됐어요. 새로고침합니다.");
+          showToast("다른 탭에서 변경됐어요. 새로고침합니다.", { variant: "info" });
           router.refresh();
         } else {
-          showToast(`전환 실패: ${result.code}`);
+          showToast(`전환 실패: ${result.code}`, { variant: "danger" });
         }
         return;
       }
 
       if (result.demo) {
-        showToast(`${trip.destination} 도착 감지 — 여행 중 모드 (데모 시뮬)`);
+        showToast(`${trip.destination} 도착 감지 — 여행 중 모드 (데모 시뮬)`, { variant: "info" });
       } else {
-        showToast(`${trip.destination} 도착 감지 — 여행 중 모드로 전환됐어요`);
+        showToast(`${trip.destination} 도착 감지 — 여행 중 모드로 전환됐어요`, { variant: "success" });
         router.refresh();
       }
     });
@@ -188,8 +190,8 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
       </div>
 
       <Toast
-        message={toast}
-        className="fixed bottom-32 left-1/2 -translate-x-1/2 z-40 bg-ink text-white text-td-meta px-4 py-2.5 rounded-full shadow-lg max-w-[90vw] text-center"
+        toast={toast}
+        className="fixed bottom-32 left-1/2 -translate-x-1/2 z-40 w-[min(420px,90vw)]"
       />
     </section>
   );

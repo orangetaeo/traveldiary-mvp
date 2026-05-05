@@ -104,6 +104,42 @@ describe("Toast — 5 variants 시안 매칭", () => {
   });
 });
 
+describe("Toast — variant + className 위치 override", () => {
+  it("variant render에서 className은 wrapper 위치 override (색·구조 보존)", () => {
+    const html = renderToStaticMarkup(
+      <Toast
+        toast={makeToast({ variant: "success", message: "OK" })}
+        className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 w-[min(420px,90vw)]"
+      />,
+    );
+    expect(html).toContain("bottom-32");
+    expect(html).toContain("z-50");
+    expect(html).not.toContain("bottom-24");
+    expect(html).toContain("bg-success-soft");
+    expect(html).toContain("border-success");
+    expect(html).toContain("min-h-[52px]");
+  });
+
+  it("className 없으면 default 위치 (bottom-24 z-40)", () => {
+    const html = renderToStaticMarkup(
+      <Toast toast={makeToast({ variant: "success" })} />,
+    );
+    expect(html).toContain("bottom-24");
+    expect(html).toContain("z-40");
+  });
+
+  it("BC: <Toast message + className /> — 기존 ink pill 유지 (variant render 미진입)", () => {
+    const html = renderToStaticMarkup(
+      <Toast
+        message="X"
+        className="custom-position-class"
+      />,
+    );
+    expect(html).toContain("custom-position-class");
+    expect(html).not.toContain("min-h-[52px]");
+  });
+});
+
 describe("Toast — subtitle + action", () => {
   it("subtitle 노출", () => {
     const html = renderToStaticMarkup(

@@ -85,13 +85,13 @@ function CapturingView({
   // 사이클 5b-5 (ADR-019): 파일 업로드 → Vision OCR + Claude 번역
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isPending, startTransition] = useTransition();
-  const { message: toast, show: showToast } = useToast(5000);
+  const { toast, show: showToast } = useToast(5000);
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
-      showToast("이미지가 너무 큽니다 (10MB 이내).");
+      showToast("이미지가 너무 큽니다 (10MB 이내).", { variant: "warning" });
       return;
     }
 
@@ -101,7 +101,7 @@ function CapturingView({
       // "data:image/jpeg;base64,..." → base64만 추출
       const base64 = dataUrl.split(",")[1] ?? "";
       if (!base64) {
-        showToast("이미지를 읽지 못했어요.");
+        showToast("이미지를 읽지 못했어요.", { variant: "warning" });
         return;
       }
 
@@ -112,15 +112,16 @@ function CapturingView({
         });
 
         if (result.mode === "demo") {
-          showToast("API 키 미설정 — 정적 시드로 시연됩니다.");
+          showToast("API 키 미설정 — 정적 시드로 시연됩니다.", { variant: "info" });
           onShutter(); // 정적 시드 ResultsView로
         } else if (result.mode === "ok") {
           showToast(
-            `✅ 실 번역 ${result.items.length}건 (OCR ${
+            `실 번역 ${result.items.length}건 (OCR ${
               result.ocrCached ? "캐시" : "신선"
             } · Claude ${result.claudeCached ? "캐시" : "신선"} · ${
               result.totalMs
             }ms)`,
+            { variant: "success" },
           );
           // 5b-5에선 결과를 sessionStorage에 저장 → 사이클 5b-5.5에서 ResultsView 통합
           sessionStorage.setItem(
@@ -129,9 +130,12 @@ function CapturingView({
           );
           onShutter();
         } else if (result.mode === "no_text") {
-          showToast("이미지에서 텍스트를 찾지 못했어요.");
+          showToast("이미지에서 텍스트를 찾지 못했어요.", { variant: "warning" });
         } else {
-          showToast(`실패: ${result.stage} ${result.code} (${result.message ?? ""})`);
+          showToast(
+            `실패: ${result.stage} ${result.code} (${result.message ?? ""})`,
+            { variant: "danger" },
+          );
         }
       });
     };
@@ -220,8 +224,8 @@ function CapturingView({
       </main>
 
       <Toast
-        message={toast}
-        className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 bg-ink text-white text-td-meta px-4 py-3 rounded-2xl shadow-2xl max-w-[90vw] text-center"
+        toast={toast}
+        className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 w-[min(420px,90vw)]"
       />
     </div>
   );
