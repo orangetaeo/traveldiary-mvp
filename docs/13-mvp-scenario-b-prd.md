@@ -168,8 +168,8 @@
 | 7-13 | Camera 알레르기 매칭 강조 | C | Camera 알레르기 변형 | ✅ |
 | 7-14 | OTA Affiliate Interstitial 모달 | C | OTA Affiliate Interstitial | ✅ |
 | 7-15 | Live Replan Conflict 모달 | C | Live Replan Conflict | ✅ |
-| 7-A1~A10 | 기존 10 페이지 리스타일링 | A | (각 페이지 시안) | ⬜ |
-| 7-B1~B6 | 공유 UI 컴포넌트 | B | (각 컴포넌트 시안) | ⬜ |
+| 7-A1~A10 | 기존 10 페이지 리스타일링 | A | (각 페이지 시안) | ✅ |
+| 7-B1~B6 | 공유 UI 컴포넌트 | B | (각 컴포넌트 시안) | ✅ |
 
 ---
 
