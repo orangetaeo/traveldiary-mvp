@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Badge } from "@/components/ui/Badge";
+import { Toast } from "@/components/ui/Toast";
+import { useToast } from "@/lib/hooks/useToast";
 import {
   ALLERGEN_CHIPS,
   matchAllergens,
@@ -56,12 +58,7 @@ function CapturingView({
   // 사이클 5b-5 (ADR-019): 파일 업로드 → Vision OCR + Claude 번역
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<string | null>(null);
-
-  function showToast(msg: string, ms = 5000) {
-    setToast(msg);
-    setTimeout(() => setToast(null), ms);
-  }
+  const { message: toast, show: showToast } = useToast(5000);
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -195,14 +192,10 @@ function CapturingView({
         </div>
       </main>
 
-      {toast && (
-        <div
-          className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 bg-ink text-white text-td-meta px-4 py-3 rounded-2xl shadow-2xl max-w-[90vw] text-center"
-          role="status"
-        >
-          {toast}
-        </div>
-      )}
+      <Toast
+        message={toast}
+        className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 bg-ink text-white text-td-meta px-4 py-3 rounded-2xl shadow-2xl max-w-[90vw] text-center"
+      />
     </div>
   );
 }
