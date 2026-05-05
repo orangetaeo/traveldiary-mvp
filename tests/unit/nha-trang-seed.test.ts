@@ -13,9 +13,9 @@ import {
   nhaTrangItinerary,
   NHA_TRANG_TRIP_ID,
 } from "@/lib/seed/nha-trang";
-import { findOffersForItem, findOffersByKeyword } from "@/lib/seed/ota-offers";
-import { comparePriceVerification, toKrw } from "@/lib/services/price-verification";
+import { findOffersByKeyword } from "@/lib/seed/ota-offers";
 import { getDemoTrip, listDemoTrips } from "@/lib/seed";
+import { describeOtaReach } from "./helpers/ota-reach";
 
 // ═══════════════════════════════════════════════════════════════════
 // 무결성
@@ -92,83 +92,20 @@ describe("나트랑 데모 trip — getDemoTrip 진입", () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════
-// 도달률 측정
+// 도달률 측정 — OTA 매칭 + verified (공통 헬퍼)
 // ═══════════════════════════════════════════════════════════════════
 
-function getOffersForItem(item: { id: string; name: string }) {
-  const exact = findOffersForItem(item.id);
-  if (exact.length > 0) return exact;
-  return findOffersByKeyword(item.name);
-}
-
-describe("나트랑 도달률 — OTA 매칭 + verified", () => {
-  // OTA 매칭 가능 일정 5건 (plan 순서)
-  // nh-item-2: streetFood / 3: cityTour / 5: vinwonders / 6: snorkeling / 9: mudSpa
-  const expectedItemIds = [
-    "nh-item-2",
-    "nh-item-3",
-    "nh-item-5",
-    "nh-item-6",
-    "nh-item-9",
-  ];
-
-  it("OTA 매칭 가능 일정 = 5건", () => {
-    const matched = nhaTrangItinerary.filter(
-      (it) => getOffersForItem(it).length > 0,
-    );
-    expect(matched.length).toBe(5);
-    expect(new Set(matched.map((it) => it.id))).toEqual(new Set(expectedItemIds));
-  });
-
-  it("나트랑 12 일정 분모 도달률 ≈ 41.7% (5/12)", () => {
-    const matched = nhaTrangItinerary.filter(
-      (it) => getOffersForItem(it).length > 0,
-    );
-    expect(matched.length / nhaTrangItinerary.length).toBeCloseTo(5 / 12, 3);
-  });
-
-  it.each(
-    expectedItemIds.map((id) => ({ id })),
-  )("$id — comparePriceVerification → verified", ({ id }) => {
-    const item = nhaTrangItinerary.find((it) => it.id === id);
-    expect(item).toBeDefined();
-    if (!item) return;
-
-    const offers = getOffersForItem(item);
-    expect(offers.length).toBeGreaterThanOrEqual(2);
-
-    const krw = item.estimatedPrice
-      ? toKrw(item.estimatedPrice.amount, item.estimatedPrice.currency)
-      : undefined;
-    expect(krw).not.toBeNull();
-
-    const result = comparePriceVerification({
-      estimatedPriceKrw: krw ?? undefined,
-      offers,
-    });
-    expect(result.status).toBe("verified");
-    expect(result.verified).toBe(true);
-    expect(Math.abs(result.deltaPct ?? 0)).toBeLessThanOrEqual(20);
-  });
-
-  it("검증 가능 일정 분모 도달률 = 100% (5/5)", () => {
-    const verifiedCount = expectedItemIds
-      .map((id) => {
-        const item = nhaTrangItinerary.find((it) => it.id === id);
-        if (!item) return false;
-        const offers = getOffersForItem(item);
-        const krw = item.estimatedPrice
-          ? toKrw(item.estimatedPrice.amount, item.estimatedPrice.currency)
-          : undefined;
-        const result = comparePriceVerification({
-          estimatedPriceKrw: krw ?? undefined,
-          offers,
-        });
-        return result.status === "verified";
-      })
-      .filter(Boolean).length;
-    expect(verifiedCount).toBe(5);
-  });
+describeOtaReach({
+  cityName: "나트랑",
+  itinerary: nhaTrangItinerary,
+  expectedItemIds: [
+    "nh-item-2", // streetFood
+    "nh-item-3", // cityTour
+    "nh-item-5", // vinwonders
+    "nh-item-6", // snorkeling
+    "nh-item-9", // mudSpa
+  ],
+  expectedReachRatio: 5 / 12,
 });
 
 // ═══════════════════════════════════════════════════════════════════
