@@ -22,13 +22,14 @@ interface PageProps {
 export default async function AbDashboard({ searchParams }: PageProps) {
   assertAdminAccess(searchParams);
   const windowDays = parseWindow(searchParams.window);
+  const adminLink = searchParams.key ? `/admin?key=${searchParams.key}` : "/admin";
 
   if (!isDbConnected) {
     return (
       <div className="min-h-screen bg-surface-soft text-ink p-td-md">
-        <DashboardHeader />
+        <DashboardHeader adminLink={adminLink} />
         <main className="max-w-2xl mx-auto py-td-lg">
-          <div className="bg-amber-soft border border-amber/40 rounded-xl p-td-md text-center">
+          <div className="bg-amber-soft border border-amber/40 rounded-md p-td-md text-center">
             <p className="text-td-body text-amber-deep">
               DB 미연결 — A/B 통계 조회 불가
             </p>
@@ -42,7 +43,7 @@ export default async function AbDashboard({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
-      <DashboardHeader />
+      <DashboardHeader adminLink={adminLink} />
 
       <main className="max-w-2xl mx-auto px-td-md">
         <div className="pt-td-md">
@@ -58,7 +59,7 @@ export default async function AbDashboard({ searchParams }: PageProps) {
             <p className="text-td-body text-ink-soft mb-td-sm">
               아직 A/B 데이터가 없습니다
             </p>
-            <div className="bg-surface-card border border-divider rounded-xl p-td-md">
+            <div className="bg-surface-card border border-divider rounded-md p-td-md">
               <p className="text-td-meta text-ink-soft mb-td-xs">
                 활성 실험 {EXPERIMENTS.length}건
               </p>
@@ -77,7 +78,7 @@ export default async function AbDashboard({ searchParams }: PageProps) {
             {summary.experiments.map((exp) => (
               <article
                 key={exp.experimentId}
-                className="bg-surface-card border border-divider rounded-xl p-td-md"
+                className="bg-surface-card border border-divider rounded-md p-td-md"
               >
                 <h2 className="text-td-card-title text-ink mb-td-sm">
                   {exp.experimentId}
@@ -167,22 +168,24 @@ export default async function AbDashboard({ searchParams }: PageProps) {
   );
 }
 
-function DashboardHeader() {
+function DashboardHeader({ adminLink }: { adminLink: string }) {
   return (
-    <header className="bg-surface-card border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
+    <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider flex items-center justify-between px-4 h-16">
       <div className="flex items-center gap-td-sm">
         <Link
-          href="/"
-          aria-label="홈"
+          href={adminLink}
+          aria-label="Admin 대시보드로 돌아가기"
           className="p-2 rounded-full hover:bg-surface-soft transition-colors"
         >
-          <span className="material-symbols-outlined text-ink">home</span>
+          <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
         <h1 className="text-lg font-bold text-ink tracking-tight">
           A/B 실험
         </h1>
+        <span className="px-2 py-0.5 bg-surface-soft text-ink-soft text-[10px] font-bold rounded uppercase">
+          Admin
+        </span>
       </div>
-      <span className="text-td-caption text-ink-mute">C4 · 시나리오 C</span>
     </header>
   );
 }

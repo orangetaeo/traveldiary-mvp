@@ -22,12 +22,12 @@ describe("C4 — /admin 인덱스 페이지", () => {
 
   it("어필리에이트 대시보드 링크", () => {
     expect(src).toContain("/admin/affiliate");
-    expect(src).toContain("어필리에이트");
+    expect(src).toContain("Affiliates");
   });
 
   it("퍼널 대시보드 링크", () => {
     expect(src).toContain("/admin/funnel");
-    expect(src).toContain("온보딩 퍼널");
+    expect(src).toContain("Funnels");
   });
 
   it("초대 코드 대시보드 링크", () => {
@@ -37,7 +37,7 @@ describe("C4 — /admin 인덱스 페이지", () => {
 
   it("A/B 실험 대시보드 링크", () => {
     expect(src).toContain("/admin/ab");
-    expect(src).toContain("A/B 실험");
+    expect(src).toContain("A/B Testing");
   });
 
   it("M2 스킵 대시보드 링크", () => {
