@@ -26,6 +26,8 @@ import {
 import { getCurrentLocation } from "@/lib/services/geolocation";
 import { recordModeTransitionSkip, setTripMode } from "@/actions/trip";
 import type { Trip } from "@/lib/types";
+import { useToast } from "@/lib/hooks/useToast";
+import { Toast } from "@/components/ui/Toast";
 
 interface AutoModeDetectorProps {
   trip: Trip;
@@ -34,13 +36,8 @@ interface AutoModeDetectorProps {
 export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<string | null>(null);
+  const { message: toast, show: showToast } = useToast(4000);
   const [denied, setDenied] = useState(false);
-
-  function showToast(msg: string, ms = 4000) {
-    setToast(msg);
-    setTimeout(() => setToast(null), ms);
-  }
 
   function handleClick() {
     startTransition(async () => {
@@ -190,14 +187,10 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
         </button>
       </div>
 
-      {toast && (
-        <div
-          className="fixed bottom-32 left-1/2 -translate-x-1/2 z-40 bg-ink text-white text-td-meta px-4 py-2.5 rounded-full shadow-lg max-w-[90vw] text-center"
-          role="status"
-        >
-          {toast}
-        </div>
-      )}
+      <Toast
+        message={toast}
+        className="fixed bottom-32 left-1/2 -translate-x-1/2 z-40 bg-ink text-white text-td-meta px-4 py-2.5 rounded-full shadow-lg max-w-[90vw] text-center"
+      />
     </section>
   );
 }
