@@ -12,6 +12,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useToast } from "@/lib/hooks/useToast";
+import { Toast } from "@/components/ui/Toast";
 import { addCost, deleteCost, settleCost } from "@/actions/cost";
 import type { CostEntry, CostStatus, Trip } from "@/lib/types";
 import { SettlementCard } from "./SettlementCard";
@@ -41,12 +43,7 @@ export function CostView({
   const router = useRouter();
   const [entries, setEntries] = useState<CostEntry[]>(initialEntries);
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<string | null>(null);
-
-  function showToast(msg: string, ms = 3500) {
-    setToast(msg);
-    setTimeout(() => setToast(null), ms);
-  }
+  const { message: toast, show: showToast } = useToast();
 
   function handleAdd(input: {
     label: string;
@@ -210,14 +207,7 @@ export function CostView({
         <CostEntriesList entries={entries} onDelete={handleDelete} />
       </main>
 
-      {toast && (
-        <div
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 bg-ink text-white text-td-meta px-4 py-2.5 rounded-full shadow-lg max-w-[90vw] text-center"
-          role="status"
-        >
-          {toast}
-        </div>
-      )}
+      <Toast message={toast} />
     </div>
   );
 }
