@@ -133,7 +133,7 @@ test.describe("Scenario B — 골든 패스 (신규 사용자 전체 여정)", (
       // demo-trip-phu-quoc의 공유 키가 있다면 사용
       await page.goto("/shared");
       // 공유 받은 여행 페이지 또는 빈 상태
-      const hasShared = await page.getByText(/공유 받은 여행|받은 여행/).first().isVisible()
+      await page.getByText(/공유 받은 여행|받은 여행/).first().isVisible()
         .catch(() => false);
       // 데모 모드에서는 페이지 로드만 확인
       expect(resp.status()).toBeLessThan(500);

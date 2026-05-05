@@ -10,6 +10,8 @@
  */
 
 import { useMemo, useState, useTransition } from "react";
+import { useToast } from "@/lib/hooks/useToast";
+import { Toast } from "@/components/ui/Toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -52,7 +54,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
   const router = useRouter();
   const [items, setItems] = useState<ChecklistItem[]>(initialItems);
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<string | null>(null);
+  const { message: toast, show: showToast } = useToast();
 
   // 사이클 II — 멀티 선택 모드
   const [selectionMode, setSelectionMode] = useState(false);
@@ -94,10 +96,6 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
     [total, selectedCount],
   );
 
-  function showToast(msg: string, ms = 3500) {
-    setToast(msg);
-    setTimeout(() => setToast(null), ms);
-  }
 
   function handleToggle(item: ChecklistItem) {
     // optimistic
@@ -506,14 +504,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
         </div>
       )}
 
-      {toast && (
-        <div
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 bg-ink text-white text-td-meta px-4 py-2.5 rounded-full shadow-lg max-w-[90vw] text-center"
-          role="status"
-        >
-          {toast}
-        </div>
-      )}
+      <Toast message={toast} />
     </div>
   );
 }

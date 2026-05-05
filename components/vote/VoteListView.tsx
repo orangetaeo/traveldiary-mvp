@@ -8,6 +8,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useToast } from "@/lib/hooks/useToast";
+import { Toast } from "@/components/ui/Toast";
 import { castVote, createVote } from "@/actions/vote";
 import type { Trip, Vote } from "@/lib/types";
 
@@ -21,14 +23,9 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
   const router = useRouter();
   const [votes, setVotes] = useState<Vote[]>(initialVotes);
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<string | null>(null);
+  const { message: toast, show: showToast } = useToast();
   const [draftQuestion, setDraftQuestion] = useState("");
   const [draftOptions, setDraftOptions] = useState<string[]>(["", ""]);
-
-  function showToast(msg: string, ms = 3500) {
-    setToast(msg);
-    setTimeout(() => setToast(null), ms);
-  }
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -226,14 +223,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         </section>
       </main>
 
-      {toast && (
-        <div
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 bg-ink text-white text-td-meta px-4 py-2.5 rounded-full shadow-lg max-w-[90vw] text-center"
-          role="status"
-        >
-          {toast}
-        </div>
-      )}
+      <Toast message={toast} />
     </div>
   );
 }
