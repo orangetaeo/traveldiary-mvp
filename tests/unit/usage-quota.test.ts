@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   assertQuota,
+  checkQuotaOrBlock,
   recordExternalCall,
   getDailyUsage,
   getKstMidnightMs,
@@ -227,6 +228,55 @@ describe("usage-quota — 외부 API 일일 cap (사이클 ZZZ 안전 킬스위�
       recordExternalCall("anthropic", now);
       recordExternalCall("anthropic", now);
       expect(() => assertQuota("anthropic", now)).toThrow(QuotaExceededError);
+    });
+  });
+
+  describe("checkQuotaOrBlock 헬퍼", () => {
+    it("quota 여유 시 null 반환 (통과)", () => {
+      process.env.QUOTA_DAILY_CAP_ANTHROPIC = "10";
+      const result = checkQuotaOrBlock("anthropic");
+      expect(result).toBeNull();
+    });
+
+    it("cap 도달 시 QuotaBlockedResult 반환", () => {
+      process.env.QUOTA_DAILY_CAP_ANTHROPIC = "1";
+      recordExternalCall("anthropic");
+      const result = checkQuotaOrBlock("anthropic");
+      expect(result).not.toBeNull();
+      expect(result!.mode).toBe("error");
+      expect(result!.code).toBe("quota_exceeded");
+      expect(result!.message).toContain("cap=1");
+      expect(result!.message).toContain("resetAt=");
+    });
+
+    it("차단 시 blockedBy='quota' 카운터 증가", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      process.env.QUOTA_DAILY_CAP_ANTHROPIC = "0";
+      checkQuotaOrBlock("anthropic", now);
+      const u = getDailyUsage("anthropic", now);
+      expect(u.attempted).toBe(1);
+      expect(u.blocked.quota).toBe(1);
+      expect(u.count).toBe(0);
+    });
+
+    it("통과 시 카운터 변동 없음", () => {
+      const now = Date.UTC(2026, 4, 4, 13, 0, 0);
+      process.env.QUOTA_DAILY_CAP_ANTHROPIC = "10";
+      checkQuotaOrBlock("anthropic", now);
+      const u = getDailyUsage("anthropic", now);
+      expect(u.attempted).toBe(0);
+      expect(u.count).toBe(0);
+    });
+
+    it("now 인자 전달 시 해당 시점 기준 quota 체크", () => {
+      const before = Date.UTC(2026, 4, 4, 14, 0, 0);
+      const after = Date.UTC(2026, 4, 4, 16, 0, 0);
+      process.env.QUOTA_DAILY_CAP_ANTHROPIC = "1";
+      recordExternalCall("anthropic", before);
+      // 같은 날(자정 전) → 차단
+      expect(checkQuotaOrBlock("anthropic", before)).not.toBeNull();
+      // 자정 후 → 리셋되어 통과
+      expect(checkQuotaOrBlock("anthropic", after)).toBeNull();
     });
   });
 
