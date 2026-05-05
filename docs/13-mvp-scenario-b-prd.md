@@ -153,21 +153,21 @@
 
 | # | 작업 | 세션 | Stitch 시안 | 상태 |
 |---|------|------|------------|------|
-| 7-1 | PRD §3 + stitch-mapping 갱신 | C | — | 🔄 |
-| 7-2 | /admin 메인 디자인 | C | Admin Main | ⬜ |
-| 7-3 | /admin/funnel 디자인 | C | Admin Funnel | ⬜ |
-| 7-4 | /admin/affiliate 디자인 | C | Admin Affiliate | ⬜ |
-| 7-5 | /admin/m2-skip-reasons 디자인 | C | Admin M2 Skip Reasons | ⬜ |
-| 7-6 | /admin/invite 디자인 | C | Admin Invite | ⬜ |
-| 7-7 | /admin/ab 디자인 | C | Admin A/B Test | ⬜ |
-| 7-8 | /wrap-up/[tripId] 신규 | C | Trip Wrap-up | ⬜ |
-| 7-9 | /permission/location 신규 | C | Permission Location | ⬜ |
-| 7-10 | /permission/notification 신규 | C | Permission Notification | ⬜ |
-| 7-11 | /settings 신규 | C | Settings | ⬜ |
-| 7-12 | /booking/[bookingId] 신규 | C | Booking Confirmation | ⬜ |
-| 7-13 | Camera 알레르기 매칭 강조 | C | Camera 알레르기 변형 | ⬜ |
-| 7-14 | OTA Affiliate Interstitial 모달 | C | OTA Affiliate Interstitial | ⬜ |
-| 7-15 | Live Replan Conflict 모달 | C | Live Replan Conflict | ⬜ |
+| 7-1 | PRD §3 + stitch-mapping 갱신 | C | — | ✅ |
+| 7-2 | /admin 메인 디자인 | C | Admin Main | ✅ |
+| 7-3 | /admin/funnel 디자인 | C | Admin Funnel | ✅ |
+| 7-4 | /admin/affiliate 디자인 | C | Admin Affiliate | ✅ |
+| 7-5 | /admin/m2-skip-reasons 디자인 | C | Admin M2 Skip Reasons | ✅ |
+| 7-6 | /admin/invite 디자인 | C | Admin Invite | ✅ |
+| 7-7 | /admin/ab 디자인 | C | Admin A/B Test | ✅ |
+| 7-8 | /wrap-up/[tripId] 신규 | C | Trip Wrap-up | ✅ |
+| 7-9 | /permission/location 신규 | C | Permission Location | ✅ |
+| 7-10 | /permission/notification 신규 | C | Permission Notification | ✅ |
+| 7-11 | /settings 신규 | C | Settings | ✅ |
+| 7-12 | /booking/[bookingId] 신규 | C | Booking Confirmation | ✅ |
+| 7-13 | Camera 알레르기 매칭 강조 | C | Camera 알레르기 변형 | ✅ |
+| 7-14 | OTA Affiliate Interstitial 모달 | C | OTA Affiliate Interstitial | ✅ |
+| 7-15 | Live Replan Conflict 모달 | C | Live Replan Conflict | ✅ |
 | 7-A1~A10 | 기존 10 페이지 리스타일링 | A | (각 페이지 시안) | ⬜ |
 | 7-B1~B6 | 공유 UI 컴포넌트 | B | (각 컴포넌트 시안) | ⬜ |
 

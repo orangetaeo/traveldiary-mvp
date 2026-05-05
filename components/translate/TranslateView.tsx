@@ -338,6 +338,21 @@ function ResultsView({
             )}
           </div>
 
+          {/* Allergen Alert Banner (Stitch #34 변형 — Phase 7) */}
+          {dangerCount > 0 && (
+            <div className="mb-td-sm p-td-sm bg-danger-soft border border-danger/30 rounded-md flex items-start gap-td-xs">
+              <span className="material-symbols-outlined text-danger text-xl mt-0.5 shrink-0">emergency</span>
+              <div>
+                <p className="text-td-body font-bold text-danger-deep">
+                  알레르기 위험 {dangerCount}건 감지
+                </p>
+                <p className="text-td-caption text-danger-deep/80 mt-td-xxs">
+                  설정한 알레르기 항목이 포함된 메뉴가 있습니다. 해당 항목은 빨간색으로 표시됩니다.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Allergy Chips */}
           <section className="flex items-center gap-td-xs overflow-x-auto pb-td-xs mb-td-md -mx-td-md px-td-md">
             <p className="text-td-caption text-ink-soft mr-1 shrink-0">필터:</p>
