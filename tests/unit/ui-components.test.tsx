@@ -120,4 +120,19 @@ describe("ImpactDisplay", () => {
     expect(html).toContain("비용");
     expect(html).toContain("거리");
   });
+
+  it("Stitch 시안 매칭 — 행 사이 border-b + dot w-2 + tabular-nums", () => {
+    const html = renderToStaticMarkup(
+      <ImpactDisplay
+        impacts={[
+          { key: "A", value: "1", tone: "positive" },
+          { key: "B", value: "2", tone: "negative" },
+        ]}
+      />,
+    );
+    expect(html).toContain("border-b");
+    expect(html).toContain("last:border-b-0");
+    expect(html).toContain("w-2 h-2");
+    expect(html).toContain("tabular-nums");
+  });
 });
