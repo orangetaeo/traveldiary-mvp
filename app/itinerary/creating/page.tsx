@@ -1,8 +1,18 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DEMO_TRIP_ID } from "@/lib/seed";
+
+/** 대기 중 사용자 이탈 방지 — 여행 팁 회전 (4초 간격) */
+const TRAVEL_TIPS = [
+  "베트남 입국 시 e-Visa로 최대 90일 체류 가능해요",
+  "현지 SIM은 공항 도착층에서 10만동(약 5천원)이면 충분",
+  "Grab 앱 하나면 택시·배달·결제 모두 해결돼요",
+  "환전은 시내 금은방이 공항보다 5~10% 유리해요",
+  "카페에서 cà phê sữa đá를 주문하면 연유 아이스커피!",
+  "우기(6~11월)에도 소나기는 보통 30분이면 그쳐요",
+];
 
 /**
  * 일정 생성 중 화면 (LEVEL 1) — docs/screens/02-itinerary-creating.md
@@ -14,6 +24,7 @@ import { DEMO_TRIP_ID } from "@/lib/seed";
  * - 단계별 약 3초 (총 ~12초) — 너무 빨라도 의심, 너무 느려도 이탈
  * - 마지막 단계 후 자동 navigation
  * - 단계 텍스트는 환각 차단 5단계 검증 명시 (우리 정체성)
+ * - 하단 여행 팁으로 12초 대기 동안 이탈 방지
  */
 
 function getSteps(dest: string) {
@@ -54,8 +65,26 @@ function ItineraryCreatingInner() {
   const destination = searchParams.get("dest") ?? "베트남";
   const [active, setActive] = useState(0);
   const [done, setDone] = useState(false);
+  const [tipIdx, setTipIdx] = useState(0);
 
   const steps = getSteps(destination);
+
+  // 여행 팁을 랜덤 순서로 셔플
+  const shuffledTips = useMemo(() => {
+    const arr = [...TRAVEL_TIPS];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, []);
+
+  // 4초마다 팁 전환
+  useEffect(() => {
+    if (done) return;
+    const t = setInterval(() => setTipIdx((i) => (i + 1) % shuffledTips.length), 4000);
+    return () => clearInterval(t);
+  }, [done, shuffledTips.length]);
 
   useEffect(() => {
     if (active >= steps.length) {
@@ -146,13 +175,26 @@ function ItineraryCreatingInner() {
         })}
       </div>
 
-      <div className="flex-1" />
+      {/* 여행 팁 — 대기 시간 활용 */}
+      <div className="mt-6 flex-1 flex flex-col justify-end">
+        {!done && (
+          <div className="bg-surface-soft border border-divider rounded-md p-3 flex items-start gap-2">
+            <span className="material-symbols-outlined text-amber text-[18px] shrink-0 mt-0.5">lightbulb</span>
+            <p className="text-td-caption text-ink-soft leading-relaxed" key={tipIdx}>
+              {shuffledTips[tipIdx]}
+            </p>
+          </div>
+        )}
 
-      {done && (
-        <p className="text-td-meta text-success text-center mt-6 font-medium">
-          일정 완성! 이동 중…
-        </p>
-      )}
+        {done && (
+          <div className="text-center py-4">
+            <span className="material-symbols-outlined text-success text-[32px] mb-1 block">check_circle</span>
+            <p className="text-td-body text-success font-medium">
+              일정 완성! 이동 중…
+            </p>
+          </div>
+        )}
+      </div>
     </main>
   );
 }
