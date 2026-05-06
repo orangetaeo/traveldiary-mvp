@@ -6,6 +6,7 @@ import { describe, it, expect } from "vitest";
 import {
   splitName,
   formatTime,
+  dDay,
   durationLabel,
   priceLevelOf,
   flexibilityKr,
@@ -111,5 +112,23 @@ describe("카테고리 상수", () => {
   it("CATEGORY_GRADIENT 4종", () => {
     expect(CATEGORY_GRADIENT.food).toContain("bg-gradient");
     expect(Object.keys(CATEGORY_GRADIENT)).toHaveLength(4);
+  });
+});
+
+describe("dDay", () => {
+  it("출발 5일 전 → 5", () => {
+    expect(dDay("2026-05-15", "2026-05-10")).toBe(5);
+  });
+
+  it("출발 당일 → 0", () => {
+    expect(dDay("2026-05-15", "2026-05-15")).toBe(0);
+  });
+
+  it("출발 2일 후 → -2", () => {
+    expect(dDay("2026-05-15", "2026-05-17")).toBe(-2);
+  });
+
+  it("같은 날짜 → 0", () => {
+    expect(dDay("2026-01-01", "2026-01-01")).toBe(0);
   });
 });

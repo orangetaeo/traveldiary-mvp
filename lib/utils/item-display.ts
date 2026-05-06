@@ -19,6 +19,13 @@ export function formatTime(iso: string): string {
   ).padStart(2, "0")}`;
 }
 
+/** D-Day 계산 (양수: 출발 전, 0: 당일, 음수: 출발 후) */
+export function dDay(startDate: string, today: string): number {
+  const s = new Date(`${startDate}T00:00:00.000Z`);
+  const t = new Date(`${today}T00:00:00.000Z`);
+  return Math.ceil((s.getTime() - t.getTime()) / (1000 * 60 * 60 * 24));
+}
+
 /** 분 → "N시간 M분" 또는 "N분" */
 export function durationLabel(minutes: number): string {
   if (minutes < 60) return `${minutes}분`;

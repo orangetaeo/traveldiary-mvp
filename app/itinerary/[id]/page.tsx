@@ -23,6 +23,7 @@ import { CityContextStrip } from "@/components/city/CityContextStrip";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { todayISO } from "@/lib/seed/demo-date";
+import { dDay } from "@/lib/utils/item-display";
 
 const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
 
@@ -183,11 +184,6 @@ function Stat({
   );
 }
 
-function dDay(startDate: string, today: string): number {
-  const s = new Date(`${startDate}T00:00:00.000Z`);
-  const t = new Date(`${today}T00:00:00.000Z`);
-  return Math.ceil((s.getTime() - t.getTime()) / (1000 * 60 * 60 * 24));
-}
 
 function formatRange(startDate: string, nights: number): string {
   const start = new Date(`${startDate}T00:00:00.000Z`);
