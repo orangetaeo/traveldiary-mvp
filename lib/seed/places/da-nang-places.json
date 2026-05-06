@@ -5721,47 +5721,6 @@
     "zone": "dn-han-river"
   },
   {
-    "id": "dn-food-pepper-farm-phu-quoc-countrysi",
-    "googlePlaceId": "ChIJfzxnEGMgCDERwklr4K90feg",
-    "name": "Pepper Farm - Phu Quoc Countryside",
-    "nameLocal": "Pepper Farm - Phu Quoc Countryside",
-    "category": "food",
-    "subCategory": "식당",
-    "location": {
-      "lat": 10.3281425,
-      "lng": 103.9551324,
-      "address": "hamlet, Suối Cái - Gành Dầu, xóm Mới, Phú Quốc, An Giang 920000 베트남"
-    },
-    "defaultDurationMinutes": 60,
-    "evidence": {
-      "reasons": [
-        "Google 평점 4.8점 (749건 리뷰) — 최상위",
-        "사진이 풍부한 장소"
-      ],
-      "sources": [
-        {
-          "platform": "google",
-          "reviewCount": 749,
-          "positiveRate": 96,
-          "url": "https://maps.google.com/?q=Pepper%20Farm%20-%20Phu%20Quoc%20Countryside",
-          "lastVerified": "2026-05-06T13:03:31.256Z"
-        }
-      ],
-      "verifiedAt": "2026-05-06T13:03:31.256Z"
-    },
-    "photos": [
-      "Ab43m-sR8Ft8i2sIHWP_uRPqsMt2QG7z7U-hV2cvI1OHkaVokPABdodFNJ0a3qZf5w4X-woWIbUvMOI2LIcW0egOe24T9qH23zU7T6-VTx3ykTtjqNEDAf9d5acmWViQwncjDptcun2QyaBvRTq9ZLeTFtGgVD8T2cWqEwRl3l6e3wCupLtl_OKr-a6TUFkb6emCnbZczEOJXkHY6EdbUP0SOjVdoEG4rbd90G2eHZLzTh5_Uu5g7oGhNyIsxWgmMPn1GXiS1JadpAteAnUVyFCVdyB88nzpPzUKGd6cBBSsxJw52w",
-      "Ab43m-sk-lAKvl-AI-zOauiNVfq72zjA-VviHRSa3WSOTujc_-trjMYBcWWNkfJBoDGBRzpI6ChKCHYKQHJgRgdfDBwlWclg0bv0iHtcA7D8_n0HZhIkhD_NdtsjQn_2kcbT81ZDxAEwBtpBrLVJd9BFz2Tr6r1v5GBewzN4EvJ4L1l-NYb1vWIsUiv11vdc1RyFmlTyKuf3JFpjy72QpXjX5SuKa2aGCbuVE7p6op2nGlIJL8ziZ1EHgV96ckbBAEERSmvzn1Gvfw3q4pE7vNx1q_XxY-x2ZgKuZ35T2-J89UGUZDy3FdzmLY7T4zAb0l1lWG2GH_xFeLqn1l3012ipS7HMaPl7QKPmv1hl9w0A5Io3S7k0w5ooOZ4BzNheIUL5dfvSJQoRfwS9K9PKVJ2I3eyctNvMGGHt3_5GoAYZ7nyTHDWG",
-      "Ab43m-uFOReWIzdxntUCoaktPSTPPE08Ige8tHxBWTlfN1B0wJuMVDb7gN6zqtYJV6OU8Ht9VeVpm35Nwhfnk4XnXRQCWESylr4y9_3H5cMYpGpjdgsEcBgmCrxbyA7oIQ-jsYsbte1aDnztROonifwZMXbqaOh5w81e0xC3A64STagMGGQIpqfECo9g01AilkuY9jHzDM2kaox2VDS0-EOldW_krg0y8GDNMxk-VYeTM-UbzEbOQ5qsB-FXK0Pwotu_xnUY4IX95Z0_F5JaZjhILndTmdzZs7uI_KgwnKCUBnWvUGRrNmIliS1LN570akaKaXCW7GngCClNXkV37_mDMNOmMKN4DYPIJ4tPZaqPMHiS2-CVbjuLUssIVQ933qn59_NTBwVZjwH3mLkKz75VpuLsk7ZNsWKZqrhvTtQysAuBXw",
-      "Ab43m-sfMlSpWYrQ_3PsMEv5bg5muJrC3zXZEFrPddsGRISbAvYtwQ_YHcfnofjN_wn9mfRQ_lMtr1dv7O7uBpZiYZo4e88L7vi_pZ1qOU8IpDenfQnRQbt-zz1AOdu0qeDgllVcL6BGLwwV7vhYoSXPe8UfHpKEtueOUC1_svfK8s_bT1gCUMw7l9xKjJM29qYx3ZbTMWFSABkbLznNf0ODEIsgZAYMYePoZEVdZtqjTpVxYPBKSrdlQst47Lwb4tN46j4CEXVJuSRJxIHNYpKTOeF-POLCTwsMEXUjcMTUYx2UUsSGrA0qllYmBnw6-xW317B_g2jqxOl4_-qkjObBZpTuR1pl_RjyTDjpSiQWrB_f1-Ze4JXMjl91fqR7Uq7pQxsukjBxxkdmJZBq8RUvvCbG_GdpCXmWWLVvPihpduAk-yM",
-      "Ab43m-seDX6OYBCYNEL4WMrtTcQ4tfhvwFicr1rCDYCs8et19h3TFCu2IWcA_cUbP4SONVOuHQwoLCnuGN2KcX9cEv4PDyWNS8ttffDXLFYFLI7Bz2dJ0TtBVsJjJU7TFsZqUV4mAPNsB7fR0_49l1N0uYbYbjqx1xsdzupNoowo2uf_QiYAw6dtiw59-YgmvlA1M2ob0mE7VT_zTjL7HfkdZn3SjTLUewc44eF9sO0wInM7a3Zxq5oXQ4CNF3-wzXBbXcdd_VOBzSeSKZsk_hdo6Wl0MFzqZeCoWgbbGwgpOKIbN7O5zxFWo2XDXbFZ1v_qYiGu5ktl9s5YG5TXIkuBmrigOEUhorIeVLG9ibYvcEIpwjK1oBJkrtmpiVwGRFhvRPFogYXtHEUTin03gX0HU1lXQ9MI8qX4UdjxyuN1XmFn0104hbi7TvcE1MQ9IZOv"
-    ],
-    "rating": 4.8,
-    "userRatingsTotal": 749,
-    "qualityScore": 62,
-    "zone": "unknown"
-  },
-  {
     "id": "dn-food-bo-steak-house",
     "googlePlaceId": "ChIJhdGPIMkZQjERpBW4PqvfCrQ",
     "name": "Bo Steak House",
