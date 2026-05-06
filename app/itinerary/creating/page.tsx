@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DEMO_TRIP_ID } from "@/lib/seed";
+import { getSteps } from "./steps";
 
 /** 대기 중 사용자 이탈 방지 — 여행 팁 회전 (4초 간격) */
 const TRAVEL_TIPS = [
@@ -27,27 +28,6 @@ const TIP_INTERVAL_MS = 4000;
  * - 단계 텍스트는 환각 차단 5단계 검증 명시 (우리 정체성)
  * - 하단 여행 팁으로 12초 대기 동안 이탈 방지
  */
-
-function getSteps(dest: string) {
-  return [
-    {
-      title: "취향 분석",
-      detail: "맛집 위주 · 사진 명소 · 균형 페이스",
-    },
-    {
-      title: `${dest} 인기 장소 검토`,
-      detail: "도보·차량 동선 후보 정렬",
-    },
-    {
-      title: "AI 일정 생성",
-      detail: "Claude AI가 최적 동선을 설계합니다",
-    },
-    {
-      title: "5단계 환각 차단 검증",
-      detail: "장소 존재 · 영업 상태 · 예약 · 거리 · 가격",
-    },
-  ];
-}
 
 const STEP_MS = 2800;
 

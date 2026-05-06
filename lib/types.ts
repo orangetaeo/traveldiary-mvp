@@ -441,6 +441,7 @@ export interface DiscoverPlace {
   distance: string;
   badge?: "ai" | "popular";
   imageUrl?: string;
+  destination?: string;
 }
 
 /** NotificationListView — 알림 카테고리 */
