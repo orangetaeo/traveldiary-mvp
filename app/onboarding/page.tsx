@@ -99,7 +99,7 @@ function OnboardingInner() {
         startDate,
       });
       trackFunnelStep("complete", { destination, tripId: result.id, ...(ref ? { ref } : {}) });
-      router.push(`/itinerary/creating?trip=${result.id}&dest=${encodeURIComponent(destination)}`);
+      router.replace(`/itinerary/creating?trip=${result.id}&dest=${encodeURIComponent(destination)}`);
     });
   };
 
