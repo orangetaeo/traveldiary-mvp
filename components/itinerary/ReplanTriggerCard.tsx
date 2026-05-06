@@ -53,7 +53,7 @@ export function ReplanTriggerCard({
   }
 
   return (
-    <div className="bg-surface-card border border-divider rounded-xl p-td-md">
+    <div className="bg-surface-card border border-divider rounded-md p-td-md">
       <div className="flex items-center justify-between gap-td-sm mb-td-xs">
         <p className="text-td-body font-semibold text-ink">
           지연 시뮬레이션 (M3)

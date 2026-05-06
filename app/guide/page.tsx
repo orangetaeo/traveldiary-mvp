@@ -59,7 +59,7 @@ export default function GuidePage() {
       </section>
 
       {/* 도시별 가이드 카드 */}
-      <main className="bg-white max-w-md mx-auto w-full">
+      <main className="bg-surface-card max-w-md mx-auto w-full">
         {guideCities.map((city) => {
           if (!city) return null;
           const guides = city.curatedGuides ?? [];
@@ -82,7 +82,7 @@ export default function GuidePage() {
                   <Link
                     key={guide.id}
                     href={`/city/${city.slug}#curated`}
-                    className="block p-3 bg-surface-soft border border-divider rounded-xl hover:border-purple/40 transition-colors"
+                    className="block p-3 bg-surface-soft border border-divider rounded-md hover:border-purple/40 transition-colors"
                   >
                     <div className="flex items-start gap-3">
                       <span className="text-2xl mt-0.5">{guide.hero?.emoji ?? "📍"}</span>

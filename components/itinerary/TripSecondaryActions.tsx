@@ -36,7 +36,7 @@ export function TripSecondaryActions({
   return (
     <>
       {!isOnTrip && (
-        <div className="bg-surface-card border border-divider rounded-xl p-td-md">
+        <div className="bg-surface-card border border-divider rounded-md p-td-md">
           <p className="text-td-body font-semibold text-ink mb-td-xs">
             여행 중 모드 (M2)
           </p>
@@ -55,7 +55,7 @@ export function TripSecondaryActions({
       )}
 
       {/* M6 진입점 (사이클 9, ADR-022) */}
-      <div className="bg-surface-card border border-divider rounded-xl p-td-md">
+      <div className="bg-surface-card border border-divider rounded-md p-td-md">
         <p className="text-td-body font-semibold text-ink mb-td-xs">
           여행 도구 (M6)
         </p>
@@ -85,7 +85,7 @@ export function TripSecondaryActions({
       </div>
 
       {/* M7 공유 + 일행 투표 진입점 (사이클 11a + E) */}
-      <div className="bg-surface-card border border-divider rounded-xl p-td-md">
+      <div className="bg-surface-card border border-divider rounded-md p-td-md">
         <p className="text-td-body font-semibold text-ink mb-td-xs">
           함께 보기 + 의사 결정 (M7 + C4)
         </p>

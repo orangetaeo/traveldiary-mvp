@@ -17,7 +17,7 @@ export function CityTripCTA({
   if (trips.length === 0) {
     return (
       <section className="mb-td-lg">
-        <div className="bg-amber-soft border border-amber/40 rounded-xl p-td-md">
+        <div className="bg-amber-soft border border-amber/40 rounded-md p-td-md">
           <p className="text-td-card-title text-amber-deep mb-td-xxs">
             {cityName} 일정은 준비 중이에요
           </p>
@@ -43,7 +43,7 @@ export function CityTripCTA({
 
   return (
     <section className="mb-td-lg">
-      <article className="bg-surface-card border border-purple/30 rounded-xl shadow-sm overflow-hidden">
+      <article className="bg-surface-card border border-purple/30 rounded-md shadow-sm overflow-hidden">
         <Link
           href={`/itinerary/${first.trip.id}`}
           aria-label={`${cityName} ${first.trip.nights}박 ${days}일 일정 보기`}

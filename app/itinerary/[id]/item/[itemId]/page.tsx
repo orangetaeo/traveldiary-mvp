@@ -182,7 +182,7 @@ export default async function ItineraryItemPage({
         {/* Verification & Alerts */}
         <section className="px-td-md py-td-sm space-y-td-xs">
           {/* 시드/Naver 후기 검증 — M1 정체성 */}
-          <div className="flex items-center gap-td-xs p-td-sm bg-success-soft border border-success-soft rounded-xl">
+          <div className="flex items-center gap-td-xs p-td-sm bg-success-soft border border-success-soft rounded-md">
             <span className="material-symbols-outlined filled text-success-deep">check_circle</span>
             <span className="text-td-body text-success-deep">
               추천 근거 검증 완료
@@ -202,7 +202,7 @@ export default async function ItineraryItemPage({
           <ValidationBadges result={validationResult} />
 
           {warning && (
-            <div className="flex items-start gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-xl">
+            <div className="flex items-start gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-md">
               <span className="material-symbols-outlined filled text-danger">warning</span>
               <div className="flex flex-col">
                 <span className="text-td-body text-danger-deep font-semibold">주의</span>
@@ -219,7 +219,7 @@ export default async function ItineraryItemPage({
 
         {/* Details Grid */}
         <section className="px-td-md py-td-sm grid grid-cols-2 gap-td-sm">
-          <div className="p-td-sm border border-divider rounded-xl bg-surface-card">
+          <div className="p-td-sm border border-divider rounded-md bg-surface-card">
             <p className="text-td-caption text-ink-soft mb-td-xxs uppercase">소요 시간</p>
             <div className="flex items-center gap-td-xxs">
               <div className="w-2 h-2 rounded-full bg-amber" aria-hidden />
@@ -228,7 +228,7 @@ export default async function ItineraryItemPage({
               </p>
             </div>
           </div>
-          <div className="p-td-sm border border-divider rounded-xl bg-surface-card">
+          <div className="p-td-sm border border-divider rounded-md bg-surface-card">
             <p className="text-td-caption text-ink-soft mb-td-xxs uppercase">비용 수준</p>
             <div className="flex items-center gap-td-xxs">
               <div className={`w-2 h-2 rounded-full ${priceLevel.dotClass}`} aria-hidden />
@@ -244,7 +244,7 @@ export default async function ItineraryItemPage({
           </div>
 
           {/* 위치 (full row) */}
-          <div className="col-span-2 p-td-sm border border-divider rounded-xl bg-surface-card">
+          <div className="col-span-2 p-td-sm border border-divider rounded-md bg-surface-card">
             <p className="text-td-caption text-ink-soft mb-td-xxs uppercase">위치</p>
             <p className="text-td-body text-ink">{item.location.address}</p>
             <p className="text-td-caption text-ink-mute mt-td-xxs tabular-nums">
@@ -253,7 +253,7 @@ export default async function ItineraryItemPage({
           </div>
 
           {/* Live Replan 정보 (full row) */}
-          <div className="col-span-2 p-td-sm border border-divider rounded-xl bg-surface-card">
+          <div className="col-span-2 p-td-sm border border-divider rounded-md bg-surface-card">
             <p className="text-td-caption text-ink-soft mb-td-xs uppercase">
               Live Replan 정보
             </p>
@@ -301,13 +301,13 @@ export default async function ItineraryItemPage({
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full p-td-md bg-surface-card/90 backdrop-blur-md border-t border-divider z-50 flex gap-td-sm">
         <Link
           href={`/itinerary/${params.id}`}
-          className="flex-1 py-3 border border-divider rounded-xl text-td-body text-ink font-semibold text-center hover:bg-surface-soft transition-colors"
+          className="flex-1 py-3 border border-divider rounded-md text-td-body text-ink font-semibold text-center hover:bg-surface-soft transition-colors"
         >
           대안 보기
         </Link>
         <button
           type="button"
-          className="flex-[2] py-3 bg-purple text-white rounded-xl text-td-body font-bold hover:opacity-90 active:scale-95 transition-all shadow-lg"
+          className="flex-[2] py-3 bg-purple text-white rounded-md text-td-body font-bold hover:opacity-90 active:scale-95 transition-all shadow-lg"
         >
           이 일정 유지
         </button>

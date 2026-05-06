@@ -141,7 +141,7 @@ export default async function ItineraryPage({
           </p>
 
           {/* Summary Strip */}
-          <div className="grid grid-cols-3 gap-td-xs p-td-sm bg-surface-card rounded-xl border border-divider">
+          <div className="grid grid-cols-3 gap-td-xs p-td-sm bg-surface-card rounded-md border border-divider">
             <Stat label="일정" value={`${items.length}곳`} />
             <Stat label="예약" value={`${items.filter((i) => i.flexibility === "booked").length}건`} divider />
             <Stat label="고정" value={`${items.filter((i) => i.flexibility === "fixed").length}건`} divider />

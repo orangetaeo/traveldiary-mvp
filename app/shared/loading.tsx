@@ -17,7 +17,7 @@ export default function SharedLoading() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-surface-card border border-divider rounded-xl p-td-md animate-pulse"
+            className="bg-surface-card border border-divider rounded-md p-td-md animate-pulse"
           >
             <div className="h-4 w-28 bg-ink/10 rounded mb-td-xs" />
             <div className="h-3 w-full bg-ink/5 rounded mb-td-xs" />

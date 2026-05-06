@@ -17,7 +17,7 @@ export default function TripsLoading() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-surface-card border border-divider rounded-xl overflow-hidden animate-pulse"
+            className="bg-surface-card border border-divider rounded-md overflow-hidden animate-pulse"
           >
             <div className="h-32 bg-ink/10" />
             <div className="p-td-sm">

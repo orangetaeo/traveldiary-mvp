@@ -24,7 +24,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           href={googleMapsUrl(location, placeName)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-purple/40 transition-colors"
+          className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-purple/40 transition-colors"
         >
           <span
             className="material-symbols-outlined text-purple text-[24px]"
@@ -40,7 +40,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           href={kakaoMapUrl(location, placeName)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-amber/40 transition-colors"
+          className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-amber/40 transition-colors"
         >
           <span
             className="material-symbols-outlined text-amber-deep text-[24px]"
@@ -56,7 +56,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           href={uberUrl(location, placeName)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-ink/30 transition-colors"
+          className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-ink/30 transition-colors"
         >
           <span
             className="material-symbols-outlined text-ink text-[24px]"
@@ -72,7 +72,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           href={grabUrl(location, placeName)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-xl hover:border-success/40 transition-colors"
+          className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-success/40 transition-colors"
         >
           <span
             className="material-symbols-outlined text-success text-[24px]"

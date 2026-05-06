@@ -15,7 +15,7 @@ export default function CostLoading() {
 
       {/* 총액 카드 스켈레톤 */}
       <div className="px-td-md pt-td-md">
-        <div className="bg-surface-card border border-divider rounded-xl p-td-md animate-pulse">
+        <div className="bg-surface-card border border-divider rounded-md p-td-md animate-pulse">
           <div className="h-3 w-20 bg-ink/5 rounded mb-td-xs" />
           <div className="h-7 w-32 bg-ink/15 rounded" />
         </div>

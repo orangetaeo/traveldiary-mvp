@@ -16,7 +16,7 @@ export default function CityLoading() {
 
       {/* 응급 카드 스켈레톤 */}
       <div className="px-td-md pt-td-md">
-        <div className="h-16 bg-danger/5 border border-danger/20 rounded-xl animate-pulse" />
+        <div className="h-16 bg-danger/5 border border-danger/20 rounded-md animate-pulse" />
       </div>
 
       {/* 섹션 스켈레톤 */}

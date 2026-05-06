@@ -17,7 +17,7 @@ export default function AdminError({ reset }: ErrorPageProps) {
       </p>
       <button
         onClick={reset}
-        className="mt-td-lg px-6 py-3 bg-purple text-white rounded-xl text-td-body font-semibold hover:opacity-90 transition-opacity"
+        className="mt-td-lg px-6 py-3 bg-purple text-white rounded-md text-td-body font-semibold hover:opacity-90 transition-opacity"
       >
         다시 시도
       </button>

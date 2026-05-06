@@ -157,7 +157,7 @@ export function AutoModeDetector({ trip }: AutoModeDetectorProps) {
 
   return (
     <section className="px-td-md pb-td-sm">
-      <div className="bg-surface-card border border-divider rounded-xl p-td-md">
+      <div className="bg-surface-card border border-divider rounded-md p-td-md">
         <div className="flex items-start gap-td-sm">
           <span
             className="material-symbols-outlined text-accent mt-0.5"

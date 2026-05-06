@@ -26,7 +26,7 @@ export function WeatherStrip({ forecast }: WeatherStripProps) {
         {forecast.map((d) => (
           <div
             key={d.day}
-            className="flex flex-col items-center justify-center p-td-sm bg-white border border-divider rounded-xl min-w-[72px] shrink-0"
+            className="flex flex-col items-center justify-center p-td-sm bg-surface-card border border-divider rounded-md min-w-[72px] shrink-0"
             aria-label={`Day ${d.day} ${WEATHER_ICON_LABEL[d.icon]} 섭씨 ${d.tempC}도`}
           >
             <span className="text-td-caption text-ink-mute mb-td-xxs">

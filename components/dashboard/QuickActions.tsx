@@ -53,8 +53,8 @@ function ActionButton({
   primary?: boolean;
 }) {
   const className = primary
-    ? "flex-1 bg-purple text-white py-td-sm px-td-xs rounded-xl flex items-center justify-center gap-td-xs text-td-body font-medium shadow-sm hover:opacity-90 transition-opacity"
-    : "flex-1 bg-white border border-divider text-ink py-td-sm px-td-xs rounded-xl flex items-center justify-center gap-td-xs text-td-body font-medium hover:bg-surface-soft transition-colors";
+    ? "flex-1 bg-purple text-white py-td-sm px-td-xs rounded-md flex items-center justify-center gap-td-xs text-td-body font-medium shadow-sm hover:opacity-90 transition-opacity"
+    : "flex-1 bg-surface-card border border-divider text-ink py-td-sm px-td-xs rounded-md flex items-center justify-center gap-td-xs text-td-body font-medium hover:bg-surface-soft transition-colors";
   return (
     <Link href={href} className={className}>
       <span

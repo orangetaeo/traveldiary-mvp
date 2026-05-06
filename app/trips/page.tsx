@@ -103,7 +103,7 @@ export default function TripsPage({
         {/* Sticky chip filter */}
         <nav
           aria-label="도시 필터"
-          className="sticky top-16 z-40 bg-white/80 backdrop-blur-md px-4 py-3 flex gap-2 overflow-x-auto hide-scrollbar"
+          className="sticky top-16 z-40 bg-surface-card/80 backdrop-blur-md px-4 py-3 flex gap-2 overflow-x-auto hide-scrollbar"
         >
           {FILTER_CHIPS.map((chip) => {
             const isActive = chip.key === filter;
@@ -170,7 +170,7 @@ function TripCard({ data }: { data: TripCardData }) {
   const days = trip.nights + 1;
 
   return (
-    <article className="bg-white rounded-xl border border-divider overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-all active:scale-[0.98]">
+    <article className="bg-surface-card rounded-md border border-divider overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-all active:scale-[0.98]">
       <Link
         href={`/trips/${trip.id}`}
         aria-label={`${city.name} ${trip.nights}박 ${days}일 여행 대시보드`}
@@ -214,7 +214,7 @@ function TripCard({ data }: { data: TripCardData }) {
 function CityOnlyCard({ data }: { data: CityOnlyCardData }) {
   const { city } = data;
   return (
-    <article className="bg-white rounded-xl border border-divider overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-all active:scale-[0.98]">
+    <article className="bg-surface-card rounded-md border border-divider overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-all active:scale-[0.98]">
       <Link
         href={`/city/${city.slug}`}
         aria-label={`${city.name} 도시 가이드 보기`}
@@ -249,7 +249,7 @@ function ComingSoonCard({ data }: { data: ComingSoonCardData }) {
   const { city } = data;
   return (
     <div
-      className="opacity-60 bg-white rounded-xl border border-divider overflow-hidden p-4"
+      className="opacity-60 bg-surface-card rounded-md border border-divider overflow-hidden p-4"
     >
       <div className="flex items-center gap-2 mb-2">
         <span className="text-td-meta text-ink-mute uppercase tabular-nums">

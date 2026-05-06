@@ -8,7 +8,7 @@ import type { VerifyPlaceResult } from "@/lib/services/place-verification";
 export function GoogleVerificationBadge({ result }: { result: VerifyPlaceResult }) {
   if (result.mode === "demo") {
     return (
-      <div className="flex items-center gap-td-xs p-td-sm bg-surface-soft border border-divider rounded-xl">
+      <div className="flex items-center gap-td-xs p-td-sm bg-surface-soft border border-divider rounded-md">
         <span className="material-symbols-outlined text-ink-mute" aria-hidden>
           help_outline
         </span>
@@ -25,7 +25,7 @@ export function GoogleVerificationBadge({ result }: { result: VerifyPlaceResult 
       ? "bg-purple-soft border-purple-soft text-purple-deep"
       : "bg-amber-soft border-amber-soft text-amber-deep";
     return (
-      <div className={`flex items-center gap-td-xs p-td-sm border rounded-xl ${tone}`}>
+      <div className={`flex items-center gap-td-xs p-td-sm border rounded-md ${tone}`}>
         <span className="material-symbols-outlined filled" aria-hidden>
           {isOpen ? "verified" : "schedule"}
         </span>
@@ -53,7 +53,7 @@ export function GoogleVerificationBadge({ result }: { result: VerifyPlaceResult 
 
   if (result.mode === "not_found") {
     return (
-      <div className="flex items-center gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-xl">
+      <div className="flex items-center gap-td-xs p-td-sm bg-danger-soft border border-danger-soft rounded-md">
         <span className="material-symbols-outlined filled text-danger" aria-hidden>
           error
         </span>

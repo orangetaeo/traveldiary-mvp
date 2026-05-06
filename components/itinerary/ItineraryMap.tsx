@@ -29,7 +29,7 @@ export function ItineraryMap({
     return (
       <section className="px-td-md py-td-sm">
         <div
-          className="bg-surface-soft border border-divider rounded-xl flex flex-col items-center justify-center text-center p-td-md"
+          className="bg-surface-soft border border-divider rounded-md flex flex-col items-center justify-center text-center p-td-md"
           style={{ minHeight: `${height}px` }}
         >
           <span
@@ -63,7 +63,7 @@ export function ItineraryMap({
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
         allowFullScreen
-        className="w-full rounded-xl border border-divider"
+        className="w-full rounded-md border border-divider"
         style={{ height: `${height}px` }}
       />
     </section>

@@ -29,7 +29,7 @@ export function ContactCard({ contact }: { contact: EmergencyContact }) {
   const label = EMERGENCY_CATEGORY_LABEL[contact.category ?? ""] ?? "연락처";
 
   return (
-    <div className="bg-white border border-divider p-3 rounded-xl flex items-center justify-between">
+    <div className="bg-surface-card border border-divider p-3 rounded-md flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div className="bg-surface-soft p-2 rounded-lg text-danger shrink-0">
           <span className="material-symbols-outlined" aria-hidden>
@@ -72,7 +72,7 @@ export function ContactCard({ contact }: { contact: EmergencyContact }) {
 
 export function LossGuideCard({ guide }: { guide: LossGuide }) {
   return (
-    <article className="bg-white border border-divider rounded-xl shadow-[0_4px_12px_rgba(15,23,42,0.05)] overflow-hidden">
+    <article className="bg-surface-card border border-divider rounded-md shadow-[0_4px_12px_rgba(15,23,42,0.05)] overflow-hidden">
       <header className="bg-amber-soft border-b border-amber/40 px-4 py-3 flex items-center gap-2">
         <span className="text-[24px]" aria-hidden>
           {guide.emoji}

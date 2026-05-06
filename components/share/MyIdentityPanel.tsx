@@ -59,7 +59,7 @@ export function MyIdentityPanel() {
   return (
     <section
       aria-label="내 정보 (익명 협업)"
-      className="bg-surface-card border border-divider rounded-xl p-4 mb-4"
+      className="bg-surface-card border border-divider rounded-md p-4 mb-4"
     >
       <header className="flex items-center justify-between mb-2">
         <h2 className="text-sm font-semibold text-ink">내 정보</h2>
