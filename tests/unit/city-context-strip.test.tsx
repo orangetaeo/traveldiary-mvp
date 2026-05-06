@@ -1,0 +1,114 @@
+/**
+ * CityContextStrip 컴포넌트 단위 테스트.
+ * 사이클 8 M5 — /travel/[id] 푸터 가로 스크롤 카드 5건.
+ *
+ * 위치: components/city/CityContextStrip.tsx
+ */
+
+import { describe, it, expect } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
+import { CityContextStrip } from "@/components/city/CityContextStrip";
+import type { ResolvedCity } from "@/lib/types";
+
+function makeCity(over: Partial<ResolvedCity> = {}): ResolvedCity {
+  return {
+    code: "PQC",
+    slug: "phu-quoc",
+    name: "푸꾸옥",
+    country: "베트남",
+    countryCode: "VN",
+    emergencyContacts: [
+      { label: "구급차", phone: "115", category: "ambulance" },
+      { label: "주 호치민 한국 영사관", phone: "+84 28 3822 5757", category: "embassy" },
+    ],
+    payment: {
+      currency: "VND",
+      currencySymbol: "₫",
+      approxKrwRate: 18,
+      cardAcceptance: "medium",
+      atmAvailable: true,
+      tipExpected: false,
+    },
+    transport: {
+      primary: "grab",
+      primaryNotes: "택시 호출 앱",
+    },
+    phrases: [],
+    curatedGuides: [
+      {
+        id: "sao-beach",
+        title: "사오비치 노을",
+        sections: [],
+        hero: { emoji: "🌅" },
+      },
+    ],
+    ...over,
+  } as ResolvedCity;
+}
+
+describe("CityContextStrip", () => {
+  it("5 카드 모두 렌더 (curatedGuides[0] 있을 때)", () => {
+    const html = renderToStaticMarkup(<CityContextStrip city={makeCity()} />);
+    expect(html).toContain("응급");
+    expect(html).toContain("VND");
+    expect(html).toContain("grab"); // CSS uppercase 클래스로 시각만 대문자, HTML은 소문자
+    expect(html).toContain("시그니처");
+    expect(html).toContain("푸꾸옥 가이드");
+  });
+
+  it("응급 카드 — ambulance phone + 정규식 ^주\\s*[^\\s]+\\s+ 제거 후 영사관 라벨", () => {
+    const html = renderToStaticMarkup(<CityContextStrip city={makeCity()} />);
+    expect(html).toContain("115");
+    // "주 호치민 한국 영사관" → 정규식이 "주 호치민 " 통째 제거 → "한국 영사관"
+    expect(html).toContain("한국 영사관");
+    expect(html).not.toContain("주 호치민");
+  });
+
+  it("환율 카드 — 1{symbol} = X원 (1/approxKrwRate)", () => {
+    const html = renderToStaticMarkup(<CityContextStrip city={makeCity()} />);
+    expect(html).toContain("1₫ =");
+    expect(html).toContain("0.056"); // 1/18
+  });
+
+  it("교통 카드 — transport.primary uppercase 클래스 + 텍스트", () => {
+    const html = renderToStaticMarkup(<CityContextStrip city={makeCity()} />);
+    expect(html).toContain("uppercase");
+    expect(html).toContain("grab");
+  });
+
+  it("시그니처 카드 — curatedGuides[0] title + emoji", () => {
+    const html = renderToStaticMarkup(<CityContextStrip city={makeCity()} />);
+    expect(html).toContain("사오비치 노을");
+    expect(html).toContain("🌅");
+  });
+
+  it("curatedGuides=[] → 시그니처 카드 미렌더, 나머지 4 카드 정상", () => {
+    const html = renderToStaticMarkup(
+      <CityContextStrip city={makeCity({ curatedGuides: [] })} />,
+    );
+    expect(html).not.toContain("시그니처");
+    expect(html).toContain("응급");
+    expect(html).toContain("VND");
+    expect(html).toContain("푸꾸옥 가이드");
+  });
+
+  it("도시 가이드 CTA — /city/{slug} 메인 링크", () => {
+    const html = renderToStaticMarkup(<CityContextStrip city={makeCity()} />);
+    expect(html).toContain('href="/city/phu-quoc"');
+    expect(html).toContain("푸꾸옥 가이드 →");
+  });
+
+  it("ambulance/embassy 미존재 — '—' fallback + 기본 영사관 라벨", () => {
+    const html = renderToStaticMarkup(
+      <CityContextStrip
+        city={makeCity({
+          emergencyContacts: [
+            { label: "경찰", phone: "113", category: "police" },
+          ],
+        })}
+      />,
+    );
+    expect(html).toContain("—");
+    expect(html).toContain("한국 영사관");
+  });
+});
