@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { ImpactDisplay } from "./ImpactDisplay";
 import type { ItineraryItem, ReplanOption } from "@/lib/types";
 import type { ReplanTrigger } from "@/lib/replan";
@@ -39,7 +39,7 @@ const RADIO_HOVER: Record<string, string> = {
  * 사이클 5b 옵션 C (2026-04-30): Stitch HTML → React 변환.
  *
  * 디자인 룰 (T17 / S-12 / S-06):
- *   - 바텀 시트, max-height 85vh, drag handle
+ *   - 바텀 시트, max-height calc(100dvh-2rem), drag handle + swipe dismiss
  *   - 백드롭 클릭 / ESC → 닫힘
  *   - 3옵션 카드 — 추천(보라) / 안전(초록) / 강행(앰버)
  *   - "AI는 결정하지 않는다" 원칙 — 카드 hover 시에만 강조
@@ -52,6 +52,11 @@ export function ReplanModal({
   onApply,
   onClose,
 }: ReplanModalProps) {
+  // 드래그 dismiss
+  const [dragY, setDragY] = useState(0);
+  const dragStartY = useRef(0);
+  const isDragging = useRef(false);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -65,6 +70,25 @@ export function ReplanModal({
     };
   }, [open, onClose]);
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    dragStartY.current = e.touches[0].clientY;
+    isDragging.current = true;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    const delta = e.touches[0].clientY - dragStartY.current;
+    if (delta > 0) setDragY(delta);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    isDragging.current = false;
+    if (dragY > 120) {
+      onClose();
+    }
+    setDragY(0);
+  }, [dragY, onClose]);
+
   if (!open || !trigger || !triggerItem) return null;
 
   return (
@@ -76,11 +100,17 @@ export function ReplanModal({
       aria-labelledby="replan-title"
     >
       <div
-        className="relative w-full max-w-[420px] bg-surface-card rounded-t-[24px] shadow-2xl flex flex-col max-h-[85vh]"
+        className="relative w-full max-w-[420px] bg-surface-card rounded-t-[24px] shadow-2xl flex flex-col max-h-[calc(100dvh-2rem)] transition-transform"
+        style={{ transform: dragY > 0 ? `translateY(${dragY}px)` : undefined }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-2 shrink-0">
+        <div
+          className="flex justify-center pt-3 pb-2 shrink-0 cursor-grab active:cursor-grabbing touch-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="w-10 h-1 rounded-full bg-divider" aria-hidden />
         </div>
 
