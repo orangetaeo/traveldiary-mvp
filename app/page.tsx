@@ -30,14 +30,8 @@ import { prisma } from "@/lib/prisma";
 
 import { OrganizationJsonLd, WebAppJsonLd } from "@/components/seo/JsonLd";
 import { todayISO } from "@/lib/seed/demo-date";
-import { splitName, formatTime, CATEGORY_ICON } from "@/lib/utils/item-display";
+import { splitName, formatTime, dDay, CATEGORY_ICON } from "@/lib/utils/item-display";
 const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
-
-function dDay(startDate: string, today: string): number {
-  const s = new Date(`${startDate}T00:00:00.000Z`);
-  const t = new Date(`${today}T00:00:00.000Z`);
-  return Math.ceil((s.getTime() - t.getTime()) / (1000 * 60 * 60 * 24));
-}
 
 export default async function HomePage() {
   const days = listDemoItemsByDay(DEMO_TRIP_ID);
