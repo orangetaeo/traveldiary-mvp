@@ -165,6 +165,10 @@ describe("BLOCKER1 — creating 페이지 동적 표시", () => {
     path.resolve("app/itinerary/creating/page.tsx"),
     "utf-8",
   );
+  const stepsSrc = fs.readFileSync(
+    path.resolve("app/itinerary/creating/steps.ts"),
+    "utf-8",
+  );
 
   it("searchParams에서 dest 추출", () => {
     expect(src).toContain('searchParams.get("dest")');
@@ -175,11 +179,11 @@ describe("BLOCKER1 — creating 페이지 동적 표시", () => {
   });
 
   it("AI 일정 생성 단계 포함", () => {
-    expect(src).toContain("AI 일정 생성");
+    expect(stepsSrc).toContain("AI 일정 생성");
   });
 
   it("인기 장소 검토 단계에 destination 반영", () => {
-    expect(src).toContain("인기 장소 검토");
+    expect(stepsSrc).toContain("인기 장소 검토");
   });
 });
 

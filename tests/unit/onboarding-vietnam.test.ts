@@ -10,6 +10,10 @@ const src = fs.readFileSync(
   path.resolve(__dirname, "../../app/onboarding/page.tsx"),
   "utf-8",
 );
+const utilsSrc = fs.readFileSync(
+  path.resolve(__dirname, "../../app/onboarding/utils.ts"),
+  "utf-8",
+);
 
 describe("온보딩 — 베트남 단일 국가 정책", () => {
   it("DESTINATIONS에 비-베트남 도시 없음 (도쿄/방콕/치앙마이 등)", () => {
@@ -35,16 +39,16 @@ describe("온보딩 — 베트남 단일 국가 정책", () => {
   });
 
   it("destinationToCode에 베트남 6개 코드 매핑", () => {
-    expect(src).toContain('"PQC"');
-    expect(src).toContain('"DAD"');
-    expect(src).toContain('"SGN"');
-    expect(src).toContain('"HAN"');
-    expect(src).toContain('"NHA"');
-    expect(src).toContain('"DLI"');
+    expect(utilsSrc).toContain('"PQC"');
+    expect(utilsSrc).toContain('"DAD"');
+    expect(utilsSrc).toContain('"SGN"');
+    expect(utilsSrc).toContain('"HAN"');
+    expect(utilsSrc).toContain('"NHA"');
+    expect(utilsSrc).toContain('"DLI"');
   });
 
   it("destinationToCode에 비-베트남 코드 없음", () => {
-    const codeMatch = src.match(/function destinationToCode[\s\S]*?\}/);
+    const codeMatch = utilsSrc.match(/function destinationToCode[\s\S]*?\}/);
     expect(codeMatch).not.toBeNull();
     const codeBlock = codeMatch![0];
     expect(codeBlock).not.toContain('"TYO"');
