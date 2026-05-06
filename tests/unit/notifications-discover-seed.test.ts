@@ -50,8 +50,10 @@ describe("DEMO_NOTIFICATIONS 시드", () => {
 });
 
 describe("DEMO_DISCOVER_PLACES 시드", () => {
-  it("10건 존재", () => {
-    expect(DEMO_DISCOVER_PLACES).toHaveLength(10);
+  it("7개 도시 36건 이상 존재", () => {
+    expect(DEMO_DISCOVER_PLACES.length).toBeGreaterThanOrEqual(36);
+    const destinations = new Set(DEMO_DISCOVER_PLACES.map((p) => p.destination));
+    expect(destinations.size).toBeGreaterThanOrEqual(7);
   });
 
   it("모든 항목에 필수 필드 존재", () => {

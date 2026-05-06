@@ -431,7 +431,9 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
         open={addOpen}
         trip={trip}
         defaultDayIndex={activeDay}
-        suggestions={DEMO_DISCOVER_PLACES}
+        suggestions={DEMO_DISCOVER_PLACES.filter(
+          (p) => !p.destination || p.destination === trip.destination,
+        )}
         onClose={() => setAddOpen(false)}
         onSubmit={handleAddItem}
         isPending={isPending}
