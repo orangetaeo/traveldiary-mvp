@@ -200,7 +200,7 @@ export async function verifyItemPrice(
         verified: false,
         reason: `미지원 통화 ${item.estimatedPrice.currency} — 비교 불가`,
         deltaPct: null,
-        medianOtaPriceKrw: offers.length > 0 ? medianPriceKrw(offers) : null,
+        medianOtaPriceKrw: offers.length > 0 ? median(offers.map((o) => o.priceKrw)) : null,
         otaSourceCount: new Set(offers.map((o) => o.ota)).size,
       };
     }
@@ -211,16 +211,6 @@ export async function verifyItemPrice(
     estimatedPriceKrw,
     offers,
   });
-}
-
-/** OTA offers의 priceKrw 중앙값 (currency_mismatch 분기 표시용) */
-function medianPriceKrw(offers: OtaOffer[]): number {
-  if (offers.length === 0) return 0;
-  const sorted = offers.map((o) => o.priceKrw).sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0
-    ? Math.round((sorted[mid - 1] + sorted[mid]) / 2)
-    : sorted[mid];
 }
 
 // ═══════════════════════════════════════════════════════════════════
