@@ -107,7 +107,7 @@ function OnboardingInner() {
     <main className="min-h-screen flex flex-col px-td-md pt-td-sm pb-td-md bg-surface-soft">
       {/* 진행률 — Step 1에서는 숨김 */}
       {step > 1 && (
-        <div className="flex items-center gap-td-xs mb-td-sm">
+        <div className="flex items-center gap-td-xs mb-td-sm" role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={4} aria-label={`단계 ${step}/4`}>
           <div className="flex-1 flex gap-1">
             {[1, 2, 3, 4].map((n) => (
               <div
@@ -204,7 +204,7 @@ function Step1({ onNext }: { onNext: () => void }) {
 
       <div className="flex flex-col gap-td-sm mt-td-sm">
         <button
-          className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-md active:scale-[0.98] transition-transform"
+          className="w-full h-[52px] bg-purple text-white text-td-card-title rounded-md active:scale-[0.98] transition-transform"
           onClick={onNext}
         >
           시작하기
@@ -271,8 +271,8 @@ function Step2({
             key={d.name}
             className={`aspect-square flex flex-col items-center justify-center rounded-md p-td-xs transition-all relative ${
               destination === d.name
-                ? "border-2 border-purple bg-surface-card shadow-sm"
-                : "border border-divider bg-surface-card active:bg-surface-soft"
+                ? "border-2 border-purple bg-surface-card shadow-sm scale-[1.02]"
+                : "border border-divider bg-surface-card active:bg-surface-soft active:scale-[0.97]"
             }`}
             onClick={() => onSelect(d.name)}
           >
@@ -291,7 +291,7 @@ function Step2({
       </div>
 
       <button
-        className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-md mt-td-lg"
+        className="w-full h-[52px] bg-purple text-white text-td-card-title rounded-md mt-td-lg active:scale-[0.98] transition-transform"
         onClick={onNext}
       >
         다음
@@ -334,7 +334,7 @@ function Step3({
             <p className="text-td-card-title">{startDateLabel}</p>
           </div>
           <div className="flex-1 bg-surface-soft border border-divider rounded-md p-td-sm flex flex-col justify-between">
-            <p className="text-td-meta text-ink-soft mb-td-xxs">박수</p>
+            <p className="text-td-meta text-ink-soft mb-td-xxs">숙박</p>
             <div className="flex items-center justify-between">
               <button
                 className="material-symbols-outlined text-ink-soft text-lg"
@@ -342,7 +342,7 @@ function Step3({
               >
                 remove
               </button>
-              <span className="text-td-card-title">{nights}</span>
+              <span className="text-td-card-title">{nights}박</span>
               <button
                 className="material-symbols-outlined text-accent text-lg"
                 onClick={() => setNights(Math.min(30, nights + 1))}
@@ -372,7 +372,7 @@ function Step3({
       </div>
 
       <button
-        className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-md mt-td-lg"
+        className="w-full h-[52px] bg-purple text-white text-td-card-title rounded-md mt-td-lg active:scale-[0.98] transition-transform"
         onClick={onNext}
       >
         다음
@@ -465,7 +465,7 @@ function Step4({
           건너뛰기
         </button>
         <button
-          className="flex-[2] h-[52px] bg-ink text-white text-td-card-title rounded-md flex items-center justify-center gap-1 disabled:opacity-60"
+          className="flex-[2] h-[52px] bg-purple text-white text-td-card-title rounded-md flex items-center justify-center gap-1 disabled:opacity-60 active:scale-[0.98] transition-transform"
           onClick={onFinish}
           disabled={isPending}
         >
