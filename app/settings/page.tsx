@@ -30,8 +30,17 @@ const SETTING_SECTIONS = [
     title: "위치 & 프라이버시",
     items: [
       { icon: "location_on", label: "위치 권한", href: "/permission/location" },
-      { icon: "shield", label: "개인정보 처리방침", href: "#" },
-      { icon: "visibility_off", label: "데이터 수집 동의", href: "#", sub: "위치 서버 미전송" },
+      // 사이클 7 (G10) — 사이드 placeholder 라우트 연결 (이전 href="#" 데드 링크)
+      { icon: "shield", label: "개인정보 처리방침", href: "/legal/privacy" },
+      { icon: "visibility_off", label: "데이터 수집 동의", href: "/legal/privacy", sub: "위치 서버 미전송" },
+    ],
+  },
+  // 사이클 7 (G10) — 약관 섹션 신규 (기존엔 메뉴 자체 부재)
+  {
+    title: "법적 고지",
+    items: [
+      { icon: "gavel", label: "이용약관", href: "/legal/terms" },
+      { icon: "privacy_tip", label: "개인정보 처리방침", href: "/legal/privacy" },
     ],
   },
   {
