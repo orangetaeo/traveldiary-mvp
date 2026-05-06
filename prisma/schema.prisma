@@ -371,6 +371,46 @@ model Vote {
 }
 
 // ═══════════════════════════════════════════
+// PLACE (시드 장소 풀 — 파이프라인 800곳+)
+// ═══════════════════════════════════════════
+
+model Place {
+  id              String   @id @default(cuid())
+  googlePlaceId   String?  @unique
+  cityCode        String   @db.VarChar(10)  // "PQC", "DAD"
+
+  name            String   @db.VarChar(200) // 한글 우선
+  nameLocal       String?  @db.VarChar(200) // 현지어
+
+  category        String   // "food" | "spot" | "shopping" | "rest"
+  subCategory     String?  // "카페", "해변", "야시장" 등
+
+  lat             Float
+  lng             Float
+  address         String   @db.VarChar(500)
+
+  photos          String[] @default([])
+  rating          Float?
+  userRatingsTotal Int?
+  priceLevel      Int?
+  estimatedPrice  Json?    // { amount, currency }
+
+  evidence        Json     // { reasons, sources, verifiedAt, warnings? }
+  qualityScore    Float    @default(0)
+  zone            String?  // 수집 구역 ID
+
+  isActive        Boolean  @default(true)
+  defaultDurationMinutes Int @default(60)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([cityCode, category])
+  @@index([cityCode, qualityScore])
+  @@index([isActive])
+}
+
+// ═══════════════════════════════════════════
 // EVIDENCE CACHE (Phase 1 외부 API 호출 비용 절감)
 // ═══════════════════════════════════════════
 

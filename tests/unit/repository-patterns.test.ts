@@ -25,8 +25,8 @@ const REPO_FILES = fs
  * ════════════════════════════════════════════ */
 
 describe("repository 파일 목록", () => {
-  it("14개 repository 파일 존재", () => {
-    expect(REPO_FILES.length).toBe(14);
+  it("15개 repository 파일 존재", () => {
+    expect(REPO_FILES.length).toBe(15);
   });
 
   it("알려진 repository 파일 전체 등록", () => {
@@ -40,6 +40,7 @@ describe("repository 파일 목록", () => {
       "funnel.repository.ts",
       "invite.repository.ts",
       "mode-transition-stats.repository.ts",
+      "place.repository.ts",
       "share.repository.ts",
       "shareComment.repository.ts",
       "trip.repository.ts",
