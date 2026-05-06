@@ -247,8 +247,8 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
       )}
 
       {/* FAB Stack */}
-      <div className="fixed bottom-20 right-td-md flex flex-col gap-td-xs items-center z-50 max-w-[420px] left-1/2 -translate-x-1/2 pointer-events-none">
-        <div className="ml-auto flex flex-col gap-td-xs pointer-events-auto pr-td-md">
+      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-[420px] z-50 pointer-events-none">
+        <div className="ml-auto flex flex-col gap-td-xs pointer-events-auto pr-td-md w-fit">
           <button
             type="button"
             aria-label="주변 검색"
