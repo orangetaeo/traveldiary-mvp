@@ -6,6 +6,7 @@
  *  - replan/validateDag: 자기 참조 사이클 + 3노드 사이클
  *  - geo: 대척점(antipodal) + 경도 ±180 랩어라운드
  *  - mode-transition/detectMode: nights=0 당일여행 + 경계 일자
+ *  - item-display/priceLevelOf: 정확한 경계값 (199999/200000, 599999/600000)
  */
 
 import { describe, it, expect } from "vitest";
@@ -18,6 +19,7 @@ import { validateDag } from "@/lib/replan";
 import type { ItineraryItem, Trip } from "@/lib/types";
 import { haversineKm } from "@/lib/utils/geo";
 import { detectMode, calculateDDay } from "@/lib/mode-transition";
+import { priceLevelOf, dDay, formatTime, durationLabel } from "@/lib/utils/item-display";
 
 /* ════════════════════════════════════════════
  * Fixtures
@@ -362,5 +364,61 @@ describe("mode-transition — calculateDDay 엣지 케이스", () => {
   it("윤년 2월 29일", () => {
     const now = new Date(Date.UTC(2028, 1, 28)); // 2028-02-28 (윤년)
     expect(calculateDDay("2028-02-29", now)).toBe(1);
+  });
+});
+
+/* ════════════════════════════════════════════
+ * item-display — priceLevelOf 경계값
+ * ════════════════════════════════════════════ */
+
+describe("item-display — priceLevelOf 경계값", () => {
+  it("199,999원 → 낮음 (200,000 미만)", () => {
+    expect(priceLevelOf(199999).label).toBe("낮음");
+  });
+
+  it("200,000원 → 보통 (200,000 이상)", () => {
+    expect(priceLevelOf(200000).label).toBe("보통");
+  });
+
+  it("599,999원 → 보통 (600,000 미만)", () => {
+    expect(priceLevelOf(599999).label).toBe("보통");
+  });
+
+  it("600,000원 → 높음 (600,000 이상)", () => {
+    expect(priceLevelOf(600000).label).toBe("높음");
+  });
+
+  it("1원 → 낮음 (양수 최소)", () => {
+    expect(priceLevelOf(1).label).toBe("낮음");
+  });
+});
+
+/* ════════════════════════════════════════════
+ * item-display — formatTime / dDay / durationLabel 엣지
+ * ════════════════════════════════════════════ */
+
+describe("item-display — 추가 엣지 케이스", () => {
+  it("formatTime 자정 → '00:00'", () => {
+    expect(formatTime("2026-05-01T00:00:00Z")).toBe("00:00");
+  });
+
+  it("formatTime 23:59 → '23:59'", () => {
+    expect(formatTime("2026-05-01T23:59:00Z")).toBe("23:59");
+  });
+
+  it("dDay 연도 경계 (12월 31일 → 1월 2일)", () => {
+    expect(dDay("2027-01-02", "2026-12-31")).toBe(2);
+  });
+
+  it("durationLabel 0분 → '0분'", () => {
+    expect(durationLabel(0)).toBe("0분");
+  });
+
+  it("durationLabel 1분 → '1분'", () => {
+    expect(durationLabel(1)).toBe("1분");
+  });
+
+  it("durationLabel 59분 → '59분' (60분 경계 직전)", () => {
+    expect(durationLabel(59)).toBe("59분");
   });
 });
