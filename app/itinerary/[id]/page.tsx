@@ -19,6 +19,8 @@ import { ItineraryView } from "@/components/itinerary/ItineraryView";
 import { isDemoTrip } from "@/lib/seed";
 import { getCityByCode, resolveCityByCode } from "@/lib/seed/cities";
 import { resolveTripBundle } from "@/lib/repositories/trip.repository";
+import { getDiscoverPlaces } from "@/lib/repositories/place.repository";
+import { DEMO_DISCOVER_PLACES } from "@/lib/seed/discover-places";
 import { CityContextStrip } from "@/components/city/CityContextStrip";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 import { BottomNav } from "@/components/ui/BottomNav";
@@ -57,6 +59,15 @@ export default async function ItineraryPage({
   const city = getCityByCode(trip.destinationCode);
   // 사이클 P (ADR-035) — CityContextStrip + 헤더 응급 버튼 (currentMode 무관)
   const resolvedCity = resolveCityByCode(trip.destinationCode);
+
+  // DB 우선 → 시드 fallback (추천 장소)
+  const dbPlaces = await getDiscoverPlaces(trip.destinationCode);
+  const suggestions =
+    dbPlaces.length > 0
+      ? dbPlaces
+      : DEMO_DISCOVER_PLACES.filter(
+          (p) => !p.destination || p.destination === trip.destination,
+        );
 
   return (
     <div
@@ -159,6 +170,7 @@ export default async function ItineraryPage({
           trip={trip}
           initialItems={items}
           initialDay={parseDayParam(searchParams.day, trip.nights) ?? 0}
+          suggestions={suggestions}
         />
       </main>
 

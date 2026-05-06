@@ -21,7 +21,7 @@ import {
   reorderItineraryItems,
 } from "@/actions/itinerary";
 import { AddItemModal } from "./AddItemModal";
-import { DEMO_DISCOVER_PLACES } from "@/lib/seed/discover-places";
+import type { DiscoverPlace } from "@/lib/types";
 import { ShareModal } from "@/components/share/ShareModal";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
@@ -31,6 +31,8 @@ interface ItineraryViewProps {
   initialItems: ItineraryItem[];
   /** C4 — URL ?day= 파라미터에서 파싱된 초기 dayIndex (0-based). */
   initialDay?: number;
+  /** DB 또는 시드에서 가져온 추천 장소 목록. */
+  suggestions?: DiscoverPlace[];
 }
 
 /**
@@ -40,7 +42,7 @@ interface ItineraryViewProps {
  * (page에서 data-travel-mode 속성 설정).
  * pre-travel: 보라 / in-travel: 코랄 / post-travel: 그린.
  */
-export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryViewProps) {
+export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions = [] }: ItineraryViewProps) {
   const router = useRouter();
   const [items, setItems] = useState<ItineraryItem[]>(initialItems);
   const [activeDay, setActiveDay] = useState(initialDay);
@@ -432,9 +434,7 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
         open={addOpen}
         trip={trip}
         defaultDayIndex={activeDay}
-        suggestions={DEMO_DISCOVER_PLACES.filter(
-          (p) => !p.destination || p.destination === trip.destination,
-        )}
+        suggestions={suggestions}
         onClose={() => setAddOpen(false)}
         onSubmit={handleAddItem}
         isPending={isPending}
