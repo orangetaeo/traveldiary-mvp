@@ -73,11 +73,11 @@ export function ContactCard({ contact }: { contact: EmergencyContact }) {
 export function LossGuideCard({ guide }: { guide: LossGuide }) {
   return (
     <article className="bg-white border border-divider rounded-xl shadow-[0_4px_12px_rgba(15,23,42,0.05)] overflow-hidden">
-      <header className="bg-amber-50 border-b border-amber-200 px-4 py-3 flex items-center gap-2">
+      <header className="bg-amber-soft border-b border-amber/40 px-4 py-3 flex items-center gap-2">
         <span className="text-[24px]" aria-hidden>
           {guide.emoji}
         </span>
-        <h4 className="text-td-body font-bold text-amber-900">
+        <h4 className="text-td-body font-bold text-amber-deep">
           {guide.title}
         </h4>
       </header>

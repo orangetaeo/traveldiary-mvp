@@ -46,7 +46,7 @@ const KPI_DATA = [
     icon: "bolt",
     iconColor: "text-danger",
     value: "0.4%",
-    badge: { text: "Normal", color: "bg-green-100 text-green-800" },
+    badge: { text: "Normal", color: "bg-success-soft text-success-deep" },
   },
 ] as const;
 
@@ -179,7 +179,7 @@ export default function AdminIndexPage({ searchParams }: PageProps) {
                 )}
                 {"badge" in kpi && (
                   <div className={`flex items-center gap-1 px-2 py-0.5 ${kpi.badge.color} rounded-full text-td-caption`}>
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-success" />
                     <span>{kpi.badge.text}</span>
                   </div>
                 )}

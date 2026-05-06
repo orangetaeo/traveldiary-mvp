@@ -103,7 +103,7 @@ export default async function ItineraryPage({
               {isOnTrip ? "여행 중 · 실시간 동행" : "AI가 24곳 검증 완료"}
             </span>
             {isDemoTrip(trip.id) && (
-              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold tracking-wider bg-amber-100 text-amber-700">
+              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold tracking-wider bg-amber-soft text-amber-deep">
                 체험 데모
               </span>
             )}

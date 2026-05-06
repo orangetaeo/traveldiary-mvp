@@ -177,13 +177,13 @@ function TripCard({ data }: { data: TripCardData }) {
               {trip.destinationCode} · {city.countryCode}
             </span>
             {isDemoTrip(trip.id) && (
-              <span className="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 text-td-caption font-medium">
+              <span className="px-2 py-0.5 rounded-lg bg-amber-soft text-amber-deep text-td-caption font-medium">
                 체험
               </span>
             )}
           </div>
           {verifiedCount > 0 && (
-            <span className="px-2 py-0.5 rounded-lg bg-green-50 text-green-700 border border-green-200 text-td-caption font-medium flex items-center gap-1">
+            <span className="px-2 py-0.5 rounded-lg bg-success-soft text-success-deep border border-success/40 text-td-caption font-medium flex items-center gap-1">
               <span className="material-symbols-outlined text-[14px]">check_circle</span>
               AI 검증 {verifiedCount}곳
             </span>
@@ -219,7 +219,7 @@ function CityOnlyCard({ data }: { data: CityOnlyCardData }) {
           <span className="text-td-meta text-ink-mute uppercase tabular-nums">
             {city.code} · {city.countryCode}
           </span>
-          <span className="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 text-td-caption font-medium">
+          <span className="px-2 py-0.5 rounded-lg bg-amber-soft text-amber-deep text-td-caption font-medium">
             도시 가이드만
           </span>
         </div>
