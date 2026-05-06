@@ -6,7 +6,7 @@
  *       ReplanConflictModal, NotificationListView, OtaCompareSection, ProfileStats.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 // ─── Mocks ────────────────────────────────────────────────
