@@ -39,7 +39,7 @@ export default function ReplanConflictModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-td-md"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-td-md"
       role="dialog"
       aria-modal="true"
       aria-labelledby="replan-conflict-title"

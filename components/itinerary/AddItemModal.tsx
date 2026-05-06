@@ -123,7 +123,7 @@ export function AddItemModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/40"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
