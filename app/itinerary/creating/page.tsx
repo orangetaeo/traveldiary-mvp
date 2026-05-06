@@ -28,7 +28,8 @@ const TIP_INTERVAL_MS = 4000;
  * - 하단 여행 팁으로 12초 대기 동안 이탈 방지
  */
 
-function getSteps(dest: string) {
+/** @internal 테스트용 export */
+export function getSteps(dest: string) {
   return [
     {
       title: "취향 분석",
