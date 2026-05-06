@@ -9,6 +9,9 @@ import { AutoModeDetector } from "./AutoModeDetector";
 import { CityContextStrip } from "@/components/city/CityContextStrip";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 import { SpeedDialFab } from "@/components/ui/SpeedDialFab";
+import { ModeTransitionWelcome } from "./ModeTransitionWelcome";
+import { ModeTransitionSkipSheet } from "./ModeTransitionSkipSheet";
+import type { ModeTransitionSkipReason } from "@/lib/mode-transition";
 
 interface TravelHomeProps {
   trip: Trip;
@@ -38,6 +41,8 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
   const dayIndex = travelDay - 1;
 
   const [now, setNow] = useState<Date | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showSkipSheet, setShowSkipSheet] = useState(false);
 
   // 데모 now: Day 1 첫 항목 종료 + 30분 → 진행률 시연
   const demoNow = useMemo(() => {
@@ -55,6 +60,40 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
     const id = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(id);
   }, []);
+
+  // 사이클 1 (G5/G6, 2026-05-06) — 자동 모드 전환 환영 모달 1회 표시.
+  // currentMode === "in-travel" + 글로벌 영구 dismiss 미설정 + per-trip 미열람일 때.
+  // tripKey set 후 두 번째 진입부터는 자동 skip (LocalStorage 기반 1회 박제).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (trip.currentMode !== "in-travel") return;
+    const PERMANENT_KEY = "td:mt-welcome-permanent";
+    const tripKey = `td:mt-welcome-seen:${trip.id}`;
+    if (localStorage.getItem(PERMANENT_KEY) === "1") return;
+    if (localStorage.getItem(tripKey) === "1") return;
+    setShowWelcome(true);
+    localStorage.setItem(tripKey, "1");
+  }, [trip.id, trip.currentMode]);
+
+  function handleWelcomeClose(permanent: boolean) {
+    if (permanent && typeof window !== "undefined") {
+      localStorage.setItem("td:mt-welcome-permanent", "1");
+    }
+    setShowWelcome(false);
+  }
+
+  function handleSkipRequest() {
+    setShowWelcome(false);
+    setShowSkipSheet(true);
+  }
+
+  function handleSkipSubmitted(_reason: ModeTransitionSkipReason) {
+    setShowSkipSheet(false);
+  }
+
+  function handleSkipDismiss() {
+    setShowSkipSheet(false);
+  }
 
   const referenceNow = demoNow ?? now ?? new Date();
   const { done, total, current, next } = dayProgress(items, dayIndex, referenceNow);
@@ -282,6 +321,24 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
         </Link>
         <p className="text-td-caption text-ink-mute">ADR-014 · 데모 토글</p>
       </div>
+
+      {/* 사이클 1 (G5/G6, 2026-05-06) — D-Day 모드 전환 환영 모달 + 거부 sheet */}
+      {showWelcome && (
+        <ModeTransitionWelcome
+          trip={trip}
+          travelDay={travelDay}
+          onClose={handleWelcomeClose}
+          onSkipRequest={handleSkipRequest}
+        />
+      )}
+      {showSkipSheet && (
+        <ModeTransitionSkipSheet
+          trip={trip}
+          currentMode={trip.currentMode ?? "in-travel"}
+          onDismiss={handleSkipDismiss}
+          onSubmitted={handleSkipSubmitted}
+        />
+      )}
     </div>
   );
 }

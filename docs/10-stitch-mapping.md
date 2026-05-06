@@ -196,6 +196,13 @@
 | 54 | `2aa52adec90742b5a19a3f39328d450e` | AI Generation Loading State | 780×1768 | 세션 A (M1 로딩) |
 | 55 | `d3791575a14e46c3a8d42cddb1f69604` | Profile — My Page (Comparison) | 780×3504 | 비교용 |
 
+### 2.20 Mode Transition User UX (2종 — 사이클 1, 2026-05-06, G5/G6)
+
+| # | screenId | title | size | M# | 비고 |
+|---|----------|-------|------|----|------|
+| 56 | `b199aee93287416badee4d9086dd29b2` | Mode Transition Welcome (Pretendard) — D-Day 전환 환영 | 390×1768 | M2 | G5 — 자동 전환 후 1회 표시 (LocalStorage) |
+| 57 | `66261b1482b94e7ca850f697c9c57b3c` | Mode Transition Skip Reason (Pretendard) — 모드 전환 거부 사유 | 390×1768 | M2 | G6 — 사용자 명시 거부 sheet (5 옵션 + textarea 200자) |
+
 ---
 
 ## 3. 코드 ↔ Stitch 매핑
@@ -241,6 +248,8 @@
 |--------------------|-------------|--------|-------|
 | `components/itinerary/ReplanModal.tsx` ✅ | #14 Live Replan Modal - Pretendard | `/itinerary/[id]`, `/travel/[id]` | Stitch 디자인 적용 (2026-04-30). M3 mutation은 사이클 5b |
 | `components/city/CityContextStrip.tsx` | #19 City Context Strip (On-trip) | `/travel/[id]` 푸터 | **8** |
+| `components/travel/ModeTransitionWelcome.tsx` ✅ | #56 Mode Transition Welcome | `/travel/[id]` (TravelHome 통합) | **1 (2026-05-06)** |
+| `components/travel/ModeTransitionSkipSheet.tsx` ✅ | #57 Mode Transition Skip Reason | `/travel/[id]` (Welcome 거부 시) | **1 (2026-05-06)** |
 
 ---
 
@@ -326,3 +335,4 @@
 | 2026-04-30 | 5b | 옵션 C #1 Home (Pre-trip) 적용 — app/page.tsx Stitch 디자인 변환, Material Symbols CDN 추가 |
 | 2026-04-30 | 5b | 옵션 C #2~#10 일괄 적용 — Item Detail / Itinerary / Travel On-trip / Translate 2-step / Replan Modal. Stitch 22개 중 11개 한국어 정답 화면이 모두 코드에 매핑 (#7 OTA, #11 Share는 사이클 12/11 보류) |
 | 2026-05-05 | Phase 7 | 화면 인벤토리 22→55개 확장. Admin 6 + Permission 2 + Settings 1 + Wrap-up 1 + Booking 1 + Extension 3 + Session A 10 + Session B 6 + 기타 3. 3 세션 병렬 매핑. |
+| 2026-05-06 | 사이클 1 (G5/G6) | Mode Transition User UX 2종 추가 (#56 Welcome + #57 Skip Reason). 사용자 흐름 갭 10 중 1번 해소. ModeTransitionWelcome + ModeTransitionSkipSheet 컴포넌트 + ModeTransitionSkipReason enum +3 (user_postponed_for_now / user_confused_ui / user_other) + userNote 화이트리스트 (200자, ADR-017 §C 답습). |

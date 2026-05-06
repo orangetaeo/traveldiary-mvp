@@ -272,3 +272,86 @@ describe("사이클 KK — outcome / skipReason (M2 negative path)", () => {
     expect(meta.dDay).toBe(5);
   });
 });
+
+describe("사이클 1 (G6) — 사용자 명시 거부 + userNote (2026-05-06)", () => {
+  it("3 user_* enum 화이트리스트 통과", () => {
+    const reasons = [
+      "user_postponed_for_now",
+      "user_confused_ui",
+      "user_other",
+    ] as const;
+    for (const reason of reasons) {
+      const meta = buildModeTransitionMetadata({
+        trigger: "manual",
+        previousMode: "in-travel",
+        context: { outcome: "skipped", skipReason: reason },
+      });
+      expect(meta.outcome).toBe("skipped");
+      expect(meta.skipReason).toBe(reason);
+    }
+  });
+
+  it("userNote 200자 슬라이스 (UI 한도와 일치)", () => {
+    const longNote = "ㄱ".repeat(250);
+    const meta = buildModeTransitionMetadata({
+      trigger: "manual",
+      previousMode: "in-travel",
+      context: {
+        outcome: "skipped",
+        skipReason: "user_other",
+        destinationCode: "DAD",
+        userNote: longNote,
+      },
+    });
+    expect(typeof meta.userNote).toBe("string");
+    expect((meta.userNote as string).length).toBe(200);
+  });
+
+  it("userNote 빈 문자열은 metadata 미포함", () => {
+    const meta = buildModeTransitionMetadata({
+      trigger: "manual",
+      previousMode: "in-travel",
+      context: {
+        outcome: "skipped",
+        skipReason: "user_other",
+        userNote: "",
+      },
+    });
+    expect(meta).not.toHaveProperty("userNote");
+  });
+
+  it("userNote 정상 통과 + 좌표 leak 방어 동시 (ADR-017 §C 답습)", () => {
+    const meta = buildModeTransitionMetadata({
+      trigger: "manual",
+      previousMode: "in-travel",
+      context: {
+        outcome: "skipped",
+        skipReason: "user_other",
+        destinationCode: "PQC",
+        userNote: "다른 번역 앱 쓸게요",
+        lat: 10.225,
+        lng: 103.96,
+      } as never,
+    });
+    expect(meta.userNote).toBe("다른 번역 앱 쓸게요");
+    const keys = Object.keys(meta);
+    expect(keys).not.toContain("lat");
+    expect(keys).not.toContain("lng");
+  });
+
+  it("user_other 외 enum + userNote 동시 — metadata 함수는 enum-note 정합 게이트 X (UI 책임)", () => {
+    // buildModeTransitionMetadata는 화이트리스트만; user_other ↔ userNote 정합은
+    // ModeTransitionSkipSheet가 'user_other 선택 시에만' textarea 노출로 보장.
+    const meta = buildModeTransitionMetadata({
+      trigger: "manual",
+      previousMode: "in-travel",
+      context: {
+        outcome: "skipped",
+        skipReason: "user_confused_ui",
+        userNote: "임의 메모",
+      },
+    });
+    expect(meta.skipReason).toBe("user_confused_ui");
+    expect(meta.userNote).toBe("임의 메모");
+  });
+});

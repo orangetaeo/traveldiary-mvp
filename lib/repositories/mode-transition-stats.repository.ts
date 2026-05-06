@@ -30,6 +30,8 @@ export interface ModeTransitionStatRow {
   destinationCode?: string;
   dDay?: number;
   boundaryHit?: boolean;
+  /** 사이클 1 (G6) — user_other 자유 입력. UI 200자 제한. */
+  userNote?: string;
 }
 
 export interface ModeTransitionDestinationStat {
@@ -79,6 +81,7 @@ export function aggregateModeTransitionStats(
       destinationCode?: string;
       dDay?: number;
       boundaryHit?: boolean;
+      userNote?: string;
     };
     return {
       id: r.id,
@@ -90,6 +93,10 @@ export function aggregateModeTransitionStats(
       dDay: typeof meta.dDay === "number" ? meta.dDay : undefined,
       boundaryHit:
         typeof meta.boundaryHit === "boolean" ? meta.boundaryHit : undefined,
+      userNote:
+        typeof meta.userNote === "string" && meta.userNote.length > 0
+          ? meta.userNote.slice(0, 200)
+          : undefined,
     };
   });
 
@@ -209,6 +216,10 @@ const VALID_SKIP_REASONS: ReadonlySet<string> = new Set<ModeTransitionSkipReason
   "geolocation_unsupported",
   "geolocation_denied",
   "geolocation_unavailable",
+  // 사이클 1 (G6, 2026-05-06) — 사용자 명시 거부. lib/mode-transition.ts와 동기.
+  "user_postponed_for_now",
+  "user_confused_ui",
+  "user_other",
 ]);
 
 function normalizeTrigger(v: unknown): ModeTransitionTrigger | "unknown" {

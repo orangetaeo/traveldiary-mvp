@@ -30,6 +30,10 @@ const REASON_LABEL: Record<ModeTransitionSkipReason, string> = {
   geolocation_unsupported: "기기 미지원",
   geolocation_denied: "권한 거부",
   geolocation_unavailable: "위치 가져오기 실패",
+  // 사이클 1 (G6, 2026-05-06) — 사용자 명시 거부 (ModeTransitionSkipSheet)
+  user_postponed_for_now: "사용자 — 잠깐 켬",
+  user_confused_ui: "사용자 — UI 헷갈림",
+  user_other: "사용자 — 기타",
 };
 
 const REASON_TONE: Record<ModeTransitionSkipReason, string> = {
@@ -39,6 +43,9 @@ const REASON_TONE: Record<ModeTransitionSkipReason, string> = {
   geolocation_unsupported: "bg-surface-soft text-ink-soft",
   geolocation_denied: "bg-danger-soft text-danger-deep",
   geolocation_unavailable: "bg-surface-soft text-ink-soft",
+  user_postponed_for_now: "bg-purple-soft text-purple-deep",
+  user_confused_ui: "bg-amber-soft text-amber-deep",
+  user_other: "bg-surface-soft text-ink-soft",
 };
 
 const TRIGGER_LABEL: Record<ModeTransitionTrigger | "unknown", string> = {

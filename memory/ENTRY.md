@@ -9,7 +9,7 @@
 ---
 
 ## 1. 다음 사이클
-**진행 중**: BLOCKER6(actorId 격리) → BLOCKER1(M1 AI 일정) → C4(Day 동기화) 순차 진행. PR #33~#40 머지 완료.
+**진행 중**: 사용자 흐름 갭 10 — 사이클 1(G5/G6 D-Day 모드 전환 환영+거부) ✅ 완료(2026-05-06 Session K). 다음 = 사이클 2(G7 친구 trip 합류 confirm). 4-OAuth 게이트 batch는 사이클 6 진입 전 사용자 액션 대기.
 
 ## 2. 활성 게이트 (batch)
 **없음.** 게이트 발생 시 `memory/project_gate_batch_YYYY_MM_DD.md` 위치 + 본 라인 `🔴 활성 게이트 N건` 갱신.

@@ -169,12 +169,17 @@ export type ModeTransitionTrigger = "manual" | "geolocation";
  * 않는다 (boundary 밖이라도 "5.2km 떨어짐"은 leak이라 단순 "not_in_destination"만).
  */
 export type ModeTransitionSkipReason =
+  // 자동 detection (AutoModeDetector geolocation 분기 — 사이클 KK)
   | "not_in_destination"
   | "not_yet_started"
   | "already_in_mode"
   | "geolocation_unsupported"
   | "geolocation_denied"
-  | "geolocation_unavailable";
+  | "geolocation_unavailable"
+  // 사이클 1 (G6, 2026-05-06) — 사용자 명시 거부 (ModeTransitionSkipSheet)
+  | "user_postponed_for_now"
+  | "user_confused_ui"
+  | "user_other";
 
 /** 사이클 KK — applied = mode 변경됨, skipped = 시도했으나 변경 안 됨 */
 export type ModeTransitionOutcome = "applied" | "skipped";
@@ -188,8 +193,10 @@ export interface ModeTransitionContext {
   destinationCode?: string;
   /** 사이클 KK — applied 기본, skipped는 명시. 미지정 시 applied 가정 (AAA 답습). */
   outcome?: ModeTransitionOutcome;
-  /** 사이클 KK — outcome=skipped일 때만 의미. 6 카테고리 enum. */
+  /** 사이클 KK — outcome=skipped일 때만 의미. 사이클 1(2026-05-06)에 사용자 명시 3 추가. */
   skipReason?: ModeTransitionSkipReason;
+  /** 사이클 1 (G6, 2026-05-06) — user_other 자유 입력. UI 200자 제한 + audit log redact (sanitizeAuditValue). */
+  userNote?: string;
 }
 
 export interface ModeTransitionMetadataInput {
@@ -233,6 +240,10 @@ export function buildModeTransitionMetadata(
     if (typeof ctx.skipReason === "string" && isValidSkipReason(ctx.skipReason)) {
       meta.skipReason = ctx.skipReason;
     }
+    // 사이클 1 (G6) — user_other 자유 입력. UI 한도 200자 + audit log sanitize 13 키 redact.
+    if (typeof ctx.userNote === "string" && ctx.userNote.length > 0) {
+      meta.userNote = ctx.userNote.slice(0, 200);
+    }
   }
   return meta;
 }
@@ -244,6 +255,10 @@ const VALID_SKIP_REASONS: ReadonlySet<string> = new Set<ModeTransitionSkipReason
   "geolocation_unsupported",
   "geolocation_denied",
   "geolocation_unavailable",
+  // 사이클 1 (G6) — 사용자 명시 거부
+  "user_postponed_for_now",
+  "user_confused_ui",
+  "user_other",
 ]);
 
 function isValidSkipReason(value: string): value is ModeTransitionSkipReason {
