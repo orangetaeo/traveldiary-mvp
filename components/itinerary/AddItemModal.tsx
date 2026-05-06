@@ -3,12 +3,12 @@
 /**
  * 일정 자유 추가 모달 (A5) — 사이클 10.
  *
- * Stitch ReplanModal 디자인 토큰 답습 (바텀 시트 + drag handle + max-h 85vh).
+ * Stitch ReplanModal 디자인 토큰 답습 (바텀 시트 + drag handle + swipe dismiss).
  * 사용자 입력: 시간(HH:MM) · 이름 · 카테고리 · flexibility · 소요시간(분).
  * 부모(ItineraryView)에서 폼 제출 시 onSubmit 콜백 호출.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import type {
   ItemCategory,
   ItemFlexibility,
@@ -59,6 +59,11 @@ export function AddItemModal({
   const [flexibility, setFlexibility] = useState<ItemFlexibility>("flexible");
   const [duration, setDuration] = useState(60);
 
+  // 드래그 dismiss
+  const [dragY, setDragY] = useState(0);
+  const dragStartY = useRef(0);
+  const isDragging = useRef(false);
+
   useEffect(() => {
     if (open) setDay(defaultDayIndex);
   }, [open, defaultDayIndex]);
@@ -76,13 +81,31 @@ export function AddItemModal({
     };
   }, [open, onClose]);
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    dragStartY.current = e.touches[0].clientY;
+    isDragging.current = true;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    const delta = e.touches[0].clientY - dragStartY.current;
+    if (delta > 0) setDragY(delta);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    isDragging.current = false;
+    if (dragY > 120) {
+      onClose();
+    }
+    setDragY(0);
+  }, [dragY, onClose]);
+
   if (!open) return null;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
 
-    // trip.startDate (YYYY-MM-DD) + day offset + HH:MM → ISO
     const [hh, mm] = time.split(":").map(Number);
     const start = new Date(`${trip.startDate}T00:00:00.000Z`);
     start.setUTCDate(start.getUTCDate() + day);
@@ -107,10 +130,17 @@ export function AddItemModal({
       aria-labelledby="add-item-title"
     >
       <div
-        className="relative w-full max-w-[420px] bg-surface-card rounded-t-[24px] shadow-2xl flex flex-col max-h-[85vh]"
+        className="relative w-full max-w-[420px] bg-surface-card rounded-t-[24px] shadow-2xl flex flex-col max-h-[calc(100dvh-2rem)] transition-transform"
+        style={{ transform: dragY > 0 ? `translateY(${dragY}px)` : undefined }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-center pt-3 pb-2 shrink-0">
+        {/* Drag Handle */}
+        <div
+          className="flex justify-center pt-3 pb-2 shrink-0 cursor-grab active:cursor-grabbing touch-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="w-10 h-1 rounded-full bg-divider" aria-hidden />
         </div>
 
@@ -137,7 +167,7 @@ export function AddItemModal({
 
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto px-td-md pb-td-md space-y-td-sm"
+          className="flex-1 overflow-y-auto px-td-md space-y-td-sm"
         >
           <label className="flex flex-col">
             <span className="text-td-caption text-ink-soft mb-1">이름 (필수)</span>
@@ -238,24 +268,27 @@ export function AddItemModal({
             💡 추가된 항목은 시간 충돌이 있어도 그대로 등록됩니다. Live Replan으로
             조정하세요.
           </p>
-
-          <div className="pt-td-sm flex gap-td-sm">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2 border border-divider text-ink rounded-lg text-td-body font-semibold hover:bg-surface-soft transition-colors"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              disabled={!name.trim() || isPending}
-              className="flex-[2] py-2 bg-purple text-white rounded-lg text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
-            >
-              {isPending ? "추가 중…" : "일정 추가"}
-            </button>
-          </div>
         </form>
+
+        {/* 하단 버튼 — 스크롤 영역 밖 (항상 보임) */}
+        <div className="shrink-0 px-td-md pt-td-sm pb-td-md flex gap-td-sm border-t border-divider">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 border border-divider text-ink rounded-lg text-td-body font-semibold hover:bg-surface-soft transition-colors"
+          >
+            취소
+          </button>
+          <button
+            type="submit"
+            form="add-item-form"
+            disabled={!name.trim() || isPending}
+            onClick={handleSubmit as unknown as React.MouseEventHandler}
+            className="flex-[2] py-2.5 bg-purple text-white rounded-lg text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
+          >
+            {isPending ? "추가 중…" : "일정 추가"}
+          </button>
+        </div>
       </div>
     </div>
   );
