@@ -142,8 +142,8 @@ export default function SharedListPage() {
         {state.kind === "empty" && <EmptyGuide />}
 
         {state.kind === "error" && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <p className="text-sm text-amber-900">
+          <div className="bg-amber-soft border border-amber/40 rounded-lg p-4">
+            <p className="text-sm text-amber-deep">
               상태 조회 실패: {state.message}
             </p>
           </div>
@@ -240,7 +240,7 @@ export default function SharedListPage() {
                 <div className="border-t border-divider px-4 py-2 flex justify-end">
                   <button
                     type="button"
-                    className="text-td-caption text-ink-mute hover:text-red-600 transition-colors"
+                    className="text-td-caption text-ink-mute hover:text-danger-deep transition-colors"
                     onClick={() => handleRemove(it.key)}
                   >
                     내 목록에서 삭제

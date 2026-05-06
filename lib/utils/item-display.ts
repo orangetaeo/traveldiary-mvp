@@ -55,6 +55,14 @@ export function flexibilityKr(f: string): string {
   }
 }
 
+/** searchParams의 day 파라미터 파싱 (0~nights 범위 외 → undefined) */
+export function parseDayParam(raw: string | undefined, nights: number): number | undefined {
+  if (raw == null) return undefined;
+  const n = parseInt(raw, 10);
+  if (Number.isNaN(n) || n < 0 || n > nights) return undefined;
+  return n;
+}
+
 /** 카테고리 → 한국어 라벨 */
 export const CATEGORY_LABEL: Record<string, string> = {
   food: "음식점",

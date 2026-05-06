@@ -23,7 +23,7 @@ import { CityContextStrip } from "@/components/city/CityContextStrip";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { todayISO } from "@/lib/seed/demo-date";
-import { dDay } from "@/lib/utils/item-display";
+import { dDay, parseDayParam } from "@/lib/utils/item-display";
 
 const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
 
@@ -103,7 +103,7 @@ export default async function ItineraryPage({
               {isOnTrip ? "여행 중 · 실시간 동행" : "AI가 24곳 검증 완료"}
             </span>
             {isDemoTrip(trip.id) && (
-              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold tracking-wider bg-amber-100 text-amber-700">
+              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold tracking-wider bg-amber-soft text-amber-deep">
                 체험 데모
               </span>
             )}
@@ -158,7 +158,7 @@ export default async function ItineraryPage({
         <ItineraryView
           trip={trip}
           initialItems={items}
-          initialDay={parseDayParam(searchParams.day, trip.nights)}
+          initialDay={parseDayParam(searchParams.day, trip.nights) ?? 0}
         />
       </main>
 
@@ -214,10 +214,3 @@ function paceLabel(p: string): string {
   );
 }
 
-/** C4 — ?day= 파라미터 → 0-based dayIndex. 범위 밖이면 0. */
-function parseDayParam(raw: string | undefined, nights: number): number {
-  if (raw == null) return 0;
-  const n = parseInt(raw, 10);
-  if (Number.isNaN(n) || n < 0 || n > nights) return 0;
-  return n;
-}

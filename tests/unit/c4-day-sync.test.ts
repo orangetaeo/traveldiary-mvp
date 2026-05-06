@@ -24,8 +24,8 @@ describe("C4 — Itinerary 페이지 day 파라미터 수신", () => {
     expect(src).toContain("day?:");
   });
 
-  it("parseDayParam 헬퍼 정의", () => {
-    expect(src).toContain("function parseDayParam");
+  it("parseDayParam import", () => {
+    expect(src).toContain("parseDayParam");
   });
 
   it("ItineraryView에 initialDay props 전달", () => {
@@ -100,8 +100,8 @@ describe("C4 — Cost 페이지 day 파라미터 수신", () => {
     expect(src).toContain("day?:");
   });
 
-  it("parseDayParam 헬퍼 정의", () => {
-    expect(src).toContain("function parseDayParam");
+  it("parseDayParam import", () => {
+    expect(src).toContain("parseDayParam");
   });
 
   it("CostView에 initialDay props 전달", () => {
@@ -144,8 +144,8 @@ describe("C4 — Checklist 페이지 day 파라미터 수신", () => {
     expect(src).toContain("day?:");
   });
 
-  it("parseDayParam 헬퍼 정의", () => {
-    expect(src).toContain("function parseDayParam");
+  it("parseDayParam import", () => {
+    expect(src).toContain("parseDayParam");
   });
 
   it("ChecklistView에 initialDay props 전달", () => {

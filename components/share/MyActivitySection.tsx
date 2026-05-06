@@ -65,9 +65,9 @@ export function MyActivitySection() {
     return (
       <section
         aria-label="내 활동"
-        className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4"
+        className="bg-amber-soft border border-amber/40 rounded-xl p-4 mb-4"
       >
-        <p className="text-xs text-amber-900">
+        <p className="text-xs text-amber-deep">
           내 활동을 불러올 수 없어요. 잠시 후 다시 시도해주세요.
         </p>
       </section>
@@ -140,7 +140,7 @@ function ActivityCardBody({
             <span aria-label={`반응: ${item.reaction}`}>{reactionEmoji}</span>
           )}
           {inactive && (
-            <span className="text-[10px] text-amber-700">· 만료</span>
+            <span className="text-[10px] text-amber-deep">· 만료</span>
           )}
         </div>
         <p className="text-xs text-ink-soft mt-0.5 truncate">

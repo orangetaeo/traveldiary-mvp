@@ -134,7 +134,7 @@ export function InactiveCard({ item }: { item: SharedLookupItem }) {
         <h4 className="text-td-card-title text-ink truncate">
           {item.destination ?? "여행"}
         </h4>
-        <div className="mt-1 inline-flex items-center gap-1 text-amber-700 text-[10px] font-bold">
+        <div className="mt-1 inline-flex items-center gap-1 text-amber-deep text-[10px] font-bold">
           <span className="material-symbols-outlined text-[12px]">link_off</span>
           {label}
         </div>

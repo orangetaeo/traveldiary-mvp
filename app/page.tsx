@@ -252,7 +252,7 @@ export default async function HomePage() {
                     <p className="text-td-meta text-ink-soft uppercase tabular-nums">
                       {b.trip.destinationCode}
                     </p>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-soft text-amber-deep">
                       체험
                     </span>
                   </div>
