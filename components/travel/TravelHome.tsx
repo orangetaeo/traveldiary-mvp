@@ -8,6 +8,7 @@ import type { ItineraryItem, ResolvedCity, Trip } from "@/lib/types";
 import { AutoModeDetector } from "./AutoModeDetector";
 import { CityContextStrip } from "@/components/city/CityContextStrip";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
+import { SpeedDialFab } from "@/components/ui/SpeedDialFab";
 
 interface TravelHomeProps {
   trip: Trip;
@@ -246,25 +247,29 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
         </div>
       )}
 
-      {/* FAB Stack */}
-      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-[420px] z-50 pointer-events-none">
-        <div className="ml-auto flex flex-col gap-td-xs pointer-events-auto pr-td-md w-fit">
-          <button
-            type="button"
-            aria-label="주변 검색"
-            className="w-12 h-12 rounded-full bg-surface-card border border-divider shadow-lg flex items-center justify-center active:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined text-ink">search</span>
-          </button>
-          <Link
-            href={`/translate?trip=${trip.id}`}
-            aria-label="카메라 번역"
-            className="w-14 h-14 rounded-full bg-mode-primary text-white shadow-xl flex items-center justify-center active:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined">photo_camera</span>
-          </Link>
-        </div>
-      </div>
+      {/* Speed Dial FAB — 메인 탭 시 검색·카메라 펼침 */}
+      <SpeedDialFab bottomClassName="bottom-20" zIndex="z-50">
+        <button
+          type="button"
+          data-speed-dial-action="true"
+          aria-label="주변 검색"
+          className="w-12 h-12 rounded-full bg-surface-card border border-divider shadow-lg flex items-center justify-center active:scale-95 transition-all"
+        >
+          <span className="material-symbols-outlined text-ink" aria-hidden="true">
+            search
+          </span>
+        </button>
+        <Link
+          href={`/translate?trip=${trip.id}`}
+          data-speed-dial-action="true"
+          aria-label="카메라 번역"
+          className="w-12 h-12 rounded-full bg-surface-card border border-divider shadow-lg flex items-center justify-center active:scale-95 transition-all"
+        >
+          <span className="material-symbols-outlined text-ink" aria-hidden="true">
+            photo_camera
+          </span>
+        </Link>
+      </SpeedDialFab>
 
       {/* Bottom Bar */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full px-td-md py-td-sm bg-surface-card/90 backdrop-blur-md border-t border-divider z-40 flex justify-between items-center">

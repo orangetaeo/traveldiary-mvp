@@ -23,6 +23,7 @@ import { listDemoItemsByDay, listDemoTrips, DEMO_TRIP_ID } from "@/lib/seed";
 import { getCityByCode, isVietnamCity } from "@/lib/seed/cities";
 import { LoginButton } from "@/components/auth/LoginButton";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { SpeedDialFab } from "@/components/ui/SpeedDialFab";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { kakaoAvailable } from "@/lib/auth/kakao";
 import { jwtAvailable } from "@/lib/auth/jwt";
@@ -293,25 +294,29 @@ export default async function HomePage() {
         </section>
       </main>
 
-      {/* FAB — Pre-trip 모드에서도 검색·번역 빠른 진입 */}
-      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-[420px] z-40 pointer-events-none">
-        <div className="ml-auto flex flex-col gap-td-xs pointer-events-auto pr-td-md w-fit">
-          <button
-            type="button"
-            className="w-12 h-12 bg-surface-card text-ink border border-divider rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
-            aria-label="주변 검색"
-          >
-            <span className="material-symbols-outlined">search</span>
-          </button>
-          <Link
-            href="/translate"
-            className="w-14 h-14 bg-purple text-white rounded-full shadow-xl flex items-center justify-center active:scale-95 transition-transform"
-            aria-label="카메라 번역"
-          >
-            <span className="material-symbols-outlined">photo_camera</span>
-          </Link>
-        </div>
-      </div>
+      {/* Speed Dial FAB — 메인 탭 시 검색·카메라 펼침 */}
+      <SpeedDialFab bottomClassName="bottom-24" zIndex="z-40">
+        <button
+          type="button"
+          data-speed-dial-action="true"
+          className="w-12 h-12 bg-surface-card text-ink border border-divider rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
+          aria-label="주변 검색"
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">
+            search
+          </span>
+        </button>
+        <Link
+          href="/translate"
+          data-speed-dial-action="true"
+          className="w-12 h-12 bg-surface-card text-ink border border-divider rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
+          aria-label="카메라 번역"
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">
+            photo_camera
+          </span>
+        </Link>
+      </SpeedDialFab>
 
       {/* Bottom Nav — 사이클 O 컴포넌트 추출 (사이클 I ADR-033) */}
       <BottomNav active="home" />
