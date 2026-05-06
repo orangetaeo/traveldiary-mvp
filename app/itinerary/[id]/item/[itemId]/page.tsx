@@ -16,6 +16,7 @@ import { getDemoItem } from "@/lib/seed";
 import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { validateItemAction } from "@/actions/place";
 import type { VerifyPlaceResult } from "@/lib/services/place-verification";
+import { hasValidCoords } from "@/lib/utils/geo";
 import { ValidationBadges } from "@/components/itinerary/ValidationBadges";
 import { OtaCompareSection } from "@/components/itinerary/OtaCompareSection";
 import { aggregateOffersForItem } from "@/lib/services/ota-aggregator";
@@ -274,7 +275,7 @@ export default async function ItineraryItemPage({
         )}
 
         {/* 인라인 지도 (사이클 7.5+, ADR-028 + Geolocation directions) */}
-        {item.location.lat !== 0 && item.location.lng !== 0 ? (
+        {hasValidCoords(item.location) ? (
           process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY ? (
             <ItineraryMapWithDirections
               lat={item.location.lat}
@@ -292,7 +293,7 @@ export default async function ItineraryItemPage({
         ) : null}
 
         {/* 길찾기 deeplink (사이클 7 D1·D2 + G 카카오맵) */}
-        {item.location.lat !== 0 && item.location.lng !== 0 && (
+        {hasValidCoords(item.location) && (
           <DirectionsGrid location={item.location} placeName={ko} />
         )}
       </main>

@@ -14,6 +14,7 @@
 import "server-only";
 
 import type { ItineraryItem } from "@/lib/types";
+import { hasValidCoords } from "@/lib/utils/geo";
 import {
   compareDistanceVerification,
   haversineKm,
@@ -44,9 +45,7 @@ export async function verifyItemDistance(
   if (!nextItem) {
     return compareDistanceVerification({ item, nextItem: null });
   }
-  const hasOrigin = item.location.lat !== 0 || item.location.lng !== 0;
-  const hasDest = nextItem.location.lat !== 0 || nextItem.location.lng !== 0;
-  if (!hasOrigin || !hasDest) {
+  if (!hasValidCoords(item.location) || !hasValidCoords(nextItem.location)) {
     return compareDistanceVerification({ item, nextItem });
   }
 

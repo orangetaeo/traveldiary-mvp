@@ -15,13 +15,14 @@
  */
 
 import type { ItineraryItem } from "@/lib/types";
+import { haversineKm, hasValidCoords } from "@/lib/utils/geo";
+
+// re-export for existing consumers (BC)
+export { EARTH_RADIUS_KM, haversineKm } from "@/lib/utils/geo";
 
 // ═══════════════════════════════════════════════════════════════════
 // 상수 (R1 조건 — 매직 넘버 모듈 상수)
 // ═══════════════════════════════════════════════════════════════════
-
-/** 지구 반지름 (km) — Haversine 공식 표준 */
-export const EARTH_RADIUS_KM = 6371;
 
 /** Haversine 직선거리에 곱하는 우회 보정계수 (도시 격자 평균) */
 export const DRIVE_DETOUR_FACTOR = 1.4;
@@ -92,26 +93,6 @@ export interface CompareDistanceInput {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// Haversine — 직선 거리 (km)
-// ═══════════════════════════════════════════════════════════════════
-
-export function haversineKm(
-  origin: { lat: number; lng: number },
-  destination: { lat: number; lng: number },
-): number {
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(destination.lat - origin.lat);
-  const dLng = toRad(destination.lng - origin.lng);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(origin.lat)) *
-      Math.cos(toRad(destination.lat)) *
-      Math.sin(dLng / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return EARTH_RADIUS_KM * c;
-}
-
-// ═══════════════════════════════════════════════════════════════════
 // 모드 결정 — 거리 기반 자동
 // ═══════════════════════════════════════════════════════════════════
 
@@ -157,9 +138,7 @@ export function compareDistanceVerification(
   }
 
   // ── 좌표 누락 (시드 신뢰성 한계)
-  const hasOriginCoords = item.location.lat !== 0 || item.location.lng !== 0;
-  const hasDestCoords = nextItem.location.lat !== 0 || nextItem.location.lng !== 0;
-  if (!hasOriginCoords || !hasDestCoords) {
+  if (!hasValidCoords(item.location) || !hasValidCoords(nextItem.location)) {
     return {
       status: "missing_location",
       verified: false,
