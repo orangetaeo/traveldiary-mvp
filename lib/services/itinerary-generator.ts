@@ -45,8 +45,8 @@ export interface GenerateItineraryInput {
   };
 }
 
-/** LLM이 반환하는 단일 일정 항목 (JSON 스키마) */
-interface LlmItem {
+/** LLM이 반환하는 단일 일정 항목 (JSON 스키마). @internal 테스트용 export */
+export interface LlmItem {
   dayIndex: number;
   time: string;            // "HH:MM"
   name: string;            // "즈엉동 야시장 (Dinh Cau Night Market)"
@@ -85,7 +85,8 @@ function buildSystemPrompt(): string {
 {"items":[{"dayIndex":0,"time":"08:00","name":"장소명 (원명)","category":"food","lat":10.123,"lng":103.456,"address":"주소","durationMinutes":60,"reason":"추천 근거"}]}`;
 }
 
-function buildUserPrompt(input: GenerateItineraryInput): string {
+/** @internal 테스트용 export — 프롬프트 생성 순수 함수 */
+export function buildUserPrompt(input: GenerateItineraryInput): string {
   const days = input.nights + 1;
   const vibesKo = input.preferences.vibes.length > 0
     ? input.preferences.vibes.join(", ")
@@ -251,7 +252,8 @@ export async function generateItinerary(
 // 변환 헬퍼
 // ═══════════════════════════════════════════
 
-function llmItemsToItinerary(
+/** @internal 테스트용 export — LLM 응답 → ItineraryItem[] 변환 순수 함수 */
+export function llmItemsToItinerary(
   llmItems: LlmItem[],
   input: GenerateItineraryInput,
 ): ItineraryItem[] {
