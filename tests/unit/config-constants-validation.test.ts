@@ -119,8 +119,8 @@ describe("tailwind.config.ts — 컬러 시스템", () => {
 
   it("DEFAULT + soft + deep 3단 구조 (ink 제외 6색)", () => {
     const colorGroups = ["accent", "purple", "amber", "success", "danger"];
-    for (const group of colorGroups) {
-      // group 블록 안에 DEFAULT, soft, deep 포함
+    for (const _group of colorGroups) {
+      // 각 group 블록 안에 DEFAULT, soft, deep 포함
       expect(tailwindSrc).toContain("DEFAULT:");
       expect(tailwindSrc).toContain("soft:");
       expect(tailwindSrc).toContain("deep:");
@@ -171,8 +171,8 @@ describe("tailwind.config.ts — 타이포그래피", () => {
 
   it("모든 fontSize에 lineHeight 존재", () => {
     const scales = ["td-title", "td-card-title", "td-body", "td-meta", "td-caption"];
-    for (const scale of scales) {
-      // scale 뒤에 lineHeight가 나와야 함
+    for (const _scale of scales) {
+      // 각 scale 뒤에 lineHeight가 나와야 함
       expect(tailwindSrc).toContain("lineHeight:");
     }
   });
