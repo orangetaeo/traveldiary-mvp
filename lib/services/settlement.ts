@@ -184,9 +184,7 @@ export function computeSettlement(entries: CostEntry[]): SettlementResult {
   };
 }
 
-export function formatKrw(value: number): string {
-  return `₩${Math.abs(value).toLocaleString("ko-KR")}`;
-}
+export { formatKrw } from "@/lib/utils/format-krw";
 
 /**
  * UI 입력 토큰 파싱 — "이름" 또는 "이름:가중치" 형식.

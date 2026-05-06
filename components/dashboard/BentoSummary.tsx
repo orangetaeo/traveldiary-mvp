@@ -9,6 +9,7 @@
  */
 
 import type { TripDashboardData } from "@/lib/services/trip-dashboard";
+import { formatKrw } from "@/lib/utils/format-krw";
 
 interface BentoSummaryProps {
   data: TripDashboardData;
@@ -114,11 +115,11 @@ function BudgetCard({ data }: { data: TripDashboardData["cost"] }) {
     <CardShell ariaLabel="예산 요약">
       <CardHeader
         icon="payments"
-        label={`예산 ₩${data.totalKrw.toLocaleString("ko-KR")}`}
+        label={`예산 ${formatKrw(data.totalKrw)}`}
         iconClass="text-amber"
       />
       <p className="text-td-body font-medium text-ink tabular-nums">
-        1인 ₩{data.perPersonKrw.toLocaleString("ko-KR")}
+        1인 {formatKrw(data.perPersonKrw)}
       </p>
     </CardShell>
   );
