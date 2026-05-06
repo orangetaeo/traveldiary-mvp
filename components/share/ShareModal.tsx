@@ -5,7 +5,7 @@
  * Trip 공유 링크 생성 + URL 복사.
  */
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useRef, useCallback } from "react";
 import { createShareLinkAction } from "@/actions/share";
 import { KakaoShareButton } from "./KakaoShareButton";
 
@@ -21,8 +21,12 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
   const [demo, setDemo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  // 사이클 11c — permission 토글 (view 기본 / edit는 OAuth 전제)
   const [permission, setPermission] = useState<"view" | "edit">("view");
+
+  // 드래그 dismiss
+  const [dragY, setDragY] = useState(0);
+  const dragStartY = useRef(0);
+  const isDragging = useRef(false);
 
   useEffect(() => {
     if (!open) return;
@@ -41,6 +45,25 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
       document.body.style.overflow = "";
     };
   }, [open, onClose]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    dragStartY.current = e.touches[0].clientY;
+    isDragging.current = true;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    const delta = e.touches[0].clientY - dragStartY.current;
+    if (delta > 0) setDragY(delta);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    isDragging.current = false;
+    if (dragY > 120) {
+      onClose();
+    }
+    setDragY(0);
+  }, [dragY, onClose]);
 
   function regenerate(perm: "view" | "edit") {
     setShareUrl(null);
@@ -90,12 +113,20 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
       aria-labelledby="share-title"
     >
       <div
-        className="relative w-full max-w-[420px] bg-surface-card rounded-t-[24px] shadow-2xl flex flex-col"
+        className="relative w-full max-w-[420px] bg-surface-card rounded-t-[24px] shadow-2xl flex flex-col max-h-[calc(100dvh-2rem)] transition-transform"
+        style={{ transform: dragY > 0 ? `translateY(${dragY}px)` : undefined }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-center pt-3 pb-2">
+        {/* Drag Handle */}
+        <div
+          className="flex justify-center pt-3 pb-2 shrink-0 cursor-grab active:cursor-grabbing touch-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="w-10 h-1 rounded-full bg-divider" aria-hidden />
         </div>
+
         <button
           type="button"
           onClick={onClose}
@@ -105,7 +136,7 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
           <span className="material-symbols-outlined">close</span>
         </button>
 
-        <header className="px-td-lg pt-td-xs pb-td-sm">
+        <header className="px-td-lg pt-td-xs pb-td-sm shrink-0">
           <h2
             id="share-title"
             className="text-td-card-title text-ink font-semibold"
@@ -118,7 +149,7 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
           </p>
         </header>
 
-        <div className="px-td-md pb-td-md space-y-td-sm">
+        <div className="flex-1 overflow-y-auto px-td-md space-y-td-sm">
           {/* 11c: permission 토글 */}
           <div className="flex gap-td-xs" role="radiogroup" aria-label="권한">
             <button
@@ -172,23 +203,28 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
               <div className="bg-surface-soft border border-divider rounded-lg p-td-sm break-all text-td-meta text-ink tabular-nums">
                 {shareUrl}
               </div>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="w-full py-2 bg-purple text-white rounded-lg text-td-body font-semibold hover:opacity-90 transition-opacity"
-              >
-                {copied ? "✅ 복사됨" : "URL 복사"}
-              </button>
-              {/* 사이클 R (ADR-036) — 카카오톡 공유 (Web Share API + URL scheme) */}
-              <div className="flex justify-center">
-                <KakaoShareButton
-                  url={shareUrl}
-                  text="TravelDiary 여행 일정을 공유합니다"
-                />
-              </div>
             </>
           )}
         </div>
+
+        {/* 하단 버튼 — 항상 보임 */}
+        {shareUrl && (
+          <div className="shrink-0 px-td-md pt-td-sm pb-td-md space-y-td-sm border-t border-divider">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="w-full py-2.5 bg-purple text-white rounded-lg text-td-body font-semibold hover:opacity-90 transition-opacity"
+            >
+              {copied ? "✅ 복사됨" : "URL 복사"}
+            </button>
+            <div className="flex justify-center">
+              <KakaoShareButton
+                url={shareUrl}
+                text="TravelDiary 여행 일정을 공유합니다"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
