@@ -34,8 +34,8 @@ const ROUTE_FILES = collectRouteFiles(API_DIR);
  * ════════════════════════════════════════════ */
 
 describe("API route 파일 목록", () => {
-  it("10개 route 파일 존재", () => {
-    expect(ROUTE_FILES.length).toBe(10);
+  it("11개 route 파일 존재", () => {
+    expect(ROUTE_FILES.length).toBe(11);
   });
 
   it("알려진 route 파일 전체 등록", () => {
@@ -43,6 +43,8 @@ describe("API route 파일 목록", () => {
     expect(paths).toEqual([
       "analytics/ab/route.ts",
       "analytics/funnel/route.ts",
+      // 사이클 8 (G3, ADR-049) — 계정 삭제
+      "auth/account/route.ts",
       "auth/kakao/callback/route.ts",
       "auth/kakao/start/route.ts",
       "auth/logout/route.ts",
@@ -95,10 +97,10 @@ describe("API route — force-dynamic export", () => {
 
 describe("API route — HTTP 메서드 export", () => {
   it.each(ROUTE_FILES.map((f) => [f.relPath, f.src]))(
-    "%s — GET 또는 POST export 존재",
+    "%s — GET/POST/DELETE export 존재",
     (_path, src) => {
       const hasMethod =
-        /export\s+(async\s+)?function\s+(GET|POST)/.test(src);
+        /export\s+(async\s+)?function\s+(GET|POST|DELETE|PUT|PATCH)/.test(src);
       expect(hasMethod).toBe(true);
     },
   );

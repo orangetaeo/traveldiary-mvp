@@ -9,16 +9,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { LogoutOrchestrator } from "@/components/auth/LogoutOrchestrator";
+import { AccountDeleteOrchestrator } from "@/components/auth/AccountDeleteOrchestrator";
 
+// 사이클 8 (G3, ADR-049) — "계정" 섹션은 로그아웃·계정 삭제 액션 항목 포함하므로
+// 다른 섹션과 분리하여 별도 JSX로 렌더링. 액션 메뉴는 Link 대신 button onClick 트리거.
 const SETTING_SECTIONS = [
-  {
-    title: "계정",
-    items: [
-      { icon: "person", label: "프로필 편집", href: "/profile" },
-      { icon: "key", label: "카카오 연결 관리", href: "#" },
-      { icon: "delete", label: "계정 삭제", href: "#", danger: true },
-    ],
-  },
   {
     title: "알림",
     items: [
@@ -78,6 +74,71 @@ export default function SettingsPage() {
       </header>
 
       <main className="max-w-md mx-auto px-td-md py-td-md space-y-td-lg">
+        {/* 사이클 8 (G3, ADR-049) — 계정 섹션: 로그아웃·계정 삭제 액션 + 기존 링크 */}
+        <section>
+          <h2 className="text-td-meta text-ink-soft font-bold uppercase tracking-wider mb-td-xs px-td-xxs">
+            계정
+          </h2>
+          <div className="bg-surface-card rounded-md border border-divider divide-y divide-divider overflow-hidden">
+            <LogoutOrchestrator
+              trigger={({ onClick }) => (
+                <button
+                  type="button"
+                  onClick={onClick}
+                  className="w-full flex items-center justify-between px-td-sm py-td-xs hover:bg-surface-soft transition-colors text-left"
+                >
+                  <div className="flex items-center gap-td-sm">
+                    <span className="material-symbols-outlined text-xl text-ink-soft">
+                      logout
+                    </span>
+                    <span className="text-td-body text-ink">로그아웃</span>
+                  </div>
+                  <span className="material-symbols-outlined text-ink-mute text-lg">chevron_right</span>
+                </button>
+              )}
+            />
+            <Link
+              href="/profile"
+              className="flex items-center justify-between px-td-sm py-td-xs hover:bg-surface-soft transition-colors"
+            >
+              <div className="flex items-center gap-td-sm">
+                <span className="material-symbols-outlined text-xl text-ink-soft">person</span>
+                <span className="text-td-body text-ink">프로필 편집</span>
+              </div>
+              <span className="material-symbols-outlined text-ink-mute text-lg">chevron_right</span>
+            </Link>
+            <Link
+              href="#"
+              aria-disabled="true"
+              className="flex items-center justify-between px-td-sm py-td-xs hover:bg-surface-soft transition-colors"
+            >
+              <div className="flex items-center gap-td-sm">
+                <span className="material-symbols-outlined text-xl text-ink-soft">key</span>
+                <span className="text-td-body text-ink">카카오 연결 관리</span>
+              </div>
+              <div className="flex items-center gap-td-xxs">
+                <span className="text-td-caption text-ink-mute">준비 중</span>
+                <span className="material-symbols-outlined text-ink-mute text-lg">chevron_right</span>
+              </div>
+            </Link>
+            <AccountDeleteOrchestrator
+              trigger={({ onClick }) => (
+                <button
+                  type="button"
+                  onClick={onClick}
+                  className="w-full flex items-center justify-between px-td-sm py-td-xs hover:bg-surface-soft transition-colors text-left"
+                >
+                  <div className="flex items-center gap-td-sm">
+                    <span className="material-symbols-outlined text-xl text-danger">delete</span>
+                    <span className="text-td-body text-danger">계정 삭제</span>
+                  </div>
+                  <span className="material-symbols-outlined text-ink-mute text-lg">chevron_right</span>
+                </button>
+              )}
+            />
+          </div>
+        </section>
+
         {SETTING_SECTIONS.map((section) => (
           <section key={section.title}>
             <h2 className="text-td-meta text-ink-soft font-bold uppercase tracking-wider mb-td-xs px-td-xxs">
@@ -91,10 +152,10 @@ export default function SettingsPage() {
                   className="flex items-center justify-between px-td-sm py-td-xs hover:bg-surface-soft transition-colors"
                 >
                   <div className="flex items-center gap-td-sm">
-                    <span className={`material-symbols-outlined text-xl ${"danger" in item && item.danger ? "text-danger" : "text-ink-soft"}`}>
+                    <span className="material-symbols-outlined text-xl text-ink-soft">
                       {item.icon}
                     </span>
-                    <span className={`text-td-body ${"danger" in item && item.danger ? "text-danger" : "text-ink"}`}>
+                    <span className="text-td-body text-ink">
                       {item.label}
                     </span>
                   </div>
