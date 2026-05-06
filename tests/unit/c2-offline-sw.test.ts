@@ -9,8 +9,8 @@ import { describe, it, expect } from "vitest";
 describe("C2 — 서비스 워커 캐시 전략", () => {
   const src = fs.readFileSync(path.resolve("public/sw.js"), "utf-8");
 
-  it("CACHE_NAME v2", () => {
-    expect(src).toContain("traveldiary-v2");
+  it("CACHE_NAME v3", () => {
+    expect(src).toContain("traveldiary-v3");
   });
 
   it("offline.html pre-cache", () => {

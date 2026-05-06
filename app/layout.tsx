@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://traveldiary-mvp-production.up.railway.app";
 
@@ -63,6 +64,7 @@ export default function RootLayout({
         <div className="mobile-container">
           {children}
         </div>
+        <InstallPrompt />
         <script
           dangerouslySetInnerHTML={{
             __html: `if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js")})}`,
