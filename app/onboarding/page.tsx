@@ -104,7 +104,7 @@ function OnboardingInner() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col px-td-md pt-td-sm pb-td-md">
+    <main className="min-h-screen flex flex-col px-td-md pt-td-sm pb-td-md bg-surface-soft">
       {/* 진행률 — Step 1에서는 숨김 */}
       {step > 1 && (
         <div className="flex items-center gap-td-xs mb-td-sm">
@@ -113,7 +113,7 @@ function OnboardingInner() {
               <div
                 key={n}
                 className={`h-1 flex-1 rounded-full transition-all ${
-                  n <= step ? "bg-accent" : "bg-surface-soft"
+                  n <= step ? "bg-purple" : "bg-divider"
                 }`}
               />
             ))}
@@ -165,78 +165,82 @@ function OnboardingInner() {
 
 function Step1({ onNext }: { onNext: () => void }) {
   return (
-    <>
-      <span className="text-td-caption font-medium text-accent tracking-widest block mb-td-xs">
-        TRAVELDIARY
-      </span>
-      <h1 className="text-td-title mb-td-sm">
-        3분 안에 당신의 여행을
-        <br />
-        그려드려요
-      </h1>
-      <p className="text-td-body text-ink-soft mb-td-lg">
-        AI가 추천한 일정에 왜 이걸 골랐는지 근거까지. 여행 중에는 살아 움직여요.
-      </p>
+    <div className="flex-1 flex flex-col justify-center gap-td-lg">
+      <div className="flex flex-col gap-td-xs">
+        <span className="text-td-caption font-bold text-purple tracking-widest">
+          TRAVELDIARY
+        </span>
+        <h1 className="text-td-title text-ink">
+          3분 안에 당신의 여행을
+          <br />
+          그려드려요
+        </h1>
+        <p className="text-td-body text-ink-soft mt-td-xxs">
+          AI가 추천한 일정에 왜 이걸 골랐는지 근거까지.
+          <br />
+          여행 중에는 살아 움직여요.
+        </p>
+      </div>
 
-      {/* 미니 데모 카드 */}
-      <div className="bg-surface-soft rounded-xl p-td-sm border border-divider mb-td-md">
-        <div className="flex justify-between items-center mb-td-sm">
-          <span className="text-td-meta text-ink-soft">예시 · 푸꾸옥 3박 4일 Day 1</span>
-          <span className="material-symbols-outlined text-purple text-[18px]">auto_awesome</span>
+      {/* 미니 데모 카드 — 세로 타임라인 */}
+      <div className="bg-surface-card border border-divider rounded-md p-td-md shadow-sm">
+        <div className="flex items-center gap-td-xs mb-td-sm">
+          <span
+            className="material-symbols-outlined text-purple text-[20px]"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+          >
+            calendar_today
+          </span>
+          <span className="text-td-card-title font-medium text-ink">
+            푸꾸옥 Day 1
+          </span>
         </div>
-        <div className="space-y-td-sm">
-          <DemoRow name="킹콩마트 장보기" tagText="가성비" dotColor="bg-success" tagColor="success" />
-          <DemoRow name="즈엉동 야시장 투어" tagText="로컬맛집" dotColor="bg-amber" tagColor="amber" connector />
-          <DemoRow name="빈펄 사파리" tagText="아이동반" dotColor="bg-purple" tagColor="purple" />
+        <div className="flex flex-col gap-td-sm relative pl-td-md before:content-[''] before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-[2px] before:bg-divider">
+          <TimelineItem name="킹콩마트" tag="가성비" tagColor="text-purple" />
+          <TimelineItem name="즈엉동 야시장" tag="로컬맛집" tagColor="text-accent" />
+          <TimelineItem name="빈펄 사파리" tag="아이동반" tagColor="text-purple" />
         </div>
       </div>
 
-      <div className="flex-1" />
-
-      <div className="space-y-td-sm text-center">
+      <div className="flex flex-col gap-td-sm mt-td-sm">
         <button
-          className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-xl active:scale-[0.98] transition-transform"
+          className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-md active:scale-[0.98] transition-transform"
           onClick={onNext}
         >
           시작하기
         </button>
-        <p className="text-td-meta text-ink-soft">
+        <p className="text-td-caption text-ink-mute text-center">
           로그인 없이 바로 일정을 만들 수 있어요
         </p>
       </div>
-    </>
-  );
-}
-
-function DemoRow({
-  name,
-  tagText,
-  dotColor,
-  tagColor,
-  connector,
-}: {
-  name: string;
-  tagText: string;
-  dotColor: string;
-  tagColor: "purple" | "amber" | "success";
-  connector?: boolean;
-}) {
-  const tagStyle = {
-    purple: "bg-purple-soft text-purple",
-    amber: "bg-amber-soft text-amber-deep",
-    success: "bg-success-soft text-success",
-  }[tagColor];
-
-  return (
-    <div className={`flex items-center gap-td-sm ${connector ? "border-l-2 border-dashed border-divider ml-[3px] pl-[9px]" : ""}`}>
-      <div className={`w-2 h-2 rounded-full ${dotColor} shrink-0`} />
-      <div className="flex-1 text-td-body">{name}</div>
-      <span className={`text-td-caption px-td-xs py-[2px] rounded-full ${tagStyle}`}>
-        {tagText}
-      </span>
     </div>
   );
 }
+
+function TimelineItem({
+  name,
+  tag,
+  tagColor,
+}: {
+  name: string;
+  tag: string;
+  tagColor: string;
+}) {
+  return (
+    <div className="relative">
+      <div className="absolute left-[-19px] top-1.5 w-2 h-2 rounded-full bg-purple ring-4 ring-surface-card" />
+      <div className="flex flex-col">
+        <span className="text-td-body font-medium text-ink">{name}</span>
+        <span
+          className={`inline-block mt-td-xxs bg-surface-soft px-td-xs py-[2px] rounded text-[10px] font-medium w-fit ${tagColor}`}
+        >
+          {tag}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 
 // ─── Step 2 ──────────────────────────────────
 
@@ -265,20 +269,20 @@ function Step2({
         {DESTINATIONS.map((d) => (
           <button
             key={d.name}
-            className={`aspect-square flex flex-col items-center justify-center rounded-xl p-td-xs transition-all relative ${
+            className={`aspect-square flex flex-col items-center justify-center rounded-md p-td-xs transition-all relative ${
               destination === d.name
-                ? "border-2 border-accent bg-white shadow-sm"
-                : "border border-divider bg-white active:bg-surface-soft"
+                ? "border-2 border-purple bg-surface-card shadow-sm"
+                : "border border-divider bg-surface-card active:bg-surface-soft"
             }`}
             onClick={() => onSelect(d.name)}
           >
             <span className="text-2xl mb-td-xxs">{d.flag}</span>
             <span className="text-td-body font-medium">{d.name}</span>
             {destination === d.name && (
-              <span className="text-td-caption text-accent mt-0.5">{d.support}</span>
+              <span className="text-td-caption text-purple mt-0.5">{d.support}</span>
             )}
             {destination === d.name && (
-              <span className="material-symbols-outlined text-accent text-sm absolute top-1 right-1" style={{ fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined text-purple text-sm absolute top-1 right-1" style={{ fontVariationSettings: "'FILL' 1" }}>
                 check_circle
               </span>
             )}
@@ -287,7 +291,7 @@ function Step2({
       </div>
 
       <button
-        className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-xl mt-td-lg"
+        className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-md mt-td-lg"
         onClick={onNext}
       >
         다음
@@ -325,11 +329,11 @@ function Step3({
       <div className="space-y-td-lg flex-1">
         {/* 기간 */}
         <div className="flex gap-td-sm">
-          <div className="flex-1 bg-surface-soft border border-divider rounded-xl p-td-sm">
+          <div className="flex-1 bg-surface-soft border border-divider rounded-md p-td-sm">
             <p className="text-td-meta text-ink-soft mb-td-xxs">출발일</p>
             <p className="text-td-card-title">{startDateLabel}</p>
           </div>
-          <div className="flex-1 bg-surface-soft border border-divider rounded-xl p-td-sm flex flex-col justify-between">
+          <div className="flex-1 bg-surface-soft border border-divider rounded-md p-td-sm flex flex-col justify-between">
             <p className="text-td-meta text-ink-soft mb-td-xxs">박수</p>
             <div className="flex items-center justify-between">
               <button
@@ -354,10 +358,10 @@ function Step3({
           {COMPANIONS.map((c) => (
             <button
               key={c.id}
-              className={`h-14 flex items-center justify-center rounded-xl text-td-body transition-all ${
+              className={`h-14 flex items-center justify-center rounded-md text-td-body transition-all ${
                 companion === c.id
                   ? "bg-purple text-white font-medium border border-purple"
-                  : "bg-white border border-divider"
+                  : "bg-surface-card border border-divider"
               }`}
               onClick={() => setCompanion(c.id)}
             >
@@ -368,7 +372,7 @@ function Step3({
       </div>
 
       <button
-        className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-xl mt-td-lg"
+        className="w-full h-[52px] bg-ink text-white text-td-card-title rounded-md mt-td-lg"
         onClick={onNext}
       >
         다음
@@ -461,7 +465,7 @@ function Step4({
           건너뛰기
         </button>
         <button
-          className="flex-[2] h-[52px] bg-ink text-white text-td-card-title rounded-xl flex items-center justify-center gap-1 disabled:opacity-60"
+          className="flex-[2] h-[52px] bg-ink text-white text-td-card-title rounded-md flex items-center justify-center gap-1 disabled:opacity-60"
           onClick={onFinish}
           disabled={isPending}
         >
