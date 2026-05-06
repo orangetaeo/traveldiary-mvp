@@ -172,8 +172,8 @@ function TripCard({ data }: { data: TripCardData }) {
   return (
     <article className="bg-white rounded-xl border border-divider overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-all active:scale-[0.98]">
       <Link
-        href={`/itinerary/${trip.id}`}
-        aria-label={`${city.name} ${trip.nights}박 ${days}일 일정 보기`}
+        href={`/trips/${trip.id}`}
+        aria-label={`${city.name} ${trip.nights}박 ${days}일 여행 대시보드`}
         className="block p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple"
       >
         <div className="flex justify-between items-start mb-2">
@@ -203,7 +203,7 @@ function TripCard({ data }: { data: TripCardData }) {
         <hr className="border-divider mb-3" />
         <div className="flex justify-between items-center">
           <span className="text-td-body text-purple font-medium">
-            도시 가이드 →
+            대시보드 보기 →
           </span>
         </div>
       </Link>
