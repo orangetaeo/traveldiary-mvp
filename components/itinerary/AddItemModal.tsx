@@ -12,18 +12,15 @@ import type {
   ItemCategory,
   ItemFlexibility,
   DiscoverPlace,
-  PlaceCategory,
   Trip,
 } from "@/lib/types";
-
-/** PlaceCategory → ItemCategory 매핑 */
-const PLACE_TO_ITEM_CATEGORY: Record<PlaceCategory, ItemCategory> = {
-  food: "food",
-  spot: "spot",
-  shopping: "shopping",
-  nature: "spot",
-  cafe: "food",
-};
+import {
+  PLACE_TO_ITEM_CATEGORY,
+  CATEGORY_OPTIONS,
+  FLEXIBILITY_OPTIONS,
+  topSuggestions,
+  suggestDuration,
+} from "./add-item-utils";
 
 interface AddItemModalProps {
   open: boolean;
@@ -42,18 +39,6 @@ interface AddItemModalProps {
   isPending?: boolean;
 }
 
-const CATEGORY_OPTIONS: { id: ItemCategory; label: string; icon: string }[] = [
-  { id: "food", label: "음식점", icon: "restaurant" },
-  { id: "spot", label: "관광", icon: "photo_camera" },
-  { id: "shopping", label: "쇼핑", icon: "shopping_bag" },
-  { id: "rest", label: "휴식", icon: "bed" },
-];
-
-const FLEXIBILITY_OPTIONS: { id: ItemFlexibility; label: string }[] = [
-  { id: "flexible", label: "유연 (변경 OK)" },
-  { id: "booked", label: "예약 (변경 시 취소)" },
-  { id: "fixed", label: "고정 (절대 변경 X)" },
-];
 
 export function AddItemModal({
   open,
@@ -113,15 +98,12 @@ export function AddItemModal({
   }, [dragY, onClose]);
 
   // AI 추천 장소 중 상위 5개 (ai 배지 우선)
-  const topSuggestions = suggestions
-    .slice()
-    .sort((a, b) => (a.badge === "ai" ? -1 : 0) - (b.badge === "ai" ? -1 : 0))
-    .slice(0, 5);
+  const top5 = topSuggestions(suggestions);
 
   function handlePickSuggestion(place: DiscoverPlace) {
     setName(place.name);
     setCategory(PLACE_TO_ITEM_CATEGORY[place.category]);
-    setDuration(place.category === "food" || place.category === "cafe" ? 90 : 120);
+    setDuration(suggestDuration(place.category));
   }
 
   if (!open) return null;
@@ -190,14 +172,14 @@ export function AddItemModal({
         </header>
 
         {/* AI 추천 카드 */}
-        {topSuggestions.length > 0 && (
+        {top5.length > 0 && (
           <div className="px-td-md pb-td-sm shrink-0">
             <p className="text-td-caption text-purple font-medium mb-td-xs flex items-center gap-1">
               <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
               AI 추천
             </p>
             <div className="flex gap-td-xs overflow-x-auto no-scrollbar -mx-td-md px-td-md pb-1">
-              {topSuggestions.map((place) => (
+              {top5.map((place) => (
                 <button
                   key={place.id}
                   type="button"

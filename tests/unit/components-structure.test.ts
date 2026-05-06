@@ -83,14 +83,21 @@ describe("TravelHome — 여행 중 홈 (M2)", () => {
 
 describe("AddItemModal — 일정 추가 모달", () => {
   const src = readComp("components/itinerary/AddItemModal.tsx");
+  const utilsSrc = readComp("components/itinerary/add-item-utils.ts");
 
   it("onSubmit 콜백 패턴 (부모 위임)", () => {
     expect(src).toContain("onSubmit");
   });
 
   it("카테고리 선택 (food/spot/shopping/rest)", () => {
-    expect(src).toContain("food");
-    expect(src).toContain("spot");
+    expect(utilsSrc).toContain('"food"');
+    expect(utilsSrc).toContain('"spot"');
+    expect(utilsSrc).toContain('"shopping"');
+    expect(utilsSrc).toContain('"rest"');
+  });
+
+  it("add-item-utils import 연결", () => {
+    expect(src).toContain("./add-item-utils");
   });
 
   it("이름 입력 필드", () => {
