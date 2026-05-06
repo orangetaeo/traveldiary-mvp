@@ -11,18 +11,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getOrCreateClientUuid } from "@/lib/share/clientId";
 import type { MyActivityItem } from "@/lib/repositories/shareComment.repository";
+import { REACTION_EMOJI } from "@/lib/constants/reaction-constants";
 
 type ViewState =
   | { kind: "loading" }
   | { kind: "empty" }
   | { kind: "list"; items: MyActivityItem[] }
   | { kind: "error" };
-
-const REACTION_LABEL: Record<string, string> = {
-  LIKE: "👍",
-  DISLIKE: "👎",
-  QUESTION: "❓",
-};
 
 export function MyActivitySection() {
   const [state, setState] = useState<ViewState>({ kind: "loading" });
@@ -124,7 +119,7 @@ function ActivityCardBody({
   item: MyActivityItem;
   inactive?: boolean;
 }) {
-  const reactionEmoji = item.reaction ? REACTION_LABEL[item.reaction] : null;
+  const reactionEmoji = item.reaction ? REACTION_EMOJI[item.reaction] : null;
   const dateLabel = new Date(item.createdAt).toLocaleDateString("ko-KR", {
     month: "short",
     day: "numeric",
