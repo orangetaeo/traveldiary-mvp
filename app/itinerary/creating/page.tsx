@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 
@@ -13,6 +13,7 @@ const TRAVEL_TIPS = [
   "카페에서 cà phê sữa đá를 주문하면 연유 아이스커피!",
   "우기(6~11월)에도 소나기는 보통 30분이면 그쳐요",
 ];
+const TIP_INTERVAL_MS = 4000;
 
 /**
  * 일정 생성 중 화면 (LEVEL 1) — docs/screens/02-itinerary-creating.md
@@ -69,7 +70,7 @@ function ItineraryCreatingInner() {
 
   const steps = getSteps(destination);
 
-  // 여행 팁을 랜덤 순서로 셔플
+  // 랜덤 순서 여행 팁 (마운트 시 1회 셔플)
   const shuffledTips = useMemo(() => {
     const arr = [...TRAVEL_TIPS];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -79,13 +80,17 @@ function ItineraryCreatingInner() {
     return arr;
   }, []);
 
-  // 4초마다 팁 전환
+  // 팁 회전 타이머
   useEffect(() => {
     if (done) return;
-    const t = setInterval(() => setTipIdx((i) => (i + 1) % shuffledTips.length), 4000);
+    const t = setInterval(
+      () => setTipIdx((i) => (i + 1) % shuffledTips.length),
+      TIP_INTERVAL_MS,
+    );
     return () => clearInterval(t);
   }, [done, shuffledTips.length]);
 
+  // 단계 진행 타이머
   useEffect(() => {
     if (active >= steps.length) {
       setDone(true);
@@ -102,7 +107,7 @@ function ItineraryCreatingInner() {
   const progress = Math.min(100, Math.round((active / steps.length) * 100));
 
   return (
-    <main className="min-h-screen flex flex-col bg-surface px-4 py-6 max-w-md mx-auto w-full">
+    <main className="min-h-screen flex flex-col bg-surface-soft px-4 py-6 max-w-md mx-auto w-full">
       {/* Eyebrow + Hero */}
       <div className="space-y-2 mb-6">
         <span className="text-td-caption font-medium text-purple tracking-[0.2em] block">
@@ -178,7 +183,7 @@ function ItineraryCreatingInner() {
       {/* 여행 팁 — 대기 시간 활용 */}
       <div className="mt-6 flex-1 flex flex-col justify-end">
         {!done && (
-          <div className="bg-surface-soft border border-divider rounded-md p-3 flex items-start gap-2">
+          <div className="bg-surface-card border border-divider rounded-md p-3 flex items-start gap-2">
             <span className="material-symbols-outlined text-amber text-[18px] shrink-0 mt-0.5">lightbulb</span>
             <p className="text-td-caption text-ink-soft leading-relaxed" key={tipIdx}>
               {shuffledTips[tipIdx]}
