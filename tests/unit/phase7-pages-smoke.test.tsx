@@ -65,6 +65,15 @@ describe("Phase 7 페이지 렌더 스모크", () => {
       expect(html).toContain('href="/profile"');
       expect(html).toContain('href="/permission/notification"');
       expect(html).toContain('href="/permission/location"');
+      // 사이클 7 (G10) — legal placeholder 라우트 활성 + dead "#" 회귀 차단
+      expect(html).toContain('href="/legal/terms"');
+      expect(html).toContain('href="/legal/privacy"');
+    });
+
+    it("법적 고지 섹션 노출 (사이클 7 G10)", () => {
+      const html = renderToStaticMarkup(<SettingsPage />);
+      expect(html).toContain("법적 고지");
+      expect(html).toContain("이용약관");
     });
 
     it("위험 액션(계정 삭제) danger 클래스", () => {
