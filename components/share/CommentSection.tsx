@@ -23,6 +23,7 @@ import type {
   CommentReaction,
   ShareCommentRow,
 } from "@/lib/repositories/shareComment.repository";
+import { REACTION_FULL_LABEL } from "@/lib/constants/reaction-constants";
 
 interface CommentSectionProps {
   syncKey: string;
@@ -32,12 +33,6 @@ interface CommentSectionProps {
   disabled?: boolean;
   disabledReason?: string;
 }
-
-const REACTION_LABEL: Record<NonNullable<CommentReaction>, string> = {
-  LIKE: "👍 좋아",
-  DISLIKE: "👎 별로",
-  QUESTION: "❓ 질문",
-};
 
 const DEMO_STORAGE_KEY_PREFIX = "td_demo_comments_";
 
@@ -203,7 +198,7 @@ export function CommentSection({
             disabled={disabled || isPending}
           >
             <option value="">리액션 없음</option>
-            {(Object.entries(REACTION_LABEL) as [
+            {(Object.entries(REACTION_FULL_LABEL) as [
               NonNullable<CommentReaction>,
               string,
             ][]).map(([k, v]) => (
@@ -259,7 +254,7 @@ export function CommentSection({
                     </span>
                     {c.reaction && (
                       <span className="text-td-caption bg-purple-soft text-purple-deep px-1 py-0.5 rounded">
-                        {REACTION_LABEL[c.reaction]}
+                        {REACTION_FULL_LABEL[c.reaction]}
                       </span>
                     )}
                   </div>
