@@ -15,7 +15,7 @@ import {
   buildWarning,
   ALLERGEN_CHIPS,
 } from "@/lib/allergens";
-import type { AllergenMatch, AllergenCategory } from "@/lib/allergens";
+import type { AllergenMatch } from "@/lib/allergens";
 
 /* ════════════════════════════════════════════
  * normalizeExclude
