@@ -1,24 +1,35 @@
 "use client";
 
 /**
- * 일정 자유 추가 모달 (A5) — 사이클 10.
+ * 일정 추가 모달 (A5) — 사이클 10 + AI 추천 카드.
  *
- * Stitch ReplanModal 디자인 토큰 답습 (바텀 시트 + drag handle + swipe dismiss).
- * 사용자 입력: 시간(HH:MM) · 이름 · 카테고리 · flexibility · 소요시간(분).
- * 부모(ItineraryView)에서 폼 제출 시 onSubmit 콜백 호출.
+ * 상단: AI 추천 장소 카드 (최대 5개) → 탭하면 폼에 자동 입력.
+ * 하단: 직접 입력 폼 — 시간·이름·카테고리·유연성·소요시간.
  */
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import type {
   ItemCategory,
   ItemFlexibility,
+  DiscoverPlace,
+  PlaceCategory,
   Trip,
 } from "@/lib/types";
+
+/** PlaceCategory → ItemCategory 매핑 */
+const PLACE_TO_ITEM_CATEGORY: Record<PlaceCategory, ItemCategory> = {
+  food: "food",
+  spot: "spot",
+  shopping: "shopping",
+  nature: "spot",
+  cafe: "food",
+};
 
 interface AddItemModalProps {
   open: boolean;
   trip: Trip;
   defaultDayIndex: number;
+  suggestions?: DiscoverPlace[];
   onClose: () => void;
   onSubmit: (input: {
     dayIndex: number;
@@ -48,6 +59,7 @@ export function AddItemModal({
   open,
   trip,
   defaultDayIndex,
+  suggestions = [],
   onClose,
   onSubmit,
   isPending,
@@ -99,6 +111,18 @@ export function AddItemModal({
     }
     setDragY(0);
   }, [dragY, onClose]);
+
+  // AI 추천 장소 중 상위 5개 (ai 배지 우선)
+  const topSuggestions = suggestions
+    .slice()
+    .sort((a, b) => (a.badge === "ai" ? -1 : 0) - (b.badge === "ai" ? -1 : 0))
+    .slice(0, 5);
+
+  function handlePickSuggestion(place: DiscoverPlace) {
+    setName(place.name);
+    setCategory(PLACE_TO_ITEM_CATEGORY[place.category]);
+    setDuration(place.category === "food" || place.category === "cafe" ? 90 : 120);
+  }
 
   if (!open) return null;
 
@@ -158,12 +182,45 @@ export function AddItemModal({
             id="add-item-title"
             className="text-td-card-title text-ink font-semibold"
           >
-            일정 직접 추가
+            일정 추가
           </h2>
           <p className="text-td-caption text-ink-soft mt-td-xxs">
-            AI 추천 외 직접 가고 싶은 곳을 일정에 추가합니다.
+            AI 추천 장소를 선택하거나, 직접 입력하세요.
           </p>
         </header>
+
+        {/* AI 추천 카드 */}
+        {topSuggestions.length > 0 && (
+          <div className="px-td-md pb-td-sm shrink-0">
+            <p className="text-td-caption text-purple font-medium mb-td-xs flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+              AI 추천
+            </p>
+            <div className="flex gap-td-xs overflow-x-auto no-scrollbar -mx-td-md px-td-md pb-1">
+              {topSuggestions.map((place) => (
+                <button
+                  key={place.id}
+                  type="button"
+                  onClick={() => handlePickSuggestion(place)}
+                  className={`shrink-0 flex items-center gap-td-xs px-3 py-2 rounded-lg border transition-colors ${
+                    name === place.name
+                      ? "border-purple bg-purple-soft text-purple-deep"
+                      : "border-divider bg-surface-soft text-ink hover:border-purple/40"
+                  }`}
+                >
+                  <span className="text-td-body font-medium whitespace-nowrap">{place.name}</span>
+                  <span className="text-td-meta text-ink-mute whitespace-nowrap">⭐{place.rating.toFixed(1)}</span>
+                  {place.badge === "ai" && (
+                    <span className="text-td-caption bg-purple text-white px-1 py-px rounded">AI</span>
+                  )}
+                  {place.badge === "popular" && (
+                    <span className="text-td-caption bg-amber text-white px-1 py-px rounded">인기</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <form
           onSubmit={handleSubmit}
