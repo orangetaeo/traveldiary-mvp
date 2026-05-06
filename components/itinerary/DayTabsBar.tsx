@@ -48,7 +48,7 @@ export function DayTabsBar({
         type="button"
         onClick={onAddOpen}
         aria-label="일정 추가"
-        className="flex-shrink-0 w-9 h-9 rounded-full bg-purple text-white flex items-center justify-center shadow-sm hover:opacity-90 active:scale-95 transition-all"
+        className="flex-shrink-0 w-11 h-11 rounded-full bg-purple text-white flex items-center justify-center shadow-sm hover:opacity-90 active:scale-95 transition-all"
       >
         <span className="material-symbols-outlined text-[20px]">add</span>
       </button>

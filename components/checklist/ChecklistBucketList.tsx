@@ -138,7 +138,7 @@ export function ChecklistBucketList({
                           onClick={() => onMove(item, "up")}
                           disabled={!canMoveUp}
                           aria-label="위로 이동"
-                          className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-5 flex items-center"
+                          className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-9 w-9 flex items-center justify-center"
                         >
                           <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
                             keyboard_arrow_up
@@ -149,7 +149,7 @@ export function ChecklistBucketList({
                           onClick={() => onMove(item, "down")}
                           disabled={!canMoveDown}
                           aria-label="아래로 이동"
-                          className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-5 flex items-center"
+                          className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-9 w-9 flex items-center justify-center"
                         >
                           <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
                             keyboard_arrow_down
@@ -162,7 +162,7 @@ export function ChecklistBucketList({
                         type="button"
                         onClick={() => onDelete(item)}
                         aria-label="삭제"
-                        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0"
+                        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0 w-9 h-9 flex items-center justify-center"
                       >
                         <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
                           close

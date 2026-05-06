@@ -44,7 +44,7 @@ export function BottomNav({ active }: BottomNavProps) {
   const slots = buildSlots();
   return (
     <nav
-      className="bg-surface-card border-t border-divider fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full z-50 flex justify-around items-center h-16"
+      className="bg-surface-card border-t border-divider fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full z-50 flex justify-around items-center h-16 pb-[env(safe-area-inset-bottom,0px)]"
       aria-label="주요 메뉴"
     >
       {slots.map((slot) => {
