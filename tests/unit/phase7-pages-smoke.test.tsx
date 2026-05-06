@@ -44,6 +44,7 @@ import SettingsPage from "@/app/settings/page";
 import BookingConfirmationPage from "@/app/booking/[bookingId]/page";
 import LocationPermissionPage from "@/app/permission/location/page";
 import NotificationPermissionPage from "@/app/permission/notification/page";
+import CameraPermissionPage from "@/app/permission/camera/page";
 
 // ─── Tests ────────────────────────────────────────────────
 
@@ -136,6 +137,45 @@ describe("Phase 7 페이지 렌더 스모크", () => {
       expect(html).toContain("일정 리마인더");
       expect(html).toContain("Live Replan 알림");
       expect(html).toContain("D-Day 카운트다운");
+    });
+  });
+
+  // 사이클 4 (G9) — /permission/camera 사전 프롬프트 + 거부 fallback
+  describe("/permission/camera", () => {
+    it("정적 마크업 생성 + 핵심 카피 노출", () => {
+      const html = renderToStaticMarkup(<CameraPermissionPage />);
+      expect(html).toContain("카메라 접근이 필요해요");
+      expect(html).toContain("베트남어 메뉴를 촬영");
+      expect(html).toContain("카메라 허용하기");
+      expect(html).toContain("나중에 할게요");
+    });
+
+    it("3가지 베네핏 노출 (실시간 OCR + 한국어 번역 + 알레르기 검사)", () => {
+      const html = renderToStaticMarkup(<CameraPermissionPage />);
+      expect(html).toContain("실시간 OCR");
+      expect(html).toContain("한국어 번역");
+      expect(html).toContain("알레르기 검사");
+    });
+
+    it("갤러리 fallback CTA 링크 노출 (/translate)", () => {
+      const html = renderToStaticMarkup(<CameraPermissionPage />);
+      expect(html).toContain("갤러리에서 사진 선택");
+      expect(html).toContain('href="/translate"');
+    });
+
+    it("ADR-019 프라이버시 정책 인용 (OCR 7일 / 번역 30일)", () => {
+      const html = renderToStaticMarkup(<CameraPermissionPage />);
+      expect(html).toContain("ADR-019");
+      expect(html).toContain("7일");
+      expect(html).toContain("30일");
+    });
+
+    it("초기 렌더에는 거부 fallback 가이드 미표시 (denied=false)", () => {
+      const html = renderToStaticMarkup(<CameraPermissionPage />);
+      // OS별 가이드 카피는 거부 후에만 노출
+      expect(html).not.toContain("iOS Safari");
+      expect(html).not.toContain("Android Chrome");
+      expect(html).not.toContain("카메라가 차단됐어요");
     });
   });
 });

@@ -237,9 +237,12 @@ describe("TranslateView", () => {
     expect(html).toContain("촬영");
   });
 
-  it("설정 버튼 렌더", () => {
+  it("카메라 권한 도움말 링크 렌더 (사이클 4 G9 — 이전 설정 데드 버튼 대체)", () => {
     const html = renderToStaticMarkup(<TranslateView tripId="test-trip-1" />);
-    expect(html).toContain("설정");
+    // 본 파일의 next/link mock은 aria-label을 spread하지 않음 — href + help 아이콘만 단언.
+    // aria-label 회귀는 tests/unit/translate-view-permission-link.test.ts에서 source-level 단언.
+    expect(html).toContain('href="/permission/camera"');
+    expect(html).toMatch(/material-symbols-outlined[^>]*>\s*help\s*</);
   });
 
   it("메뉴판 안내 메시지 렌더", () => {
