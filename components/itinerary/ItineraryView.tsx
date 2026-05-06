@@ -7,6 +7,7 @@ import { ReplanTriggerCard } from "./ReplanTriggerCard";
 import { TripSecondaryActions } from "./TripSecondaryActions";
 import { ItineraryItemCard } from "./ItineraryItemCard";
 import { DayTabsBar } from "./DayTabsBar";
+import { ItineraryCoachMark } from "./ItineraryCoachMark";
 import {
   generateReplanOptions,
   type ReplanTrigger,
@@ -446,6 +447,9 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
       />
 
       <Toast toast={toast} />
+
+      {/* 사이클 3 (G4) — M1 차별화 축 첫 진입 안내 (LocalStorage 1회 박제) */}
+      <ItineraryCoachMark />
     </>
   );
 }
