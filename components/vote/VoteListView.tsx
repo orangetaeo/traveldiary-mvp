@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { castVote, createVote } from "@/actions/vote";
 import type { Trip, Vote } from "@/lib/types";
 
@@ -150,9 +151,12 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         <section>
           <h2 className="text-td-card-title text-ink mb-td-sm">진행 중 투표</h2>
           {votes.length === 0 ? (
-            <p className="text-td-body text-ink-soft text-center py-td-lg bg-surface-card border border-divider rounded-md">
-              아직 투표가 없어요.
-            </p>
+            <EmptyState
+              icon="how_to_vote"
+              title="아직 진행 중인 투표가 없어요"
+              description="위 폼에서 첫 투표를 만들어 친구들과 결정해 보세요."
+              className="bg-surface-card border border-divider rounded-md"
+            />
           ) : (
             <ul className="space-y-td-md">
               {votes.map((vote) => (

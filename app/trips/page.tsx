@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 import { listDemoTrips, isDemoTrip } from "@/lib/seed";
 import { listCities, PRIMARY_COUNTRY_CODE } from "@/lib/seed/cities";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { EmptyState } from "@/components/ui/EmptyState";
 import {
   buildCards,
   applyFilter,
@@ -127,9 +128,13 @@ export default function TripsPage({
         {/* Card list */}
         <div className="px-4 py-4 flex flex-col gap-4">
           {cards.length === 0 ? (
-            <p className="text-td-body text-ink-mute text-center py-8">
-              해당 필터에 도시가 없어요.
-            </p>
+            <EmptyState
+              icon="filter_alt_off"
+              title="조건에 맞는 도시가 없어요"
+              description="필터를 바꿔 다른 도시를 둘러보세요."
+              secondaryButton={{ label: "전체 보기", href: "/trips" }}
+              className="py-8"
+            />
           ) : (
             cards.map((c) => (
               <div key={cardSurface(c).code}>{renderCard(c)}</div>
