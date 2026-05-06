@@ -1,35 +1,39 @@
 <#
 .SYNOPSIS
-    TravelDiary 격리 worktree 헬퍼 (Windows PowerShell)
+    TravelDiary isolated worktree helper (Windows PowerShell)
 
 .DESCRIPTION
-    멀티 Claude Code 세션이 같은 메인 워크트리에서 동시 작업하다 swap 사고를 내는 것을 차단.
-    1줄 명령으로 형제 디렉터리에 격리 worktree + node_modules junction + 새 브랜치 생성.
+    Prevents swap accidents when multiple Claude Code sessions work on the same main worktree.
+    Creates a sibling worktree directory + new branch + node_modules junction in one command.
 
-    박제 패턴 통합:
+    Integrates 3 documented patterns:
       - feedback_worktree_node_modules_junction.md (mklink /J)
       - feedback_git_push_head_explicit.md (git push origin HEAD:remote)
       - feedback_pre_commit_branch_check.md (git branch --show-current)
 
+    NOTE: Script is intentionally ASCII-only so PowerShell 5.1 (Windows default) parses it
+    correctly even when the file is saved as BOM-less UTF-8. Korean usage guidance lives
+    in docs/18-worktree-isolation.md.
+
 .PARAMETER Name
-    worktree 디렉터리 suffix. `traveldiary-mvp-<Name>` 형태로 메인 워크트리의 형제로 생성.
+    Worktree directory suffix. Creates a sibling 'traveldiary-mvp-<Name>'.
 
 .PARAMETER Branch
-    생성할 브랜치 이름. 미지정 시 `auto/<Name>-yyyyMMdd-HHmm`.
+    New branch name. Defaults to 'auto/<Name>-yyyyMMdd-HHmm'.
 
 .PARAMETER Base
-    분기 베이스 브랜치. 기본 `main`.
+    Base branch for the new worktree. Defaults to 'main'.
 
 .PARAMETER NoJunction
-    node_modules junction 생성을 건너뛴다 (전체 npm install 필요).
+    Skip node_modules junction (requires full 'npm install' inside the new worktree).
 
 .PARAMETER ReplaceModules
-    worktree 디렉터리에 실제 node_modules 디렉터리가 이미 있으면 삭제하고 junction 생성.
-    기본 동작은 abort (작업 유실 방지).
+    If a real node_modules directory already exists in the target, delete it and create the junction.
+    Default behavior is abort (prevents data loss).
 
 .EXAMPLE
     .\scripts\new-worktree.ps1 -Name session-h
-    # → ..\traveldiary-mvp-session-h, brand auto/session-h-yyyyMMdd-HHmm
+    # -> ..\traveldiary-mvp-session-h, branch auto/session-h-yyyyMMdd-HHmm
 
 .EXAMPLE
     .\scripts\new-worktree.ps1 -Name fix-z -Branch fix/modal-z-index -Base main
@@ -56,83 +60,83 @@ function Write-Ok   { param([string]$msg) Write-Host "[ok]   $msg" -ForegroundCo
 function Write-Warn { param([string]$msg) Write-Host "[warn] $msg" -ForegroundColor Yellow }
 function Abort      { param([string]$msg) Write-Host "[abort] $msg" -ForegroundColor Red; exit 1 }
 
-# 1. 사전 체크
-Write-Step '1/7 메인 워크트리 확인'
+# 1. Pre-flight
+Write-Step '1/7 main worktree check'
 $repo = (& git rev-parse --show-toplevel 2>$null)
-if (-not $repo) { Abort 'git 저장소가 아닙니다.' }
+if (-not $repo) { Abort 'Not a git repository.' }
 $repo = $repo -replace '/', '\'
 $cwd = (Get-Location).Path
-if ($cwd -ne $repo) { Abort "현재 위치가 메인 워크트리가 아닙니다. cd `"$repo`" 후 재실행." }
+if ($cwd -ne $repo) { Abort "Current location is not the main worktree. cd `"$repo`" and retry." }
 
 $linkedCount = (& git worktree list --porcelain | Select-String '^worktree ').Count
 if ($linkedCount -gt 1) {
-    Write-Warn "이미 다른 worktree가 $($linkedCount - 1)개 존재합니다 (git worktree list로 확인)."
+    Write-Warn "Other worktrees already exist ($($linkedCount - 1)). Run 'git worktree list' to inspect."
 }
 
-Write-Step "2/7 origin fetch + $Base 최신화"
+Write-Step "2/7 git fetch origin + sync $Base"
 & git fetch origin --quiet
-if ($LASTEXITCODE -ne 0) { Abort 'git fetch 실패.' }
+if ($LASTEXITCODE -ne 0) { Abort 'git fetch failed.' }
 
-# 2. 경로 산출
+# 2. Path resolution
 $parent = Split-Path $repo -Parent
 $repoLeaf = Split-Path $repo -Leaf
 $target = Join-Path $parent "$repoLeaf-$Name"
-Write-Step "3/7 대상 경로: $target"
+Write-Step "3/7 target path: $target"
 
 if (Test-Path $target) {
-    Abort "대상 디렉터리가 이미 존재합니다: $target. 다른 -Name을 쓰거나 수동 정리 후 재실행."
+    Abort "Target directory already exists: $target. Use a different -Name or clean up manually."
 }
 
-# 3. 브랜치
+# 3. Branch
 if (-not $Branch) {
     $stamp = Get-Date -Format 'yyyyMMdd-HHmm'
     $Branch = "auto/$Name-$stamp"
 }
-Write-Step "4/7 브랜치 이름: $Branch"
+Write-Step "4/7 branch name: $Branch"
 
 $existing = & git rev-parse --verify --quiet "refs/heads/$Branch" 2>$null
-if ($existing) { Abort "브랜치가 이미 존재합니다: $Branch. squash merge 후 재사용은 다른 -Branch 명시." }
+if ($existing) { Abort "Branch already exists: $Branch. After squash merge, specify a different -Branch." }
 
-# 4. worktree add
+# 4. git worktree add
 Write-Step "5/7 git worktree add"
 & git worktree add $target -b $Branch "origin/$Base"
-if ($LASTEXITCODE -ne 0) { Abort 'git worktree add 실패.' }
-Write-Ok "worktree 생성: $target ($Branch from origin/$Base)"
+if ($LASTEXITCODE -ne 0) { Abort 'git worktree add failed.' }
+Write-Ok "worktree created: $target ($Branch from origin/$Base)"
 
-# 5. junction
+# 5. node_modules junction
 if ($NoJunction) {
-    Write-Warn '6/7 -NoJunction 지정. node_modules junction 건너뜀. npm install 필요.'
+    Write-Warn '6/7 -NoJunction set. Skipping junction. Run npm install in the new worktree.'
 } else {
     Write-Step '6/7 node_modules junction'
     $srcModules = Join-Path $repo 'node_modules'
     $tgtModules = Join-Path $target 'node_modules'
 
     if (-not (Test-Path $srcModules)) {
-        Write-Warn "메인 워크트리에 node_modules가 없습니다. junction 건너뜀. cd `"$target`"; npm install 필요."
+        Write-Warn "Main worktree has no node_modules. Skipping junction. cd `"$target`" then npm install."
     } elseif (Test-Path $tgtModules) {
         $isJunction = (Get-Item $tgtModules -Force).Attributes -band [IO.FileAttributes]::ReparsePoint
         if ($isJunction) {
             Remove-Item $tgtModules -Force
             cmd /c "mklink /J `"$tgtModules`" `"$srcModules`"" | Out-Null
-            if ($LASTEXITCODE -ne 0) { Write-Warn "dangling junction 재생성 실패. cd `"$target`"; npm install 필요." }
-            else { Write-Ok 'dangling junction 재생성.' }
+            if ($LASTEXITCODE -ne 0) { Write-Warn "dangling junction recreate failed. cd `"$target`" then npm install." }
+            else { Write-Ok 'dangling junction recreated.' }
         } elseif ($ReplaceModules) {
             Remove-Item $tgtModules -Recurse -Force
             cmd /c "mklink /J `"$tgtModules`" `"$srcModules`"" | Out-Null
-            if ($LASTEXITCODE -ne 0) { Write-Warn "junction 교체 실패. cd `"$target`"; npm install 필요." }
-            else { Write-Ok 'node_modules 디렉터리 → junction 교체.' }
+            if ($LASTEXITCODE -ne 0) { Write-Warn "junction replace failed. cd `"$target`" then npm install." }
+            else { Write-Ok 'real node_modules replaced with junction.' }
         } else {
-            Write-Warn '대상에 실 node_modules 디렉터리가 이미 있습니다. -ReplaceModules 명시 시에만 교체.'
+            Write-Warn 'Target already has a real node_modules directory. Pass -ReplaceModules to overwrite.'
         }
     } else {
         cmd /c "mklink /J `"$tgtModules`" `"$srcModules`"" | Out-Null
-        if ($LASTEXITCODE -ne 0) { Write-Warn "junction 생성 실패 (권한?). cd `"$target`"; npm install 필요." }
-        else { Write-Ok 'junction 생성: 디스크/시간 0 공유.' }
+        if ($LASTEXITCODE -ne 0) { Write-Warn "junction creation failed (permissions?). cd `"$target`" then npm install." }
+        else { Write-Ok 'junction created: 0 disk/0 time shared with main.' }
     }
 }
 
-# 6. 검증 + 안내
-Write-Step '7/7 검증 + cheat-sheet'
+# 6. Verify + cheat-sheet
+Write-Step '7/7 verify + cheat-sheet'
 Push-Location $target
 try {
     $cur = & git branch --show-current
@@ -142,16 +146,16 @@ try {
 }
 
 Write-Host ''
-Write-Host '--- 다음 세션 진입 ---' -ForegroundColor Magenta
+Write-Host '--- Next session entry ---' -ForegroundColor Magenta
 Write-Host "cd `"$target`"" -ForegroundColor White
 Write-Host '' -ForegroundColor White
-Write-Host '--- 작업 흐름 (박제 패턴 3건 통합) ---' -ForegroundColor Magenta
-Write-Host '1) 코드 변경 + git add' -ForegroundColor White
-Write-Host '2) git branch --show-current  # commit 직전 확인' -ForegroundColor White
+Write-Host '--- Workflow (3 documented patterns integrated) ---' -ForegroundColor Magenta
+Write-Host '1) Edit files + git add' -ForegroundColor White
+Write-Host '2) git branch --show-current  # verify branch right before commit' -ForegroundColor White
 Write-Host "3) git commit -m '...'" -ForegroundColor White
-Write-Host "4) git push origin HEAD:$Branch  # HEAD 명시 (다른 세션 swap 회피)" -ForegroundColor White
+Write-Host "4) git push origin HEAD:$Branch  # explicit HEAD (avoids swap by other sessions)" -ForegroundColor White
 Write-Host "5) gh pr create --base $Base --head $Branch ..." -ForegroundColor White
 Write-Host ''
-Write-Host '--- 작업 종료 후 정리 ---' -ForegroundColor Magenta
+Write-Host '--- After PR merge: cleanup ---' -ForegroundColor Magenta
 Write-Host "git worktree remove `"$target`"" -ForegroundColor White
-Write-Host "# junction은 worktree remove 시 자동 제거. 수동 시 Remove-Item -Force." -ForegroundColor DarkGray
+Write-Host "# junction is removed automatically; manual: Remove-Item -Force." -ForegroundColor DarkGray
