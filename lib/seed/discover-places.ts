@@ -3,7 +3,7 @@
  * DB 미구현 단계에서 UI 데모용.
  */
 
-import type { DiscoverPlace } from "@/components/itinerary/PlaceDiscoveryView";
+import type { DiscoverPlace } from "@/lib/types";
 
 export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
   {

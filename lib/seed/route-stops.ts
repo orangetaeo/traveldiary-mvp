@@ -3,7 +3,7 @@
  * DB 미구현 단계에서 UI 데모용.
  */
 
-import type { RouteStop } from "@/components/itinerary/DayRouteMapView";
+import type { RouteStop } from "@/lib/types";
 
 export const DEMO_ROUTE_STOPS: RouteStop[] = [
   {

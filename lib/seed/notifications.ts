@@ -2,7 +2,7 @@
  * 알림 데모 시드 — DB 미구현 단계에서 UI 데모용.
  */
 
-import type { AppNotification } from "@/components/notifications/NotificationListView";
+import type { AppNotification } from "@/lib/types";
 
 /** 현재 시각 기준 N시간 전 ISO 문자열 */
 function hoursAgo(h: number): string {

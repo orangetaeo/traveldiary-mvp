@@ -11,22 +11,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
+import type { DiscoverPlace, PlaceCategory } from "@/lib/types";
 
 // ─── Types ─────────────────────────────────────
 
-export type PlaceCategory = "food" | "spot" | "shopping" | "nature" | "cafe";
-
-export interface DiscoverPlace {
-  id: string;
-  name: string;
-  category: PlaceCategory;
-  rating: number;
-  reviewCount: number;
-  distance: string; // "도보 15분" 등
-  badge?: "ai" | "popular";
-  /** 외부 이미지 URL (시드) — 없으면 placeholder */
-  imageUrl?: string;
-}
+export type { PlaceCategory, DiscoverPlace } from "@/lib/types";
 
 interface Props {
   tripId: string;

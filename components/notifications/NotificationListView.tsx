@@ -10,22 +10,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { COLOR_BG, COLOR_TEXT } from "@/lib/utils/color-mappings";
+import type { AppNotification, NotificationCategory } from "@/lib/types";
 
 // ─── Types ─────────────────────────────────────
 
-export type NotificationCategory = "travel" | "companion" | "system";
-
-export interface AppNotification {
-  id: string;
-  title: string;
-  body: string;
-  category: NotificationCategory;
-  icon: string;
-  iconColor: "purple" | "coral" | "amber" | "gray";
-  href?: string;
-  read: boolean;
-  createdAt: string; // ISO
-}
+export type { NotificationCategory, AppNotification } from "@/lib/types";
 
 interface Props {
   notifications: AppNotification[];

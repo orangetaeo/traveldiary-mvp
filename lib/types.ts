@@ -409,3 +409,80 @@ export interface Country {
   /** 국가 단위 응급 (예: 베트남 경찰 113, 응급 115) — 도시별 영사관과 별개 */
   countryEmergencyContacts: EmergencyContact[];
 }
+
+// ═══════════════════════════════════════════════════════════
+// UI VIEW TYPES (시드↔화면 공유 타입)
+// ═══════════════════════════════════════════════════════════
+
+/** DayRouteMapView — 일일 동선 지도 핀 */
+export interface RouteStop {
+  id: string;
+  order: number;
+  name: string;
+  time: string;
+  category: string;
+  categoryIcon: string;
+  nextTransit?: string;
+  isActive?: boolean;
+  pinX: number;
+  pinY: number;
+}
+
+/** PlaceDiscoveryView — 장소 카테고리 */
+export type PlaceCategory = "food" | "spot" | "shopping" | "nature" | "cafe";
+
+/** PlaceDiscoveryView — 탐색 장소 카드 */
+export interface DiscoverPlace {
+  id: string;
+  name: string;
+  category: PlaceCategory;
+  rating: number;
+  reviewCount: number;
+  distance: string;
+  badge?: "ai" | "popular";
+  imageUrl?: string;
+}
+
+/** NotificationListView — 알림 카테고리 */
+export type NotificationCategory = "travel" | "companion" | "system";
+
+/** NotificationListView — 알림 항목 */
+export interface AppNotification {
+  id: string;
+  title: string;
+  body: string;
+  category: NotificationCategory;
+  icon: string;
+  iconColor: "purple" | "coral" | "amber" | "gray";
+  href?: string;
+  read: boolean;
+  createdAt: string;
+}
+
+/** PostTripRecapView — 통계 */
+export interface RecapStats {
+  placesVisited: number;
+  longestStay: string;
+  totalDistanceKm: number;
+  totalSteps: number;
+  totalSpentKRW: number;
+  biggestCategory: string;
+}
+
+/** PostTripRecapView — 하이라이트 */
+export interface RecapHighlight {
+  id: string;
+  label: string;
+  emoji: string;
+  name: string;
+  icon: string;
+  color: "purple" | "coral" | "amber";
+}
+
+/** PostTripRecapView — 포토 모먼트 */
+export interface RecapMoment {
+  id: string;
+  dayLabel: string;
+  alt: string;
+  imageUrl?: string;
+}

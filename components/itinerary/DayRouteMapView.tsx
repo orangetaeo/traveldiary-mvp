@@ -9,24 +9,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import type { RouteStop } from "@/lib/types";
 
 // ─── Types ─────────────────────────────────────
 
-export interface RouteStop {
-  id: string;
-  order: number;
-  name: string;
-  time: string; // "09:00" 형태
-  category: string;
-  categoryIcon: string;
-  /** 다음 장소까지 이동 정보 (마지막 정류장은 undefined) */
-  nextTransit?: string;
-  /** 현재 위치 여부 (on-trip 모드에서만) */
-  isActive?: boolean;
-  /** 핀의 상대 좌표 (%) */
-  pinX: number;
-  pinY: number;
-}
+export type { RouteStop } from "@/lib/types";
 
 interface Props {
   tripId: string;

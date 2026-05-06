@@ -10,34 +10,11 @@
 import Link from "next/link";
 import { formatKrw } from "@/lib/utils/format-krw";
 import { COLOR_BG, COLOR_TEXT } from "@/lib/utils/color-mappings";
+import type { RecapStats, RecapHighlight, RecapMoment } from "@/lib/types";
 
 // ─── Types ─────────────────────────────────────
 
-export interface RecapStats {
-  placesVisited: number;
-  longestStay: string;
-  totalDistanceKm: number;
-  totalSteps: number;
-  totalSpentKRW: number;
-  biggestCategory: string;
-}
-
-export interface RecapHighlight {
-  id: string;
-  label: string;
-  emoji: string;
-  name: string;
-  icon: string;
-  color: "purple" | "coral" | "amber";
-}
-
-export interface RecapMoment {
-  id: string;
-  dayLabel: string;
-  alt: string;
-  /** 외부 이미지 URL — 없으면 placeholder */
-  imageUrl?: string;
-}
+export type { RecapStats, RecapHighlight, RecapMoment } from "@/lib/types";
 
 interface Props {
   tripId: string;
@@ -91,7 +68,7 @@ export function PostTripRecapView({
               stars
             </span>
           </h1>
-          <p className="text-td-meta text-gray-200">{dateRange}</p>
+          <p className="text-td-meta text-white/80">{dateRange}</p>
         </div>
       </section>
 
