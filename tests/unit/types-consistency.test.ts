@@ -132,7 +132,6 @@ describe("types.ts — union type 값 추출", () => {
  * ════════════════════════════════════════════ */
 
 import { listDemoTrips } from "@/lib/seed/index";
-import { listCities } from "@/lib/seed/cities/index";
 
 describe("union type ↔ 시드 데이터 정합", () => {
   const ITEM_CATEGORIES = extractUnionValues(TYPES_SRC, "ItemCategory");
