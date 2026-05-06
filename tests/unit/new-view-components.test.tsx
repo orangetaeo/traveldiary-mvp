@@ -22,8 +22,8 @@ import {
 
 // next/link → a 태그로 치환
 vi.mock("next/link", () => ({
-  default: ({ href, children, ...props }: any) =>
-    <a href={href} {...props}>{children}</a>,
+  default: ({ href, children }: { href: string; children: React.ReactNode }) =>
+    <a href={href}>{children}</a>,
 }));
 
 // useToast mock (PlaceDiscoveryView에서 사용)
