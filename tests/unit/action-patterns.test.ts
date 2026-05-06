@@ -67,9 +67,10 @@ describe("action 인증/권한 패턴", () => {
   );
 
   // canWriteTrip는 데이터 변경 action에서 사용
+  // 외부 API 전용 / audit-only action은 면제 (DB 의존 0)
   const WRITE_ACTIONS = ACTION_FILES.filter(
     (f) =>
-      !["evidence.ts", "affiliate.ts", "translate.ts"].includes(f.name),
+      !["evidence.ts", "affiliate.ts", "translate.ts", "ota-booking-confirm.ts"].includes(f.name),
   );
 
   it.each(WRITE_ACTIONS.map((f) => [f.name, f.src]))(
@@ -92,10 +93,11 @@ describe("action 인증/권한 패턴", () => {
  * ════════════════════════════════════════════ */
 
 describe("action 데모 모드 fallback", () => {
-  // affiliate/evidence/translate: 외부 API 전용 — DB 의존 없이 동작하므로 데모 가드 불필요
+  // affiliate/evidence/translate/ota-booking-confirm: 외부 API 또는 audit-only —
+  // DB 의존 없이 동작하므로 데모 가드 불필요
   const DEMO_GUARD_ACTIONS = ACTION_FILES.filter(
     (f) =>
-      !["affiliate.ts", "evidence.ts", "translate.ts"].includes(f.name),
+      !["affiliate.ts", "evidence.ts", "translate.ts", "ota-booking-confirm.ts"].includes(f.name),
   );
 
   it.each(DEMO_GUARD_ACTIONS.map((f) => [f.name, f.src]))(
@@ -113,8 +115,8 @@ describe("action 데모 모드 fallback", () => {
  * ════════════════════════════════════════════ */
 
 describe("action 파일 목록", () => {
-  it("12개 action 파일 존재 (추가 시 패턴 검증 대상)", () => {
-    expect(ACTION_FILES.length).toBe(12);
+  it("13개 action 파일 존재 (추가 시 패턴 검증 대상)", () => {
+    expect(ACTION_FILES.length).toBe(13);
   });
 
   it("알려진 action 파일 전체 등록", () => {
@@ -125,6 +127,7 @@ describe("action 파일 목록", () => {
       "cost.ts",
       "evidence.ts",
       "itinerary.ts",
+      "ota-booking-confirm.ts",
       "place.ts",
       "replan.ts",
       "share.ts",

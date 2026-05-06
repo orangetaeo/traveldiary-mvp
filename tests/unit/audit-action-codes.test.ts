@@ -61,6 +61,9 @@ const KNOWN_ACTION_CODES = new Set([
   "replan.commit",
   // affiliate
   "affiliate.click",
+  // 사이클 5 (G8) — OTA 결제 후 self-report (BLOCKER 7 webhook 부재 시 수동 신호)
+  "affiliate.confirmed",
+  "affiliate.declined",
 ]);
 
 /* ════════════════════════════════════════════

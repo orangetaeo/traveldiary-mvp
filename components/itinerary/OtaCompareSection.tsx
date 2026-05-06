@@ -11,6 +11,8 @@ import { useTransition } from "react";
 import type { OtaOffer } from "@/lib/types";
 import { trackAffiliateClick } from "@/actions/affiliate";
 import { OTA_LABEL, OTA_TONE } from "@/lib/constants/ota-constants";
+import { setOtaOutgoing } from "@/lib/ota/outgoing";
+import { OtaReentryConfirmBar } from "./OtaReentryConfirmBar";
 
 interface OtaCompareSectionProps {
   itemId: string;
@@ -34,6 +36,13 @@ export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
         priceKrw: offer.priceKrw,
         baseUrl: offer.url,
       });
+      // 사이클 5 (G8) — 외부 이동 직전 outgoing 마킹 (reentry confirm bar 트리거)
+      setOtaOutgoing({
+        itemId,
+        offerId: offer.id,
+        ota: offer.ota,
+        priceKrw: offer.priceKrw,
+      });
       window.open(result.redirectUrl, "_blank", "noopener");
     });
   }
@@ -46,6 +55,9 @@ export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
           어필리에이트 링크
         </span>
       </div>
+
+      {/* 사이클 5 (G8) — 외부 OTA reentry 시 self-report 카드 (sessionStorage 마킹 시에만 노출) */}
+      <OtaReentryConfirmBar itemId={itemId} />
       <div className="space-y-td-xs">
         {offers
           .slice()

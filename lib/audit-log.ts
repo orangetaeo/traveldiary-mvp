@@ -80,6 +80,9 @@ export type AuditAction =
   | "reaction.toggle"
   // M8 (사이클 12a, ADR-025)
   | "affiliate.click"
+  // 사이클 5 (G8) — OTA 결제 후 reentry self-report (BLOCKER 7 webhook 부재 시 사용자 신호)
+  | "affiliate.confirmed"
+  | "affiliate.declined"
   | "auth.login"
   | "auth.logout"
   // 자율 모드 비용 거버넌스 (사이클 AAAA2, ADR-047)
