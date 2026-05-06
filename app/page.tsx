@@ -294,8 +294,8 @@ export default async function HomePage() {
       </main>
 
       {/* FAB — Pre-trip 모드에서도 검색·번역 빠른 진입 */}
-      <div className="fixed right-td-md bottom-24 flex flex-col gap-td-xs z-40 max-w-[420px] left-1/2 -translate-x-1/2 pointer-events-none">
-        <div className="ml-auto flex flex-col gap-td-xs pointer-events-auto pr-td-md">
+      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-[420px] z-40 pointer-events-none">
+        <div className="ml-auto flex flex-col gap-td-xs pointer-events-auto pr-td-md w-fit">
           <button
             type="button"
             className="w-12 h-12 bg-surface-card text-ink border border-divider rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
