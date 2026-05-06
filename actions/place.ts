@@ -43,6 +43,12 @@ import {
 import { getActorId } from "@/lib/auth/session";
 import { isDbConnected } from "@/lib/prisma";
 import type { ItineraryItem } from "@/lib/types";
+import {
+  deriveCachedOpStatus,
+  derivePriceFromCache,
+  deriveDistanceFromCache,
+  deriveGoogleFromCache,
+} from "./place-cache-utils";
 
 export interface VerifyPlaceActionInput {
   itemId: string;
@@ -367,87 +373,4 @@ export async function validateItemAction(
   };
 }
 
-function deriveCachedOpStatus(stored: string): "open" | "closed" | "demo" {
-  if (stored === "open" || stored === "closed" || stored === "demo") {
-    return stored;
-  }
-  return "demo";
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// 캐시 hit fallback — 사이클 E (ADR-031)
-// 새 row는 priceStatus/distanceStatus 채워짐 → 정확한 enum 복원.
-// 기존 row(NULL)는 이전 보수적 fallback 답습 (회귀 0).
-// ═══════════════════════════════════════════════════════════════════
-
-function derivePriceFromCache(cached: ValidationResultRow): PriceVerificationOutput {
-  // 새 row — priceStatus 채워진 경우 정확 복원
-  if (cached.priceStatus) {
-    return {
-      status: cached.priceStatus as PriceVerificationOutput["status"],
-      verified: cached.priceVerified,
-      reason: "24h 캐시 hit",
-      deltaPct: null,
-      medianOtaPriceKrw: null,
-      otaSourceCount: 0,
-    };
-  }
-  // 기존 row (NULL) — 보수적 fallback
-  return {
-    status: cached.priceVerified ? "verified" : "warn",
-    verified: cached.priceVerified,
-    reason: "24h 캐시 hit",
-    deltaPct: null,
-    medianOtaPriceKrw: null,
-    otaSourceCount: 0,
-  };
-}
-
-function deriveDistanceFromCache(cached: ValidationResultRow): DistanceVerificationOutput {
-  if (cached.distanceStatus) {
-    return {
-      status: cached.distanceStatus as DistanceVerificationOutput["status"],
-      verified: cached.distanceVerified,
-      reason: "24h 캐시 hit",
-      travelMinutes: null,
-      gapMinutes: null,
-      distanceKm: null,
-      mode: null,
-      source: "none",
-    };
-  }
-  return {
-    status: cached.distanceVerified ? "verified" : "warn",
-    verified: cached.distanceVerified,
-    reason: "24h 캐시 hit",
-    travelMinutes: null,
-    gapMinutes: null,
-    distanceKm: null,
-    mode: null,
-    source: "none",
-  };
-}
-
-function deriveGoogleFromCache(cached: ValidationResultRow): VerifyPlaceResult {
-  // 캐시 hit 시 google 결과 미보존 → operatingStatus로 demo/verified 추정 (rating·types 정보 미복원)
-  if (cached.operatingStatus === "demo") return { mode: "demo" };
-  if (!cached.placeExists) {
-    return {
-      mode: "not_found",
-      placeExists: false,
-      cached: true,
-      fetchDurationMs: 0,
-    };
-  }
-  return {
-    mode: "verified",
-    placeExists: true,
-    operatingStatus:
-      cached.operatingStatus === "open" || cached.operatingStatus === "closed"
-        ? cached.operatingStatus
-        : "open",
-    placeId: "", // 캐시 미보존
-    cached: true,
-    fetchDurationMs: 0,
-  };
-}
+// 캐시 복원 함수 → place-cache-utils.ts로 추출 (테스트 가능)
