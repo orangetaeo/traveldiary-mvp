@@ -67,7 +67,8 @@ export async function POST(req: NextRequest) {
     include: { trip: { select: { destination: true, nights: true, startDate: true } } },
   });
 
-  const byKey = new Map(rows.map((r) => [r.syncKey, r]));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const byKey = new Map<string, any>(rows.map((r: any) => [r.syncKey, r]));
   const now = Date.now();
 
   const items: LookupItem[] = keys.map((k) => {

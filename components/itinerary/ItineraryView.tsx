@@ -20,6 +20,7 @@ import {
   reorderItineraryItems,
 } from "@/actions/itinerary";
 import { AddItemModal } from "./AddItemModal";
+import { DEMO_DISCOVER_PLACES } from "@/lib/seed/discover-places";
 import { ShareModal } from "@/components/share/ShareModal";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
@@ -430,6 +431,7 @@ export function ItineraryView({ trip, initialItems, initialDay = 0 }: ItineraryV
         open={addOpen}
         trip={trip}
         defaultDayIndex={activeDay}
+        suggestions={DEMO_DISCOVER_PLACES}
         onClose={() => setAddOpen(false)}
         onSubmit={handleAddItem}
         isPending={isPending}
