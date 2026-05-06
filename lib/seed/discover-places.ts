@@ -1,67 +1,21 @@
 /**
  * 장소 탐색 데모 시드 — 베트남 6개 도시 + 치앙마이.
  *
- * 푸꾸옥: 파이프라인 자동 생성 621곳 (Phase A~B, 2026-05-06)
+ * 푸꾸옥: 파이프라인 자동 생성 608곳 (Phase A~B, 2026-05-06)
+ * 다낭: 파이프라인 자동 생성 884곳 (Phase A~B, 2026-05-06)
  * 나머지: 수동 큐레이션 (기존 유지)
  */
 
 import type { DiscoverPlace } from "@/lib/types";
 import { phuQuocDiscoverPlaces } from "./places/phu-quoc-discover";
+import { daNangDiscoverPlaces } from "./places/da-nang-discover";
 
 export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
-  // ── 푸꾸옥 (621곳 — 파이프라인 자동 생성) ──
+  // ── 푸꾸옥 (608곳 — 파이프라인 자동 생성) ──
   ...phuQuocDiscoverPlaces,
 
-  // ── 다낭 ──────────────────────────────────────────────────
-  {
-    id: "discover-dn-banahill",
-    name: "바나힐 + 골든브릿지",
-    category: "spot",
-    rating: 4.4,
-    reviewCount: 18920,
-    distance: "차량 40분",
-    badge: "popular",
-    destination: "다낭",
-  },
-  {
-    id: "discover-dn-hoian",
-    name: "호이안 올드타운 야경",
-    category: "spot",
-    rating: 4.7,
-    reviewCount: 3210,
-    distance: "차량 30분",
-    badge: "ai",
-    destination: "다낭",
-  },
-  {
-    id: "discover-dn-myson",
-    name: "미선 유적 데이투어",
-    category: "spot",
-    rating: 4.3,
-    reviewCount: 1450,
-    distance: "차량 70분",
-    destination: "다낭",
-  },
-  {
-    id: "discover-dn-hanmarket",
-    name: "한시장 푸드투어",
-    category: "food",
-    rating: 4.5,
-    reviewCount: 348,
-    distance: "도보 10분",
-    badge: "ai",
-    destination: "다낭",
-  },
-  {
-    id: "discover-dn-mykhe",
-    name: "미케비치 선셋",
-    category: "nature",
-    rating: 4.6,
-    reviewCount: 2100,
-    distance: "도보 5분",
-    badge: "popular",
-    destination: "다낭",
-  },
+  // ── 다낭 (884곳 — 파이프라인 자동 생성) ──
+  ...daNangDiscoverPlaces,
 
   // ── 하노이 ──────────────────────────────────────────────────
   {
