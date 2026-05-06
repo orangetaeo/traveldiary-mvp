@@ -43,7 +43,7 @@ export function TripHero({
 
   return (
     <section
-      className={`mt-td-md rounded-xl overflow-hidden relative min-h-[220px] bg-gradient-to-br ${gradient} shadow-[0_4px_12px_rgba(15,23,42,0.05)]`}
+      className={`mt-td-md rounded-md overflow-hidden relative min-h-[220px] bg-gradient-to-br ${gradient} shadow-[0_4px_12px_rgba(15,23,42,0.05)]`}
     >
       <div
         className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"

@@ -175,7 +175,7 @@ export function CommentSection({
 
       <form
         onSubmit={handleSubmit}
-        className="bg-surface-card border border-divider rounded-xl p-td-md mb-td-md space-y-td-xs"
+        className="bg-surface-card border border-divider rounded-md p-td-md mb-td-md space-y-td-xs"
       >
         <div className="flex gap-td-xs">
           <input

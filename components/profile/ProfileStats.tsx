@@ -33,7 +33,7 @@ export function ProfileStats({ tripCount, isAuthenticated }: ProfileStatsProps) 
       <h2 className="text-td-card-title text-ink font-bold">내 활동</h2>
 
       {/* 익명 ID 카드 */}
-      <div className="bg-surface-card border border-divider rounded-xl p-td-md shadow-sm">
+      <div className="bg-surface-card border border-divider rounded-md p-td-md shadow-sm">
         <div className="flex items-center gap-td-sm mb-td-sm">
           <div className="w-10 h-10 rounded-full bg-purple-soft flex items-center justify-center">
             <span className="material-symbols-outlined text-purple" aria-hidden>
@@ -67,14 +67,14 @@ export function ProfileStats({ tripCount, isAuthenticated }: ProfileStatsProps) 
       <div className="grid grid-cols-2 gap-td-sm">
         <Link
           href="/trips"
-          className="bg-surface-card border border-divider rounded-xl p-td-md text-center hover:border-purple/40 transition-colors"
+          className="bg-surface-card border border-divider rounded-md p-td-md text-center hover:border-purple/40 transition-colors"
         >
           <p className="text-2xl font-bold text-purple tabular-nums">{tripCount}</p>
           <p className="text-td-caption text-ink-soft mt-td-xxs">내 여행</p>
         </Link>
         <Link
           href="/shared"
-          className="bg-surface-card border border-divider rounded-xl p-td-md text-center hover:border-purple/40 transition-colors"
+          className="bg-surface-card border border-divider rounded-md p-td-md text-center hover:border-purple/40 transition-colors"
         >
           <p className="text-2xl font-bold text-purple tabular-nums">{receivedCount}</p>
           <p className="text-td-caption text-ink-soft mt-td-xxs">받은 여행</p>

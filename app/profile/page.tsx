@@ -54,7 +54,7 @@ export default async function ProfilePage() {
         >
           <span className="material-symbols-outlined text-ink">home</span>
         </Link>
-        <h1 className="text-xl font-black text-ink">내 프로필</h1>
+        <h1 className="text-td-title font-black text-ink">내 프로필</h1>
         <span className="w-10 h-10 flex items-center justify-center rounded-full">
           <span className="material-symbols-outlined text-ink-mute">settings</span>
         </span>
@@ -66,7 +66,7 @@ export default async function ProfilePage() {
           <h2 className="text-td-title mb-3">계정</h2>
 
           {currentUserId ? (
-            <div className="bg-white border border-divider rounded-xl p-4 flex items-center gap-4">
+            <div className="bg-surface-card border border-divider rounded-md p-4 flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-purple-soft border border-divider flex items-center justify-center shrink-0">
                 <span className="material-symbols-outlined text-purple text-[28px]">person</span>
               </div>
@@ -81,7 +81,7 @@ export default async function ProfilePage() {
               <span className="material-symbols-outlined text-ink-mute">chevron_right</span>
             </div>
           ) : (
-            <div className="bg-purple/5 border border-purple/20 rounded-xl p-4">
+            <div className="bg-purple/5 border border-purple/20 rounded-md p-4">
               <p className="text-td-body text-ink-soft mb-3 leading-relaxed text-center">
                 카카오 로그인으로 내 여행을 안전하게 관리하세요
               </p>
@@ -141,7 +141,7 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className={`bg-white border rounded-xl p-4 text-left hover:bg-surface-soft transition-colors shadow-[0_4px_12px_rgba(15,23,42,0.05)] ${
+      className={`bg-surface-card border rounded-md p-4 text-left hover:bg-surface-soft transition-colors shadow-[0_4px_12px_rgba(15,23,42,0.05)] ${
         highlight ? "border-2 border-purple" : "border-divider"
       }`}
     >

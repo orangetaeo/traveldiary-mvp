@@ -57,19 +57,19 @@ describe("C3 — 공유 페이지 보기 전용 배너", () => {
   });
 
   it("회색 배경 배너 스타일 (C3 DoD: 회색 배지)", () => {
-    expect(src).toContain("bg-gray-100");
-    expect(src).toContain("text-gray-600");
+    expect(src).toContain("bg-surface-soft");
+    expect(src).toContain("text-ink-soft");
   });
 
   it("아이템 카드에 보기 전용 배지", () => {
-    expect(src).toContain("bg-gray-200");
+    expect(src).toContain("bg-surface-soft");
     // 카드 내부에 "보기 전용" 배지 존재
     const cardSection = src.slice(src.indexOf("<article"));
     expect(cardSection).toContain("보기 전용");
   });
 
   it("헤더 회색 배지", () => {
-    expect(src).toContain("bg-gray-200 text-gray-600");
+    expect(src).toContain("bg-surface-soft text-ink-soft");
   });
 });
 

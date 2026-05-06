@@ -14,7 +14,7 @@ export default function TranslateLoading() {
 
       {/* 카메라 영역 스켈레톤 */}
       <div className="px-td-md py-td-md">
-        <div className="aspect-[4/3] bg-ink/10 rounded-xl animate-pulse" />
+        <div className="aspect-[4/3] bg-ink/10 rounded-md animate-pulse" />
       </div>
 
       {/* 결과 영역 스켈레톤 */}

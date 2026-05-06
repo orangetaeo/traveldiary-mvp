@@ -78,7 +78,7 @@ export function ItineraryMapWithDirections({
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
         allowFullScreen
-        className="w-full rounded-xl border border-divider"
+        className="w-full rounded-md border border-divider"
         style={{ height: `${height}px` }}
       />
       <div className="mt-td-xs flex items-center justify-between gap-td-xs">

@@ -57,7 +57,7 @@ export function EmptyGuide() {
         {steps.map((step, idx) => (
           <li
             key={step.icon}
-            className="flex gap-3 bg-surface-card border border-divider rounded-xl p-4"
+            className="flex gap-3 bg-surface-card border border-divider rounded-md p-4"
           >
             <div className="flex-none w-8 h-8 rounded-full bg-purple-soft text-purple-deep flex items-center justify-center text-sm font-bold tabular-nums">
               {idx + 1}
@@ -80,7 +80,7 @@ export function EmptyGuide() {
         ))}
       </ol>
 
-      <div className="mt-6 bg-surface-card border border-divider rounded-xl p-4 flex items-center justify-between gap-3">
+      <div className="mt-6 bg-surface-card border border-divider rounded-md p-4 flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-ink">
             내 여행을 공유하고 싶나요?

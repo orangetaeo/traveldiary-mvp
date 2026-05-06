@@ -106,7 +106,7 @@ function ItineraryCreatingInner() {
       </div>
 
       {/* Bento-style step card */}
-      <div className="bg-white border border-divider rounded-xl p-4 space-y-3">
+      <div className="bg-surface-card border border-divider rounded-md p-4 space-y-3">
         {steps.map((s, idx) => {
           const state =
             idx < active ? "done" : idx === active ? "active" : "pending";

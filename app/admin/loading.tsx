@@ -16,7 +16,7 @@ export default function AdminLoading() {
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="bg-surface-card border border-divider rounded-xl p-td-md animate-pulse"
+            className="bg-surface-card border border-divider rounded-md p-td-md animate-pulse"
           >
             <div className="h-4 w-20 bg-ink/10 rounded mb-td-sm" />
             <div className="h-8 w-16 bg-ink/15 rounded" />

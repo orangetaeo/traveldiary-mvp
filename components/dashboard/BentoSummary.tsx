@@ -39,7 +39,7 @@ function CardShell({
   return (
     <div
       aria-label={ariaLabel}
-      className="bg-white p-td-md rounded-xl border border-divider shadow-[0_4px_12px_rgba(15,23,42,0.03)] flex flex-col justify-between min-h-[100px]"
+      className="bg-surface-card p-td-md rounded-md border border-divider shadow-[0_4px_12px_rgba(15,23,42,0.03)] flex flex-col justify-between min-h-[100px]"
     >
       {children}
     </div>
@@ -171,7 +171,7 @@ function VoteCard({ data }: { data: TripDashboardData["vote"] }) {
   if (data.totalCount === 0) {
     return (
       <CardShell ariaLabel="투표 요약">
-        <CardHeader icon="how_to_vote" label="투표 없음" iconClass="text-blue-500" />
+        <CardHeader icon="how_to_vote" label="투표 없음" iconClass="text-purple" />
         <p className="text-td-caption text-ink-mute">새 투표 만들기</p>
       </CardShell>
     );
@@ -181,7 +181,7 @@ function VoteCard({ data }: { data: TripDashboardData["vote"] }) {
       <CardHeader
         icon="how_to_vote"
         label={`투표 ${data.totalCount}건`}
-        iconClass="text-blue-500"
+        iconClass="text-purple"
       />
       {data.pendingCount > 0 ? (
         <div className="flex items-center gap-td-xs">

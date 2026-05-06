@@ -11,7 +11,7 @@ export default function OnboardingLoading() {
         <div className="h-3 w-48 bg-ink/5 rounded" />
         <div className="mt-td-lg w-full space-y-td-sm">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 bg-ink/5 rounded-xl" />
+            <div key={i} className="h-12 bg-ink/5 rounded-md" />
           ))}
         </div>
       </div>

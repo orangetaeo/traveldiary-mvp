@@ -407,7 +407,7 @@ function MenuRow({
 
   return (
     <article
-      className={`flex items-center gap-td-sm p-td-sm rounded-xl border transition-all hover:shadow-sm ${
+      className={`flex items-center gap-td-sm p-td-sm rounded-md border transition-all hover:shadow-sm ${
         critical
           ? "bg-danger-soft/30 border-l-[3px] border-l-danger border-divider"
           : "bg-surface-card border-divider"

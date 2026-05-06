@@ -29,7 +29,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
         {/* 1. 응급 */}
         <Link
           href={`/city/${city.slug}#emergency`}
-          className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-xl p-2 flex flex-col justify-between shadow-sm hover:border-danger/40 transition-colors"
+          className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-danger/40 transition-colors"
         >
           <div className="flex justify-between items-start">
             <span className="material-symbols-outlined filled text-danger text-[18px]" aria-hidden>
@@ -48,7 +48,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
         {/* 2. 환전 */}
         <Link
           href={`/city/${city.slug}#payment`}
-          className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-xl p-2 flex flex-col justify-between shadow-sm hover:border-amber/40 transition-colors"
+          className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-amber/40 transition-colors"
         >
           <div className="flex justify-between items-start">
             <span className="material-symbols-outlined text-ink-soft text-[18px]" aria-hidden>
@@ -67,7 +67,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
         {/* 3. 교통 (그랩 등) */}
         <Link
           href={`/city/${city.slug}#transport`}
-          className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-xl p-2 flex flex-col justify-between shadow-sm hover:border-success/40 transition-colors"
+          className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-success/40 transition-colors"
         >
           <div className="flex justify-between items-start">
             <span className="material-symbols-outlined text-success text-[18px]" aria-hidden>
@@ -86,7 +86,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
         {city.curatedGuides[0] && (
           <Link
             href={`/city/${city.slug}#guide-${city.curatedGuides[0].id}`}
-            className="flex-shrink-0 w-24 h-20 bg-accent-soft border border-accent/40 rounded-xl p-2 flex flex-col justify-between shadow-sm hover:border-accent transition-colors"
+            className="flex-shrink-0 w-24 h-20 bg-accent-soft border border-accent/40 rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-accent transition-colors"
           >
             <div className="flex justify-between items-start">
               <span className="text-[18px]" aria-hidden>
@@ -105,7 +105,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
         {/* 5. 도시 정보 풀 페이지 (메인 CTA) */}
         <Link
           href={`/city/${city.slug}`}
-          className="flex-shrink-0 w-24 h-20 bg-purple-soft border border-purple/30 rounded-xl p-2 flex flex-col justify-between shadow-sm hover:border-purple transition-colors"
+          className="flex-shrink-0 w-24 h-20 bg-purple-soft border border-purple/30 rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-purple transition-colors"
         >
           <div className="flex justify-between items-start">
             <span className="material-symbols-outlined text-purple text-[18px]" aria-hidden>

@@ -89,7 +89,7 @@ export function StatusBadge({
     <div
       role="status"
       aria-label={ariaLabel}
-      className={`flex items-start gap-td-xs p-td-sm rounded-xl ${toneCss.container} ${emphasis}`}
+      className={`flex items-start gap-td-xs p-td-sm rounded-md ${toneCss.container} ${emphasis}`}
     >
       <span className={iconCss} aria-hidden>
         {icon}

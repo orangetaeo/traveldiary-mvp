@@ -61,7 +61,7 @@ export function CuratedGuideCard({ guide }: { guide: CuratedGuide }) {
   return (
     <article
       id={`guide-${guide.id}`}
-      className="bg-surface-card border border-divider rounded-xl overflow-hidden shadow-sm scroll-mt-24"
+      className="bg-surface-card border border-divider rounded-md overflow-hidden shadow-sm scroll-mt-24"
     >
       <div className={`bg-gradient-to-br ${gradient} px-td-md py-td-md text-white`}>
         <div className="flex items-start gap-td-sm">

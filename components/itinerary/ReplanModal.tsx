@@ -155,7 +155,7 @@ export function ReplanModal({
                 key={option.id}
                 type="button"
                 onClick={() => onApply(itemsAfter, option)}
-                className={`group block w-full text-left p-td-md bg-surface-card border border-divider rounded-xl shadow-sm ${hoverBorder} transition-colors`}
+                className={`group block w-full text-left p-td-md bg-surface-card border border-divider rounded-md shadow-sm ${hoverBorder} transition-colors`}
               >
                 <div className="flex justify-between items-start mb-td-xs">
                   <span

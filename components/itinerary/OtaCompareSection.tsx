@@ -65,7 +65,7 @@ export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
                 type="button"
                 onClick={() => handleClick(offer)}
                 disabled={isPending}
-                className={`w-full text-left bg-surface-card border rounded-xl p-td-sm transition-colors disabled:opacity-60 ${
+                className={`w-full text-left bg-surface-card border rounded-md p-td-sm transition-colors disabled:opacity-60 ${
                   isCheapest
                     ? "border-purple/60 shadow-md"
                     : "border-divider hover:border-purple/40"

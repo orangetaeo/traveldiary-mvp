@@ -26,7 +26,7 @@ export default function ItineraryLoading() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-surface-card border border-divider rounded-xl p-td-md animate-pulse"
+            className="bg-surface-card border border-divider rounded-md p-td-md animate-pulse"
           >
             <div className="flex gap-td-sm">
               <div className="w-10 h-10 bg-ink/5 rounded-lg" />

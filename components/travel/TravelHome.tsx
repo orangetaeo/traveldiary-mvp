@@ -159,7 +159,7 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
 
         {/* Stats Grid */}
         <section className="grid grid-cols-2 gap-td-xs">
-          <div className="col-span-2 bg-surface-card p-td-sm rounded-xl border border-divider">
+          <div className="col-span-2 bg-surface-card p-td-sm rounded-md border border-divider">
             <div className="flex justify-between items-end mb-td-xs">
               <span className="text-td-meta text-ink-soft">
                 진행률 {done}/{total}
@@ -176,7 +176,7 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
             </div>
           </div>
 
-          <div className="bg-surface-card p-td-sm rounded-xl border border-divider flex flex-col gap-td-xxs">
+          <div className="bg-surface-card p-td-sm rounded-md border border-divider flex flex-col gap-td-xxs">
             <div className="flex items-center gap-1 text-ink-soft">
               <span
                 className="material-symbols-outlined text-[14px]"
@@ -189,7 +189,7 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
             <p className="text-td-body font-medium">{trip.destination}</p>
           </div>
 
-          <div className="bg-surface-card p-td-sm rounded-xl border border-divider flex flex-col gap-td-xxs">
+          <div className="bg-surface-card p-td-sm rounded-md border border-divider flex flex-col gap-td-xxs">
             <div className="flex items-center gap-1 text-ink-soft">
               <span
                 className="material-symbols-outlined text-[14px]"
@@ -316,7 +316,7 @@ function CurrentTimelineItem({
           <div className="w-2.5 h-2.5 rounded-full bg-mode-primary" />
         </div>
       </div>
-      <div className="flex-1 bg-surface-card p-td-md rounded-xl border-l-4 border-mode-primary border-y border-r border-divider shadow-md">
+      <div className="flex-1 bg-surface-card p-td-md rounded-md border-l-4 border-mode-primary border-y border-r border-divider shadow-md">
         <div className="flex justify-between items-start mb-td-xs">
           <span className="bg-accent-soft text-accent-deep px-2 py-0.5 rounded-full text-td-caption font-bold uppercase tracking-wider">
             지금
@@ -362,7 +362,7 @@ function FutureTimelineItem({
           <div className="w-2 h-2 rounded-full bg-ink-mute" />
         </div>
       </div>
-      <div className="flex-1 bg-surface-card p-td-sm rounded-xl border border-divider shadow-sm">
+      <div className="flex-1 bg-surface-card p-td-sm rounded-md border border-divider shadow-sm">
         <p className="text-td-meta text-ink-soft mb-td-xxs">
           {time} — {label ?? "예정"}
         </p>

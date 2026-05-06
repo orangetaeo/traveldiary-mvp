@@ -104,7 +104,7 @@ export default function CityEmergencyPage({
             {translator.phone && (
               <a
                 href={`tel:${translator.phone.replace(/\s/g, "")}`}
-                className="inline-flex items-center gap-1 bg-purple text-white px-4 py-2.5 rounded-xl text-td-body font-medium hover:opacity-90 transition-opacity active:scale-95"
+                className="inline-flex items-center gap-1 bg-purple text-white px-4 py-2.5 rounded-md text-td-body font-medium hover:opacity-90 transition-opacity active:scale-95"
               >
                 <span className="material-symbols-outlined text-[18px]">call</span>
                 전화하기
@@ -142,7 +142,7 @@ export default function CityEmergencyPage({
           <h3 className="text-td-card-title text-ink font-semibold">
             출국 전 준비
           </h3>
-          <ul className="bg-white border border-divider rounded-xl p-4 space-y-2">
+          <ul className="bg-surface-card border border-divider rounded-md p-4 space-y-2">
             {KOREAN_LOSS_GUIDES.filter((g) => g.preparation).map((g) => (
               <li key={g.category} className="flex items-start gap-2">
                 <span className="text-[16px]" aria-hidden>

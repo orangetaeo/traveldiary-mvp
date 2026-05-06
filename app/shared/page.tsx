@@ -162,7 +162,7 @@ export default function SharedListPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value.slice(0, 50))}
                 placeholder="도시명 검색"
-                className="w-full pl-10 pr-4 py-2.5 bg-surface border border-divider rounded-xl text-td-body focus:ring-2 focus:ring-purple focus:border-transparent outline-none"
+                className="w-full pl-10 pr-4 py-2.5 bg-surface border border-divider rounded-md text-td-body focus:ring-2 focus:ring-purple focus:border-transparent outline-none"
                 aria-label="도시명 검색"
               />
             </div>
@@ -223,7 +223,7 @@ export default function SharedListPage() {
               {visibleItems.map((it) => (
               <li
                 key={it.key}
-                className={`bg-white rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] ${
+                className={`bg-surface-card rounded-md overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] ${
                   it.status === "active"
                     ? "border-2 border-purple"
                     : "border border-divider opacity-60"

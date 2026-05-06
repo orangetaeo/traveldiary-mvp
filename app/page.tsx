@@ -107,7 +107,7 @@ export default async function HomePage() {
           </p>
 
           {/* Summary Strip — 3 columns */}
-          <div className="grid grid-cols-3 gap-td-xs p-td-sm bg-surface-card rounded-xl border border-divider">
+          <div className="grid grid-cols-3 gap-td-xs p-td-sm bg-surface-card rounded-md border border-divider">
             <div className="text-center border-r border-divider">
               <p className="text-td-caption text-ink-soft">동선 거리</p>
               <p className="text-td-meta font-bold text-ink mt-0.5">12km</p>
@@ -246,7 +246,7 @@ export default async function HomePage() {
                 <Link
                   key={b.trip.id}
                   href={`/itinerary/${b.trip.id}`}
-                  className="block p-td-sm bg-surface-card border border-divider rounded-xl hover:border-purple/40 transition-colors"
+                  className="block p-td-sm bg-surface-card border border-divider rounded-md hover:border-purple/40 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <p className="text-td-meta text-ink-soft uppercase tabular-nums">
@@ -271,7 +271,7 @@ export default async function HomePage() {
         <section className="px-td-md pb-td-lg">
           <Link
             href="/guide"
-            className="block bg-gradient-to-r from-purple/10 to-accent/10 border border-purple/20 rounded-xl p-td-md hover:border-purple/40 transition-colors"
+            className="block bg-gradient-to-r from-purple/10 to-accent/10 border border-purple/20 rounded-md p-td-md hover:border-purple/40 transition-colors"
           >
             <div className="flex items-center gap-td-sm">
               <span className="material-symbols-outlined text-purple text-2xl">
