@@ -3,11 +3,7 @@
  * DB 미구현 단계에서 UI 데모용.
  */
 
-import type {
-  RecapStats,
-  RecapHighlight,
-  RecapMoment,
-} from "@/components/recap/PostTripRecapView";
+import type { RecapStats, RecapHighlight, RecapMoment } from "@/lib/types";
 
 export const DEMO_RECAP_STATS: RecapStats = {
   placesVisited: 12,
