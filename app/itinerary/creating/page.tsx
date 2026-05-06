@@ -61,7 +61,7 @@ function ItineraryCreatingInner() {
     if (active >= steps.length) {
       setDone(true);
       const t = setTimeout(() => {
-        router.push(`/itinerary/${tripId}`);
+        router.replace(`/itinerary/${tripId}`);
       }, 600);
       return () => clearTimeout(t);
     }
