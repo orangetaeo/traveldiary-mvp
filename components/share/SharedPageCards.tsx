@@ -1,9 +1,10 @@
 /**
- * /shared 페이지 하위 카드 컴포넌트 3종.
- * EmptyGuide / ActiveCard / InactiveCard.
+ * /shared 페이지 하위 카드 컴포넌트.
+ * EmptyGuide / FilteredEmptyCard / ActiveCard / InactiveCard.
  */
 
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export interface SharedLookupItem {
   key: string;
@@ -96,6 +97,18 @@ export function EmptyGuide() {
         </Link>
       </div>
     </section>
+  );
+}
+
+export function FilteredEmptyCard({ onReset }: { onReset: () => void }) {
+  return (
+    <EmptyState
+      icon="filter_alt_off"
+      title="조건에 맞는 여행이 없어요"
+      description="필터를 바꿔 다른 여행을 찾아보세요."
+      secondaryButton={{ label: "전체 보기", onClick: onReset }}
+      className="py-8"
+    />
   );
 }
 

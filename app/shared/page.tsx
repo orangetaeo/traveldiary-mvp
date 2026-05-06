@@ -31,6 +31,7 @@ import { MyActivitySection } from "@/components/share/MyActivitySection";
 import { BottomNav } from "@/components/ui/BottomNav";
 import {
   EmptyGuide,
+  FilteredEmptyCard,
   ActiveCard,
   InactiveCard,
   type SharedLookupItem,
@@ -211,9 +212,12 @@ export default function SharedListPage() {
             </p>
 
             {visibleItems.length === 0 ? (
-              <p className="text-td-body text-ink-mute text-center py-8 bg-white border border-divider rounded-xl">
-                조건에 맞는 여행이 없어요.
-              </p>
+              <FilteredEmptyCard
+                onReset={() => {
+                  setQuery("");
+                  setStatusFilter("all");
+                }}
+              />
             ) : (
             <ul className="flex flex-col gap-3">
               {visibleItems.map((it) => (
