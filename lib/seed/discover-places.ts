@@ -1,159 +1,21 @@
 /**
  * 장소 탐색 데모 시드 — 베트남 6개 도시 + 치앙마이.
- * DB 미구현 단계에서 UI 데모용.
- * destination 필드로 trip.destination 매칭 필터링 가능.
+ *
+ * 푸꾸옥: 파이프라인 자동 생성 608곳 (Phase A~B, 2026-05-06)
+ * 다낭: 파이프라인 자동 생성 884곳 (Phase A~B, 2026-05-06)
+ * 나머지: 수동 큐레이션 (기존 유지)
  */
 
 import type { DiscoverPlace } from "@/lib/types";
+import { phuQuocDiscoverPlaces } from "./places/phu-quoc-discover";
+import { daNangDiscoverPlaces } from "./places/da-nang-discover";
 
 export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
-  // ── 푸꾸옥 ──────────────────────────────────────────────────
-  {
-    id: "discover-dinh-cau",
-    name: "딘까우 야시장",
-    category: "food",
-    rating: 4.6,
-    reviewCount: 273,
-    distance: "도보 15분",
-    badge: "ai",
-    destination: "푸꾸옥",
-  },
-  {
-    id: "discover-duong-dong",
-    name: "즈엉동 비치",
-    category: "spot",
-    rating: 4.8,
-    reviewCount: 512,
-    distance: "차량 10분",
-    badge: "popular",
-    destination: "푸꾸옥",
-  },
-  {
-    id: "discover-vinpearl",
-    name: "빈펄 사파리",
-    category: "nature",
-    rating: 4.5,
-    reviewCount: 189,
-    distance: "차량 25분",
-    destination: "푸꾸옥",
-  },
-  {
-    id: "discover-sao-beach",
-    name: "사오비치",
-    category: "nature",
-    rating: 4.7,
-    reviewCount: 341,
-    distance: "차량 30분",
-    badge: "popular",
-    destination: "푸꾸옥",
-  },
-  {
-    id: "discover-hon-thom",
-    name: "혼톰 케이블카",
-    category: "spot",
-    rating: 4.6,
-    reviewCount: 267,
-    distance: "차량 35분",
-    badge: "ai",
-    destination: "푸꾸옥",
-  },
-  {
-    id: "discover-grand-world",
-    name: "그랜드월드",
-    category: "shopping",
-    rating: 4.2,
-    reviewCount: 156,
-    distance: "차량 15분",
-    destination: "푸꾸옥",
-  },
-  {
-    id: "discover-coconut-cafe",
-    name: "코코넛 카페",
-    category: "cafe",
-    rating: 4.4,
-    reviewCount: 87,
-    distance: "도보 10분",
-    destination: "푸꾸옥",
-  },
-  {
-    id: "discover-the-cavern",
-    name: "더 캐비",
-    category: "food",
-    rating: 4.5,
-    reviewCount: 142,
-    distance: "차량 10분",
-    badge: "ai",
-    destination: "푸꾸옥",
-  },
-  {
-    id: "discover-ho-quoc",
-    name: "호국사",
-    category: "spot",
-    rating: 4.4,
-    reviewCount: 203,
-    distance: "차량 40분",
-    destination: "푸꾸옥",
-  },
-  {
-    id: "discover-coconut-prison",
-    name: "코코넛 프리즌",
-    category: "spot",
-    rating: 4.3,
-    reviewCount: 98,
-    distance: "차량 20분",
-    destination: "푸꾸옥",
-  },
+  // ── 푸꾸옥 (608곳 — 파이프라인 자동 생성) ──
+  ...phuQuocDiscoverPlaces,
 
-  // ── 다낭 ──────────────────────────────────────────────────
-  {
-    id: "discover-dn-banahill",
-    name: "바나힐 + 골든브릿지",
-    category: "spot",
-    rating: 4.4,
-    reviewCount: 18920,
-    distance: "차량 40분",
-    badge: "popular",
-    destination: "다낭",
-  },
-  {
-    id: "discover-dn-hoian",
-    name: "호이안 올드타운 야경",
-    category: "spot",
-    rating: 4.7,
-    reviewCount: 3210,
-    distance: "차량 30분",
-    badge: "ai",
-    destination: "다낭",
-  },
-  {
-    id: "discover-dn-myson",
-    name: "미선 유적 데이투어",
-    category: "spot",
-    rating: 4.3,
-    reviewCount: 1450,
-    distance: "차량 70분",
-    destination: "다낭",
-  },
-  {
-    id: "discover-dn-hanmarket",
-    name: "한시장 푸드투어",
-    category: "food",
-    rating: 4.5,
-    reviewCount: 348,
-    distance: "도보 10분",
-    badge: "ai",
-    destination: "다낭",
-  },
-  {
-    id: "discover-dn-mykhe",
-    name: "미케비치 선셋",
-    category: "nature",
-    rating: 4.6,
-    reviewCount: 2100,
-    distance: "도보 5분",
-    badge: "popular",
-    destination: "다낭",
-  },
+  // ── 다낭 (884곳 — 파이프라인 자동 생성) ──
+  ...daNangDiscoverPlaces,
 
   // ── 하노이 ──────────────────────────────────────────────────
   {

@@ -32,3 +32,6 @@ memory/project_context_handoff_*.md
 memory/.lock_cycle_*.json
 memory/AWAKE_CHECK_REQUIRED.txt
 .claude/scheduled_tasks.lock
+
+# 시드 파이프라인 원시 데이터 (대용량 — git 추적 불필요)
+data/seeds/*.json

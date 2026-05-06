@@ -21,7 +21,16 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "quarantine:cleanup": "node scripts/quarantine-cleanup.mjs",
-    "autonomy:clear-paused": "node scripts/clear-autonomy-paused.mjs"
+    "autonomy:clear-paused": "node scripts/clear-autonomy-paused.mjs",
+    "seed:nearby": "npx tsx scripts/seed-pipeline/01-google-nearby.ts",
+    "seed:details": "npx tsx scripts/seed-pipeline/02-google-details.ts",
+    "seed:naver": "npx tsx scripts/seed-pipeline/03-naver-evidence.ts",
+    "seed:merge": "npx tsx scripts/seed-pipeline/04-merge-dedupe.ts",
+    "seed:shopping": "npx tsx scripts/seed-pipeline/01b-shopping-boost.ts",
+    "seed:refine": "npx tsx scripts/seed-pipeline/05-phase-b-refine.ts",
+    "seed:export": "npx tsx scripts/seed-pipeline/06-export-discover.ts",
+    "seed:all": "npx tsx scripts/seed-pipeline/01-google-nearby.ts && npx tsx scripts/seed-pipeline/01b-shopping-boost.ts && npx tsx scripts/seed-pipeline/02-google-details.ts && npx tsx scripts/seed-pipeline/03-naver-evidence.ts && npx tsx scripts/seed-pipeline/04-merge-dedupe.ts && npx tsx scripts/seed-pipeline/05-phase-b-refine.ts && npx tsx scripts/seed-pipeline/06-export-discover.ts",
+    "db:seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -37,6 +46,9 @@
     "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3"
   },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
     "@types/node": "^20.14.10",
@@ -47,6 +59,7 @@
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.35",
+    "tsx": "^4.21.0",
     "vitest": "^2.1.9"
   }
 }
