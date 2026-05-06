@@ -1068,16 +1068,6 @@ export const daNangDiscoverPlaces: DiscoverPlace[] = [
     "destination": "다낭"
   },
   {
-    "id": "dn-food-pepper-farm-phu-quoc-countrysi",
-    "name": "Pepper Farm - Phu Quoc Countryside",
-    "category": "food",
-    "rating": 4.8,
-    "reviewCount": 749,
-    "distance": "시내",
-    "badge": "popular",
-    "destination": "다낭"
-  },
-  {
     "id": "dn-food-bo-steak-house",
     "name": "Bo Steak House",
     "category": "food",
@@ -8557,4 +8547,4 @@ export const daNangDiscoverPlaces: DiscoverPlace[] = [
   }
 ];
 
-export const daNangDiscoverCount = 884;
+export const daNangDiscoverCount = 883;
