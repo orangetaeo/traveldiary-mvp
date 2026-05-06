@@ -265,7 +265,7 @@ function Step2({
         베트남 6개 도시 완전 지원
       </p>
 
-      <div className="grid grid-cols-3 gap-td-sm flex-1">
+      <div className="grid grid-cols-3 gap-td-sm">
         {DESTINATIONS.map((d) => (
           <button
             key={d.name}
@@ -291,7 +291,7 @@ function Step2({
       </div>
 
       <button
-        className="w-full h-[52px] bg-purple text-white text-td-card-title rounded-md mt-td-lg active:scale-[0.98] transition-transform"
+        className="w-full h-[52px] bg-purple text-white text-td-card-title rounded-md mt-auto active:scale-[0.98] transition-transform"
         onClick={onNext}
       >
         다음
