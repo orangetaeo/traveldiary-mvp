@@ -8,25 +8,14 @@
  */
 
 import { useTransition } from "react";
-import type { OtaOffer, OtaProvider } from "@/lib/types";
+import type { OtaOffer } from "@/lib/types";
 import { trackAffiliateClick } from "@/actions/affiliate";
+import { OTA_LABEL, OTA_TONE } from "@/lib/constants/ota-constants";
 
 interface OtaCompareSectionProps {
   itemId: string;
   offers: OtaOffer[];
 }
-
-const OTA_LABEL: Record<OtaProvider, string> = {
-  klook: "Klook",
-  kkday: "KKday",
-  agoda: "Agoda",
-};
-
-const OTA_TONE: Record<OtaProvider, string> = {
-  klook: "bg-purple-soft text-purple-deep",
-  kkday: "bg-amber-soft text-amber-deep",
-  agoda: "bg-success-soft text-success-deep",
-};
 
 export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
   const [isPending, startTransition] = useTransition();

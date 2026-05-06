@@ -146,7 +146,7 @@ describe("OtaCompareSection — OTA 가격 비교 (M8)", () => {
   });
 
   it("OTA 제공자 표시 (Klook/Agoda/KKday)", () => {
-    expect(src).toMatch(/klook|agoda|kkday/i);
+    expect(src).toMatch(/OTA_LABEL|OTA_TONE|ota-constants/i);
   });
 
   it("어필리에이트 링크", () => {

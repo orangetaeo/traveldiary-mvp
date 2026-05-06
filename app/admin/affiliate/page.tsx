@@ -12,22 +12,9 @@ import { isDbConnected } from "@/lib/prisma";
 import { parseWindow } from "@/lib/admin/window-filter";
 import { TimeWindowFilter } from "@/components/admin/TimeWindowFilter";
 import { assertAdminAccess } from "@/lib/auth/admin-guard";
+import { OTA_LABEL, OTA_COLOR } from "@/lib/constants/ota-constants";
 
 export const dynamic = "force-dynamic";
-
-const OTA_LABEL: Record<string, string> = {
-  klook: "Klook",
-  kkday: "KKday",
-  agoda: "Agoda",
-  unknown: "기타",
-};
-
-const OTA_COLOR: Record<string, string> = {
-  klook: "bg-purple",
-  kkday: "bg-amber",
-  agoda: "bg-success",
-  unknown: "bg-ink-mute",
-};
 
 interface PageProps {
   searchParams: { window?: string; key?: string };
