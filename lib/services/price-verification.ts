@@ -17,6 +17,7 @@
 import "server-only";
 
 import type { ItineraryItem, OtaOffer } from "@/lib/types";
+import { formatKrw } from "@/lib/utils/format-krw";
 import { aggregateOffersForItem } from "./ota-aggregator";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -235,9 +236,6 @@ function median(values: number[]): number {
     : sorted[mid];
 }
 
-function formatKrw(amount: number): string {
-  return `₩${amount.toLocaleString("ko-KR")}`;
-}
 
 function formatDelta(pct: number): string {
   const sign = pct >= 0 ? "+" : "";

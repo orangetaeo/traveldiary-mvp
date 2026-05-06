@@ -8,6 +8,8 @@
  */
 
 import Link from "next/link";
+import { formatKrw } from "@/lib/utils/format-krw";
+import { COLOR_BG, COLOR_TEXT } from "@/lib/utils/color-mappings";
 
 // ─── Types ─────────────────────────────────────
 
@@ -48,21 +50,6 @@ interface Props {
 
 // ─── Helpers ───────────────────────────────────
 
-const COLOR_BG: Record<string, string> = {
-  purple: "bg-purple-soft",
-  coral: "bg-accent-soft",
-  amber: "bg-amber-soft",
-};
-
-const COLOR_TEXT: Record<string, string> = {
-  purple: "text-purple",
-  coral: "text-accent",
-  amber: "text-amber-deep",
-};
-
-function formatKRW(amount: number): string {
-  return `₩${amount.toLocaleString("ko-KR")}`;
-}
 
 // ─── Component ─────────────────────────────────
 
@@ -143,7 +130,7 @@ export function PostTripRecapView({
               payments
             </span>
             <h3 className="text-td-card-title font-bold text-white mb-td-xxs">
-              총 지출 {formatKRW(stats.totalSpentKRW)}
+              총 지출 {formatKrw(stats.totalSpentKRW)}
             </h3>
             <p className="text-td-meta opacity-90 text-white">
               가장 큰 지출: {stats.biggestCategory}

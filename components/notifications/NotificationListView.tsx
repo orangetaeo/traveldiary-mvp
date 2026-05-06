@@ -9,6 +9,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { COLOR_BG, COLOR_TEXT } from "@/lib/utils/color-mappings";
 
 // ─── Types ─────────────────────────────────────
 
@@ -80,19 +81,6 @@ function formatRelativeTime(iso: string): string {
   return `${Math.floor(days / 7)}주 전`;
 }
 
-const ICON_BG: Record<string, string> = {
-  purple: "bg-purple-soft",
-  coral: "bg-accent-soft",
-  amber: "bg-amber-soft",
-  gray: "bg-surface-soft",
-};
-
-const ICON_TEXT: Record<string, string> = {
-  purple: "text-purple",
-  coral: "text-accent",
-  amber: "text-amber-deep",
-  gray: "text-ink-soft",
-};
 
 // ─── Component ─────────────────────────────────
 
@@ -189,9 +177,9 @@ function NotificationCard({ notification: n }: { notification: AppNotification }
 
       {/* Icon */}
       <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${ICON_BG[n.iconColor]}`}
+        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${COLOR_BG[n.iconColor]}`}
       >
-        <span className={`material-symbols-outlined ${ICON_TEXT[n.iconColor]}`}>
+        <span className={`material-symbols-outlined ${COLOR_TEXT[n.iconColor]}`}>
           {n.icon}
         </span>
       </div>
