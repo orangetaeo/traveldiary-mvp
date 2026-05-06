@@ -56,19 +56,27 @@ export function listReceivedKeys(): ReceivedKey[] {
   return [...items].sort((a, b) => b.addedAt - a.addedAt);
 }
 
+export interface AddReceivedKeyResult {
+  /** 사이클 2 (G7, 2026-05-06) — 처음 추가된 key인지. true면 ReceivedTripBanner 1회 표시. */
+  isNew: boolean;
+}
+
 export function addReceivedKey(
   key: string,
   meta?: { destination?: string; nights?: number },
-): void {
-  if (!key || typeof key !== "string") return;
+): AddReceivedKeyResult {
+  if (!key || typeof key !== "string") return { isNew: false };
   const data = readRaw();
   const now = Date.now();
   const existing = data.items.find((it) => it.key === key);
+  let isNew: boolean;
   if (existing) {
+    isNew = false;
     existing.addedAt = now;
     if (meta?.destination) existing.cachedDestination = meta.destination;
     if (typeof meta?.nights === "number") existing.cachedNights = meta.nights;
   } else {
+    isNew = true;
     data.items.unshift({
       key,
       addedAt: now,
@@ -82,6 +90,7 @@ export function addReceivedKey(
     data.items.length = MAX_KEYS;
   }
   writeRaw(data);
+  return { isNew };
 }
 
 export function removeReceivedKey(key: string): void {
