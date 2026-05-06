@@ -15,6 +15,7 @@ import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { listCostByTrip } from "@/lib/repositories/cost.repository";
 import { resolveCityByCode } from "@/lib/seed/cities";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { parseDayParam } from "@/lib/utils/item-display";
 
 export default async function CostPage({
   params,
@@ -47,10 +48,3 @@ export default async function CostPage({
   );
 }
 
-/** C4 — ?day= 파라미터 → 0-based dayIndex. 범위 밖이면 undefined. */
-function parseDayParam(raw: string | undefined, nights: number): number | undefined {
-  if (raw == null) return undefined;
-  const n = parseInt(raw, 10);
-  if (Number.isNaN(n) || n < 0 || n > nights) return undefined;
-  return n;
-}

@@ -7,6 +7,7 @@ import {
   splitName,
   formatTime,
   dDay,
+  parseDayParam,
   durationLabel,
   priceLevelOf,
   flexibilityKr,
@@ -130,5 +131,35 @@ describe("dDay", () => {
 
   it("같은 날짜 → 0", () => {
     expect(dDay("2026-01-01", "2026-01-01")).toBe(0);
+  });
+});
+
+describe("parseDayParam", () => {
+  it("유효한 값 → 해당 숫자", () => {
+    expect(parseDayParam("2", 5)).toBe(2);
+  });
+
+  it("undefined → undefined", () => {
+    expect(parseDayParam(undefined, 5)).toBeUndefined();
+  });
+
+  it("범위 초과 → undefined", () => {
+    expect(parseDayParam("6", 5)).toBeUndefined();
+  });
+
+  it("음수 → undefined", () => {
+    expect(parseDayParam("-1", 5)).toBeUndefined();
+  });
+
+  it("NaN → undefined", () => {
+    expect(parseDayParam("abc", 5)).toBeUndefined();
+  });
+
+  it("0 유효 (첫날)", () => {
+    expect(parseDayParam("0", 3)).toBe(0);
+  });
+
+  it("nights와 동일 → 유효", () => {
+    expect(parseDayParam("3", 3)).toBe(3);
   });
 });
