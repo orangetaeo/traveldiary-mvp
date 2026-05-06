@@ -109,4 +109,24 @@ describe("receivedKeys — LocalStorage 추적", () => {
     clearReceivedKeys();
     expect(listReceivedKeys()).toEqual([]);
   });
+
+  describe("사이클 2 (G7, 2026-05-06) — addReceivedKey return value", () => {
+    it("첫 추가 → isNew=true (banner 트리거)", () => {
+      const result = addReceivedKey("brand-new-key");
+      expect(result.isNew).toBe(true);
+    });
+
+    it("같은 key 재추가 → isNew=false (LRU 갱신만, banner 미표시)", () => {
+      addReceivedKey("dup-key");
+      const second = addReceivedKey("dup-key", { destination: "푸꾸옥" });
+      expect(second.isNew).toBe(false);
+    });
+
+    it("빈 key/undefined → isNew=false (early return)", () => {
+      const empty = addReceivedKey("");
+      const undef = addReceivedKey(undefined as unknown as string);
+      expect(empty.isNew).toBe(false);
+      expect(undef.isNew).toBe(false);
+    });
+  });
 });
