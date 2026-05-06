@@ -6,7 +6,7 @@
  * Node 환경에서는 window가 없으므로 vi.stubGlobal로 주입.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 import { getCurrentLocation } from "@/lib/services/geolocation";
 
