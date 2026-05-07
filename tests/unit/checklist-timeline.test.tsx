@@ -4,7 +4,7 @@
  * D-30 → D-14 → D-7 → D-1 → 여행 중 → 귀국 후 6단계 타임라인.
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
