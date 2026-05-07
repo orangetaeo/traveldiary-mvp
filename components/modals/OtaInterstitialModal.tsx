@@ -82,7 +82,7 @@ export default function OtaInterstitialModal({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-ink/40 backdrop-blur-md"
         onClick={onClose}
         aria-hidden="true"
       />

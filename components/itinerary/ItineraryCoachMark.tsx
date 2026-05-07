@@ -32,7 +32,7 @@ export function ItineraryCoachMarkOverlay({ onDismiss }: OverlayProps) {
       aria-labelledby="itinerary-coach-title"
     >
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-ink/40 backdrop-blur-md"
         onClick={onDismiss}
         aria-hidden="true"
       />

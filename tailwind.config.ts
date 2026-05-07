@@ -43,6 +43,7 @@ const config: Config = {
           soft: "#FFDAD6",
           deep: "#93000A",
         },
+        kakao: "#FEE500",         // 카카오 브랜드 옐로 — LoginButton
         surface: {
           card: "#FFFFFF",
           soft: "#F8FAFC",      // slate-50 — Stitch surface (베이지 → 슬레이트)

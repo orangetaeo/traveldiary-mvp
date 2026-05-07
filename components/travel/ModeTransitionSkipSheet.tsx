@@ -162,7 +162,7 @@ export function ModeTransitionSkipSheet({
             type="button"
             onClick={handleSubmit}
             disabled={!selected || isPending}
-            className="w-full h-14 bg-[#64748B] text-white font-medium rounded-xl active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full h-14 bg-ink-soft text-white font-medium rounded-xl active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {isPending ? "기록 중…" : "미루기"}
           </button>

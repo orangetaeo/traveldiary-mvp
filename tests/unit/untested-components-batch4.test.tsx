@@ -120,7 +120,7 @@ describe("LoginButton", () => {
       <LoginButton currentUserId={null} oauthAvailable={true} />,
     );
     expect(html).toContain("카카오 로그인");
-    expect(html).toContain("#FEE500"); // 카카오 노란색
+    expect(html).toContain("bg-kakao"); // 카카오 노란색 토큰
     expect(html).not.toContain("disabled");
   });
 
