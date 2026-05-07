@@ -122,18 +122,31 @@ export default async function ItineraryPage({
           <h2 className="text-td-title text-ink mb-td-xxs">
             {trip.destination} {trip.nights}박 {trip.nights + 1}일
           </h2>
-          {city && (
+          <div className="flex flex-wrap items-center gap-td-xs mb-td-xs">
+            {city && (
+              <Link
+                href={`/city/${city.slug}`}
+                className="inline-flex items-center gap-1 px-td-xs py-0.5 rounded-full bg-purple-soft text-purple-deep text-td-caption font-medium hover:bg-purple/15 transition-colors"
+                aria-label={`${city.name} 도시 가이드 보기`}
+              >
+                <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>
+                  travel_explore
+                </span>
+                도시 가이드 →
+              </Link>
+            )}
+            {/* 옵션 L (디자인 갭 D, Session AA) — trip dashboard 역방향 진입 */}
             <Link
-              href={`/city/${city.slug}`}
-              className="inline-flex items-center gap-1 mb-td-xs px-td-xs py-0.5 rounded-full bg-purple-soft text-purple-deep text-td-caption font-medium hover:bg-purple/15 transition-colors"
-              aria-label={`${city.name} 도시 가이드 보기`}
+              href={`/trips/${trip.id}`}
+              className="inline-flex items-center gap-1 px-td-xs py-0.5 rounded-full bg-amber-soft text-amber-deep text-td-caption font-medium hover:bg-amber/15 transition-colors"
+              aria-label="여행 대시보드로 이동"
             >
               <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>
-                travel_explore
+                dashboard
               </span>
-              도시 가이드 →
+              대시보드 →
             </Link>
-          )}
+          </div>
           <p className="text-td-body text-ink-soft mb-td-md">
             {formatRange(trip.startDate, trip.nights)} ·{" "}
             {companionLabel(trip.companion)} · {paceLabel(trip.preferences.pace)}
