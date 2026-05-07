@@ -33,6 +33,13 @@ import {
   type ComingSoonCardData,
   type FilterKey,
 } from "@/lib/services/trips-listing";
+import {
+  formatStartDateLabel,
+  formatCompanionLabel,
+  getDDayBadge,
+  dDayToneClass,
+  todayKstISO,
+} from "@/lib/utils/trip-display";
 
 interface FilterChip {
   key: FilterKey;
@@ -168,15 +175,21 @@ function renderCard(c: CardData) {
 function TripCard({ data }: { data: TripCardData }) {
   const { trip, city, itemCount, verifiedCount } = data.resolved;
   const days = trip.nights + 1;
+  const dDayBadge = getDDayBadge(
+    trip.startDate,
+    trip.nights,
+    todayKstISO(),
+    trip.status,
+  );
 
   return (
     <article className="bg-surface-card rounded-md border border-divider overflow-hidden shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-all active:scale-[0.98]">
       <Link
         href={`/trips/${trip.id}`}
-        aria-label={`${city.name} ${trip.nights}박 ${days}일 여행 대시보드`}
+        aria-label={`${city.name} ${trip.nights}박 ${days}일 여행 대시보드 · ${dDayBadge.label}`}
         className="block p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple"
       >
-        <div className="flex justify-between items-start mb-2">
+        <div className="flex justify-between items-start mb-2 gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <span className="text-td-meta text-ink-mute uppercase tabular-nums">
               {trip.destinationCode} · {city.countryCode}
@@ -187,19 +200,34 @@ function TripCard({ data }: { data: TripCardData }) {
               </span>
             )}
           </div>
-          {verifiedCount > 0 && (
-            <span className="px-2 py-0.5 rounded-lg bg-success-soft text-success-deep border border-success/40 text-td-caption font-medium flex items-center gap-1">
-              <span className="material-symbols-outlined text-td-icon-sm">check_circle</span>
-              AI 검증 {verifiedCount}곳
+          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+            <span
+              className={`px-2 py-0.5 rounded-lg text-td-caption font-bold tabular-nums ${dDayToneClass(dDayBadge.tone)}`}
+              data-testid="trip-card-dday"
+            >
+              {dDayBadge.label}
             </span>
-          )}
+            {verifiedCount > 0 && (
+              <span className="px-2 py-0.5 rounded-lg bg-success-soft text-success-deep border border-success/40 text-td-caption font-medium flex items-center gap-1">
+                <span className="material-symbols-outlined text-td-icon-sm">check_circle</span>
+                AI 검증 {verifiedCount}곳
+              </span>
+            )}
+          </div>
         </div>
         <h3 className="text-td-card-title text-ink mb-1 truncate">
           {city.name}
         </h3>
-        <p className="text-td-meta text-ink-mute tabular-nums mb-3">
+        <p className="text-td-meta text-ink-mute tabular-nums">
           {trip.nights}박 {days}일 · {itemCount} 일정
         </p>
+        <div className="flex items-center gap-1.5 text-td-caption text-ink-soft mt-1 mb-3 flex-wrap">
+          <span className="material-symbols-outlined text-td-icon-sm" aria-hidden="true">event</span>
+          <span className="tabular-nums">{formatStartDateLabel(trip.startDate)} 출발</span>
+          <span className="text-divider" aria-hidden="true">·</span>
+          <span className="material-symbols-outlined text-td-icon-sm" aria-hidden="true">group</span>
+          <span>{formatCompanionLabel(trip.companion)}</span>
+        </div>
         <hr className="border-divider mb-3" />
         <div className="flex justify-between items-center">
           <span className="text-td-body text-purple font-medium">
