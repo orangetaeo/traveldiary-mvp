@@ -48,6 +48,7 @@ const PURE_LOGIC_SERVICES = [
   "booking-rules.ts",
   "distance-rules.ts",
   "geolocation.ts",    // 브라우저 API, 클라이언트 실행
+  "payment-trip-link.ts", // city slug → trip 매칭 (옵션 G, server/client 양용)
   "resolved-trip.ts",  // 뷰 객체 조합 (server/client 양용)
   "settlement.ts",     // 정산 계산 순수 함수
   "trips-listing.ts",  // SSR 카드 빌드
@@ -58,8 +59,8 @@ const PURE_LOGIC_SERVICES = [
  * ════════════════════════════════════════════ */
 
 describe("service 파일 목록", () => {
-  it("23개 service 파일 존재", () => {
-    expect(ALL_SERVICES.length).toBe(23);
+  it("24개 service 파일 존재", () => {
+    expect(ALL_SERVICES.length).toBe(24);
   });
 
   it("외부 API 서비스 7개", () => {
