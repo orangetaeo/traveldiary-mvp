@@ -28,10 +28,10 @@ describe("BottomNav — 슬롯 렌더링", () => {
   it("4슬롯 모두 노출 + nav aria-label", () => {
     const html = render(<BottomNav active="home" />);
     expect(html).toContain('aria-label="주요 메뉴"');
-    expect(html).toContain(">Home<");
-    expect(html).toContain(">Trips<");
-    expect(html).toContain(">Itinerary<");
-    expect(html).toContain(">Profile<");
+    expect(html).toContain(">홈<");
+    expect(html).toContain(">여행<");
+    expect(html).toContain(">일정<");
+    expect(html).toContain(">마이<");
   });
 
   it("href 매핑 — / / /trips / /itinerary/{DEMO_TRIP_ID} / /profile", () => {

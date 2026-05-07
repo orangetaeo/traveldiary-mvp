@@ -50,16 +50,17 @@ describe("FilterChip", () => {
       <FilterChip variant="danger">알레르기</FilterChip>,
     );
     expect(html).toContain("border-danger");
-    expect(html).not.toContain("bg-danger-soft");
+    expect(html).not.toContain("bg-danger text-white");
   });
 
-  it("variant=danger + active → danger soft 배경", () => {
+  it("variant=danger + active → danger 강조 배경", () => {
     const html = renderToStaticMarkup(
       <FilterChip variant="danger" active>
         알레르기
       </FilterChip>,
     );
-    expect(html).toContain("bg-danger-soft");
+    expect(html).toContain("bg-danger");
+    expect(html).toContain("text-white");
   });
 });
 

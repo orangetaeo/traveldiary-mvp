@@ -28,15 +28,15 @@ interface SlotDef {
 
 function buildSlots(): SlotDef[] {
   return [
-    { key: "home", href: "/", icon: "home", label: "Home" },
-    { key: "trips", href: "/trips", icon: "explore", label: "Trips" },
+    { key: "home", href: "/", icon: "home", label: "홈" },
+    { key: "trips", href: "/trips", icon: "explore", label: "여행" },
     {
       key: "itinerary",
       href: `/itinerary/${DEMO_TRIP_ID}`,
       icon: "calendar_today",
-      label: "Itinerary",
+      label: "일정",
     },
-    { key: "profile", href: "/profile", icon: "person", label: "Profile" },
+    { key: "profile", href: "/profile", icon: "person", label: "마이" },
   ];
 }
 
@@ -53,13 +53,16 @@ export function BottomNav({ active }: BottomNavProps) {
           <Link
             key={slot.key}
             href={slot.href}
-            className={`flex flex-col items-center justify-center text-[10px] font-medium ${
+            className={`relative flex flex-col items-center justify-center text-[10px] font-medium ${
               isActive
                 ? "text-purple"
                 : "text-ink-mute hover:text-purple transition-colors"
             }`}
             aria-current={isActive ? "page" : undefined}
           >
+            {isActive && (
+              <span className="absolute top-0 w-5 h-0.5 rounded-full bg-purple" aria-hidden="true" />
+            )}
             <span
               className={`material-symbols-outlined ${isActive ? "filled" : ""}`}
               aria-hidden="true"
