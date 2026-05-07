@@ -170,13 +170,13 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
           >
             <span className="material-symbols-outlined">calendar_month</span>
           </Link>
-          <button
-            type="button"
+          <Link
+            href="/notifications"
             aria-label="알림"
             className="text-ink-soft hover:text-ink p-1 rounded-full"
           >
             <span className="material-symbols-outlined">notifications</span>
-          </button>
+          </Link>
         </div>
       </header>
 
