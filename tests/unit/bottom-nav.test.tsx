@@ -98,7 +98,7 @@ describe("BottomNav — 페이지 커버리지 (BLOCKER5a)", () => {
     { pagePath: "checklist/[tripId]/page.tsx", expectedActive: "itinerary", label: "/checklist/[tripId]" },
     { pagePath: "city/[slug]/page.tsx", expectedActive: "trips", label: "/city/[slug]" },
     { pagePath: "city/[slug]/emergency/page.tsx", expectedActive: "trips", label: "/city/[slug]/emergency" },
-    { pagePath: "translate/page.tsx", expectedActive: "home", label: "/translate" },
+    { pagePath: "translate/page.tsx", expectedActive: "itinerary", label: "/translate" },
     { pagePath: "share/[key]/page.tsx", expectedActive: "trips", label: "/share/[key]" },
     { pagePath: "vote/[tripId]/page.tsx", expectedActive: "itinerary", label: "/vote/[tripId]" },
     { pagePath: "shared/page.tsx", expectedActive: "trips", label: "/shared" },
