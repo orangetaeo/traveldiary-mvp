@@ -1,18 +1,19 @@
 /**
- * Trip Wrap-up — 여행 마무리 페이지 (Phase 7 신규).
+ * Trip Wrap-up — 여행 마무리 페이지 (Phase 7 + E1~E3 업그레이드).
  *
- * Stitch 시안: #32 Trip Wrap-up — 여행 마무리 (Pretendard) (154333c2456640819976e9279cc0e8f0)
- * 레이아웃: hero + stats 2×2 + highlight memories + review card + next trip + CTA.
- *
- * M2 모드 마지막 단계: 여행 종료 후 진입.
- * 현재: 데모 트립 시드 기반. 추후 실 사용자 데이터 연결.
+ * E1: 정산 요약 섹션 (기존 computeSettlement 활용)
+ * E2: WrapUpReviewCard DB 연동 (initialReview prop)
+ * E3: 앨범 CTA 추가
  */
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { resolveTrip } from "@/lib/services/resolved-trip";
 import { WrapUpReviewCard } from "@/components/wrap-up/WrapUpReviewCard";
+import { SettlementSummary } from "@/components/wrap-up/SettlementSummary";
 import { getNextCitySuggestions } from "@/lib/wrap-up/next-city-suggestions";
+import { loadReview } from "@/actions/review";
+import { listCostByTrip } from "@/lib/repositories/cost.repository";
 
 interface PageProps {
   params: { tripId: string };
@@ -25,14 +26,17 @@ const DEMO_HIGHLIGHTS = [
   { day: 4, title: "일출 감상 🌅", subtitle: "새벽 알람의 보람" },
 ] as const;
 
-export default function WrapUpPage({ params }: PageProps) {
+export default async function WrapUpPage({ params }: PageProps) {
   const resolved = resolveTrip(params.tripId);
   if (!resolved) notFound();
 
   const { trip, city, items, itemCount, verifiedCount } = resolved;
-
-  // 지출 합계 (CostEntry는 별도 모델이므로 item에서 간이 추정)
   const totalDays = trip.nights + 1;
+
+  // E2: DB에서 기존 후기 로드
+  const existingReview = await loadReview(trip.id);
+  // E1: 정산 요약용 비용 데이터
+  const costEntries = (await listCostByTrip(trip.id)) ?? [];
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
@@ -122,8 +126,11 @@ export default function WrapUpPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Review Card — 별점/후기 LocalStorage 임시 저장 */}
-        <WrapUpReviewCard tripId={trip.id} />
+        {/* Review Card — E2: DB 영속화 + LocalStorage 오프라인 fallback */}
+        <WrapUpReviewCard tripId={trip.id} initialReview={existingReview} />
+
+        {/* E1: Settlement Summary — 정산 요약 */}
+        <SettlementSummary tripId={trip.id} entries={costEntries} />
 
         {/* Next Trip */}
         <section className="py-td-md">
@@ -156,7 +163,7 @@ export default function WrapUpPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Bottom CTA — 옵션 P 재배치 (recap 진입 primary + dashboard cross-link) */}
+        {/* Bottom CTA — recap + album + dashboard */}
         <section className="px-td-md pt-td-sm pb-td-lg flex flex-col items-center gap-td-sm">
           <Link
             href={`/wrap-up/${trip.id}/recap`}
@@ -165,6 +172,14 @@ export default function WrapUpPage({ params }: PageProps) {
           >
             <span className="material-symbols-outlined" aria-hidden>auto_stories</span>
             추억 리캡 보기
+          </Link>
+          <Link
+            href={`/wrap-up/${trip.id}/album`}
+            className="w-full bg-purple text-white font-bold py-td-sm rounded-md text-center text-td-body transition-transform active:scale-95 flex items-center justify-center gap-2"
+            aria-label="여행 사진 앨범 보기"
+          >
+            <span className="material-symbols-outlined" aria-hidden>photo_library</span>
+            사진 앨범
           </Link>
           <Link
             href={`/trips/${trip.id}?focus=itinerary`}

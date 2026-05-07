@@ -29,6 +29,8 @@ model User {
   costEntries    CostEntry[]
   itineraryItems ItineraryItem[]
   votes          Vote[]
+  reviews        TripReview[]
+  tripPhotos     TripPhoto[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -63,6 +65,8 @@ model Trip {
   costEntries     CostEntry[]
   shareLinks      ShareLink[]
   votes           Vote[]
+  reviews         TripReview[]
+  photos          TripPhoto[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -359,7 +363,7 @@ model Vote {
 
   createdBy   String?
   /**
-   * 사이클 BLOCKER6 (마���그 0014) — 작성자 user.id + FK.
+   * 사이클 BLOCKER6 (마이그 0014) — 작성자 user.id + FK.
    * createdBy 유지 (BC). 신규 코드는 actorId 사용.
    */
   actorId     String?
@@ -408,6 +412,52 @@ model Place {
   @@index([cityCode, category])
   @@index([cityCode, qualityScore])
   @@index([isActive])
+}
+
+// ═══════════════════════════════════════════
+// E2 — TRIP REVIEW (여행 후기 DB 영속화)
+// ═══════════════════════════════════════════
+
+model TripReview {
+  id        String   @id @default(cuid())
+  tripId    String
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  rating    Int      @default(0)
+  text      String   @default("") @db.VarChar(2000)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tripId, actorId])
+  @@index([tripId])
+  @@index([actorId])
+}
+
+// ═══════════════════════════════════════════
+// E3 — TRIP PHOTO (여행 사진 앨범)
+// ═══════════════════════════════════════════
+
+model TripPhoto {
+  id        String   @id @default(cuid())
+  tripId    String
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  url       String   @db.VarChar(500)
+  caption   String?  @db.VarChar(200)
+  dayIndex  Int?
+  sortOrder Int      @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([tripId, dayIndex])
+  @@index([actorId])
 }
 
 // ═══════════════════════════════════════════

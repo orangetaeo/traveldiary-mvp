@@ -56,9 +56,8 @@ describe("WrapUpReviewCard 소스 검증", () => {
     expect(src).toContain("disabled");
   });
 
-  it("임시 저장 안내 note 존재", () => {
-    expect(src).toContain('role="note"');
-    expect(src).toContain("임시로 이 기기에만 저장");
+  it("자동 임시 저장 안내 존재", () => {
+    expect(src).toContain("자동 임시 저장");
   });
 
   it("hover 미리보기 지원", () => {
