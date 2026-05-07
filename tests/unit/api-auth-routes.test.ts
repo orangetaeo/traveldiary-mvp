@@ -164,7 +164,7 @@ describe("api/auth/kakao/callback — GET", () => {
       ok: true,
       user: { kakaoId: "123", nickname: "T" },
     });
-    mockUpsertKakaoUser.mockResolvedValue({ id: "user-1" });
+    mockUpsertKakaoUser.mockResolvedValue({ user: { id: "user-1", kakaoId: "123", name: "T", email: null }, isNew: false });
     mockSignToken.mockResolvedValue(null);
     const { GET } = await import("@/app/api/auth/kakao/callback/route");
     const resp = await GET(makeCallbackRequest({ code: "c", state: "s" }, "s") as never);
@@ -177,7 +177,7 @@ describe("api/auth/kakao/callback — GET", () => {
       ok: true,
       user: { kakaoId: "456", nickname: "유저", email: "u@k.com" },
     });
-    mockUpsertKakaoUser.mockResolvedValue({ id: "user-42" });
+    mockUpsertKakaoUser.mockResolvedValue({ user: { id: "user-42", kakaoId: "456", name: "유저", email: "u@k.com" }, isNew: false });
     mockSignToken
       .mockResolvedValueOnce("access-jwt-token")
       .mockResolvedValueOnce("refresh-jwt-token");
@@ -186,7 +186,7 @@ describe("api/auth/kakao/callback — GET", () => {
     const { GET } = await import("@/app/api/auth/kakao/callback/route");
     const resp = await GET(makeCallbackRequest({ code: "auth-code", state: "csrf" }, "csrf") as never);
 
-    // 302 redirect to /
+    // 302 redirect to / (기존 사용자)
     const location = resp.headers.get("location") ?? "";
     expect(location).toContain("/");
     expect(location).not.toContain("auth_error");
