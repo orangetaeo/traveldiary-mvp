@@ -1,11 +1,23 @@
 # TravelDiary 다음 세션 가이드
 
-> **마지막 업데이트**: 2026-04-29
-> **세션 상태**: 하네스 시스템 v2 (도서관 형태) 구축 완료
+> **마지막 업데이트**: 2026-05-07
+> **세션 상태**: 6개 도시 Place DB 4,324곳 완성
 
 ---
 
 ## ✅ 최근 세션 완료 사항
+
+### 4개 도시 시드 파이프라인 확장 (2026-05-07)
+
+- **Google Places API 파이프라인**: 호치민(836), 하노이(565), 나트랑(606), 달랏(486) — 총 2,493곳 수집·정제
+- **프로덕션 DB 적재**: 기존 PQC(756)+DAD(1,075) 포함 **6개 도시 총 4,324곳** upsert 완료
+- **파이프라인 config 확장**: 21개 zone 추가 (hcm 6, han 5, nha 5, dl 5)
+- **ZONE_LABEL 매핑**: place.repository.ts + 06-export-discover.ts에 한글 zone 라벨 33개
+- **ID prefix 매핑**: hcm/han/nha/dl prefix (05-phase-b-refine.ts)
+- **시드 인덱스**: lib/seed/places/index.ts 6개 도시 통합
+- **photo_reference 정리**: CI secret scan false positive 해결
+- **프로덕션 검증**: 6개 도시 discover 페이지 전체 정상 확인
+- **PR**: #254
 
 ### DB Place → UI 연결 (2026-05-07)
 
@@ -96,12 +108,13 @@ memory/
 - 사이클 8: G3 로그아웃/계정 삭제
 ```
 
-### 우선순위 2: Place 데이터 확장
+### 우선순위 2: Place 데이터 활용 (시드 완료)
 
 ```
-1. 나머지 베트남 도시 시드 파이프라인 (호치민, 하노이, 나트랑, 달랏)
+1. ✅ 베트남 6개 도시 시드 완료 (4,324곳) — PR #254
 2. Place → ItineraryItem 연결 (일정 추가 시 DB 장소 정보 활용)
 3. 장소 검색 API (키워드/카테고리/지역 필터)
+4. Naver 블로그 증거 수집 (NAVER_CLIENT_ID/SECRET 설정 후 03단계)
 ```
 
 ### 우선순위 3: Place 데이터 품질
@@ -109,6 +122,7 @@ memory/
 ```
 1. 시드 파이프라인 zone 분류 정확도 개선
 2. 도시 간 오분류 자동 탐지 스크립트
+3. photo_reference → 실제 이미지 URL 변환
 ```
 
 ### 참고: Railway 로컬 마이그레이션/시드 패턴

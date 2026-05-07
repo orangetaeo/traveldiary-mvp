@@ -43,8 +43,8 @@ const SETTING_SECTIONS = [
   {
     title: "데이터",
     items: [
-      { icon: "download", label: "내 데이터 내보내기", href: "#" },
-      // 사이클 U-deadlinks (2026-05-07) — placeholder shell 라우트 활성 (이전 href="#")
+      // 사이클 U-3 (Stitch f8d3d50e) + U-deadlinks — placeholder shell 라우트 활성
+      { icon: "download", label: "내 데이터 내보내기", href: "/settings/data-export" },
       { icon: "cached", label: "캐시 삭제", href: "/settings/cache" },
     ],
   },

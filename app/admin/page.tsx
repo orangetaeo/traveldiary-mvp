@@ -92,13 +92,14 @@ const QUICK_LINKS = [
     title: "A/B Testing",
     description: "진행 중인 실험 관리",
   },
+  // 사이클 U-admin-demo (2026-05-07) — /api/health 라우트 활성 (이전 href="#" 데드 링크)
   {
-    href: "#",
+    href: "/api/health",
     icon: "health_and_safety",
     iconBg: "bg-danger-soft",
     iconColor: "text-danger",
     title: "Health Check",
-    description: "서버 및 인프라 상태",
+    description: "서버·DB·외부 의존성 JSON",
   },
 ] as const;
 
@@ -154,6 +155,37 @@ export default function AdminIndexPage({ searchParams }: PageProps) {
           <p className="text-td-body text-ink-soft">핵심 지표 + 빠른 진입</p>
         </section>
 
+        {/* 사이클 U-admin-demo (2026-05-07) — 데모 데이터 마커 배너.
+            KPI / 라이브 피드는 정적 데모 값. 실 API 연동은 R1 사인오프 +
+            ADR-046 audit log 집계 정책 확정 후 활성. */}
+        <section
+          role="note"
+          aria-live="polite"
+          aria-labelledby="admin-demo-banner-heading"
+          className="bg-amber-soft border border-amber/30 rounded-md p-td-sm flex items-start gap-td-xs"
+        >
+          <span
+            className="material-symbols-outlined text-amber-deep text-lg shrink-0 mt-0.5"
+            aria-hidden
+          >
+            info
+          </span>
+          <div>
+            <p
+              id="admin-demo-banner-heading"
+              className="text-td-body font-bold text-amber-deep mb-td-xxs"
+            >
+              데모 데이터 — 실 API 연동 대기 중
+            </p>
+            <p className="text-td-caption text-amber-deep/85">
+              아래 KPI(New Trips / AI Calls / Active OAuth Users / Error Rate)와
+              라이브 이벤트 피드는 디자인 시안의 정적 데모 값입니다. 실 운영
+              지표는 R1 사인오프 + ADR-046 audit log 집계 정책 확정 후 활성
+              됩니다. Health Check만 실 라우트로 동작합니다.
+            </p>
+          </div>
+        </section>
+
         {/* KPI Grid */}
         <section className="grid grid-cols-2 gap-td-sm">
           {KPI_DATA.map((kpi) => (
@@ -203,7 +235,7 @@ export default function AdminIndexPage({ searchParams }: PageProps) {
             {QUICK_LINKS.map((link) => (
               <Link
                 key={link.href + link.title}
-                href={link.href === "#" ? "#" : `${link.href}${keyParam}`}
+                href={link.href.startsWith("/admin") ? `${link.href}${keyParam}` : link.href}
                 className="flex items-center gap-td-sm p-td-sm border border-divider bg-surface-card hover:bg-surface-soft transition-colors rounded-md text-left group"
               >
                 <div className={`w-10 h-10 flex items-center justify-center ${link.iconBg} rounded-md shrink-0`}>
