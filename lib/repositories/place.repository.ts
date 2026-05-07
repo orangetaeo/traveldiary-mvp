@@ -11,6 +11,7 @@ import "server-only";
 import { prisma } from "../prisma";
 import type { DiscoverPlace, PlaceCategory } from "../types";
 import { getCityByCode } from "../seed/cities";
+import { getPlacePhotoUrl } from "../utils/place-photo";
 
 export interface PlaceFilter {
   cityCode: string;
@@ -145,6 +146,10 @@ export async function getDiscoverPlaces(
                 ? ("ai" as const)
                 : undefined,
           destination: city?.name ?? p.cityCode,
+          imageUrl:
+            p.photos?.length > 0
+              ? getPlacePhotoUrl(p.photos[0])
+              : undefined,
         };
       });
   } catch (err) {
