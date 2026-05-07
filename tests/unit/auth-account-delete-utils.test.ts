@@ -88,4 +88,18 @@ describe("anonymizeUserAccount — atomicity (T13 Major fix)", () => {
     expect(src).toContain("preferences: Prisma.JsonNull");
     expect(src).not.toContain("preferences: null as never");
   });
+
+  it("reassignedTripIds 보존 (사이클 10 — 운영자 복구 SQL 입력)", async () => {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const src = fs.readFileSync(
+      path.resolve("lib/auth/account-delete.ts"),
+      "utf-8",
+    );
+    // 사이클 10 보강: tx.trip.findMany로 reassign 대상 ID 조회 + audit metadata 보존
+    expect(src).toContain("tx.trip.findMany");
+    expect(src).toContain("reassignedTripIds");
+    // 박제 50 cap (feedback_bulk_mutation_pattern)
+    expect(src).toContain("take: 50");
+  });
 });

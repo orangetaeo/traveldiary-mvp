@@ -96,7 +96,13 @@ stateless JWT + 짧은 access TTL(15분)으로 cookie clear 충분. refresh TTL(
 ## 위험 / 박제 후보
 
 - **재가입 시 데이터 단절**: 사용자가 같은 카카오 계정으로 재로그인하면 새 User row 생성 (이전 익명화된 row와 단절). 이는 의도된 동작 — "계정 삭제 = 새 출발".
-- **운영자 수동 복구 절차**: `UPDATE User SET deletedAt = NULL, email = ?, kakaoId = ?, name = ?` + 관련 Trip의 ownerId reassign 역방향. 사이클 9에서 `scripts/restore-user.ts` 박제 검토.
+- ✅ **운영자 수동 복구 절차 (사이클 10 박제)**: `scripts/restore-user.ts` + `lib/auth/account-restore.ts` 박제 완료. anonymize 시 audit metadata에 `reassignedTripIds`(50 cap) 보존 → 운영자가 audit log를 조회해 trip ID 입수 후 CLI로 복구.
+  ```
+  npx tsx scripts/restore-user.ts <userId> \
+    --email=<email|null> --kakao-id=<id|null> --name=<name|null> \
+    [--trips=t1,t2,...] [--operator=<name>] [--dry-run]
+  ```
+  안전 가드: `ownerId === SYSTEM_OWNER_ID`인 trip만 reassign. 다른 user 소유 trip은 자동 skip + skippedTripIds로 보고. 이미 복구된 user(deletedAt=null)는 `user_not_anonymized` 거부. audit log `auth.account_restore` 트랜잭션 내부 atomic 기록 (S-13 박제 답습).
 
 ### T13 코드 리뷰 — 사이클 9 처리 (✅ 4/5)
 
@@ -131,3 +137,4 @@ stateless JWT + 짧은 access TTL(15분)으로 cookie clear 충분. refresh TTL(
 | 2026-05-06 | 8 | 초기 — D1~D5 결정 + 익명화 트랜잭션 + 모달/페이지 + audit `auth.account_delete` |
 | 2026-05-07 | 8 hotfix | server-only 분리 — `lib/auth/account-delete-shared.ts`로 PHRASE/validator 격리, account-delete.ts는 re-export로 외부 호환. CI 빌드 실패 fix. |
 | 2026-05-07 | 9 | T13 deferred Minor 4/5 처리 — CSRF Origin/Referer 검증 + userId 기반 rate limit 5분 1회 + reason 매핑(`internal_error`) + localStorage console.warn. audit enum 2개 추가(`auth.account_delete_origin_blocked` / `auth.account_delete_rate_limited`). JWT refresh revocation은 ADR-050(예정)으로 분리. |
+| 2026-05-07 | 10 | 운영자 수동 복구 박제 — `lib/auth/account-restore.ts` + `scripts/restore-user.ts` CLI + audit enum `auth.account_restore`. anonymize 보강: audit metadata에 `reassignedTripIds`(50 cap) 보존 → 복구 SQL/CLI 입력. 안전 가드: SYSTEM_OWNER_ID trip만 reassign + 이미 복구된 user 거부. 단위 테스트 +18(restore 9 + CLI 8 + anonymize 회귀 1). |

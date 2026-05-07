@@ -58,6 +58,15 @@ export async function anonymizeUserAccount(
         return { ok: true as const, reassignedTripCount: 0, removedMemberships: 0 };
       }
 
+      // 사이클 10 — 운영자 수동 복구를 위해 reassign 대상 trip ID를 audit metadata에
+      // 50개까지 보존. 50 cap은 박제 [feedback_bulk_mutation_pattern] 답습.
+      const trips = await tx.trip.findMany({
+        where: { ownerId: userId },
+        select: { id: true },
+        take: 50,
+        orderBy: { createdAt: "asc" },
+      });
+
       const reassigned = await tx.trip.updateMany({
         where: { ownerId: userId },
         data: { ownerId: SYSTEM_OWNER_ID },
@@ -88,6 +97,8 @@ export async function anonymizeUserAccount(
           metadata: sanitizeAuditValue({
             reassignedTripCount: reassigned.count,
             removedMemberships: removed.count,
+            // 사이클 10 — 운영자 복구 SQL/CLI 입력에 사용 (50 cap)
+            reassignedTripIds: trips.map((t) => t.id),
           }) as never,
         },
       });

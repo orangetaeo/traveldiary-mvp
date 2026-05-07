@@ -90,6 +90,8 @@ export type AuditAction =
   // 사이클 9 — ADR-049 deferred Minor (CSRF + rate limit)
   | "auth.account_delete_rate_limited"
   | "auth.account_delete_origin_blocked"
+  // 사이클 10 — ADR-049 §위험 운영자 수동 복구
+  | "auth.account_restore"
   // 자율 모드 비용 거버넌스 (사이클 AAAA2, ADR-047)
   | "usage.budget.warn"
   | "usage.budget.throw"
