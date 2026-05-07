@@ -46,6 +46,8 @@ const SETTING_SECTIONS = [
       // 사이클 U-3 (Stitch f8d3d50e) + U-deadlinks — placeholder shell 라우트 활성
       { icon: "download", label: "내 데이터 내보내기", href: "/settings/data-export" },
       { icon: "cached", label: "캐시 삭제", href: "/settings/cache" },
+      // U4 디자인 갭 #1 (2026-05-07) — placeholder shell, R1 + 4-OAuth 게이트 후 정식
+      { icon: "mail", label: "이메일 동기화", href: "/settings/email-sync", sub: "준비 중" },
     ],
   },
   {
