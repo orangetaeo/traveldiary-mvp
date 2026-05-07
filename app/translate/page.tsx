@@ -21,7 +21,7 @@ export default function TranslatePage({
   return (
     <>
       <TranslateView tripId={searchParams.trip} />
-      <BottomNav active="home" />
+      <BottomNav active="itinerary" />
     </>
   );
 }

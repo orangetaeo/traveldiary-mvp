@@ -26,7 +26,7 @@ export default function SharedLoading() {
         ))}
       </div>
 
-      <BottomNav active="home" />
+      <BottomNav active="trips" />
     </div>
   );
 }
