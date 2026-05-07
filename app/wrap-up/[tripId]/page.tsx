@@ -12,6 +12,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { resolveTrip } from "@/lib/services/resolved-trip";
 import { WrapUpReviewCard } from "@/components/wrap-up/WrapUpReviewCard";
+import { getNextCitySuggestions } from "@/lib/wrap-up/next-city-suggestions";
 
 interface PageProps {
   params: { tripId: string };
@@ -22,13 +23,6 @@ const DEMO_HIGHLIGHTS = [
   { day: 2, title: "로컬 맛집 탐방 🍜", subtitle: "한국 관광객 잘 모르는 로컬" },
   { day: 3, title: "야경 포인트 🌃", subtitle: "시간대 완벽" },
   { day: 4, title: "일출 감상 🌅", subtitle: "새벽 알람의 보람" },
-] as const;
-
-// --- 데모: 다음 추천 도시 ---
-const NEXT_CITIES = [
-  { name: "다낭", code: "DAD", badge: "BEST" },
-  { name: "호치민", code: "SGN" },
-  { name: "나트랑", code: "NHA" },
 ] as const;
 
 export default function WrapUpPage({ params }: PageProps) {
@@ -131,15 +125,16 @@ export default function WrapUpPage({ params }: PageProps) {
         <section className="py-td-md">
           <h2 className="text-td-body font-bold text-ink px-td-md mb-td-sm">다음 여행은?</h2>
           <div className="flex overflow-x-auto gap-td-sm px-td-md pb-td-xs">
-            {NEXT_CITIES.filter((c) => c.code !== trip.destinationCode).map((c) => (
+            {getNextCitySuggestions(trip.destinationCode, { limit: 5 }).map((c) => (
               <Link
                 key={c.code}
-                href={`/city/${c.code.toLowerCase()}`}
+                href={`/city/${c.slug}`}
                 className="flex-none w-[140px]"
+                aria-label={`${c.name}으로 다음 여행 추천 일정 보기`}
               >
                 <div className="relative rounded-md overflow-hidden aspect-[3/4] mb-td-xxs border border-divider bg-surface-soft flex items-center justify-center">
                   <span className="material-symbols-outlined text-3xl text-ink-mute">landscape</span>
-                  {"badge" in c && (
+                  {c.badge && (
                     <div className="absolute top-2 left-2 bg-accent text-white text-td-badge font-bold px-2 py-0.5 rounded-full">
                       {c.badge}
                     </div>
