@@ -9,7 +9,7 @@
 ---
 
 ## 1. 다음 사이클
-**진행 중**: 사용자 흐름 갭 **6/8 완료** (2026-05-06 Session K~P) — 사이클 1(G5/G6 모드전환 ✅ #209) → 2(G7 받은 trip 배너 ✅ #212) → 3(G4 일정 coach mark ✅ #215) → 4(G9 카메라 권한 가이드 ✅ #217) → 5(G8 OTA reentry self-report ✅ #223) → 7(G10 약관/개인정보 placeholder ✅ #226). 다음 = **사이클 8(G3 로그아웃/계정 삭제, R1 검토 1 사이클)** 또는 사이클 6(G1+G2 4-OAuth 게이트 batch — 사용자 콘솔 4건 + R1 의존성 결정).
+**진행 중**: 디자인 갭 **U1~U5 5건 모두 완료** (Session V/W2/W). **자율 발견 A1~A5**: A1 모닝 브리핑(다른 세션 진행 중 `auto/a1-morning-...-1500`) / A3 베트남어 14문장 카드 ✅ PR #270 OPEN / **A4 영수증 OCR Stitch 시안** Screen `c389873963894d0c819c40692eea88bc` 발사 완료(코드 매핑 대기) / A2/A5 미진행. **다음 옵션**: (A) A4 코드 매핑 1 사이클 — `mcp__stitch__get_screen` → curl → React 박제 답습 / (B) LegalPlaceholderShell internal swap (PR #265 머지 후 0.5 사이클) / (C) Stitch suggestions 3건 후속 시안(인식 결과/수동 입력/갤러리) / (D) A2 도착 체크인 또는 A5 그룹 분담금 Stitch 시안. **OPEN PR**: #265(PlaceholderShell DRY) + #270(A3 phrases). **신규 박제 3건 정착**: feedback_multi_session_pre_step1_check / feedback_early_commit_to_save_progress / feedback_bash_cd_workaround_with_git_dash_c.
 
 ## 2. 활성 게이트 (batch)
 **없음.** 게이트 발생 시 `memory/project_gate_batch_YYYY_MM_DD.md` 위치 + 본 라인 `🔴 활성 게이트 N건` 갱신.
