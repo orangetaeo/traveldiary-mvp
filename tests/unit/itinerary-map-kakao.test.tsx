@@ -32,9 +32,11 @@ describe("ItineraryMap", () => {
   it("API key 미설정 → placeholder 표시", () => {
     delete process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY;
     const html = renderToStaticMarkup(<ItineraryMap lat={10.225} lng={103.96} />);
-    expect(html).toContain("지도 미설정");
     expect(html).toContain("10.2250");
     expect(html).toContain("103.9600");
+    expect(html).toContain("Google 지도");
+    expect(html).toContain("네이버 지도");
+    expect(html).toContain("카카오맵");
     expect(html).not.toContain("<iframe");
   });
 

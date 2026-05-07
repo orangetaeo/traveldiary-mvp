@@ -12,6 +12,7 @@ import {
   CHECKLIST_CATEGORY_LABEL,
   CATEGORY_ORDER,
   CATEGORY_ACTIVE_TONE,
+  CATEGORY_ICON,
 } from "@/lib/utils/checklist-constants";
 
 export type CategoryFilterValue = ChecklistCategory | "all";
@@ -66,6 +67,9 @@ export function ChecklistCategoryFilter({ items, value, onChange }: Props) {
               isActive ? CATEGORY_ACTIVE_TONE[cat] : inactive
             } disabled:opacity-40 disabled:cursor-not-allowed`}
           >
+            <span className="material-symbols-outlined text-[14px]" aria-hidden="true">
+              {CATEGORY_ICON[cat]}
+            </span>
             {CHECKLIST_CATEGORY_LABEL[cat]}
             <span className="tabular-nums opacity-80">{count}</span>
           </button>

@@ -40,6 +40,7 @@ import {
 } from "./ChecklistCategoryFilter";
 import { ChecklistSearchInput } from "./ChecklistSearchInput";
 import { ChecklistDoneFilter } from "./ChecklistDoneFilter";
+import { ChecklistTimeline } from "./ChecklistTimeline";
 
 interface Props {
   trip: Trip;
@@ -380,6 +381,11 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
                 className="bg-purple h-full transition-all duration-500 progress-bar"
                 data-progress={progressBucket}
               />
+            </div>
+          )}
+          {total > 0 && (
+            <div className="mt-td-md bg-surface-card border border-divider rounded-md px-td-sm py-td-xs">
+              <ChecklistTimeline items={items} />
             </div>
           )}
         </section>
