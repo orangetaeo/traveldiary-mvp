@@ -20,26 +20,14 @@ export interface UserRow {
   email: string | null;
 }
 
-export interface UpsertResult {
-  user: UserRow;
-  isNew: boolean;
-}
-
 /**
  * 카카오 ID 기반 user upsert. 신규 사용자면 생성, 기존이면 nickname/email 업데이트.
- * isNew: 이번 호출에서 신규 생성됐는지 여부 (환영 페이지 분기용).
  */
 export async function upsertKakaoUser(
   input: UpsertKakaoUserInput,
-): Promise<UpsertResult | null> {
+): Promise<UserRow | null> {
   if (!prisma) return null;
   try {
-    // 기존 사용자 존재 여부 확인 (isNew 판별)
-    const existing = await prisma.user.findUnique({
-      where: { kakaoId: input.kakaoId },
-      select: { id: true },
-    });
-
     const row = await prisma.user.upsert({
       where: { kakaoId: input.kakaoId },
       create: {
@@ -54,13 +42,10 @@ export async function upsertKakaoUser(
       },
     });
     return {
-      user: {
-        id: row.id,
-        kakaoId: row.kakaoId,
-        name: row.name,
-        email: row.email,
-      },
-      isNew: !existing,
+      id: row.id,
+      kakaoId: row.kakaoId,
+      name: row.name,
+      email: row.email,
     };
   } catch (err) {
     console.error("[user.repository] upsertKakaoUser failed", err);
