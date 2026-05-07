@@ -7,9 +7,11 @@
  * DB 미구현 단계 — 시드 기반 데모.
  */
 
+import { useState } from "react";
 import Link from "next/link";
 import { formatKrw } from "@/lib/utils/format-krw";
 import { COLOR_BG, COLOR_TEXT } from "@/lib/utils/color-mappings";
+import { ShareModal } from "@/components/share/ShareModal";
 import type { RecapStats, RecapHighlight, RecapMoment } from "@/lib/types";
 
 // ─── Types ─────────────────────────────────────
@@ -38,6 +40,8 @@ export function PostTripRecapView({
   highlights,
   moments,
 }: Props) {
+  const [shareOpen, setShareOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
       {/* Hero Section */}
@@ -184,17 +188,31 @@ export function PostTripRecapView({
         </div>
       </section>
 
-      {/* Bottom Actions */}
+      {/* Bottom Actions — 옵션 R: ShareModal 진입 (D5 인스타 스토리 카드 + 카카오톡 + URL 복사 통합) */}
       <section className="px-td-md pb-td-lg flex flex-col gap-td-sm">
-        <button className="w-full bg-purple text-white font-bold text-td-body py-3 rounded-md flex items-center justify-center gap-2 shadow-sm transition-transform active:scale-95">
-          <span className="material-symbols-outlined">share</span>
-          카카오톡으로 공유
+        <button
+          type="button"
+          onClick={() => setShareOpen(true)}
+          aria-label="여행 공유 — 카카오톡·인스타 스토리·URL 복사"
+          className="w-full bg-purple text-white font-bold text-td-body py-3 rounded-md flex items-center justify-center gap-2 shadow-sm transition-transform active:scale-95"
+        >
+          <span className="material-symbols-outlined" aria-hidden>share</span>
+          여행 공유하기
         </button>
-        <button className="w-full bg-transparent border border-divider text-ink font-bold text-td-body py-3 rounded-md flex items-center justify-center gap-2 transition-transform active:scale-95 hover:bg-surface-card">
-          <span className="material-symbols-outlined">auto_awesome</span>
-          인스타 스토리로 내보내기
-        </button>
+        <Link
+          href={`/wrap-up/${tripId}`}
+          className="w-full bg-transparent border border-divider text-ink font-bold text-td-body py-3 rounded-md flex items-center justify-center gap-2 transition-transform active:scale-95 hover:bg-surface-card"
+        >
+          <span className="material-symbols-outlined" aria-hidden>arrow_back</span>
+          마무리 페이지로
+        </Link>
       </section>
+
+      <ShareModal
+        open={shareOpen}
+        tripId={tripId}
+        onClose={() => setShareOpen(false)}
+      />
     </div>
   );
 }
