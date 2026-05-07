@@ -22,10 +22,9 @@ vi.mock("next/link", () => ({
 import SettingsCachePage from "@/app/settings/cache/page";
 
 describe("/settings/cache placeholder 페이지", () => {
-  it("정적 마크업 + 핵심 카피", () => {
+  it("정적 마크업 + 핵심 카피 (사이클 U-shell-dry: PlaceholderShell 단일 타이틀)", () => {
     const html = renderToStaticMarkup(<SettingsCachePage />);
     expect(html).toContain("캐시 삭제");
-    expect(html).toContain("앱 캐시 정리");
     expect(html).toContain("저장된 외부 API 응답");
     expect(html).toContain("준비 중");
   });

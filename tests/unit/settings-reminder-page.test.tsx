@@ -22,10 +22,10 @@ vi.mock("next/link", () => ({
 import SettingsReminderPage from "@/app/settings/reminder/page";
 
 describe("/settings/reminder placeholder 페이지", () => {
-  it("정적 마크업 + 핵심 카피", () => {
+  it("정적 마크업 + 핵심 카피 (사이클 U-shell-dry: PlaceholderShell 단일 타이틀)", () => {
     const html = renderToStaticMarkup(<SettingsReminderPage />);
     expect(html).toContain("리마인더 시간");
-    expect(html).toContain("언제 알려드릴까요?");
+    expect(html).toContain("일정마다 알림 시간을 미리 정해두면");
     expect(html).toContain("준비 중");
   });
 

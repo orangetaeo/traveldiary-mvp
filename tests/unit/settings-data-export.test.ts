@@ -22,8 +22,8 @@ describe("/settings/data-export — placeholder shell", () => {
     expect(src).toContain('href="/settings"');
   });
 
-  it("Hero 메시지 (한국어)", () => {
-    expect(src).toContain("내 모든 데이터를 받아갈 수 있어요");
+  it("Hero 메시지 (한국어, 사이클 U-shell-dry: PlaceholderShell description)", () => {
+    expect(src).toContain("JSON 파일로 다운로드해서 백업");
     expect(src).toContain("JSON 파일로 다운로드");
   });
 
