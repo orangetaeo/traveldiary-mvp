@@ -95,14 +95,15 @@ describe("/city/[slug]/payment — 베트남 도시", () => {
     expect(html).toContain("ATM");
   });
 
-  it("정산 카드 cross-link — 매칭 trip → /trips/[tripId] + destination 컨텍스트", () => {
+  it("정산 카드 cross-link — 매칭 trip → /trips/[tripId]?focus=cost (옵션 J)", () => {
     const html = renderToStaticMarkup(
       <CityPaymentPage params={{ slug: "phu-quoc" }} />,
     );
-    // 옵션 G — 매칭 trip이 있으면 동적 trip 링크
-    expect(html).toContain('href="/trips/demo-trip-phu-quoc"');
+    // 옵션 G + J — 매칭 trip이 있으면 동적 trip 링크 + ?focus=cost로 BentoSummary 강조
+    expect(html).toContain('href="/trips/demo-trip-phu-quoc?focus=cost"');
     expect(html).toContain("푸꾸옥 여행 정산 보기");
     expect(html).toContain('data-trip-aware="true"');
+    // 매칭 없을 때(/trips fallback)는 focus query 없음 — 다음 it 블록에서 검증
   });
 
   it("정산 카드 cross-link — 매칭 없으면 /trips 일반 진입 (회귀 fallback)", () => {
@@ -115,6 +116,8 @@ describe("/city/[slug]/payment — 베트남 도시", () => {
     expect(html).toContain('data-trip-aware="false"');
     // 매칭 trip 없으므로 destination 메시지 변형 미사용
     expect(html).not.toContain("호이안 여행 정산 보기");
+    // 옵션 J — fallback에는 ?focus=cost 미부착 (dashboard 진입이 아니므로)
+    expect(html).not.toContain("?focus=cost");
   });
 
   it("뒤로가기 — /city/${slug}", () => {

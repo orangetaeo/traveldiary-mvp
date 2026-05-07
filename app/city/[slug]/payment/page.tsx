@@ -292,7 +292,7 @@ export default function CityPaymentPage({
               : "여행 중 비용을 추가하면 일행과 자동으로 N분의 1 분담 — 한국 귀국 후 토스·카카오페이로 송금하면 끝."}
           </p>
           <Link
-            href={activeTrip ? `/trips/${activeTrip.tripId}` : "/trips"}
+            href={activeTrip ? `/trips/${activeTrip.tripId}?focus=cost` : "/trips"}
             className="inline-flex items-center gap-1 text-td-meta text-purple-deep hover:underline"
           >
             {activeTrip

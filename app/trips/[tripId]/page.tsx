@@ -20,6 +20,7 @@ import { TripHero } from "@/components/dashboard/TripHero";
 import { BentoSummary } from "@/components/dashboard/BentoSummary";
 import { WeatherStrip } from "@/components/dashboard/WeatherStrip";
 import { QuickActions } from "@/components/dashboard/QuickActions";
+import { FocusScroller } from "@/components/dashboard/FocusScroller";
 import { getDemoTrip } from "@/lib/seed";
 import { getCityBySlug } from "@/lib/seed/cities";
 import { getWeatherForecast } from "@/lib/seed/weather";
@@ -29,6 +30,7 @@ import {
 } from "@/lib/services/trip-dashboard";
 import { dDay } from "@/lib/utils/item-display";
 import { formatStartDateLabel, todayKstISO } from "@/lib/utils/trip-display";
+import { parseFocusKey, focusElementId } from "@/lib/utils/focus-key";
 
 export async function generateMetadata({
   params,
@@ -53,13 +55,16 @@ const COUNTRY_FLAG: Record<string, string> = {
 
 export default async function TripDashboardPage({
   params,
+  searchParams,
 }: {
   params: { tripId: string };
+  searchParams?: { focus?: string };
 }) {
   const found = getDemoTrip(params.tripId);
   if (!found) notFound();
 
   const { trip, items } = found;
+  const focusKey = parseFocusKey(searchParams?.focus);
 
   // 시드 + DB aggregate (DB 미구성 시 모든 영역 0/시드 fallback)
   const data = await loadTripDashboardData(params.tripId, {
@@ -105,12 +110,14 @@ export default async function TripDashboardPage({
           hero={heroVisual}
         />
 
-        <BentoSummary data={data} />
+        <BentoSummary data={data} focusKey={focusKey} />
 
         <WeatherStrip forecast={forecast} />
 
         <QuickActions tripId={trip.id} />
       </main>
+
+      {focusKey && <FocusScroller targetId={focusElementId(focusKey)} />}
 
       <BottomNav active="trips" />
     </div>
