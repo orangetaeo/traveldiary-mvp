@@ -178,7 +178,7 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     aiReason: "흥정 + 야식 한국인 인기",
   },
 
-  // ── 나트랑 ──────────────────────────────────────────────────
+  // ── 나트랑 (디자인 갭 #1 U2 enrichment 직접 추가) ──────────────
   {
     id: "discover-nt-vinwonders",
     name: "빈원더스 + 해상 케이블카",
@@ -188,6 +188,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "차량 20분",
     badge: "popular",
     destination: "나트랑",
+    priceLevel: 3,
+    koreanReviewQuote: {
+      text: "케이블카 위에서 본 바다 — 사진 명소 1순위",
+      author: "이채연",
+    },
+    koreanReviewCount: 318,
+    aiReason: "한국인 가족 여행 평점 4.6 + 종일권 가성비",
   },
   {
     id: "discover-nt-island",
@@ -198,6 +205,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "보트 30분",
     badge: "ai",
     destination: "나트랑",
+    priceLevel: 2,
+    koreanReviewQuote: {
+      text: "물 맑고 산호 좋아요 — 가이드도 친절",
+      author: "정유진",
+    },
+    koreanReviewCount: 142,
+    aiReason: "한국어 가이드 보트 + 물놀이 평점 4.4",
   },
   {
     id: "discover-nt-ponagar",
@@ -207,6 +221,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     reviewCount: 1200,
     distance: "차량 10분",
     destination: "나트랑",
+    priceLevel: 1,
+    koreanReviewQuote: {
+      text: "참파 왕국 유적 — 30분이면 충분히 둘러봐요",
+      author: "강서연",
+    },
+    koreanReviewCount: 89,
+    aiReason: "베트남 고대사 + 입장료 1만원 미만",
   },
   {
     id: "discover-nt-seafood",
@@ -217,9 +238,17 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "도보 15분",
     badge: "ai",
     destination: "나트랑",
+    priceLevel: 2,
+    koreanReviewQuote: {
+      text: "랍스타 1kg 한국 절반 — 흥정 필수",
+      author: "오현우",
+    },
+    koreanReviewCount: 124,
+    aiReason: "한국인 해산물 매니아 평점 4.5",
+    koreanFoodFriendly: true,
   },
 
-  // ── 달랏 ──────────────────────────────────────────────────
+  // ── 달랏 (디자인 갭 #1 U2 enrichment 직접 추가) ──────────────
   {
     id: "discover-dl-langbiang",
     name: "랑비앙 일출 지프투어",
@@ -229,6 +258,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "차량 30분",
     badge: "ai",
     destination: "달랏",
+    priceLevel: 2,
+    koreanReviewQuote: {
+      text: "새벽 4시 출발 — 일출과 운해 둘 다 봤어요",
+      author: "한지민",
+    },
+    koreanReviewCount: 76,
+    aiReason: "한국인 사진 명소 1순위 + 인생샷 보장",
   },
   {
     id: "discover-dl-datanla",
@@ -239,6 +275,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "차량 15분",
     badge: "popular",
     destination: "달랏",
+    priceLevel: 2,
+    koreanReviewQuote: {
+      text: "코스터 짜릿 — 아이들도 신나게 즐겨요",
+      author: "송지우",
+    },
+    koreanReviewCount: 134,
+    aiReason: "한국인 가족 여행 평점 4.5",
   },
   {
     id: "discover-dl-crazy",
@@ -248,6 +291,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     reviewCount: 760,
     distance: "도보 20분",
     destination: "달랏",
+    priceLevel: 1,
+    koreanReviewQuote: {
+      text: "가우디 + 동화 분위기 — 사진 잔뜩 찍었어요",
+      author: "윤하늘",
+    },
+    koreanReviewCount: 92,
+    aiReason: "한국인 인스타 명소 + 입장료 1만원 미만",
   },
   {
     id: "discover-dl-nightmarket",
@@ -258,6 +308,14 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "도보 10분",
     badge: "popular",
     destination: "달랏",
+    priceLevel: 1,
+    koreanReviewQuote: {
+      text: "반짱느엉(달랏 피자) 꼭 드세요 — 구운 라이스페이퍼",
+      author: "임수민",
+    },
+    koreanReviewCount: 68,
+    aiReason: "달랏 시그니처 음식 + 야식 분위기",
+    koreanFoodFriendly: true,
   },
 
   // ── 치앙마이 ──────────────────────────────────────────────────
