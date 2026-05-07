@@ -13,15 +13,16 @@ import type { DiscoverPlace } from "@/lib/types";
 import { phuQuocDiscoverPlaces } from "./places/phu-quoc-discover";
 import { daNangDiscoverPlaces } from "./places/da-nang-discover";
 import { mergeDiscoverEnrichment } from "./places/phu-quoc-discover-enrichment";
+import { mergeDanangEnrichment } from "./places/da-nang-discover-enrichment";
 
 export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
   // ── 푸꾸옥 (608곳 — 파이프라인 자동 생성 + enrichment 머지) ──
   ...phuQuocDiscoverPlaces.map(mergeDiscoverEnrichment),
 
-  // ── 다낭 (884곳 — 파이프라인 자동 생성) ──
-  ...daNangDiscoverPlaces,
+  // ── 다낭 (884곳 — 파이프라인 자동 생성 + 디자인 갭 #1 U2 enrichment 머지) ──
+  ...daNangDiscoverPlaces.map(mergeDanangEnrichment),
 
-  // ── 하노이 ──────────────────────────────────────────────────
+  // ── 하노이 (수동 큐레이션 + 디자인 갭 #1 U2 enrichment 직접 추가) ──
   {
     id: "discover-hn-halong",
     name: "하롱베이 데이투어",
@@ -31,6 +32,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "차량 3시간",
     badge: "popular",
     destination: "하노이",
+    priceLevel: 3,
+    koreanReviewQuote: {
+      text: "꼭 1박 2일 추천 — 일출이 정말 멋져요",
+      author: "윤소희",
+    },
+    koreanReviewCount: 412,
+    aiReason: "베트남 1순위 자연유산 + 한국인 평점 4.5",
   },
   {
     id: "discover-hn-ninhbinh",
@@ -41,6 +49,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "차량 2시간",
     badge: "ai",
     destination: "하노이",
+    priceLevel: 2,
+    koreanReviewQuote: {
+      text: "수영장 같은 강에서 노 젓는 보트가 인상적",
+      author: "오현주",
+    },
+    koreanReviewCount: 187,
+    aiReason: "한국인 가성비 평점 4.6",
   },
   {
     id: "discover-hn-puppet",
@@ -50,6 +65,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     reviewCount: 1670,
     distance: "도보 15분",
     destination: "하노이",
+    priceLevel: 1,
+    koreanReviewQuote: {
+      text: "1시간 분량 한국어 자막 안내가 친절",
+      author: "강민호",
+    },
+    koreanReviewCount: 92,
+    aiReason: "베트남 전통 공연 입문 추천",
   },
   {
     id: "discover-hn-oldquarter",
@@ -60,6 +82,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "도보 5분",
     badge: "ai",
     destination: "하노이",
+    priceLevel: 1,
+    koreanReviewQuote: {
+      text: "기념품 흥정 재미있어요",
+      author: "김재훈",
+    },
+    koreanReviewCount: 256,
+    aiReason: "주말 저녁 한국인 방문률 1위",
   },
   {
     id: "discover-hn-pho",
@@ -70,9 +99,17 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "도보 10분",
     badge: "popular",
     destination: "하노이",
+    priceLevel: 1,
+    koreanReviewQuote: {
+      text: "현지인이 줄 서서 먹는 진짜 쌀국수",
+      author: "이수진",
+    },
+    koreanReviewCount: 134,
+    aiReason: "현지인 줄 서는 곳 + 한식 입맛 호환",
+    koreanFoodFriendly: true,
   },
 
-  // ── 호치민 ──────────────────────────────────────────────────
+  // ── 호치민 (수동 큐레이션 + 디자인 갭 #1 U2 enrichment 직접 추가) ──
   {
     id: "discover-hcm-mekong",
     name: "메콩델타 미토 투어",
@@ -82,6 +119,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "차량 2시간",
     badge: "popular",
     destination: "호치민",
+    priceLevel: 2,
+    koreanReviewQuote: {
+      text: "코코넛 농장 + 보트 코스 알찬 하루",
+      author: "조하나",
+    },
+    koreanReviewCount: 287,
+    aiReason: "한국인 단체 + 가족 추천",
   },
   {
     id: "discover-hcm-cruise",
@@ -92,6 +136,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "차량 15분",
     badge: "ai",
     destination: "호치민",
+    priceLevel: 3,
+    koreanReviewQuote: {
+      text: "야경 보면서 식사 — 신혼여행에 딱",
+      author: "김도현",
+    },
+    koreanReviewCount: 98,
+    aiReason: "야경 + 한국인 신혼 추천",
   },
   {
     id: "discover-hcm-palace",
@@ -101,6 +152,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     reviewCount: 6700,
     distance: "도보 20분",
     destination: "호치민",
+    priceLevel: 1,
+    koreanReviewQuote: {
+      text: "베트남 현대사 이해에 도움돼요",
+      author: "박서영",
+    },
+    koreanReviewCount: 215,
+    aiReason: "역사 관심 한국인 평점 4.5",
   },
   {
     id: "discover-hcm-benthanh",
@@ -111,6 +169,13 @@ export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
     distance: "도보 10분",
     badge: "popular",
     destination: "호치민",
+    priceLevel: 1,
+    koreanReviewQuote: {
+      text: "기념품과 길거리 음식 모두 즐기기 좋아요",
+      author: "최민서",
+    },
+    koreanReviewCount: 178,
+    aiReason: "흥정 + 야식 한국인 인기",
   },
 
   // ── 나트랑 ──────────────────────────────────────────────────
