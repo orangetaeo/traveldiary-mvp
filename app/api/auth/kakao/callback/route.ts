@@ -43,14 +43,12 @@ export async function GET(req: NextRequest) {
   if (!exchange.ok) return makeRedirectError(`exchange_${exchange.code}`);
 
   // user upsert
-  const result = await upsertKakaoUser({
+  const user = await upsertKakaoUser({
     kakaoId: exchange.user.kakaoId,
     nickname: exchange.user.nickname,
     email: exchange.user.email, // 11c: 동의 시
   });
-  if (!result) return makeRedirectError("user_upsert_failed");
-
-  const { user, isNew } = result;
+  if (!user) return makeRedirectError("user_upsert_failed");
 
   // JWT 발급
   const accessToken = await signToken(user.id, "access");
@@ -63,12 +61,11 @@ export async function GET(req: NextRequest) {
     action: "auth.login",
     resource: "User",
     resourceId: user.id,
-    metadata: { provider: "kakao", source: "web", isNew },
+    metadata: { provider: "kakao", source: "web" },
   });
 
-  // 신규 사용자 → /welcome, 기존 사용자 → /
-  const redirectPath = isNew ? "/welcome" : "/";
-  const resp = NextResponse.redirect(new URL(redirectPath, APP_URL));
+  // Redirect + 쿠키 set
+  const resp = NextResponse.redirect(new URL("/", APP_URL));
 
   resp.cookies.set("access_token", accessToken, {
     httpOnly: true,

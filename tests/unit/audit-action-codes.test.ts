@@ -34,7 +34,6 @@ const KNOWN_ACTION_CODES = new Set([
   // trip
   "trip.create",
   "trip.mode_transition",
-  "trip.claim",
   // itinerary
   "itinerary.create",
   "itinerary.reorder",
@@ -176,7 +175,7 @@ describe("audit action 코드 리소스 분류", () => {
     expect(codesByResource.get("cost")!.length).toBe(3);
   });
 
-  it("trip 리소스에 3개 action", () => {
-    expect(codesByResource.get("trip")!.length).toBe(3);
+  it("trip 리소스에 2개 action", () => {
+    expect(codesByResource.get("trip")!.length).toBe(2);
   });
 });
