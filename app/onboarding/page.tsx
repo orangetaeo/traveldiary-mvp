@@ -187,7 +187,7 @@ function Step1({ onNext }: { onNext: () => void }) {
       <div className="bg-surface-card border border-divider rounded-md p-td-md shadow-sm">
         <div className="flex items-center gap-td-xs mb-td-sm">
           <span
-            className="material-symbols-outlined text-purple text-[20px]"
+            className="material-symbols-outlined text-purple text-td-icon-lg"
             style={{ fontVariationSettings: "'FILL' 1" }}
           >
             calendar_today
@@ -259,7 +259,7 @@ function Step2({
   return (
     <>
       <button className="flex items-center text-td-body text-ink-soft mb-td-sm" onClick={onBack}>
-        <span className="material-symbols-outlined text-[20px] mr-0.5">chevron_left</span> 뒤로
+        <span className="material-symbols-outlined text-td-icon-lg mr-0.5">chevron_left</span> 뒤로
       </button>
       <h2 className="text-td-title mb-td-xxs">어디로 떠나세요?</h2>
       <p className="text-td-body text-ink-soft mb-td-lg">
@@ -323,7 +323,7 @@ function Step3({
   return (
     <>
       <button className="flex items-center text-td-body text-ink-soft mb-td-sm" onClick={onBack}>
-        <span className="material-symbols-outlined text-[20px] mr-0.5">chevron_left</span> 뒤로
+        <span className="material-symbols-outlined text-td-icon-lg mr-0.5">chevron_left</span> 뒤로
       </button>
       <h2 className="text-td-title mb-td-lg">언제, 누구와?</h2>
 
@@ -408,7 +408,7 @@ function Step4({
   return (
     <>
       <button className="flex items-center text-td-body text-ink-soft mb-td-sm" onClick={onBack}>
-        <span className="material-symbols-outlined text-[20px] mr-0.5">chevron_left</span> 뒤로
+        <span className="material-symbols-outlined text-td-icon-lg mr-0.5">chevron_left</span> 뒤로
       </button>
       <h2 className="text-td-title mb-td-lg">취향을 알려주세요</h2>
 
@@ -440,7 +440,7 @@ function Step4({
         {/* 기피 항목 */}
         <div>
           <h3 className="text-td-body font-semibold mb-td-sm text-danger flex items-center gap-1">
-            <span className="material-symbols-outlined text-[18px]">warning</span> 기피 항목
+            <span className="material-symbols-outlined text-td-icon">warning</span> 기피 항목
           </h3>
           <div className="flex flex-wrap gap-td-xs">
             {EXCLUDES.map((e) => (

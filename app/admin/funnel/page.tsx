@@ -36,11 +36,11 @@ const REFERRAL_DEMO = [
 // --- 데모: 도시 점유 (추후 실 데이터로 교체) ---
 const CITY_DEMO = [
   { name: "푸꾸옥", pct: 32, color: "bg-purple" },
-  { name: "다낭", pct: 28, color: "bg-violet-400" },
-  { name: "나트랑", pct: 15, color: "bg-violet-300" },
-  { name: "호치민", pct: 12, color: "bg-violet-200" },
-  { name: "하노이", pct: 8, color: "bg-violet-100" },
-  { name: "기타", pct: 5, color: "bg-slate-200" },
+  { name: "다낭", pct: 28, color: "bg-purple/70" },
+  { name: "나트랑", pct: 15, color: "bg-purple/50" },
+  { name: "호치민", pct: 12, color: "bg-purple/30" },
+  { name: "하노이", pct: 8, color: "bg-purple-soft" },
+  { name: "기타", pct: 5, color: "bg-surface-soft" },
 ] as const;
 
 interface PageProps {
@@ -206,7 +206,7 @@ export default async function FunnelDashboard({ searchParams }: PageProps) {
             {/* Footer */}
             <footer className="pt-td-lg border-t border-divider flex flex-col items-center gap-td-xs">
               <button className="w-full md:w-auto px-td-lg py-td-sm bg-ink text-white rounded-md text-td-body font-bold flex items-center justify-center gap-td-xs hover:opacity-90 transition-opacity">
-                <span className="material-symbols-outlined text-[20px]">download</span>
+                <span className="material-symbols-outlined text-td-icon-lg">download</span>
                 CSV 내보내기
               </button>
               <span className="text-td-caption text-ink-mute tabular-nums">

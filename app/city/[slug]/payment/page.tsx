@@ -121,7 +121,7 @@ export default function CityPaymentPage({
             className="text-td-body font-semibold text-purple-deep mb-3"
           >
             <span
-              className="material-symbols-outlined text-[18px] mr-1 align-middle"
+              className="material-symbols-outlined text-td-icon mr-1 align-middle"
               aria-hidden
             >
               currency_exchange
@@ -176,7 +176,7 @@ export default function CityPaymentPage({
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <span
-                      className={`material-symbols-outlined text-[24px] ${tone.text}`}
+                      className={`material-symbols-outlined text-td-icon-xl ${tone.text}`}
                       aria-hidden
                     >
                       {m.iconName}
@@ -274,7 +274,7 @@ export default function CityPaymentPage({
             className="text-td-body font-semibold text-ink mb-2"
           >
             <span
-              className="material-symbols-outlined text-[18px] mr-1 align-middle text-purple"
+              className="material-symbols-outlined text-td-icon mr-1 align-middle text-purple"
               aria-hidden
             >
               groups

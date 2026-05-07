@@ -80,6 +80,7 @@ const config: Config = {
         "td-sm":  "12px",  // 카드 안 섹션 사이
         "td-md":  "16px",  // 카드 사이
         "td-lg":  "24px",  // 큰 섹션 사이
+        "td-xl":  "32px",  // 모달·페이지 헤더 패딩
       },
       borderRadius: {
         // Stitch ROUND_FOUR

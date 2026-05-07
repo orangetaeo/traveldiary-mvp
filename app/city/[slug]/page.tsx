@@ -117,7 +117,7 @@ export default function CityPage({ params }: { params: { slug: string } }) {
           className="block mb-td-md bg-danger-soft border border-danger/30 rounded-md p-td-md hover:bg-danger/10 transition-colors"
         >
           <div className="flex items-center gap-td-sm">
-            <span className="material-symbols-outlined text-danger text-[24px]" aria-hidden>
+            <span className="material-symbols-outlined text-danger text-td-icon-xl" aria-hidden>
               emergency
             </span>
             <div className="flex-1 min-w-0">
@@ -128,7 +128,7 @@ export default function CityPage({ params }: { params: { slug: string } }) {
                 병원 · 경찰 · 대사관 · 분실 가이드
               </p>
             </div>
-            <span className="material-symbols-outlined text-danger text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined text-danger text-td-icon" aria-hidden>
               chevron_right
             </span>
           </div>
@@ -279,14 +279,14 @@ export default function CityPage({ params }: { params: { slug: string } }) {
             <div className="bg-surface-card border border-divider rounded-md p-td-md space-y-td-xs">
               {city.visa.visaFreeDays != null && (
                 <div className="flex items-center gap-td-xs">
-                  <span className="material-symbols-outlined text-success-deep text-[18px]" aria-hidden>check_circle</span>
+                  <span className="material-symbols-outlined text-success-deep text-td-icon" aria-hidden>check_circle</span>
                   <p className="text-td-body text-ink">
                     한국 여권 무비자 <span className="font-bold text-success-deep">{city.visa.visaFreeDays}일</span>
                   </p>
                 </div>
               )}
               <div className="flex items-center gap-td-xs">
-                <span className={`material-symbols-outlined text-[18px] ${city.visa.eVisaRequired ? "text-amber-deep" : "text-success-deep"}`} aria-hidden>
+                <span className={`material-symbols-outlined text-td-icon ${city.visa.eVisaRequired ? "text-amber-deep" : "text-success-deep"}`} aria-hidden>
                   {city.visa.eVisaRequired ? "warning" : "check_circle"}
                 </span>
                 <p className="text-td-body text-ink">
@@ -307,17 +307,17 @@ export default function CityPage({ params }: { params: { slug: string } }) {
             <div className="bg-surface-card border border-divider rounded-md p-td-md">
               <div className="grid grid-cols-3 gap-td-sm text-center">
                 <div>
-                  <span className="material-symbols-outlined text-ink-soft text-[20px]" aria-hidden>electrical_services</span>
+                  <span className="material-symbols-outlined text-ink-soft text-td-icon-lg" aria-hidden>electrical_services</span>
                   <p className="text-td-caption text-ink-soft">전압</p>
                   <p className="text-td-body text-ink font-medium">{city.utilities.voltage}</p>
                 </div>
                 <div>
-                  <span className="material-symbols-outlined text-ink-soft text-[20px]" aria-hidden>power</span>
+                  <span className="material-symbols-outlined text-ink-soft text-td-icon-lg" aria-hidden>power</span>
                   <p className="text-td-caption text-ink-soft">플러그</p>
                   <p className="text-td-body text-ink font-medium">{city.utilities.plugType}</p>
                 </div>
                 <div>
-                  <span className="material-symbols-outlined text-ink-soft text-[20px]" aria-hidden>sim_card</span>
+                  <span className="material-symbols-outlined text-ink-soft text-td-icon-lg" aria-hidden>sim_card</span>
                   <p className="text-td-caption text-ink-soft">현지 SIM</p>
                   <p className="text-td-body text-ink font-medium">{city.utilities.simAvailable ? "구매 가능" : "어려움"}</p>
                 </div>
@@ -332,7 +332,7 @@ export default function CityPage({ params }: { params: { slug: string } }) {
             <h3 className="text-td-card-title text-ink mb-td-sm">날씨·기후</h3>
             <div className="bg-surface-card border border-divider rounded-md p-td-md space-y-td-xs">
               <div className="flex items-center gap-td-xs">
-                <span className="material-symbols-outlined text-amber-deep text-[18px]" aria-hidden>thermostat</span>
+                <span className="material-symbols-outlined text-amber-deep text-td-icon" aria-hidden>thermostat</span>
                 <p className="text-td-body text-ink">{city.weather.season}</p>
               </div>
               {city.weather.avgTempC && (
