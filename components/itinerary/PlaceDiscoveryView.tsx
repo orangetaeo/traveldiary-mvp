@@ -13,12 +13,17 @@
  * Pretendard only — 영문 버전 만들지 말 것 (feedback_stitch_pretendard_only).
  */
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
 import type { DiscoverPlace, PlaceCategory } from "@/lib/types";
-import { matchPlace } from "@/lib/utils/place-search";
+import {
+  scorePlace,
+  getRecentSearches,
+  addRecentSearch,
+  clearRecentSearches,
+} from "@/lib/utils/place-search";
 
 export type { PlaceCategory, DiscoverPlace } from "@/lib/types";
 
@@ -83,7 +88,31 @@ export function PlaceDiscoveryView({
   const [activeFilters, setActiveFilters] = useState<Set<FilterKey>>(new Set());
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [showRecent, setShowRecent] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { toast, show: showToast } = useToast();
+
+  // 디바운스 (200ms)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), 200);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // 최근 검색어 로드
+  useEffect(() => {
+    if (searchOpen) setRecentSearches(getRecentSearches());
+  }, [searchOpen]);
+
+  // 검색 확정 (Enter 또는 포커스 아웃)
+  const commitSearch = useCallback(() => {
+    if (query.trim().length >= 2) {
+      addRecentSearch(query.trim());
+      setRecentSearches(getRecentSearches());
+    }
+    setShowRecent(false);
+  }, [query]);
 
   function toggleFilter(key: FilterKey) {
     setActiveFilters((prev) => {
@@ -99,25 +128,40 @@ export function PlaceDiscoveryView({
     if (activeCategory !== "all") {
       list = list.filter((p) => p.category === activeCategory);
     }
-    if (query.trim()) {
-      list = list.filter((p) => matchPlace(p, query));
+
+    // A4 Tier 2: 관련도 점수 기반 검색
+    const q = debouncedQuery.trim();
+    let scored: Array<{ place: DiscoverPlace; score: number }> | null = null;
+    if (q) {
+      scored = list
+        .map((p) => ({ place: p, score: scorePlace(p, q) }))
+        .filter((s) => s.score > 0);
+      list = scored.map((s) => s.place);
     }
+
     if (activeFilters.has("rating")) {
       list = list.filter((p) => p.rating >= 4.5);
+      if (scored) scored = scored.filter((s) => s.place.rating >= 4.5);
     }
     if (activeFilters.has("korean")) {
-      list = list.filter(
-        (p) => (p.koreanReviewCount ?? 0) > 0 || !!p.koreanReviewQuote,
-      );
+      const pred = (p: DiscoverPlace) =>
+        (p.koreanReviewCount ?? 0) > 0 || !!p.koreanReviewQuote;
+      list = list.filter(pred);
+      if (scored) scored = scored.filter((s) => pred(s.place));
     }
     if (activeFilters.has("allergen")) {
-      list = list.filter(
-        (p) =>
-          !!p.koreanFoodFriendly ||
-          (p.aiReason ?? "").includes("알레르기"),
-      );
+      const pred = (p: DiscoverPlace) =>
+        !!p.koreanFoodFriendly || (p.aiReason ?? "").includes("알레르기");
+      list = list.filter(pred);
+      if (scored) scored = scored.filter((s) => pred(s.place));
     }
-    if (activeFilters.has("distance")) {
+
+    // 정렬: 검색 중이면 관련도순, 아니면 기존 정렬
+    if (q && scored) {
+      list = scored
+        .sort((a, b) => b.score - a.score || b.place.rating - a.place.rating)
+        .map((s) => s.place);
+    } else if (activeFilters.has("distance")) {
       list = [...list].sort(
         (a, b) => parseDistance(a.distance) - parseDistance(b.distance),
       );
@@ -129,7 +173,7 @@ export function PlaceDiscoveryView({
       list = [...list].sort((a, b) => b.rating - a.rating);
     }
     return list;
-  }, [places, activeCategory, activeFilters, query]);
+  }, [places, activeCategory, activeFilters, debouncedQuery]);
 
   function handleAdd(place: DiscoverPlace) {
     showToast(`"${place.name}" 일정에 추가됨 (데모)`, { variant: "success" });
@@ -155,8 +199,13 @@ export function PlaceDiscoveryView({
           <button
             type="button"
             onClick={() => {
-              setSearchOpen((v) => !v);
-              if (!searchOpen) setActiveCategory("all");
+              const next = !searchOpen;
+              setSearchOpen(next);
+              if (!next) {
+                setQuery("");
+                setDebouncedQuery("");
+                setShowRecent(false);
+              }
             }}
             aria-label="검색 토글"
             aria-pressed={searchOpen ? "true" : "false"}
@@ -166,23 +215,95 @@ export function PlaceDiscoveryView({
                 : "hover:bg-surface-soft text-ink"
             }`}
           >
-            <span className="material-symbols-outlined">search</span>
+            <span className="material-symbols-outlined">
+              {searchOpen ? "close" : "search"}
+            </span>
           </button>
         </div>
       </header>
 
       <main className="max-w-xl mx-auto pt-td-sm">
-        {/* 검색 박스 (토글) */}
+        {/* 검색 박스 (토글) — A4 Tier 2 */}
         {searchOpen && (
-          <div className="px-td-md mb-td-sm">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={`${destination}에서 검색...`}
-              className="w-full bg-surface-card border border-divider rounded-full py-2.5 px-td-md text-td-body text-ink placeholder:text-ink-mute focus:outline-none focus:border-purple focus:ring-1 focus:ring-purple"
-              autoFocus
-            />
+          <div className="px-td-md mb-td-sm relative">
+            <div className="relative">
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setShowRecent(!e.target.value.trim());
+                }}
+                onFocus={() => setShowRecent(!query.trim())}
+                onBlur={() => {
+                  // 딜레이: 최근 검색어 클릭 허용
+                  setTimeout(() => {
+                    commitSearch();
+                    setShowRecent(false);
+                  }, 150);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    commitSearch();
+                    inputRef.current?.blur();
+                  }
+                }}
+                placeholder={`${destination}에서 검색... (초성 ㅂㄴㅎ 지원)`}
+                className="w-full bg-surface-card border border-divider rounded-full py-2.5 pl-td-lg pr-10 text-td-body text-ink placeholder:text-ink-mute focus:outline-none focus:border-purple focus:ring-1 focus:ring-purple"
+                autoFocus
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    setDebouncedQuery("");
+                    inputRef.current?.focus();
+                  }}
+                  aria-label="검색어 지우기"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-mute hover:text-ink"
+                >
+                  <span className="material-symbols-outlined text-[18px]">cancel</span>
+                </button>
+              )}
+            </div>
+
+            {/* 최근 검색어 드롭다운 */}
+            {showRecent && recentSearches.length > 0 && !query.trim() && (
+              <div className="absolute left-td-md right-td-md top-full mt-1 bg-surface-card border border-divider rounded-lg shadow-lg z-50 overflow-hidden">
+                <div className="flex items-center justify-between px-td-sm py-2 border-b border-divider">
+                  <span className="text-td-meta text-ink-soft font-medium">최근 검색</span>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      clearRecentSearches();
+                      setRecentSearches([]);
+                    }}
+                    className="text-td-meta text-ink-mute hover:text-danger-deep"
+                  >
+                    전체 삭제
+                  </button>
+                </div>
+                {recentSearches.map((term) => (
+                  <button
+                    key={term}
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setQuery(term);
+                      setDebouncedQuery(term);
+                      setShowRecent(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-td-sm py-2.5 text-td-body text-ink hover:bg-surface-soft transition-colors text-left"
+                  >
+                    <span className="material-symbols-outlined text-[16px] text-ink-mute" aria-hidden>history</span>
+                    {term}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -193,7 +314,10 @@ export function PlaceDiscoveryView({
               {destination} · {verifiedCount}곳 검증 완료
             </span>
           </div>
-          <p className="text-td-meta text-ink-soft">{filtered.length}곳</p>
+          <p className="text-td-meta text-ink-soft">
+            {debouncedQuery.trim() ? `"${debouncedQuery}" · ` : ""}
+            {filtered.length}곳
+          </p>
         </section>
 
         {/* 3. Category Grid */}
@@ -274,8 +398,8 @@ export function PlaceDiscoveryView({
               </span>
               <p className="text-td-body text-ink-soft">조건에 맞는 곳이 없어요</p>
               <p className="text-td-meta text-ink-mute mt-1">
-                {query.trim()
-                  ? "이름·지역·카테고리·후기로 검색됩니다"
+                {debouncedQuery.trim()
+                  ? "이름·지역·카테고리·후기·초성으로 검색됩니다"
                   : "필터를 줄여보세요"}
               </p>
             </div>
