@@ -22,11 +22,22 @@ describe("에러 페이지 — 404 / error / loading", () => {
     });
 
     it("한국어 안내 메시지", () => {
-      expect(src).toMatch(/찾을 수 없/);
+      expect(src).toMatch(/찾(을 수 없|지 못)/);
     });
 
     it("여행 목록 링크", () => {
       expect(src).toContain('href="/trips"');
+    });
+
+    it("장소 검색(/guide) 링크", () => {
+      expect(src).toContain('href="/guide"');
+    });
+
+    it("3 액션 카드 + 버그 신고 (Stitch 4a555937 매핑)", () => {
+      expect(src).toContain("홈으로 돌아가기");
+      expect(src).toContain("내 여행 목록");
+      expect(src).toContain("장소 검색");
+      expect(src).toContain("버그 신고하기");
     });
   });
 
