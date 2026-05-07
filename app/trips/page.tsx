@@ -22,6 +22,7 @@ import { listDemoTrips, isDemoTrip } from "@/lib/seed";
 import { listCities, PRIMARY_COUNTRY_CODE } from "@/lib/seed/cities";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ReceivedTripsSection } from "@/components/trips/ReceivedTripsSection";
 import {
   buildCards,
   applyFilter,
@@ -94,18 +95,14 @@ export default function TripsPage({
           <h2 className="text-td-title text-ink mb-1">
             어디로 떠날까요?
           </h2>
-          <p className="text-td-body text-ink-soft mb-3">
+          <p className="text-td-body text-ink-soft">
             한국인 자유여행자 큐레이션 도시 {allCards.length}곳 ·{" "}
             데모 일정 {listDemoTrips().length}건
           </p>
-          <Link
-            href="/shared"
-            className="inline-flex items-center gap-1 text-td-caption text-purple font-medium hover:underline"
-            aria-label="받은 여행 목록"
-          >
-            📥 받은 여행 보기 →
-          </Link>
         </section>
+
+        {/* 옵션 K — 받은 여행 client island (LocalStorage + lookup) */}
+        <ReceivedTripsSection />
 
         {/* Sticky chip filter */}
         <nav
