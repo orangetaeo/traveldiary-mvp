@@ -18,7 +18,7 @@ import {
 import { isDbConnected } from "@/lib/prisma";
 import { ensureDemoTripInDb } from "@/lib/repositories/trip.repository";
 import { getActorId } from "@/lib/auth/session";
-import { canWriteTrip } from "@/lib/auth/authorize";
+import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { CostEntry } from "@/lib/types";
 
@@ -32,12 +32,12 @@ export type CostActionResult<T = unknown> =
 // ═══════════════════════════════════════════════════════════════════
 
 export async function addCost(
-  input: CreateCostInput,
+  input: CreateCostInput & { shareKey?: string },
 ): Promise<CostActionResult<CostEntry>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -72,11 +72,12 @@ export async function addCost(
 export async function updateCost(input: {
   data: UpdateCostInput;
   tripId: string;
+  shareKey?: string;
 }): Promise<CostActionResult<CostEntry>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -114,11 +115,12 @@ export async function settleCost(input: {
   id: string;
   tripId: string;
   settled: boolean;
+  shareKey?: string;
 }): Promise<CostActionResult<CostEntry>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -147,11 +149,12 @@ export async function settleCost(input: {
 export async function deleteCost(input: {
   id: string;
   tripId: string;
+  shareKey?: string;
 }): Promise<CostActionResult<{ id: string }>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 

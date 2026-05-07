@@ -31,8 +31,8 @@ describe("actions/itinerary.ts — 심층 검증", () => {
     expect(src).toMatch(/input\.tripId\s*===\s*DEMO_TRIP_ID/);
   });
 
-  it("addItineraryItem — canWriteTrip 권한 검사", () => {
-    expect(src).toContain("canWriteTrip(input.tripId)");
+  it("addItineraryItem — canWriteTripOrViaShareLink 권한 검사", () => {
+    expect(src).toContain("canWriteTripOrViaShareLink(input.tripId");
     expect(src).toContain('"forbidden"');
   });
 

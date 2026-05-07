@@ -22,6 +22,7 @@ vi.mock("@/lib/auth/session", () => ({
 const mockCanWriteTrip = vi.fn();
 vi.mock("@/lib/auth/authorize", () => ({
   canWriteTrip: (...args: unknown[]) => mockCanWriteTrip(...args),
+  canWriteTripOrViaShareLink: (...args: unknown[]) => mockCanWriteTrip(...args),
 }));
 
 const mockResolveActorIdForTrip = vi.fn();
