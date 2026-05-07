@@ -56,7 +56,7 @@ export function ItineraryMap({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-card border border-divider rounded-full text-td-caption font-medium text-ink hover:border-purple/40 transition-colors"
             >
-              <span className="material-symbols-outlined text-[14px]" aria-hidden>open_in_new</span>
+              <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>open_in_new</span>
               Google 지도
             </a>
             <a
@@ -65,7 +65,7 @@ export function ItineraryMap({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-card border border-divider rounded-full text-td-caption font-medium text-ink hover:border-purple/40 transition-colors"
             >
-              <span className="material-symbols-outlined text-[14px]" aria-hidden>open_in_new</span>
+              <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>open_in_new</span>
               네이버 지도
             </a>
             <a
@@ -74,7 +74,7 @@ export function ItineraryMap({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-card border border-divider rounded-full text-td-caption font-medium text-ink hover:border-purple/40 transition-colors"
             >
-              <span className="material-symbols-outlined text-[14px]" aria-hidden>open_in_new</span>
+              <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>open_in_new</span>
               카카오맵
             </a>
           </div>

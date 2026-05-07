@@ -90,7 +90,7 @@ export function ItineraryItemCard({
         }`}
         aria-hidden
       >
-        <span className="material-symbols-outlined text-[16px]">{icon}</span>
+        <span className="material-symbols-outlined text-td-icon-md">{icon}</span>
       </div>
 
       <Card
@@ -145,7 +145,7 @@ export function ItineraryItemCard({
             className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
             aria-label="위로 이동"
           >
-            <span className="material-symbols-outlined text-[18px] text-ink-soft" aria-hidden>
+            <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
               keyboard_arrow_up
             </span>
           </button>
@@ -156,7 +156,7 @@ export function ItineraryItemCard({
             className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
             aria-label="아래로 이동"
           >
-            <span className="material-symbols-outlined text-[18px] text-ink-soft" aria-hidden>
+            <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
               keyboard_arrow_down
             </span>
           </button>

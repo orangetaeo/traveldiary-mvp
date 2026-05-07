@@ -50,7 +50,7 @@ export function KakaoShareButton({ url, text }: KakaoShareButtonProps) {
       aria-label="카카오톡으로 공유"
       className="inline-flex items-center gap-1 px-td-sm py-td-xs rounded-full bg-amber text-amber-deep font-medium text-td-meta hover:bg-amber/80 transition-colors disabled:opacity-50"
     >
-      <span className="material-symbols-outlined text-[16px]" aria-hidden>
+      <span className="material-symbols-outlined text-td-icon-md" aria-hidden>
         chat_bubble
       </span>
       {busy ? "공유 중..." : "카카오톡 공유"}

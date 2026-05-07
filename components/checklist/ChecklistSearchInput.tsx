@@ -17,7 +17,7 @@ export function ChecklistSearchInput({ value, onChange }: Props) {
   return (
     <div className="relative">
       <span
-        className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none text-[18px]"
+        className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none text-td-icon"
         aria-hidden
       >
         search
@@ -37,7 +37,7 @@ export function ChecklistSearchInput({ value, onChange }: Props) {
           aria-label="검색어 지우기"
           className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-ink-mute hover:text-ink"
         >
-          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
+          <span className="material-symbols-outlined text-td-icon" aria-hidden="true">close</span>
         </button>
       )}
     </div>

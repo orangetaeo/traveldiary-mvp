@@ -160,7 +160,7 @@ function SecondaryAction({ action }: { action: ErrorStateAction }) {
     <>
       <span>{action.label}</span>
       <span
-        className="material-symbols-outlined text-[18px]"
+        className="material-symbols-outlined text-td-icon"
         aria-hidden="true"
       >
         arrow_forward

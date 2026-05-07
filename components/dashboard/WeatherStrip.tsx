@@ -33,7 +33,7 @@ export function WeatherStrip({ forecast }: WeatherStripProps) {
               Day {d.day}
             </span>
             <span
-              className={`material-symbols-outlined text-[24px] mb-td-xxs ${WEATHER_ICON_COLOR[d.icon]}`}
+              className={`material-symbols-outlined text-td-icon-xl mb-td-xxs ${WEATHER_ICON_COLOR[d.icon]}`}
               aria-hidden
             >
               {WEATHER_ICON_NAME[d.icon]}

@@ -32,7 +32,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
           className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-danger/40 transition-colors"
         >
           <div className="flex justify-between items-start">
-            <span className="material-symbols-outlined filled text-danger text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined filled text-danger text-td-icon" aria-hidden>
               phone_in_talk
             </span>
             <span className="text-td-caption text-danger font-bold">응급</span>
@@ -51,7 +51,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
           className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-amber/40 transition-colors"
         >
           <div className="flex justify-between items-start">
-            <span className="material-symbols-outlined text-ink-soft text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined text-ink-soft text-td-icon" aria-hidden>
               currency_exchange
             </span>
             <span className="text-[9px] text-amber-deep font-bold">{city.payment.currency}</span>
@@ -70,7 +70,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
           className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-success/40 transition-colors"
         >
           <div className="flex justify-between items-start">
-            <span className="material-symbols-outlined text-success text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined text-success text-td-icon" aria-hidden>
               local_taxi
             </span>
             <span className="text-td-caption text-ink-soft font-bold uppercase">
@@ -89,7 +89,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
             className="flex-shrink-0 w-24 h-20 bg-accent-soft border border-accent/40 rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-accent transition-colors"
           >
             <div className="flex justify-between items-start">
-              <span className="text-[18px]" aria-hidden>
+              <span className="text-td-icon" aria-hidden>
                 {city.curatedGuides[0].hero?.emoji ?? "✨"}
               </span>
               <span className="text-td-caption text-accent-deep font-bold">시그니처</span>
@@ -108,10 +108,10 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
           className="flex-shrink-0 w-24 h-20 bg-purple-soft border border-purple/30 rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-purple transition-colors"
         >
           <div className="flex justify-between items-start">
-            <span className="material-symbols-outlined text-purple text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined text-purple text-td-icon" aria-hidden>
               explore
             </span>
-            <span className="material-symbols-outlined text-purple text-[16px]" aria-hidden>
+            <span className="material-symbols-outlined text-purple text-td-icon-md" aria-hidden>
               chevron_right
             </span>
           </div>

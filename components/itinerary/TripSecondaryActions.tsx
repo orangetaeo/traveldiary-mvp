@@ -67,7 +67,7 @@ export function TripSecondaryActions({
             href={`/checklist/${tripId}${dayParam}`}
             className="flex items-center gap-1.5 text-td-meta font-semibold text-purple-deep border border-purple/40 rounded-md px-3 py-2 transition-colors hover:bg-purple-soft"
           >
-            <span className="material-symbols-outlined text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined text-td-icon" aria-hidden>
               checklist
             </span>
             체크리스트
@@ -76,7 +76,7 @@ export function TripSecondaryActions({
             href={`/cost/${tripId}${dayParam}`}
             className="flex items-center gap-1.5 text-td-meta font-semibold text-amber-deep border border-amber/40 rounded-md px-3 py-2 transition-colors hover:bg-amber-soft"
           >
-            <span className="material-symbols-outlined text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined text-td-icon" aria-hidden>
               account_balance_wallet
             </span>
             비용 관리
@@ -98,7 +98,7 @@ export function TripSecondaryActions({
             onClick={onShareClick}
             className="flex items-center gap-1.5 text-td-meta font-semibold text-success-deep border border-success/40 rounded-md px-3 py-2 transition-colors hover:bg-success-soft"
           >
-            <span className="material-symbols-outlined text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined text-td-icon" aria-hidden>
               share
             </span>
             공유 링크
@@ -107,7 +107,7 @@ export function TripSecondaryActions({
             href={`/vote/${tripId}`}
             className="flex items-center gap-1.5 text-td-meta font-semibold text-purple-deep border border-purple/40 rounded-md px-3 py-2 transition-colors hover:bg-purple-soft"
           >
-            <span className="material-symbols-outlined text-[18px]" aria-hidden>
+            <span className="material-symbols-outlined text-td-icon" aria-hidden>
               how_to_vote
             </span>
             일행 투표

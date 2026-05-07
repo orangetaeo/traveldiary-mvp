@@ -62,6 +62,13 @@ const config: Config = {
         "td-body":       ["14px", { lineHeight: "20px", fontWeight: "400" }],
         "td-meta":       ["12px", { lineHeight: "16px", fontWeight: "400" }],
         "td-caption":    ["11px", { lineHeight: "14px", fontWeight: "400", letterSpacing: "0.02em" }],
+        // Material Symbols 아이콘 스케일 — text-td-icon-* 으로 사용
+        "td-icon-xs":  "12px",   // 체크마크, 배지 아이콘
+        "td-icon-sm":  "14px",   // 필터 칩, 링크 아이콘
+        "td-icon-md":  "16px",   // 인라인 네비게이션
+        "td-icon":     "18px",   // 기본 액션 아이콘 (DEFAULT)
+        "td-icon-lg":  "20px",   // 강조 아이콘
+        "td-icon-xl":  "24px",   // 섹션 헤더 아이콘
       },
       spacing: {
         // 의미 spacing — Tailwind 기본(0.25rem 단위)과 충돌 방지 위해 td- prefix

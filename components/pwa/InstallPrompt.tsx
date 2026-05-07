@@ -70,7 +70,7 @@ export function InstallPrompt() {
     <div className="fixed bottom-20 left-4 right-4 z-50 max-w-md mx-auto animate-slide-up">
       <div className="bg-surface-card border border-divider rounded-md shadow-lg p-td-md flex items-start gap-td-sm">
         <div className="w-10 h-10 rounded-md bg-purple flex items-center justify-center shrink-0">
-          <span className="material-symbols-outlined text-white text-[20px]">install_mobile</span>
+          <span className="material-symbols-outlined text-white text-td-icon-lg">install_mobile</span>
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-td-body font-semibold text-ink mb-td-xxs">

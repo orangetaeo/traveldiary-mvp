@@ -88,7 +88,7 @@ export function ItineraryMapWithDirections({
           disabled={isPending}
           className="inline-flex items-center gap-1 px-td-sm py-1.5 text-td-meta font-semibold text-purple border border-purple/40 rounded-md hover:bg-purple-soft disabled:opacity-60 transition-colors"
         >
-          <span className="material-symbols-outlined text-[16px]" aria-hidden>
+          <span className="material-symbols-outlined text-td-icon-md" aria-hidden>
             my_location
           </span>
           {isPending

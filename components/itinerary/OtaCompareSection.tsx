@@ -103,7 +103,7 @@ export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
                       </span>
                     )}
                   </div>
-                  <span className="material-symbols-outlined text-ink-mute text-[18px]" aria-hidden>
+                  <span className="material-symbols-outlined text-ink-mute text-td-icon" aria-hidden>
                     open_in_new
                   </span>
                 </div>

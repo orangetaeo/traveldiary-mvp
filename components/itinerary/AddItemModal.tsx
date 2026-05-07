@@ -176,7 +176,7 @@ export function AddItemModal({
         {top5.length > 0 && (
           <div className="px-td-md pb-td-sm shrink-0">
             <p className="text-td-caption text-purple font-medium mb-td-xs flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+              <span className="material-symbols-outlined text-td-icon-sm" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
               AI 추천
             </p>
             <div className="flex gap-td-xs overflow-x-auto no-scrollbar -mx-td-md px-td-md pb-1">
@@ -228,7 +228,7 @@ export function AddItemModal({
               <span className="text-ink-mute ml-1">(선택)</span>
             </span>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-ink-mute text-[16px]" aria-hidden>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-ink-mute text-td-icon-md" aria-hidden>
                 location_on
               </span>
               <input
@@ -284,7 +284,7 @@ export function AddItemModal({
                       : "border-divider text-ink-soft hover:border-purple/40"
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[18px]" aria-hidden>
+                  <span className="material-symbols-outlined text-td-icon" aria-hidden>
                     {c.icon}
                   </span>
                   {c.label}

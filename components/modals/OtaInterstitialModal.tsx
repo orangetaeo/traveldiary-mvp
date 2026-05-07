@@ -89,7 +89,7 @@ export default function OtaInterstitialModal({
 
       {/* Bottom Sheet */}
       <div
-        className="relative w-full max-w-md bg-surface-card rounded-t-2xl p-td-lg pb-8 max-h-[calc(100dvh-2rem)] flex flex-col transition-transform"
+        className="relative w-full max-w-md bg-surface-card rounded-t-[24px] p-td-lg pb-8 max-h-[calc(100dvh-2rem)] flex flex-col transition-transform"
         style={{ transform: dragY > 0 ? `translateY(${dragY}px)` : undefined }}
       >
         {/* Drag Handle */}

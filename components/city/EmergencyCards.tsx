@@ -96,7 +96,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
       aria-label={label}
       className="text-ink-mute hover:text-purple transition-colors"
     >
-      <span className="material-symbols-outlined text-[20px]">
+      <span className="material-symbols-outlined text-td-icon-lg">
         {copied ? "check" : "content_copy"}
       </span>
     </button>

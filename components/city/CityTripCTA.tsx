@@ -28,7 +28,7 @@ export function CityTripCTA({
             href="/trips"
             className="inline-flex items-center gap-1 text-td-meta text-purple-deep font-medium hover:underline"
           >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden>
+            <span className="material-symbols-outlined text-td-icon-md" aria-hidden>
               explore
             </span>
             다른 도시 일정 둘러보기 →
@@ -67,7 +67,7 @@ export function CityTripCTA({
           </p>
           <span className="inline-flex items-center gap-1 text-td-meta text-purple-deep font-medium">
             일정 보기
-            <span className="material-symbols-outlined text-[16px]" aria-hidden>
+            <span className="material-symbols-outlined text-td-icon-md" aria-hidden>
               arrow_forward
             </span>
           </span>

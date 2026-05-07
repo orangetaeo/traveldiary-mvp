@@ -28,7 +28,7 @@ export function AddItemDashedCard({ onClick, emphasized = false }: Props) {
       }`}
     >
       <span
-        className={`material-symbols-outlined text-[24px] ${
+        className={`material-symbols-outlined text-td-icon-xl ${
           emphasized ? "text-purple" : "text-ink-mute"
         }`}
         aria-hidden

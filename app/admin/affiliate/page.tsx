@@ -288,7 +288,7 @@ export default async function AffiliateDashboard({ searchParams }: PageProps) {
 
 function AffiliateHeader({ adminLink }: { adminLink: string }) {
   return (
-    <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider flex items-center justify-between px-4 h-16">
+    <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider flex items-center justify-between px-td-md h-14">
       <div className="flex items-center gap-td-sm">
         <Link
           href={adminLink}

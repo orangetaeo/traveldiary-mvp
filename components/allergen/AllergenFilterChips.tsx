@@ -83,7 +83,7 @@ export function AllergenFilterChips({
           className="absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-surface-soft via-surface-soft to-transparent flex items-center justify-end pr-3"
         >
           <span
-            className="material-symbols-outlined text-ink-soft text-[20px]"
+            className="material-symbols-outlined text-ink-soft text-td-icon-lg"
             aria-hidden="true"
           >
             add
@@ -127,7 +127,7 @@ function Chip({
     >
       {item.icon && (
         <span
-          className={`material-symbols-outlined text-[12px] ${
+          className={`material-symbols-outlined text-td-icon-xs ${
             active && isDanger ? "filled" : ""
           }`}
           aria-hidden="true"

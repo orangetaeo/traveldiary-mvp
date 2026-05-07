@@ -63,7 +63,7 @@ export function ChecklistTimeline({ items }: Props) {
               }`}
             >
               {isComplete && (
-                <span className="material-symbols-outlined text-white text-[12px] filled" aria-hidden="true">
+                <span className="material-symbols-outlined text-white text-td-icon-xs filled" aria-hidden="true">
                   check
                 </span>
               )}
