@@ -25,13 +25,14 @@ export function getCheckinStorageKey(tripId: string): string {
   return `${STORAGE_KEY_PREFIX}${tripId}`;
 }
 
-function safeRead(tripId: string): CheckinMap {
+/** export — 단위 테스트가 직접 호출. @testing-library/react 미설치 회피. */
+export function readCheckinsFromStorage(tripId: string): CheckinMap {
   if (typeof window === "undefined") return {};
   try {
     const raw = window.localStorage.getItem(getCheckinStorageKey(tripId));
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return {};
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
     // 형식 가드 — string 값만 통과
     const out: CheckinMap = {};
     for (const [k, v] of Object.entries(parsed)) {
@@ -43,7 +44,8 @@ function safeRead(tripId: string): CheckinMap {
   }
 }
 
-function safeWrite(tripId: string, map: CheckinMap): void {
+/** export — 단위 테스트가 직접 호출. */
+export function writeCheckinsToStorage(tripId: string, map: CheckinMap): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(getCheckinStorageKey(tripId), JSON.stringify(map));
@@ -57,14 +59,14 @@ export function useItemCheckins(tripId: string) {
 
   // 마운트 후 1회 LocalStorage hydrate
   useEffect(() => {
-    setCheckins(safeRead(tripId));
+    setCheckins(readCheckinsFromStorage(tripId));
   }, [tripId]);
 
   const checkIn = useCallback(
     (itemId: string) => {
       setCheckins((prev) => {
         const next = { ...prev, [itemId]: new Date().toISOString() };
-        safeWrite(tripId, next);
+        writeCheckinsToStorage(tripId, next);
         return next;
       });
     },
@@ -76,7 +78,7 @@ export function useItemCheckins(tripId: string) {
       setCheckins((prev) => {
         const next = { ...prev };
         delete next[itemId];
-        safeWrite(tripId, next);
+        writeCheckinsToStorage(tripId, next);
         return next;
       });
     },
@@ -85,7 +87,7 @@ export function useItemCheckins(tripId: string) {
 
   const clearAll = useCallback(() => {
     setCheckins({});
-    safeWrite(tripId, {});
+    writeCheckinsToStorage(tripId, {});
   }, [tripId]);
 
   return { checkins, checkIn, undoCheckIn, clearAll };

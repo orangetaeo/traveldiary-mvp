@@ -25,13 +25,14 @@ export function DayProgressBar({ dayItems, checkins, isOnTrip }: DayProgressBarP
 
   const percent = Math.round(ratio * 100);
   const allDone = done === total;
+  const label = isOnTrip ? "오늘 진행" : "체크인 진행 (데모)";
 
   return (
     <div
       className="px-td-md py-td-xs bg-surface-card border-b border-divider"
       role="status"
       aria-live="polite"
-      aria-label={`오늘 진행 ${done}/${total} (${percent}%)`}
+      aria-label={`${label} ${done}/${total} (${percent}%)`}
     >
       <div className="flex items-center justify-between mb-td-xxs">
         <span
@@ -39,7 +40,7 @@ export function DayProgressBar({ dayItems, checkins, isOnTrip }: DayProgressBarP
             isOnTrip ? "text-mode-primary" : "text-ink-soft"
           }`}
         >
-          {isOnTrip ? "오늘 진행" : "체크인 진행 (데모)"}
+          {label}
         </span>
         <span className="text-td-caption text-ink-soft tabular-nums">
           {allDone && <span className="mr-td-xxs" aria-hidden>✨</span>}

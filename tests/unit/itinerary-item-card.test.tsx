@@ -173,6 +173,94 @@ describe("사이클 HH — ItineraryItemCard", () => {
   });
 });
 
+describe("Session X cap 2 (A2) — 도착 체크인 시각/뱃지", () => {
+  it("기본 props만 — 도착 버튼/뱃지 둘 다 부재 (BC)", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard item={makeItem()} {...BASE_PROPS} />,
+    );
+    expect(html).not.toContain("도착 14:");
+    expect(html).not.toContain('aria-label="사오비치 도착 체크인"');
+  });
+
+  it("canCheckIn=true + arrivedAt=null → 도착 버튼 노출", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard
+        item={makeItem()}
+        {...BASE_PROPS}
+        canCheckIn={true}
+        onCheckIn={NOOP}
+      />,
+    );
+    expect(html).toContain('aria-label="사오비치 도착 체크인"');
+    expect(html).toContain(">도착<");
+  });
+
+  it("canCheckIn=true 지만 onCheckIn 없으면 버튼 숨김 (방어)", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard
+        item={makeItem()}
+        {...BASE_PROPS}
+        canCheckIn={true}
+      />,
+    );
+    expect(html).not.toContain('aria-label="사오비치 도착 체크인"');
+  });
+
+  it("arrivedAt 설정 → ✓ 도착 시각 + dot 색 success로 swap", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard
+        item={makeItem()}
+        {...BASE_PROPS}
+        arrivedAt="2026-05-10T14:35:00.000Z"
+      />,
+    );
+    expect(html).toContain("도착 14:35");
+    expect(html).toContain("check_circle");
+    // dot icon이 check로 swap (기존 spot icon은 'place')
+    expect(html).toContain("bg-success");
+  });
+
+  it("arrivedAt 설정 + onUndoCheckIn → 취소 버튼 노출", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard
+        item={makeItem()}
+        {...BASE_PROPS}
+        arrivedAt="2026-05-10T14:35:00.000Z"
+        onUndoCheckIn={NOOP}
+      />,
+    );
+    expect(html).toContain('aria-label="사오비치 도착 체크인 취소"');
+  });
+
+  it("arrivedAt 우선 — featured + arrivedAt 동시 시 success 색 우선", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard
+        item={makeItem()}
+        {...BASE_PROPS}
+        isFeatured={true}
+        arrivedAt="2026-05-10T14:35:00.000Z"
+      />,
+    );
+    // dot은 success (arrived 분기 우선)
+    expect(html).toContain("bg-success text-white");
+  });
+
+  it("arrived 시 도착 버튼은 숨김 (둘 다 노출되지 않음)", () => {
+    const html = renderToStaticMarkup(
+      <ItineraryItemCard
+        item={makeItem()}
+        {...BASE_PROPS}
+        arrivedAt="2026-05-10T14:35:00.000Z"
+        canCheckIn={true}
+        onCheckIn={NOOP}
+        onUndoCheckIn={NOOP}
+      />,
+    );
+    expect(html).not.toContain('aria-label="사오비치 도착 체크인"');
+    expect(html).toContain('aria-label="사오비치 도착 체크인 취소"');
+  });
+});
+
 describe("사이클 BLOCKER4 — 화살표 정렬 버튼", () => {
   it("기본 — 위/아래 화살표 버튼 2개 존재", () => {
     const html = renderToStaticMarkup(
