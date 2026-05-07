@@ -5,6 +5,7 @@
  *
  * 카테고리 칩(4) + 카드 그리드. 카테고리 전환 시 해당 그룹만 표시.
  * 음성 재생은 PhraseCard에서 SpeechSynthesis Web API로 처리.
+ * 플래시카드 모드: 셔플 + 플립 + localStorage 진행률 추적.
  */
 
 import { useState } from "react";
@@ -14,30 +15,43 @@ import {
   type PhraseCategory,
 } from "@/lib/vietnamese-phrases";
 import { PhraseCard } from "./PhraseCard";
+import { FlashcardMode } from "./FlashcardMode";
+
+type ViewMode = "list" | "flashcard";
 
 const ACCENT_TOKENS = {
   purple: {
     chipActive: "bg-purple text-white border-purple",
-    chipIdle: "bg-purple-soft/40 text-purple-deep border-purple-soft hover:bg-purple-soft",
+    chipIdle:
+      "bg-purple-soft/40 text-purple-deep border-purple-soft hover:bg-purple-soft",
   },
   amber: {
     chipActive: "bg-amber text-white border-amber",
-    chipIdle: "bg-amber-soft/40 text-amber-deep border-amber-soft hover:bg-amber-soft",
+    chipIdle:
+      "bg-amber-soft/40 text-amber-deep border-amber-soft hover:bg-amber-soft",
   },
   success: {
     chipActive: "bg-success text-white border-success",
-    chipIdle: "bg-success-soft/40 text-success-deep border-success-soft hover:bg-success-soft",
+    chipIdle:
+      "bg-success-soft/40 text-success-deep border-success-soft hover:bg-success-soft",
   },
   danger: {
     chipActive: "bg-danger text-white border-danger",
-    chipIdle: "bg-danger-soft/40 text-danger-deep border-danger-soft hover:bg-danger-soft",
+    chipIdle:
+      "bg-danger-soft/40 text-danger-deep border-danger-soft hover:bg-danger-soft",
   },
 } as const;
 
 export function PhrasesView() {
-  const [activeCategory, setActiveCategory] = useState<PhraseCategory>("restaurant");
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [activeCategory, setActiveCategory] = useState<
+    PhraseCategory | "all"
+  >("restaurant");
 
-  const visiblePhrases = PHRASES.filter((p) => p.category === activeCategory);
+  const visiblePhrases =
+    activeCategory === "all"
+      ? PHRASES
+      : PHRASES.filter((p) => p.category === activeCategory);
   const total = PHRASES.length;
 
   return (
@@ -59,12 +73,85 @@ export function PhrasesView() {
         기기/언어팩에서 베트남어 음성이 미지원될 수 있어요.
       </div>
 
+      {/* 학습 모드 토글 */}
+      <div
+        className="flex items-center gap-td-xs mb-td-md"
+        role="radiogroup"
+        aria-label="학습 모드"
+      >
+        <button
+          type="button"
+          role="radio"
+          aria-checked={viewMode === "list"}
+          onClick={() => {
+            setViewMode("list");
+            if (activeCategory === "all") setActiveCategory("restaurant");
+          }}
+          className={`flex items-center gap-1 px-td-sm py-1.5 rounded-full text-td-meta font-medium border transition-colors ${
+            viewMode === "list"
+              ? "bg-purple text-white border-purple"
+              : "bg-surface-card border-divider text-ink-soft hover:border-purple/40"
+          }`}
+        >
+          <span
+            className="material-symbols-outlined text-[16px]"
+            aria-hidden="true"
+          >
+            list
+          </span>
+          목록
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={viewMode === "flashcard"}
+          onClick={() => setViewMode("flashcard")}
+          className={`flex items-center gap-1 px-td-sm py-1.5 rounded-full text-td-meta font-medium border transition-colors ${
+            viewMode === "flashcard"
+              ? "bg-purple text-white border-purple"
+              : "bg-surface-card border-divider text-ink-soft hover:border-purple/40"
+          }`}
+        >
+          <span
+            className="material-symbols-outlined text-[16px]"
+            aria-hidden="true"
+          >
+            style
+          </span>
+          플래시카드
+        </button>
+      </div>
+
       {/* 카테고리 탭 */}
       <div
         role="tablist"
         aria-label="베트남어 문장 카테고리"
-        className="grid grid-cols-4 gap-td-xs mb-td-md"
+        className={`grid gap-td-xs mb-td-md ${
+          viewMode === "flashcard" ? "grid-cols-5" : "grid-cols-4"
+        }`}
       >
+        {viewMode === "flashcard" && (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeCategory === "all" ? "true" : "false"}
+            data-category="all"
+            onClick={() => setActiveCategory("all")}
+            className={`flex flex-col items-center justify-center gap-td-xxs rounded-md border py-td-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple/40 ${
+              activeCategory === "all"
+                ? "bg-purple text-white border-purple"
+                : "bg-purple-soft/40 text-purple-deep border-purple-soft hover:bg-purple-soft"
+            }`}
+          >
+            <span
+              className="material-symbols-outlined text-[22px]"
+              aria-hidden="true"
+            >
+              select_all
+            </span>
+            <span className="text-td-meta font-medium">전체</span>
+          </button>
+        )}
         {PHRASE_CATEGORIES.map((cat) => {
           const isActive = cat.id === activeCategory;
           const accent = ACCENT_TOKENS[cat.accent];
@@ -80,7 +167,10 @@ export function PhrasesView() {
                 isActive ? accent.chipActive : accent.chipIdle
               }`}
             >
-              <span className="material-symbols-outlined text-[22px]" aria-hidden>
+              <span
+                className="material-symbols-outlined text-[22px]"
+                aria-hidden="true"
+              >
                 {cat.icon}
               </span>
               <span className="text-td-meta font-medium">{cat.label}</span>
@@ -89,12 +179,16 @@ export function PhrasesView() {
         })}
       </div>
 
-      {/* 카드 리스트 */}
-      <div className="flex flex-col gap-td-sm">
-        {visiblePhrases.map((phrase) => (
-          <PhraseCard key={phrase.id} phrase={phrase} />
-        ))}
-      </div>
+      {/* 카드 리스트 or 플래시카드 */}
+      {viewMode === "flashcard" ? (
+        <FlashcardMode category={activeCategory} />
+      ) : (
+        <div className="flex flex-col gap-td-sm">
+          {visiblePhrases.map((phrase) => (
+            <PhraseCard key={phrase.id} phrase={phrase} />
+          ))}
+        </div>
+      )}
 
       {/* 푸터 안내 */}
       <p className="mt-td-lg text-td-caption text-ink-mute text-center leading-relaxed">
