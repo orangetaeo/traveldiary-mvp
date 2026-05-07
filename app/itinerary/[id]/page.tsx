@@ -127,12 +127,10 @@ async function renderItinerary(
           <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
         <div className="flex items-center gap-td-xs">
-          {/* 사이클 P (ADR-035) — 응급 빠른 액세스
-              DIAG isolate: 원복 시 활성화
-              {resolvedCity && (
-                <EmergencyHeaderButton citySlug={resolvedCity.slug} emphasized={isOnTrip} />
-              )}
-          */}
+          {/* 사이클 P (ADR-035) — 응급 빠른 액세스 — DIAG split cap 9: EmergencyHeaderButton 단독 활성 */}
+          {resolvedCity && (
+            <EmergencyHeaderButton citySlug={resolvedCity.slug} emphasized={isOnTrip} />
+          )}
           {isOnTrip && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent-soft text-accent-deep rounded-full text-td-caption font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-deep animate-pulse" aria-hidden />
@@ -223,7 +221,8 @@ async function renderItinerary(
             )}
         */}
         <div className="mx-td-md mb-td-md p-td-md bg-blue-soft border border-blue/40 rounded-md text-td-meta text-ink">
-          [DIAG isolate] CityContextStrip + EmergencyHeaderButton 임시 제거 — 페이지가 정상 렌더되면 범인은 둘 중 하나.
+          [DIAG split cap 9] EmergencyHeaderButton 단독 활성 + CityContextStrip 격리 유지.
+          페이지 정상이면 범인 = CityContextStrip. 깨지면 범인 = EmergencyHeaderButton.
           {resolvedCity ? ` (resolvedCity slug: ${resolvedCity.slug})` : " (resolvedCity null)"}
         </div>
 
