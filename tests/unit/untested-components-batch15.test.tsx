@@ -4,7 +4,7 @@
  * CommentSection, MyActivitySection (share 댓글/활동).
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
