@@ -73,7 +73,7 @@ export function ChecklistTimeline({ items }: Props) {
             </div>
             {/* 라벨 */}
             <span
-              className={`text-[9px] mt-1 text-center leading-tight ${
+              className={`text-td-micro mt-1 text-center leading-tight ${
                 isComplete
                   ? "text-purple font-bold"
                   : isEmpty

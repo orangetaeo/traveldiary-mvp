@@ -239,8 +239,8 @@ export function PlaceDiscoveryView({
               const active = activeFilters.has(chip.key);
               const baseStyle = chip.isCaution
                 ? active
-                  ? "bg-red-500 text-white border-red-500"
-                  : "bg-red-50 text-red-700 border-red-300/50"
+                  ? "bg-danger text-white border-danger"
+                  : "bg-danger-soft text-danger-deep border-danger/30"
                 : active
                   ? "bg-purple text-white border-purple"
                   : "bg-surface-card text-ink-soft border-divider";
@@ -335,7 +335,7 @@ function PlaceResultCard({
         )}
         {showAi && (
           <span
-            className="absolute top-2 right-2 bg-purple/90 text-white text-[10px] px-2 py-0.5 rounded-full font-bold"
+            className="absolute top-2 right-2 bg-purple/90 text-white text-td-badge px-2 py-0.5 rounded-full font-bold"
             aria-label="AI 추천"
           >
             AI ❤
@@ -343,7 +343,7 @@ function PlaceResultCard({
         )}
         {showPopular && (
           <span
-            className="absolute top-2 right-2 bg-amber/90 text-white text-[10px] px-2 py-0.5 rounded-full font-bold"
+            className="absolute top-2 right-2 bg-amber/90 text-white text-td-badge px-2 py-0.5 rounded-full font-bold"
             aria-label="한국인 인기"
           >
             🇰🇷 인기
@@ -351,7 +351,7 @@ function PlaceResultCard({
         )}
         {place.koreanFoodFriendly && (
           <span
-            className="absolute top-2 left-2 bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold"
+            className="absolute top-2 left-2 bg-danger text-white text-td-badge px-2 py-0.5 rounded-full font-bold"
             aria-label="한식 메뉴 가능"
           >
             한식 OK
@@ -381,7 +381,7 @@ function PlaceResultCard({
           </p>
         )}
         {place.aiReason && (
-          <span className="self-start bg-purple-soft/60 text-purple-deep text-[10px] font-bold px-2 py-0.5 rounded border border-purple/15 mb-td-sm">
+          <span className="self-start bg-purple-soft/60 text-purple-deep text-td-badge font-bold px-2 py-0.5 rounded border border-purple/15 mb-td-sm">
             {place.aiReason}
           </span>
         )}

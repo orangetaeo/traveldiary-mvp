@@ -449,11 +449,11 @@ function MenuRow({
         {critical ? (
           <span className="bg-danger text-white px-td-xs py-0.5 rounded-full flex items-center gap-1">
             <span className="material-symbols-outlined text-td-icon-xs">warning</span>
-            <span className="text-[10px] font-bold uppercase">위험</span>
+            <span className="text-td-badge font-bold uppercase">위험</span>
           </span>
         ) : isBest ? (
           <span className="bg-amber text-white px-td-xs py-0.5 rounded-full">
-            <span className="text-[10px] font-bold uppercase tracking-tight">
+            <span className="text-td-badge font-bold uppercase tracking-tight">
               한국인 BEST
             </span>
           </span>

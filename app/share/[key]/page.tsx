@@ -102,7 +102,7 @@ export default async function SharedTripPage({
           </h1>
         </div>
         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-td-caption font-bold bg-surface-soft text-ink-soft">
-          <span className="material-symbols-outlined text-[14px]">lock</span>
+          <span className="material-symbols-outlined text-td-icon-sm">lock</span>
           {link.permission === "view" ? "보기 전용" : "편집 가능"}
         </span>
       </header>
@@ -174,7 +174,7 @@ export default async function SharedTripPage({
                         </div>
                       )}
                       {/* C3 — 보기 전용 시각 차단: 각 카드에 회색 배지 */}
-                      <span className="absolute top-2 right-2 text-[9px] px-1.5 py-0.5 rounded-full bg-surface-soft text-ink-mute font-bold">
+                      <span className="absolute top-2 right-2 text-td-micro px-1.5 py-0.5 rounded-full bg-surface-soft text-ink-mute font-bold">
                         보기 전용
                       </span>
                     </article>

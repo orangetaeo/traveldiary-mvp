@@ -63,7 +63,7 @@ export function MyIdentityPanel() {
     >
       <header className="flex items-center justify-between mb-2">
         <h2 className="text-sm font-semibold text-ink">내 정보</h2>
-        <span className="text-[11px] text-ink-mute">익명 협업 ID</span>
+        <span className="text-td-caption text-ink-mute">익명 협업 ID</span>
       </header>
 
       <div className="space-y-2 text-xs text-ink-soft">
@@ -114,7 +114,7 @@ export function MyIdentityPanel() {
 
         <div className="flex items-center justify-between gap-2">
           <span>Client ID</span>
-          <code className="text-[11px] text-ink-mute font-mono tabular-nums">
+          <code className="text-td-caption text-ink-mute font-mono tabular-nums">
             {uuidPrefix}…
           </code>
         </div>
@@ -122,14 +122,14 @@ export function MyIdentityPanel() {
         {savedAt && (
           <p
             role="status"
-            className="text-[11px] text-success-deep mt-1"
+            className="text-td-caption text-success-deep mt-1"
           >
             저장됨 — 다음 댓글부터 새 닉네임 적용
           </p>
         )}
       </div>
 
-      <p className="text-[11px] text-ink-mute mt-3 leading-relaxed">
+      <p className="text-td-caption text-ink-mute mt-3 leading-relaxed">
         💡 익명 협업 모드 — 댓글/리액션은 이 ID로 식별됩니다. 향후 카카오 로그인
         활성화 시 자동 연결됩니다.
       </p>

@@ -198,7 +198,7 @@ export default function CityPaymentPage({
                             className="text-td-meta text-ink flex gap-2"
                           >
                             <span
-                              className="material-symbols-outlined text-success-deep text-[14px] mt-0.5 flex-shrink-0"
+                              className="material-symbols-outlined text-success-deep text-td-icon-sm mt-0.5 flex-shrink-0"
                               aria-hidden
                             >
                               check_circle
@@ -219,7 +219,7 @@ export default function CityPaymentPage({
                             className="text-td-meta text-ink flex gap-2"
                           >
                             <span
-                              className="material-symbols-outlined text-danger text-[14px] mt-0.5 flex-shrink-0"
+                              className="material-symbols-outlined text-danger text-td-icon-sm mt-0.5 flex-shrink-0"
                               aria-hidden
                             >
                               warning
@@ -291,7 +291,7 @@ export default function CityPaymentPage({
           >
             내 여행 정산 보기
             <span
-              className="material-symbols-outlined text-[14px]"
+              className="material-symbols-outlined text-td-icon-sm"
               aria-hidden
             >
               chevron_right

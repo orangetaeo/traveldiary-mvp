@@ -151,7 +151,7 @@ export function TransportCard({
         data-testid="transport-recommendation"
         className="bg-purple-soft/30 border border-purple/20 rounded-md p-td-xs flex items-start gap-2 mb-td-sm"
       >
-        <span className="bg-purple text-white text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-tighter shrink-0">
+        <span className="bg-purple text-white text-td-badge font-bold px-1.5 py-0.5 rounded uppercase tracking-tighter shrink-0">
           AI 추천
         </span>
         <p className="text-td-meta text-purple-deep leading-tight">

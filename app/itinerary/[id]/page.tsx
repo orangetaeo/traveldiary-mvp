@@ -105,7 +105,7 @@ export default async function ItineraryPage({
         <section className="mb-td-md px-td-md">
           <div className="mb-td-xxs flex items-center gap-td-xs">
             <span
-              className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+              className={`inline-block text-td-badge px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                 isOnTrip
                   ? "bg-accent-soft text-accent-deep"
                   : "bg-purple-soft text-purple-deep"
@@ -114,7 +114,7 @@ export default async function ItineraryPage({
               {isOnTrip ? "여행 중 · 실시간 동행" : "AI가 24곳 검증 완료"}
             </span>
             {isDemoTrip(trip.id) && (
-              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold tracking-wider bg-amber-soft text-amber-deep">
+              <span className="inline-block text-td-badge px-2 py-0.5 rounded-full font-bold tracking-wider bg-amber-soft text-amber-deep">
                 체험 데모
               </span>
             )}
@@ -128,7 +128,7 @@ export default async function ItineraryPage({
               className="inline-flex items-center gap-1 mb-td-xs px-td-xs py-0.5 rounded-full bg-purple-soft text-purple-deep text-td-caption font-medium hover:bg-purple/15 transition-colors"
               aria-label={`${city.name} 도시 가이드 보기`}
             >
-              <span className="material-symbols-outlined text-[14px]" aria-hidden>
+              <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>
                 travel_explore
               </span>
               도시 가이드 →

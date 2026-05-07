@@ -162,7 +162,7 @@ export default function CityPage({ params }: { params: { slug: string } }) {
           <div className="bg-surface-card border-l-4 border-danger rounded-lg shadow-sm p-td-md">
             <div className="flex items-center justify-between mb-td-md">
               <span className="bg-danger-soft text-danger-deep px-td-xs py-1 rounded-full text-td-caption font-bold flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]" aria-hidden>warning</span>
+                <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>warning</span>
                 긴급 상황
               </span>
               {/* 사이클 P (ADR-035) — 응급 풀 페이지로 이동 */}

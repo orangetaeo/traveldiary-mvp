@@ -111,7 +111,7 @@ export function MorningBriefing({
             {departLead !== null && (
               <p className="text-td-body text-ink mt-td-sm">
                 <span
-                  className="material-symbols-outlined text-[16px] text-mode-primary mr-1 align-middle"
+                  className="material-symbols-outlined text-td-icon-md text-mode-primary mr-1 align-middle"
                   aria-hidden
                 >
                   schedule

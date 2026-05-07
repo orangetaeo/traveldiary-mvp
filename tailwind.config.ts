@@ -62,6 +62,8 @@ const config: Config = {
         "td-body":       ["14px", { lineHeight: "20px", fontWeight: "400" }],
         "td-meta":       ["12px", { lineHeight: "16px", fontWeight: "400" }],
         "td-caption":    ["11px", { lineHeight: "14px", fontWeight: "400", letterSpacing: "0.02em" }],
+        "td-badge":      ["10px", { lineHeight: "14px" }],   // 배지·태그·작은 라벨
+        "td-micro":      ["9px",  { lineHeight: "12px" }],   // 극소 라벨 (타임라인·컨텍스트 스트립)
         // Material Symbols 아이콘 스케일 — text-td-icon-* 으로 사용
         "td-icon-xs":  "12px",   // 체크마크, 배지 아이콘
         "td-icon-sm":  "14px",   // 필터 칩, 링크 아이콘

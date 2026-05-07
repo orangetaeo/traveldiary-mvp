@@ -30,7 +30,7 @@ export function MenuItemCard({ item, matches }: MenuItemCardProps) {
             <Badge tone="amber">한국인 BEST</Badge>
           )}
         </div>
-        <span className="text-[12px] tabular-nums text-ink-soft shrink-0">
+        <span className="text-td-meta tabular-nums text-ink-soft shrink-0">
           {item.price.krw.toLocaleString()}원
         </span>
       </div>
@@ -38,11 +38,11 @@ export function MenuItemCard({ item, matches }: MenuItemCardProps) {
       <p className="text-[16px] font-medium text-ink leading-tight mb-0.5">
         {item.original}
       </p>
-      <p className="text-[11px] text-ink-mute mb-1.5">{item.phonetic}</p>
-      <p className="text-[14px] text-ink mb-2">{item.translated}</p>
+      <p className="text-td-caption text-ink-mute mb-1.5">{item.phonetic}</p>
+      <p className="text-td-body text-ink mb-2">{item.translated}</p>
 
       {item.culturalNote && (
-        <p className="text-[12px] text-ink-soft leading-relaxed mb-2">
+        <p className="text-td-meta text-ink-soft leading-relaxed mb-2">
           {item.culturalNote}
         </p>
       )}
@@ -56,7 +56,7 @@ export function MenuItemCard({ item, matches }: MenuItemCardProps) {
           return (
             <span
               key={ing}
-              className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+              className={`text-td-badge px-1.5 py-0.5 rounded-full ${
                 matched
                   ? "bg-danger-soft text-danger-deep border border-danger/30"
                   : "bg-surface-soft text-ink-soft"
@@ -69,7 +69,7 @@ export function MenuItemCard({ item, matches }: MenuItemCardProps) {
       </div>
 
       {matches.length > 0 && (
-        <div className={`mt-2.5 pt-2 border-t border-divider text-[11px] ${
+        <div className={`mt-2.5 pt-2 border-t border-divider text-td-caption ${
           critical ? "text-danger-deep" : "text-amber-deep"
         }`}>
           {matches.map((m, i) => (

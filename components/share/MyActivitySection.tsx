@@ -76,7 +76,7 @@ export function MyActivitySection() {
     >
       <header className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-ink">내가 남긴 메모</h2>
-        <span className="text-[11px] text-ink-mute tabular-nums">
+        <span className="text-td-caption text-ink-mute tabular-nums">
           {state.items.length}건
         </span>
       </header>
@@ -104,7 +104,7 @@ export function MyActivitySection() {
       </ul>
 
       {state.items.length > 8 && (
-        <p className="text-[11px] text-ink-mute mt-2 text-right tabular-nums">
+        <p className="text-td-caption text-ink-mute mt-2 text-right tabular-nums">
           최근 8건만 표시 — 전체 {state.items.length}건
         </p>
       )}
@@ -135,14 +135,14 @@ function ActivityCardBody({
             <span aria-label={`반응: ${item.reaction}`}>{reactionEmoji}</span>
           )}
           {inactive && (
-            <span className="text-[10px] text-amber-deep">· 만료</span>
+            <span className="text-td-badge text-amber-deep">· 만료</span>
           )}
         </div>
         <p className="text-xs text-ink-soft mt-0.5 truncate">
           {decodeBody(item.body)}
         </p>
       </div>
-      <span className="text-[11px] text-ink-mute tabular-nums flex-none">
+      <span className="text-td-caption text-ink-mute tabular-nums flex-none">
         {dateLabel}
       </span>
     </div>

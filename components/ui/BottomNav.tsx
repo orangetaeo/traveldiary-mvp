@@ -53,7 +53,7 @@ export function BottomNav({ active }: BottomNavProps) {
           <Link
             key={slot.key}
             href={slot.href}
-            className={`relative flex flex-col items-center justify-center text-[10px] font-medium ${
+            className={`relative flex flex-col items-center justify-center text-td-badge font-medium ${
               isActive
                 ? "text-purple"
                 : "text-ink-mute hover:text-purple transition-colors"

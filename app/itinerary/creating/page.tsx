@@ -189,7 +189,7 @@ function StepIcon({ state }: { state: "done" | "active" | "pending" }) {
   if (state === "done") {
     return (
       <span className={`${base} bg-success`} aria-label="완료">
-        <span className="material-symbols-outlined text-white text-[16px] font-bold">
+        <span className="material-symbols-outlined text-white text-td-icon-md font-bold">
           check
         </span>
       </span>

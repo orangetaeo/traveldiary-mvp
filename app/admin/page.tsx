@@ -272,13 +272,13 @@ export default function AdminIndexPage({ searchParams }: PageProps) {
                     <span className="text-td-meta text-ink-soft">{event.time}</span>
                   </div>
                   <div className="text-td-meta text-ink-soft flex items-center gap-td-xxs truncate">
-                    <span className="material-symbols-outlined text-[14px]">
+                    <span className="material-symbols-outlined text-td-icon-sm">
                       alternate_email
                     </span>
                     {event.user}
                   </div>
                   {"detail" in event && (
-                    <div className="mt-1 p-1 bg-surface-soft rounded border border-divider font-mono text-[10px] text-ink-soft truncate">
+                    <div className="mt-1 p-1 bg-surface-soft rounded border border-divider font-mono text-td-badge text-ink-soft truncate">
                       {event.detail}
                     </div>
                   )}

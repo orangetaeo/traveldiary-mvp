@@ -26,7 +26,7 @@ export function FilterChip({
   children,
   onClick,
 }: FilterChipProps) {
-  const base = "text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap transition-colors";
+  const base = "text-td-caption px-3 py-1.5 rounded-full whitespace-nowrap transition-colors";
 
   let style = "";
   if (active && variant === "danger") {
