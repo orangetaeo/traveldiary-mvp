@@ -431,7 +431,11 @@ export interface RouteStop {
 /** PlaceDiscoveryView — 장소 카테고리 */
 export type PlaceCategory = "food" | "spot" | "shopping" | "nature" | "cafe";
 
-/** PlaceDiscoveryView — 탐색 장소 카드 */
+/** PlaceDiscoveryView — 탐색 장소 카드.
+ *
+ * 디자인 갭 #1 U2 (사이클 2 매핑, 2026-05-07): 풍부 정보 5 필드 추가 (모두 optional, BC 100%).
+ * 자동 생성 시드(푸꾸옥/다낭) 보존 위해 enrichment lookup 패턴으로 별도 매핑.
+ */
 export interface DiscoverPlace {
   id: string;
   name: string;
@@ -442,6 +446,16 @@ export interface DiscoverPlace {
   badge?: "ai" | "popular";
   imageUrl?: string;
   destination?: string;
+  /** 가격대 1=₩(저렴) 2=₩₩(보통) 3=₩₩₩(고가) — U2 필터 칩 "가격 낮은 순" */
+  priceLevel?: 1 | 2 | 3;
+  /** 한국인 후기 인용 (italic 카드 라인) — U2 핵심 차별화 */
+  koreanReviewQuote?: { text: string; author: string };
+  /** 한국 후기 수 (메타 라인 "🇰🇷 N") — U2 필터 "한국 후기 있음" */
+  koreanReviewCount?: number;
+  /** AI 추천 이유 (보라 소프트 뱃지 — 예: "현지인 추천 + 알레르기 안전") */
+  aiReason?: string;
+  /** 한식 OK 표시 (좌상단 빨강 뱃지) — U2 필터 "알레르기 제외" */
+  koreanFoodFriendly?: boolean;
 }
 
 /** NotificationListView — 알림 카테고리 */

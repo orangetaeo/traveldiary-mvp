@@ -4,15 +4,19 @@
  * 푸꾸옥: 파이프라인 자동 생성 608곳 (Phase A~B, 2026-05-06)
  * 다낭: 파이프라인 자동 생성 884곳 (Phase A~B, 2026-05-06)
  * 나머지: 수동 큐레이션 (기존 유지)
+ *
+ * Enrichment (디자인 갭 #1 U2): `mergeDiscoverEnrichment` 매핑으로 풍부 정보(한국 후기 인용,
+ * AI 이유, 가격대, 한식 OK) 머지. 자동 생성 파일은 수동 편집 금지 → 별도 lookup 패턴.
  */
 
 import type { DiscoverPlace } from "@/lib/types";
 import { phuQuocDiscoverPlaces } from "./places/phu-quoc-discover";
 import { daNangDiscoverPlaces } from "./places/da-nang-discover";
+import { mergeDiscoverEnrichment } from "./places/phu-quoc-discover-enrichment";
 
 export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
-  // ── 푸꾸옥 (608곳 — 파이프라인 자동 생성) ──
-  ...phuQuocDiscoverPlaces,
+  // ── 푸꾸옥 (608곳 — 파이프라인 자동 생성 + enrichment 머지) ──
+  ...phuQuocDiscoverPlaces.map(mergeDiscoverEnrichment),
 
   // ── 다낭 (884곳 — 파이프라인 자동 생성) ──
   ...daNangDiscoverPlaces,
