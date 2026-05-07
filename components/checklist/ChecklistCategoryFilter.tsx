@@ -67,7 +67,7 @@ export function ChecklistCategoryFilter({ items, value, onChange }: Props) {
               isActive ? CATEGORY_ACTIVE_TONE[cat] : inactive
             } disabled:opacity-40 disabled:cursor-not-allowed`}
           >
-            <span className="material-symbols-outlined text-[14px]" aria-hidden="true">
+            <span className="material-symbols-outlined text-td-icon-sm" aria-hidden="true">
               {CATEGORY_ICON[cat]}
             </span>
             {CHECKLIST_CATEGORY_LABEL[cat]}

@@ -89,7 +89,8 @@ export function DayRouteMiniMap({ tripId, dayIndex, items }: Props) {
             <polyline
               points={pins.map((p) => `${p.x},${p.y}`).join(" ")}
               fill="none"
-              stroke="#7C3AED"
+              className="text-purple"
+              stroke="currentColor"
               strokeWidth="0.5"
               strokeDasharray="1.5,1.5"
               opacity="0.7"
@@ -115,7 +116,7 @@ export function DayRouteMiniMap({ tripId, dayIndex, items }: Props) {
           aria-label="동선 지도 풀스크린 보기"
           className="absolute top-2 right-2 w-9 h-9 rounded-full bg-surface-card/90 backdrop-blur-sm shadow-md flex items-center justify-center hover:bg-surface-card transition-colors"
         >
-          <span className="material-symbols-outlined text-[20px] text-ink">
+          <span className="material-symbols-outlined text-td-icon-lg text-ink">
             open_in_full
           </span>
         </Link>

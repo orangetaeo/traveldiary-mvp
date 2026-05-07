@@ -28,7 +28,7 @@ export function EmergencyHeaderButton({
       }`}
     >
       <span
-        className={`material-symbols-outlined text-[14px] ${emphasized ? "filled" : ""}`}
+        className={`material-symbols-outlined text-td-icon-sm ${emphasized ? "filled" : ""}`}
         aria-hidden
       >
         emergency

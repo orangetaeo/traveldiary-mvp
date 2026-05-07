@@ -114,7 +114,7 @@ export function ChecklistBucketList({
                             CATEGORY_TONE[item.category]
                           }`}
                         >
-                          <span className="material-symbols-outlined text-[12px]" aria-hidden="true">
+                          <span className="material-symbols-outlined text-td-icon-xs" aria-hidden="true">
                             {CATEGORY_ICON[item.category]}
                           </span>
                           {CHECKLIST_CATEGORY_LABEL[item.category]}
@@ -144,7 +144,7 @@ export function ChecklistBucketList({
                           aria-label="위로 이동"
                           className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-9 w-9 flex items-center justify-center"
                         >
-                          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                          <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
                             keyboard_arrow_up
                           </span>
                         </button>
@@ -155,7 +155,7 @@ export function ChecklistBucketList({
                           aria-label="아래로 이동"
                           className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-9 w-9 flex items-center justify-center"
                         >
-                          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                          <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
                             keyboard_arrow_down
                           </span>
                         </button>
@@ -168,7 +168,7 @@ export function ChecklistBucketList({
                         aria-label="삭제"
                         className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0 w-9 h-9 flex items-center justify-center"
                       >
-                        <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                        <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
                           close
                         </span>
                       </button>

@@ -57,7 +57,8 @@ export function DayRouteMapView({
         <polyline
           points={stops.map((s) => `${s.pinX},${s.pinY}`).join(" ")}
           fill="none"
-          stroke="#7C3AED"
+          className="text-purple"
+          stroke="currentColor"
           strokeWidth="0.5"
           strokeDasharray="1.5,1.5"
           opacity="0.6"
@@ -177,7 +178,7 @@ export function DayRouteMapView({
               </div>
 
               <div className="flex items-center gap-td-xs text-ink-soft">
-                <span className="material-symbols-outlined text-[16px]">
+                <span className="material-symbols-outlined text-td-icon-md">
                   {stop.categoryIcon}
                 </span>
                 <span className="text-td-meta">{stop.category}</span>
@@ -185,7 +186,7 @@ export function DayRouteMapView({
 
               {stop.nextTransit && (
                 <div className="mt-td-xxs pt-td-xxs border-t border-divider/50 flex items-center gap-td-xs text-purple">
-                  <span className="material-symbols-outlined text-[14px]">
+                  <span className="material-symbols-outlined text-td-icon-sm">
                     directions_car
                   </span>
                   <span className="text-td-meta font-medium">
@@ -196,7 +197,7 @@ export function DayRouteMapView({
 
               {!stop.nextTransit && idx === stops.length - 1 && (
                 <div className="mt-td-xxs pt-td-xxs border-t border-divider/50 flex items-center gap-td-xs text-ink-mute">
-                  <span className="material-symbols-outlined text-[14px]">flag</span>
+                  <span className="material-symbols-outlined text-td-icon-sm">flag</span>
                   <span className="text-td-meta">오늘의 마지막 일정</span>
                 </div>
               )}

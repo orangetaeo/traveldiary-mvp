@@ -53,7 +53,7 @@ export function ModeTransitionWelcome({
       data-travel-mode="in-travel"
       className="fixed inset-0 z-[60] bg-ink/40 flex items-end sm:items-center justify-center"
     >
-      <div className="w-full max-w-[390px] h-[844px] max-h-[100dvh] bg-surface-soft flex flex-col overflow-hidden shadow-2xl rounded-t-2xl sm:rounded-2xl">
+      <div className="w-full max-w-[390px] h-[844px] max-h-[100dvh] bg-surface-soft flex flex-col overflow-hidden shadow-2xl rounded-t-[24px] sm:rounded-[24px]">
         <header
           className="h-[281px] flex flex-col items-center justify-center px-td-lg pt-td-xl relative shrink-0"
           style={{

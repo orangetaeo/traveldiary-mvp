@@ -96,7 +96,7 @@ export function ModeTransitionSkipSheet({
       onClick={onDismiss}
     >
       <div
-        className="w-full max-w-[390px] h-[600px] max-h-[90dvh] bg-surface-soft flex flex-col rounded-t-3xl shadow-2xl"
+        className="w-full max-w-[390px] h-[600px] max-h-[90dvh] bg-surface-soft flex flex-col rounded-t-[24px] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-full flex justify-center pt-td-md shrink-0">

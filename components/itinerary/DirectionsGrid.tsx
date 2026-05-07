@@ -27,7 +27,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-purple/40 transition-colors"
         >
           <span
-            className="material-symbols-outlined text-purple text-[24px]"
+            className="material-symbols-outlined text-purple text-td-icon-xl"
             aria-hidden
           >
             map
@@ -43,7 +43,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-amber/40 transition-colors"
         >
           <span
-            className="material-symbols-outlined text-amber-deep text-[24px]"
+            className="material-symbols-outlined text-amber-deep text-td-icon-xl"
             aria-hidden
           >
             pin_drop
@@ -59,7 +59,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-ink/30 transition-colors"
         >
           <span
-            className="material-symbols-outlined text-ink text-[24px]"
+            className="material-symbols-outlined text-ink text-td-icon-xl"
             aria-hidden
           >
             local_taxi
@@ -75,7 +75,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-success/40 transition-colors"
         >
           <span
-            className="material-symbols-outlined text-success text-[24px]"
+            className="material-symbols-outlined text-success text-td-icon-xl"
             aria-hidden
           >
             directions_car

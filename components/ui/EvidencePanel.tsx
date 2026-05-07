@@ -52,7 +52,7 @@ export function EvidencePanel({
       >
         <span className="flex items-center gap-td-xs">
           <span
-            className="material-symbols-outlined filled text-purple text-[20px]"
+            className="material-symbols-outlined filled text-purple text-td-icon-lg"
             aria-hidden="true"
           >
             lightbulb
@@ -66,7 +66,7 @@ export function EvidencePanel({
             </span>
           )}
           <span
-            className="material-symbols-outlined text-purple text-[20px]"
+            className="material-symbols-outlined text-purple text-td-icon-lg"
             aria-hidden="true"
           >
             {open ? "expand_less" : "expand_more"}
@@ -137,7 +137,7 @@ export function EvidencePanel({
           {warnings.length > 0 && (
             <div className="bg-amber-soft/40 px-td-md py-td-sm flex items-start gap-td-sm">
               <span
-                className="material-symbols-outlined filled text-amber-deep text-[20px] shrink-0"
+                className="material-symbols-outlined filled text-amber-deep text-td-icon-lg shrink-0"
                 aria-hidden="true"
               >
                 info

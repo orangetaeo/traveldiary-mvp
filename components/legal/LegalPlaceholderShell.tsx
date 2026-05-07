@@ -80,7 +80,7 @@ export function LegalPlaceholderShell({
             {highlights.map((line, i) => (
               <li key={i} className="flex items-start gap-td-sm">
                 <span
-                  className="material-symbols-outlined text-purple-deep text-[18px] mt-0.5 shrink-0"
+                  className="material-symbols-outlined text-purple-deep text-td-icon mt-0.5 shrink-0"
                   aria-hidden
                 >
                   check

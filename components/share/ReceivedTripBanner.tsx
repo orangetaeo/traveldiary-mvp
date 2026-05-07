@@ -52,7 +52,7 @@ export function ReceivedTripBanner({ destination, onDismiss }: Props) {
         aria-label="배너 닫기"
         className="text-amber-deep/60 hover:text-amber-deep p-1 -m-1 shrink-0"
       >
-        <span className="material-symbols-outlined text-[18px]" aria-hidden>
+        <span className="material-symbols-outlined text-td-icon" aria-hidden>
           close
         </span>
       </button>

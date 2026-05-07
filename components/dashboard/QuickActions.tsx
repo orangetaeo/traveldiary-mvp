@@ -58,7 +58,7 @@ function ActionButton({
   return (
     <Link href={href} className={className}>
       <span
-        className="material-symbols-outlined text-[18px]"
+        className="material-symbols-outlined text-td-icon"
         aria-hidden
       >
         {icon}

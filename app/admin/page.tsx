@@ -133,7 +133,7 @@ export default function AdminIndexPage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-surface-soft text-ink">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider flex items-center justify-between px-4 h-16 shadow-sm">
+      <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider flex items-center justify-between px-td-md h-14 shadow-sm">
         <div className="flex items-center gap-td-sm">
           <span className="material-symbols-outlined text-purple text-2xl">
             travel_explore

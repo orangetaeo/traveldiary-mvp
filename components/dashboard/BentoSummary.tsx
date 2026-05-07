@@ -58,7 +58,7 @@ function CardHeader({
   return (
     <div className="flex items-center gap-td-xs text-ink-soft text-td-meta mb-td-sm">
       <span
-        className={`material-symbols-outlined text-[16px] ${iconClass}`}
+        className={`material-symbols-outlined text-td-icon-md ${iconClass}`}
         aria-hidden
       >
         {icon}
@@ -80,7 +80,7 @@ function ItineraryCard({ data }: { data: TripDashboardData["itinerary"] }) {
         {data.allVerified && data.count > 0 && (
           <div className="inline-flex items-center gap-td-xs px-2 py-0.5 rounded-full bg-purple-soft text-purple-deep text-td-caption font-medium">
             <span
-              className="material-symbols-outlined text-[12px]"
+              className="material-symbols-outlined text-td-icon-xs"
               aria-hidden
             >
               verified_user

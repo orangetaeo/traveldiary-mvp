@@ -65,7 +65,7 @@ export function EmptyGuide() {
             <div>
               <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
                 <span
-                  className="material-symbols-outlined text-[18px] text-purple"
+                  className="material-symbols-outlined text-td-icon text-purple"
                   aria-hidden
                 >
                   {step.icon}
@@ -148,7 +148,7 @@ export function InactiveCard({ item }: { item: SharedLookupItem }) {
           {item.destination ?? "여행"}
         </h4>
         <div className="mt-1 inline-flex items-center gap-1 text-amber-deep text-[10px] font-bold">
-          <span className="material-symbols-outlined text-[12px]">link_off</span>
+          <span className="material-symbols-outlined text-td-icon-xs">link_off</span>
           {label}
         </div>
       </div>

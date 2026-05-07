@@ -47,7 +47,7 @@ export function LoginButton({
         className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-td-meta font-semibold text-ink-mute border border-divider opacity-60 cursor-not-allowed"
         title="카카오 OAuth 미설정 (KAKAO_CLIENT_ID + JWT_SECRET 필요)"
       >
-        <span className="material-symbols-outlined text-[18px]" aria-hidden>
+        <span className="material-symbols-outlined text-td-icon" aria-hidden>
           lock
         </span>
         로그인 (미설정)
@@ -79,7 +79,7 @@ export function LoginButton({
       onClick={handleLogin}
       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-td-meta font-semibold text-ink bg-kakao hover:opacity-90 transition-opacity"
     >
-      <span className="material-symbols-outlined text-[18px]" aria-hidden>
+      <span className="material-symbols-outlined text-td-icon" aria-hidden>
         chat_bubble
       </span>
       카카오 로그인

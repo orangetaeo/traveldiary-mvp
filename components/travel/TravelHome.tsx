@@ -131,7 +131,7 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
           GPS 확인 — {trip.destination} 도착, 여행 중 모드 전환됨.
         </p>
         <span
-          className="material-symbols-outlined text-[16px] text-success-deep"
+          className="material-symbols-outlined text-td-icon-md text-success-deep"
           aria-hidden
         >
           check
@@ -219,7 +219,7 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
           <div className="bg-surface-card p-td-sm rounded-md border border-divider flex flex-col gap-td-xxs">
             <div className="flex items-center gap-1 text-ink-soft">
               <span
-                className="material-symbols-outlined text-[14px]"
+                className="material-symbols-outlined text-td-icon-sm"
                 aria-hidden
               >
                 location_on
@@ -232,7 +232,7 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
           <div className="bg-surface-card p-td-sm rounded-md border border-divider flex flex-col gap-td-xxs">
             <div className="flex items-center gap-1 text-ink-soft">
               <span
-                className="material-symbols-outlined text-[14px]"
+                className="material-symbols-outlined text-td-icon-sm"
                 aria-hidden
               >
                 account_balance_wallet
@@ -316,7 +316,7 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
           href={`/itinerary/${trip.id}`}
           className="text-td-meta text-ink-soft hover:text-ink flex items-center gap-1"
         >
-          <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span className="material-symbols-outlined text-td-icon-md">arrow_back</span>
           일정 전체
         </Link>
         <p className="text-td-caption text-ink-mute">ADR-014 · 데모 토글</p>
@@ -349,7 +349,7 @@ function PastTimelineItem({ item }: { item: ItineraryItem }) {
     <div className="flex gap-td-sm">
       <div className="relative z-10">
         <div className="w-6 h-6 rounded-full bg-success-soft flex items-center justify-center">
-          <span className="material-symbols-outlined filled text-[14px] text-success-deep">
+          <span className="material-symbols-outlined filled text-td-icon-sm text-success-deep">
             check_circle
           </span>
         </div>

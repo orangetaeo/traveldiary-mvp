@@ -182,7 +182,7 @@ function CapturingView({
             disabled={isPending}
             className="flex items-center gap-td-xxs text-white/90 hover:text-white transition-colors disabled:opacity-60"
           >
-            <span className="material-symbols-outlined text-[20px]">photo_library</span>
+            <span className="material-symbols-outlined text-td-icon-lg">photo_library</span>
             <span className="text-td-meta font-semibold uppercase tracking-wide">
               {isPending ? "번역 중…" : "갤러리에서 사진 선택"}
             </span>
@@ -448,7 +448,7 @@ function MenuRow({
         </span>
         {critical ? (
           <span className="bg-danger text-white px-td-xs py-0.5 rounded-full flex items-center gap-1">
-            <span className="material-symbols-outlined text-[12px]">warning</span>
+            <span className="material-symbols-outlined text-td-icon-xs">warning</span>
             <span className="text-[10px] font-bold uppercase">위험</span>
           </span>
         ) : isBest ? (
