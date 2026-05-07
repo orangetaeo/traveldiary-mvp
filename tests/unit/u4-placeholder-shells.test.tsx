@@ -68,6 +68,38 @@ describe("/cost/[tripId]/scan 영수증 스캔 placeholder", () => {
     );
     expect(html).toContain('href="/cost/abc-trip-123"');
   });
+
+  // Stitch screen c389873963894d0c819c40692eea88bc 매핑 회귀 가드 (Session X cap 1)
+  it("Stitch viewfinder — 가이드 카피 + 추출 항목 카피", () => {
+    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
+    expect(html).toContain("영수증을 사각형 안에 맞춰주세요");
+    expect(html).toContain("가게명/금액/날짜/카테고리를 자동으로 추출해요");
+  });
+
+  it("TopAppBar — 닫기(close) + 도움말(help) 진입점", () => {
+    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
+    expect(html).toContain('aria-label="닫기"');
+    expect(html).toContain('aria-label="카메라 권한 도움말"');
+    expect(html).toContain('href="/permission/camera"');
+  });
+
+  it("카메라 컨트롤 데모 — flash/촬영/갤러리 모두 disabled (정식 활성 전 visual only)", () => {
+    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
+    expect(html).toContain('aria-label="플래시 (준비 중)"');
+    expect(html).toContain('aria-label="촬영 (준비 중)"');
+    expect(html).toContain('aria-label="갤러리 (준비 중)"');
+    // disabled 속성은 React가 boolean으로 렌더링
+    const disabledMatches = html.match(/disabled=""/g) ?? [];
+    expect(disabledMatches.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("amber 데모 마커 — 🟡 + R1 + Vision API + 비용 가드 ADR", () => {
+    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
+    expect(html).toContain("🟡 데모 — 준비 중");
+    expect(html).toContain("Vision API");
+    expect(html).toContain("R1 보안 사인오프");
+    expect(html).toContain("비용 가드 ADR");
+  });
 });
 
 describe("/settings/email-sync 이메일 동기화 placeholder", () => {
