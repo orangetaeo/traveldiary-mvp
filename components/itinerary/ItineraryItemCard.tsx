@@ -43,6 +43,12 @@ interface ItineraryItemCardProps {
   isLast: boolean;
   onMoveUp: (id: string) => void;
   onMoveDown: (id: string) => void;
+  /** A2 도착 체크인 — Session X cap 2 (LocalStorage 임시, R1 후 DB) */
+  arrivedAt?: string | null;
+  /** in-travel 모드일 때만 true. 도착 버튼 노출 가드. */
+  canCheckIn?: boolean;
+  onCheckIn?: (id: string) => void;
+  onUndoCheckIn?: (id: string) => void;
 }
 
 export function ItineraryItemCard({
@@ -62,12 +68,18 @@ export function ItineraryItemCard({
   isLast,
   onMoveUp,
   onMoveDown,
+  arrivedAt = null,
+  canCheckIn = false,
+  onCheckIn,
+  onUndoCheckIn,
 }: ItineraryItemCardProps) {
   const isBooked =
     item.flexibility === "booked" || item.flexibility === "fixed";
   const time = formatTime(item.scheduledAt);
   const { ko, en } = splitName(item.name);
   const icon = CATEGORY_ICON[item.category] ?? "place";
+  const arrived = Boolean(arrivedAt);
+  const arrivedTime = arrivedAt ? formatTime(arrivedAt) : "";
 
   return (
     <div
@@ -81,16 +93,20 @@ export function ItineraryItemCard({
       onDragEnd={onDragEnd}
       onDrop={(e) => onDrop(e, item.id)}
     >
-      {/* Dot — featured는 mode-primary로 자동 swap */}
+      {/* Dot — arrived(success) > featured(mode-primary) > 기본 (3 단계 swap) */}
       <div
         className={`absolute left-0 top-6 w-8 h-8 rounded-full flex items-center justify-center z-10 ${
-          isFeatured
-            ? "bg-mode-primary text-white shadow-lg"
-            : "bg-surface-card border-2 border-divider text-ink-soft"
+          arrived
+            ? "bg-success text-white shadow-lg"
+            : isFeatured
+              ? "bg-mode-primary text-white shadow-lg"
+              : "bg-surface-card border-2 border-divider text-ink-soft"
         }`}
         aria-hidden
       >
-        <span className="material-symbols-outlined text-td-icon-md">{icon}</span>
+        <span className="material-symbols-outlined text-td-icon-md">
+          {arrived ? "check" : icon}
+        </span>
       </div>
 
       <Card
@@ -135,6 +151,46 @@ export function ItineraryItemCard({
             <p className="text-td-caption text-ink-soft mt-td-xxs">{en}</p>
           )}
         </Link>
+
+        {/* A2 — 도착 체크인 (Session X cap 2). canCheckIn=in-travel + arrivedAt null → 도착 버튼.
+            arrivedAt 있으면 ✓ 도착 시각 + 취소 (LocalStorage 임시 저장 — 정식 출시 시 DB) */}
+        {arrived && (
+          <div
+            className="mt-td-xs flex items-center justify-between bg-success-soft border border-success/30 rounded-md px-td-sm py-td-xxs"
+            role="status"
+            aria-live="polite"
+          >
+            <span className="text-td-meta font-bold text-success-deep">
+              <span className="material-symbols-outlined text-[14px] align-middle mr-td-xxs" aria-hidden>
+                check_circle
+              </span>
+              도착 {arrivedTime}
+            </span>
+            {onUndoCheckIn && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onUndoCheckIn(item.id); }}
+                className="text-td-caption text-ink-soft hover:text-danger underline"
+                aria-label={`${ko} 도착 체크인 취소`}
+              >
+                취소
+              </button>
+            )}
+          </div>
+        )}
+        {!arrived && canCheckIn && onCheckIn && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onCheckIn(item.id); }}
+            className="mt-td-xs w-full bg-mode-primary text-white font-bold py-td-xxs rounded-md hover:opacity-90 transition-opacity flex items-center justify-center gap-td-xxs"
+            aria-label={`${ko} 도착 체크인`}
+          >
+            <span className="material-symbols-outlined text-[16px]" aria-hidden>
+              place
+            </span>
+            도착
+          </button>
+        )}
 
         {/* 사이클 BLOCKER4 — 화살표 정렬 (모바일 터치 대응) */}
         <div className="flex justify-end gap-td-xxs mt-td-xs">

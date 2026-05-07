@@ -11,7 +11,9 @@ import { DayRouteMiniMap } from "./DayRouteMiniMap";
 import { AddItemDashedCard } from "./AddItemDashedCard";
 import { ItineraryCoachMark } from "./ItineraryCoachMark";
 import { TransportCard } from "./TransportCard";
+import { DayProgressBar } from "./DayProgressBar";
 import { computeTransportSuggestion } from "@/lib/itinerary-transport";
+import { useItemCheckins } from "@/lib/hooks/useItemCheckins";
 import {
   generateReplanOptions,
   type ReplanTrigger,
@@ -62,6 +64,8 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
   const [shareOpen, setShareOpen] = useState(false);
   // 사이클 X — 동적 replan trigger (카드별 "지연 발생" 진입점)
   const [activeTrigger, setActiveTrigger] = useState<ReplanTrigger | null>(null);
+  // Session X cap 2 — A2 도착 체크인 (LocalStorage 임시)
+  const { checkins, checkIn, undoCheckIn } = useItemCheckins(trip.id);
 
   const days = useMemo(
     () => groupByDay(items, trip.nights + 1),
@@ -364,6 +368,13 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
         items={dayItems}
       />
 
+      {/* Session X cap 2 (A2) — Day 진행률 바 (체크인 비율, 0건이면 hide) */}
+      <DayProgressBar
+        dayItems={dayItems}
+        checkins={checkins}
+        isOnTrip={isOnTrip}
+      />
+
       {/* Timeline */}
       <div className="relative space-y-td-md px-td-md">
         {dayItems.length > 0 && (
@@ -411,6 +422,10 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
                 isLast={idx === dayItems.length - 1}
                 onMoveUp={(id) => handleArrowMove(id, "up")}
                 onMoveDown={(id) => handleArrowMove(id, "down")}
+                arrivedAt={checkins[item.id] ?? null}
+                canCheckIn={isOnTrip}
+                onCheckIn={checkIn}
+                onUndoCheckIn={undoCheckIn}
               />
             </div>
           );
