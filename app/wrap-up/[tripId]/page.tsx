@@ -46,9 +46,13 @@ export default function WrapUpPage({ params }: PageProps) {
           <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
         <h1 className="text-sm font-semibold tracking-tight text-ink">Trip Wrap-up</h1>
-        <button className="p-2 rounded-full hover:bg-surface-soft transition-colors" aria-label="공유">
-          <span className="material-symbols-outlined text-ink">share</span>
-        </button>
+        <Link
+          href={`/trips/${trip.id}?focus=itinerary`}
+          aria-label="여행 대시보드 — 일정 카드 강조"
+          className="p-2 rounded-full text-ink-soft hover:text-ink hover:bg-surface-soft transition-colors"
+        >
+          <span className="material-symbols-outlined" aria-hidden>dashboard</span>
+        </Link>
       </header>
 
       <main>
@@ -152,17 +156,28 @@ export default function WrapUpPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Bottom CTA */}
+        {/* Bottom CTA — 옵션 P 재배치 (recap 진입 primary + dashboard cross-link) */}
         <section className="px-td-md pt-td-sm pb-td-lg flex flex-col items-center gap-td-sm">
           <Link
-            href={`/itinerary/${trip.id}`}
-            className="w-full bg-ink text-white font-bold py-td-sm rounded-md text-center text-td-body transition-transform active:scale-95"
+            href={`/wrap-up/${trip.id}/recap`}
+            className="w-full bg-ink text-white font-bold py-td-sm rounded-md text-center text-td-body transition-transform active:scale-95 flex items-center justify-center gap-2"
+            aria-label="여행 추억 리캡 보기"
           >
-            내 여행 보관하기
+            <span className="material-symbols-outlined" aria-hidden>auto_stories</span>
+            추억 리캡 보기
           </Link>
           <Link
-            href={`/cost/${trip.id}`}
+            href={`/trips/${trip.id}?focus=itinerary`}
+            className="w-full bg-amber-soft text-amber-deep font-semibold py-td-sm rounded-md text-center text-td-body border border-amber/30 hover:bg-amber/15 transition-colors flex items-center justify-center gap-1"
+            aria-label="여행 대시보드 — 일정 카드 강조"
+          >
+            <span className="material-symbols-outlined" aria-hidden>dashboard</span>
+            여행 대시보드로
+          </Link>
+          <Link
+            href={`/trips/${trip.id}?focus=cost`}
             className="text-td-body text-purple font-bold flex items-center gap-1"
+            aria-label="여행 대시보드 — 비용 카드 강조"
           >
             통계 자세히 →
           </Link>
