@@ -4,7 +4,7 @@
  * 별점 radiogroup, 텍스트 입력, 초기화/저장 버튼 존재 확인.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 
