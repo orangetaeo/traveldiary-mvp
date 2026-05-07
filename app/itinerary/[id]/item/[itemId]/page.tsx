@@ -145,7 +145,7 @@ export default async function ItineraryItemPage({
           )}
           <div className="absolute bottom-0 left-0 w-full p-td-md bg-gradient-to-t from-black/70 to-transparent">
             <div className="inline-flex items-center gap-td-xxs px-2 py-1 bg-white/20 backdrop-blur-md rounded-lg mb-td-xs">
-              <span className="material-symbols-outlined text-[14px] text-white" aria-hidden>
+              <span className="material-symbols-outlined text-td-icon-sm text-white" aria-hidden>
                 {categoryIcon}
               </span>
               <span className="text-td-meta text-white">{categoryLabel}</span>

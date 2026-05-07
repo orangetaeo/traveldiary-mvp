@@ -28,7 +28,7 @@ export function Badge({ tone = "neutral", children, className = "" }: BadgeProps
 
   return (
     <span
-      className={`inline-block text-[11px] px-2 py-0.5 rounded-full ${styles[tone]} ${className}`}
+      className={`inline-block text-td-caption px-2 py-0.5 rounded-full ${styles[tone]} ${className}`}
     >
       {children}
     </span>

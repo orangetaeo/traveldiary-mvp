@@ -175,7 +175,7 @@ export default async function HomePage() {
                   }`}
                   aria-hidden
                 >
-                  <span className="material-symbols-outlined text-[16px]">
+                  <span className="material-symbols-outlined text-td-icon-md">
                     {CATEGORY_ICON[item.category] ?? "place"}
                   </span>
                 </div>
@@ -253,7 +253,7 @@ export default async function HomePage() {
                     <p className="text-td-meta text-ink-soft uppercase tabular-nums">
                       {b.trip.destinationCode}
                     </p>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-soft text-amber-deep">
+                    <span className="text-td-micro px-1.5 py-0.5 rounded-full font-bold bg-amber-soft text-amber-deep">
                       체험
                     </span>
                   </div>

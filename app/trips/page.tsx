@@ -189,7 +189,7 @@ function TripCard({ data }: { data: TripCardData }) {
           </div>
           {verifiedCount > 0 && (
             <span className="px-2 py-0.5 rounded-lg bg-success-soft text-success-deep border border-success/40 text-td-caption font-medium flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">check_circle</span>
+              <span className="material-symbols-outlined text-td-icon-sm">check_circle</span>
               AI 검증 {verifiedCount}곳
             </span>
           )}

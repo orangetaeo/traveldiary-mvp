@@ -123,7 +123,7 @@ export function ActiveCard({ item }: { item: SharedLookupItem }) {
           {typeof item.nights === "number" && `${item.nights}박 ${item.nights + 1}일`}
           {item.startDate && ` · ${item.startDate.slice(0, 10)}`}
         </p>
-        <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-purple/10 text-purple text-[10px] font-bold">
+        <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-purple/10 text-purple text-td-badge font-bold">
           활성
         </span>
       </div>
@@ -147,7 +147,7 @@ export function InactiveCard({ item }: { item: SharedLookupItem }) {
         <h4 className="text-td-card-title text-ink truncate">
           {item.destination ?? "여행"}
         </h4>
-        <div className="mt-1 inline-flex items-center gap-1 text-amber-deep text-[10px] font-bold">
+        <div className="mt-1 inline-flex items-center gap-1 text-amber-deep text-td-badge font-bold">
           <span className="material-symbols-outlined text-td-icon-xs">link_off</span>
           {label}
         </div>

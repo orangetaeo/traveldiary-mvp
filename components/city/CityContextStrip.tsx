@@ -38,8 +38,8 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
             <span className="text-td-caption text-danger font-bold">응급</span>
           </div>
           <div className="leading-tight">
-            <p className="text-[10px] text-ink-mute">{ambulance?.phone ?? "—"}</p>
-            <p className="text-[10px] text-ink font-semibold truncate">
+            <p className="text-td-badge text-ink-mute">{ambulance?.phone ?? "—"}</p>
+            <p className="text-td-badge text-ink font-semibold truncate">
               {embassy?.label.replace(/^주\s*[^\s]+\s+/, "") ?? "한국 영사관"}
             </p>
           </div>
@@ -54,11 +54,11 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
             <span className="material-symbols-outlined text-ink-soft text-td-icon" aria-hidden>
               currency_exchange
             </span>
-            <span className="text-[9px] text-amber-deep font-bold">{city.payment.currency}</span>
+            <span className="text-td-micro text-amber-deep font-bold">{city.payment.currency}</span>
           </div>
           <div className="leading-tight">
-            <p className="text-[10px] text-ink-mute">1{city.payment.currencySymbol} =</p>
-            <p className="text-[10px] text-ink font-semibold tabular-nums">
+            <p className="text-td-badge text-ink-mute">1{city.payment.currencySymbol} =</p>
+            <p className="text-td-badge text-ink font-semibold tabular-nums">
               {krwPerLocal}원
             </p>
           </div>
@@ -78,7 +78,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
             </span>
           </div>
           <div className="leading-tight">
-            <p className="text-[10px] text-ink font-semibold">택시·바이크 호출</p>
+            <p className="text-td-badge text-ink font-semibold">택시·바이크 호출</p>
           </div>
         </Link>
 
@@ -95,7 +95,7 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
               <span className="text-td-caption text-accent-deep font-bold">시그니처</span>
             </div>
             <div className="leading-tight">
-              <p className="text-[10px] text-accent-deep font-semibold truncate">
+              <p className="text-td-badge text-accent-deep font-semibold truncate">
                 {city.curatedGuides[0].title}
               </p>
             </div>
@@ -116,8 +116,8 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
             </span>
           </div>
           <div className="leading-tight">
-            <p className="text-[10px] text-purple-deep/70">도시 정보</p>
-            <p className="text-[10px] text-purple-deep font-bold truncate">
+            <p className="text-td-badge text-purple-deep/70">도시 정보</p>
+            <p className="text-td-badge text-purple-deep font-bold truncate">
               {city.name} 가이드 →
             </p>
           </div>

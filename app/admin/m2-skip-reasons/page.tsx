@@ -353,7 +353,7 @@ function DashboardHeader({ adminLink }: { adminLink: string }) {
         <h1 className="text-lg font-bold text-ink tracking-tight">
           M2 스킵 사유
         </h1>
-        <span className="px-2 py-0.5 bg-surface-soft text-ink-soft text-[10px] font-bold rounded uppercase">
+        <span className="px-2 py-0.5 bg-surface-soft text-ink-soft text-td-badge font-bold rounded uppercase">
           Admin
         </span>
       </div>

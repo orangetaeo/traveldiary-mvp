@@ -94,7 +94,7 @@ export default function GuidePage() {
                           {guide.subtitle}
                         </p>
                         <div className="flex items-center gap-1 text-ink-mute">
-                          <span className="material-symbols-outlined text-[14px]">route</span>
+                          <span className="material-symbols-outlined text-td-icon-sm">route</span>
                           <span className="text-td-meta">{guide.sections.length}개 스팟</span>
                         </div>
                       </div>

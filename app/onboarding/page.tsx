@@ -233,7 +233,7 @@ function TimelineItem({
       <div className="flex flex-col">
         <span className="text-td-body font-medium text-ink">{name}</span>
         <span
-          className={`inline-block mt-td-xxs bg-surface-soft px-td-xs py-[2px] rounded text-[10px] font-medium w-fit ${tagColor}`}
+          className={`inline-block mt-td-xxs bg-surface-soft px-td-xs py-[2px] rounded text-td-badge font-medium w-fit ${tagColor}`}
         >
           {tag}
         </span>

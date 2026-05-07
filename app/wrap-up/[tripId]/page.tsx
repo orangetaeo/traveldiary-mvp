@@ -105,7 +105,7 @@ export default function WrapUpPage({ params }: PageProps) {
           <div className="flex items-center justify-between px-td-md mb-td-sm">
             <div className="flex items-center gap-2">
               <h2 className="text-td-body font-bold text-ink">이 순간이 좋았어요</h2>
-              <span className="bg-purple text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">
+              <span className="bg-purple text-white text-td-badge px-1.5 py-0.5 rounded-md font-bold">
                 AI 추천
               </span>
             </div>
@@ -168,7 +168,7 @@ export default function WrapUpPage({ params }: PageProps) {
                 <div className="relative rounded-md overflow-hidden aspect-[3/4] mb-td-xxs border border-divider bg-surface-soft flex items-center justify-center">
                   <span className="material-symbols-outlined text-3xl text-ink-mute">landscape</span>
                   {"badge" in c && (
-                    <div className="absolute top-2 left-2 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <div className="absolute top-2 left-2 bg-accent text-white text-td-badge font-bold px-2 py-0.5 rounded-full">
                       {c.badge}
                     </div>
                   )}
@@ -178,7 +178,7 @@ export default function WrapUpPage({ params }: PageProps) {
                 </div>
                 <span className="text-td-caption text-purple flex items-center gap-0.5">
                   AI 추천 일정 보기
-                  <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  <span className="material-symbols-outlined text-td-icon-sm">arrow_forward</span>
                 </span>
               </Link>
             ))}

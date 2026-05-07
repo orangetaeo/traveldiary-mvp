@@ -106,7 +106,7 @@ export function DayRouteMiniMap({ tripId, dayIndex, items }: Props) {
             style={{ left: `${p.x}%`, top: `${p.y}%` }}
             aria-label={`${idx + 1}번 ${items[idx].name}`}
           >
-            <span className="text-[11px] font-bold">{idx + 1}</span>
+            <span className="text-td-caption font-bold">{idx + 1}</span>
           </div>
         ))}
 
