@@ -370,6 +370,28 @@ export interface City {
   };
   /** F2 — 약국·병원·클리닉 위치 */
   medicalFacilities?: MedicalFacility[];
+  /** B7 — 생활 팁 (물 안전·화장실·모기·흥정 등) */
+  practicalTips?: PracticalTips;
+  /** F3 — 안전 팁 (사기·도난·야간 안전·관광 경찰) */
+  safetyTips?: SafetyTips;
+}
+
+/** B7 — 생활 팁 (물 안전·화장실·모기·흥정 등) */
+export interface PracticalTips {
+  waterSafety: string;
+  toiletInfo: string;
+  mosquito?: string;
+  sunProtection?: string;
+  haggling?: string;
+  customs?: string[];
+}
+
+/** F3 — 안전 팁 (사기·도난·야간 안전) */
+export interface SafetyTips {
+  scamWarnings: string[];
+  safetyNotes: string[];
+  touristPolice?: { phone: string; notes?: string };
+  nightSafety?: string;
 }
 
 /** F2 — 약국·병원·클리닉 정보 */
