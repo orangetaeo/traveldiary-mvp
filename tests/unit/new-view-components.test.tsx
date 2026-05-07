@@ -222,7 +222,7 @@ describe("PostTripRecapView", () => {
     }
   });
 
-  it("공유 버튼 렌더", () => {
+  it("공유 버튼 렌더 (옵션 R — ShareModal 진입)", () => {
     const html = renderToStaticMarkup(
       <PostTripRecapView
         tripId="demo-trip-phu-quoc"
@@ -233,6 +233,6 @@ describe("PostTripRecapView", () => {
         moments={DEMO_RECAP_MOMENTS}
       />,
     );
-    expect(html).toContain("카카오톡으로 공유");
+    expect(html).toContain("여행 공유하기");
   });
 });

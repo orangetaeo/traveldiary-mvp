@@ -325,8 +325,9 @@ describe("PostTripRecapView", () => {
         moments={[]}
       />,
     );
-    expect(html).toContain("카카오톡으로 공유");
-    expect(html).toContain("인스타 스토리로 내보내기");
+    // 옵션 R — dead button 2개를 ShareModal 단일 진입으로 통합
+    expect(html).toContain("여행 공유하기");
+    expect(html).toContain("마무리 페이지로");
   });
 
   it("지출 금액 formatKrw 형식", () => {
