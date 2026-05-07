@@ -21,7 +21,7 @@ import {
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { isDbConnected } from "@/lib/prisma";
 import { getActorId, getOwnerId } from "@/lib/auth/session";
-import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
+import { canWriteTrip, canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 import {
   generateItinerary,
   aiGenerationAvailable,
