@@ -54,6 +54,23 @@ export function grabUrl(dropoff: LatLng, dropoffName?: string): string {
 }
 
 /**
+ * Google Maps Directions URL — A→B 경로 안내 (D2 TransportCard 연동).
+ * travelmode: driving / walking / transit / bicycling.
+ */
+export function googleMapsDirectionsUrl(
+  origin: LatLng,
+  destination: LatLng,
+  travelMode: "driving" | "walking" | "transit" = "driving",
+  destName?: string,
+): string {
+  const o = `${origin.lat},${origin.lng}`;
+  const d = destName
+    ? encodeURIComponent(`${destName} ${destination.lat},${destination.lng}`)
+    : `${destination.lat},${destination.lng}`;
+  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(o)}&destination=${d}&travelmode=${travelMode}`;
+}
+
+/**
  * 카카오맵 — D7. 한국인 사용자 친숙. 모바일 카카오맵 앱 또는 웹.
  * Universal link: https://map.kakao.com/link/map/<name>,<lat>,<lng>
  */

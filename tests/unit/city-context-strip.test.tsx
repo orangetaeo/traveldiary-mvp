@@ -64,6 +64,25 @@ describe("CityContextStrip", () => {
     expect(html).not.toContain("주 호치민");
   });
 
+  it("응급 카드 — ambulance phone은 tel: 링크 (D3)", () => {
+    const html = renderToStaticMarkup(<CityContextStrip city={makeCity()} />);
+    expect(html).toContain('href="tel:115"');
+  });
+
+  it("응급 카드 — 국제번호 공백 제거 tel: 링크", () => {
+    const html = renderToStaticMarkup(
+      <CityContextStrip
+        city={makeCity({
+          emergencyContacts: [
+            { label: "구급차", phone: "+84 28 1234 5678", category: "ambulance" },
+            { label: "영사관", phone: "+82 2 3210 0404", category: "embassy" },
+          ],
+        })}
+      />,
+    );
+    expect(html).toContain('href="tel:+842812345678"');
+  });
+
   it("환율 카드 — 1{symbol} = X원 (1/approxKrwRate)", () => {
     const html = renderToStaticMarkup(<CityContextStrip city={makeCity()} />);
     expect(html).toContain("1₫ =");

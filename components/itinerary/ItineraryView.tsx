@@ -10,9 +10,11 @@ import { DayTabsBar } from "./DayTabsBar";
 import { DayRouteMiniMap } from "./DayRouteMiniMap";
 import { AddItemDashedCard } from "./AddItemDashedCard";
 import { ItineraryCoachMark } from "./ItineraryCoachMark";
-import { TransportCard } from "./TransportCard";
+import { TransportCard, type TransportMode } from "./TransportCard";
 import { DayProgressBar } from "./DayProgressBar";
 import { computeTransportSuggestion } from "@/lib/itinerary-transport";
+import { grabUrl, googleMapsDirectionsUrl } from "@/lib/utils/deeplinks";
+import { hasValidCoords } from "@/lib/utils/geo";
 import { useItemCheckins } from "@/lib/hooks/useItemCheckins";
 import {
   generateReplanOptions,
@@ -398,6 +400,18 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
                     options={transport.options}
                     recommendedMode={transport.recommendedMode}
                     recommendedReason={transport.recommendedReason}
+                    onAction={(mode: TransportMode) => {
+                      if (!hasValidCoords(prev!.location) || !hasValidCoords(item.location)) return;
+                      let url: string;
+                      if (mode === "grab") {
+                        url = grabUrl(item.location, item.name);
+                      } else if (mode === "walk") {
+                        url = googleMapsDirectionsUrl(prev!.location, item.location, "walking", item.name);
+                      } else {
+                        url = googleMapsDirectionsUrl(prev!.location, item.location, "transit", item.name);
+                      }
+                      window.open(url, "_blank", "noopener,noreferrer");
+                    }}
                   />
                 </div>
               )}
