@@ -62,7 +62,14 @@ export const nhaTrangCity: City = {
     season: "건기 (1~8월) · 우기 (9~12월)",
     avgTempC: { min: 22, max: 33 },
     notes: "베트남 도시 중 우기 가장 짧음 (9~12월만). 1~8월 건조·맑음. 10~11월 태풍 가끔",
+    clothing: ["반팔·수영복·샌들 (연중 해변 도시)", "자외선 차단제·래시가드 필수", "우기(9~12월) 방수 자켓·우산", "리조트 저녁 식사 시 가벼운 셔츠"],
   },
+
+  medicalFacilities: [
+    { label: "Vinmec 나트랑 국제병원", type: "hospital", address: "42A Trần Phú, Lộc Thọ", phone: "+84 258 3900 168", hours: "24시간 응급실", notes: "한국어 가능 의료진. 보험 직불" },
+    { label: "칸호아 종합병원(Khanh Hoa General)", type: "hospital", address: "19 Yersin, Nha Trang", phone: "+84 258 3822 168", hours: "24시간", notes: "공공 병원. 응급 가능" },
+    { label: "Nhà Thuốc Long Châu (짠푸 해변로)", type: "pharmacy", address: "Trần Phú, Lộc Thọ", hours: "07:00~22:00", notes: "해변 메인 로드 체인 약국" },
+  ],
 
   // ── 시그니처 가이드 (해변 휴양 차별화) ─────────────────────────────
   curatedGuides: [
