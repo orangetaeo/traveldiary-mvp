@@ -14,13 +14,31 @@ import { phuQuocDiscoverPlaces } from "./places/phu-quoc-discover";
 import { daNangDiscoverPlaces } from "./places/da-nang-discover";
 import { mergeDiscoverEnrichment } from "./places/phu-quoc-discover-enrichment";
 import { mergeDanangEnrichment } from "./places/da-nang-discover-enrichment";
+import { getPlacePhotoUrl } from "@/lib/utils/place-photo";
+import phuQuocSeedJson from "./places/phu-quoc-places.json";
+import daNangSeedJson from "./places/da-nang-places.json";
+
+// 시드 JSON에서 id → 첫 번째 photo reference 룩업 (A3)
+const photoLookup = new Map<string, string>();
+for (const p of phuQuocSeedJson) {
+  if (p.photos?.[0]) photoLookup.set(p.id, p.photos[0]);
+}
+for (const p of daNangSeedJson) {
+  if (p.photos?.[0]) photoLookup.set(p.id, p.photos[0]);
+}
+
+/** enrichment + photo imageUrl 주입 */
+function withPhoto(place: DiscoverPlace): DiscoverPlace {
+  const ref = photoLookup.get(place.id);
+  return ref ? { ...place, imageUrl: getPlacePhotoUrl(ref) } : place;
+}
 
 export const DEMO_DISCOVER_PLACES: DiscoverPlace[] = [
-  // ── 푸꾸옥 (608곳 — 파이프라인 자동 생성 + enrichment 머지) ──
-  ...phuQuocDiscoverPlaces.map(mergeDiscoverEnrichment),
+  // ── 푸꾸옥 (608곳 — 파이프라인 자동 생성 + enrichment 머지 + 사진) ──
+  ...phuQuocDiscoverPlaces.map(mergeDiscoverEnrichment).map(withPhoto),
 
-  // ── 다낭 (884곳 — 파이프라인 자동 생성 + 디자인 갭 #1 U2 enrichment 머지) ──
-  ...daNangDiscoverPlaces.map(mergeDanangEnrichment),
+  // ── 다낭 (884곳 — 파이프라인 자동 생성 + enrichment 머지 + 사진) ──
+  ...daNangDiscoverPlaces.map(mergeDanangEnrichment).map(withPhoto),
 
   // ── 하노이 (수동 큐레이션 + 디자인 갭 #1 U2 enrichment 직접 추가) ──
   {

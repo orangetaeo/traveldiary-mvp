@@ -34,8 +34,8 @@ const ROUTE_FILES = collectRouteFiles(API_DIR);
  * ════════════════════════════════════════════ */
 
 describe("API route 파일 목록", () => {
-  it("11개 route 파일 존재", () => {
-    expect(ROUTE_FILES.length).toBe(11);
+  it("12개 route 파일 존재", () => {
+    expect(ROUTE_FILES.length).toBe(12);
   });
 
   it("알려진 route 파일 전체 등록", () => {
@@ -51,6 +51,8 @@ describe("API route 파일 목록", () => {
       "diag/translate/route.ts",
       "health/route.ts",
       "og/share/[key]/route.tsx",
+      // A3 관광지 이미지 — Google Places Photo 프록시
+      "places/photo/route.ts",
       "share/lookup/route.ts",
       "share/my-activity/route.ts",
     ]);
