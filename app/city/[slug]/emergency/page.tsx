@@ -125,6 +125,56 @@ export default function CityEmergencyPage({
           </div>
         </section>
 
+        {/* F3: 도시별 안전 팁 */}
+        {city.safetyTips && (
+          <section id="safety-tips" className="space-y-3">
+            <h3 className="text-td-card-title text-ink font-semibold">
+              {city.name} 안전 팁
+            </h3>
+            {city.safetyTips.scamWarnings.length > 0 && (
+              <div className="bg-amber-soft border border-amber/30 rounded-md p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="material-symbols-outlined text-amber-deep text-td-icon" aria-hidden>report</span>
+                  <p className="text-td-body font-semibold text-amber-deep">사기·바가지 주의</p>
+                </div>
+                <ul className="space-y-1.5">
+                  {city.safetyTips.scamWarnings.map((w, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-amber-deep text-td-meta mt-0.5">•</span>
+                      <p className="text-td-meta text-ink">{w}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {city.safetyTips.safetyNotes.length > 0 && (
+              <div className="bg-surface-card border border-divider rounded-md p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="material-symbols-outlined text-purple text-td-icon" aria-hidden>shield</span>
+                  <p className="text-td-body font-semibold text-ink">안전 수칙</p>
+                </div>
+                <ul className="space-y-1.5">
+                  {city.safetyTips.safetyNotes.map((n, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-purple text-td-meta mt-0.5">•</span>
+                      <p className="text-td-meta text-ink-soft">{n}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {city.safetyTips.nightSafety && (
+              <div className="bg-surface-card border border-divider rounded-md p-3 flex items-start gap-2">
+                <span className="material-symbols-outlined text-ink-soft text-td-icon shrink-0" aria-hidden>dark_mode</span>
+                <div>
+                  <p className="text-td-meta text-ink font-medium">야간 안전</p>
+                  <p className="text-td-meta text-ink-soft">{city.safetyTips.nightSafety}</p>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
         {/* 분실 통합 가이드 */}
         <section id="loss-guides" className="space-y-3">
           <h3 className="text-td-card-title text-ink font-semibold">

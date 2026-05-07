@@ -28,7 +28,9 @@ interface ChipDef {
 
 const CHIPS: ChipDef[] = [
   { id: "emergency", label: "응급", danger: true },
+  { id: "safety", label: "안전" },
   { id: "medical", label: "약국·병원" },
+  { id: "practical", label: "생활 팁" },
   { id: "payment", label: "결제" },
   { id: "transport", label: "교통" },
   { id: "visa", label: "비자" },
@@ -244,6 +246,152 @@ export default function CityPage({ params }: { params: { slug: string } }) {
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Section: Safety (F3) */}
+        {city.safetyTips && (
+          <section id="safety" className="mb-td-lg scroll-mt-24">
+            <h3 className="text-td-card-title text-ink mb-td-sm">안전 정보</h3>
+            <div className="space-y-td-sm">
+              {/* 사기·바가지 주의 */}
+              {city.safetyTips.scamWarnings.length > 0 && (
+                <div className="bg-amber-soft border border-amber/30 rounded-md p-td-md">
+                  <div className="flex items-center gap-td-xs mb-td-xs">
+                    <span className="material-symbols-outlined text-amber-deep text-td-icon" aria-hidden>report</span>
+                    <p className="text-td-body font-semibold text-amber-deep">사기·바가지 주의</p>
+                  </div>
+                  <ul className="space-y-td-xxs">
+                    {city.safetyTips.scamWarnings.map((w, i) => (
+                      <li key={i} className="flex items-start gap-td-xs">
+                        <span className="text-amber-deep text-td-meta mt-0.5">•</span>
+                        <p className="text-td-meta text-ink">{w}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {/* 일반 안전 수칙 */}
+              {city.safetyTips.safetyNotes.length > 0 && (
+                <div className="bg-surface-card border border-divider rounded-md p-td-md">
+                  <div className="flex items-center gap-td-xs mb-td-xs">
+                    <span className="material-symbols-outlined text-purple text-td-icon" aria-hidden>shield</span>
+                    <p className="text-td-body font-semibold text-ink">안전 수칙</p>
+                  </div>
+                  <ul className="space-y-td-xxs">
+                    {city.safetyTips.safetyNotes.map((n, i) => (
+                      <li key={i} className="flex items-start gap-td-xs">
+                        <span className="text-purple text-td-meta mt-0.5">•</span>
+                        <p className="text-td-meta text-ink-soft">{n}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {/* 야간 안전 */}
+              {city.safetyTips.nightSafety && (
+                <div className="bg-surface-card border border-divider rounded-md p-td-sm flex items-start gap-td-xs">
+                  <span className="material-symbols-outlined text-ink-soft text-td-icon shrink-0" aria-hidden>dark_mode</span>
+                  <div>
+                    <p className="text-td-meta text-ink-soft font-medium">야간 안전</p>
+                    <p className="text-td-meta text-ink-soft">{city.safetyTips.nightSafety}</p>
+                  </div>
+                </div>
+              )}
+              {/* 관광 경찰 */}
+              {city.safetyTips.touristPolice && (
+                <div className="bg-surface-card border border-divider rounded-md p-td-sm flex items-center justify-between">
+                  <div className="flex items-center gap-td-xs">
+                    <span className="material-symbols-outlined text-purple text-td-icon" aria-hidden>local_police</span>
+                    <div>
+                      <p className="text-td-meta text-ink font-medium">관광 경찰</p>
+                      {city.safetyTips.touristPolice.notes && (
+                        <p className="text-td-caption text-ink-mute">{city.safetyTips.touristPolice.notes}</p>
+                      )}
+                    </div>
+                  </div>
+                  <a
+                    href={`tel:${city.safetyTips.touristPolice.phone.replace(/\s/g, "")}`}
+                    className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-purple-soft hover:bg-purple/20 transition-colors"
+                    aria-label="관광 경찰 전화"
+                  >
+                    <span className="material-symbols-outlined text-purple-deep text-td-icon">call</span>
+                  </a>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Section: Practical Tips (B7) */}
+        {city.practicalTips && (
+          <section id="practical" className="mb-td-lg scroll-mt-24">
+            <h3 className="text-td-card-title text-ink mb-td-sm">생활 팁</h3>
+            <div className="space-y-td-sm">
+              {/* 물 안전 */}
+              <div className="bg-surface-card border border-divider rounded-md p-td-sm flex items-start gap-td-xs">
+                <span className="material-symbols-outlined text-accent text-td-icon shrink-0" aria-hidden>water_drop</span>
+                <div>
+                  <p className="text-td-meta text-ink font-medium">물 안전</p>
+                  <p className="text-td-meta text-ink-soft">{city.practicalTips.waterSafety}</p>
+                </div>
+              </div>
+              {/* 화장실 */}
+              <div className="bg-surface-card border border-divider rounded-md p-td-sm flex items-start gap-td-xs">
+                <span className="material-symbols-outlined text-ink-soft text-td-icon shrink-0" aria-hidden>wc</span>
+                <div>
+                  <p className="text-td-meta text-ink font-medium">화장실</p>
+                  <p className="text-td-meta text-ink-soft">{city.practicalTips.toiletInfo}</p>
+                </div>
+              </div>
+              {/* 모기 */}
+              {city.practicalTips.mosquito && (
+                <div className="bg-surface-card border border-divider rounded-md p-td-sm flex items-start gap-td-xs">
+                  <span className="material-symbols-outlined text-amber-deep text-td-icon shrink-0" aria-hidden>pest_control</span>
+                  <div>
+                    <p className="text-td-meta text-ink font-medium">모기·벌레</p>
+                    <p className="text-td-meta text-ink-soft">{city.practicalTips.mosquito}</p>
+                  </div>
+                </div>
+              )}
+              {/* 자외선 */}
+              {city.practicalTips.sunProtection && (
+                <div className="bg-surface-card border border-divider rounded-md p-td-sm flex items-start gap-td-xs">
+                  <span className="material-symbols-outlined text-amber text-td-icon shrink-0" aria-hidden>wb_sunny</span>
+                  <div>
+                    <p className="text-td-meta text-ink font-medium">자외선 차단</p>
+                    <p className="text-td-meta text-ink-soft">{city.practicalTips.sunProtection}</p>
+                  </div>
+                </div>
+              )}
+              {/* 흥정 */}
+              {city.practicalTips.haggling && (
+                <div className="bg-surface-card border border-divider rounded-md p-td-sm flex items-start gap-td-xs">
+                  <span className="material-symbols-outlined text-purple text-td-icon shrink-0" aria-hidden>storefront</span>
+                  <div>
+                    <p className="text-td-meta text-ink font-medium">흥정 문화</p>
+                    <p className="text-td-meta text-ink-soft">{city.practicalTips.haggling}</p>
+                  </div>
+                </div>
+              )}
+              {/* 기타 생활 수칙 */}
+              {city.practicalTips.customs && city.practicalTips.customs.length > 0 && (
+                <div className="bg-surface-card border border-divider rounded-md p-td-md">
+                  <div className="flex items-center gap-td-xs mb-td-xs">
+                    <span className="material-symbols-outlined text-ink-soft text-td-icon" aria-hidden>info</span>
+                    <p className="text-td-meta text-ink font-medium">알아두면 좋은 것</p>
+                  </div>
+                  <ul className="space-y-td-xxs">
+                    {city.practicalTips.customs.map((c, i) => (
+                      <li key={i} className="flex items-start gap-td-xs">
+                        <span className="text-ink-mute text-td-meta mt-0.5">•</span>
+                        <p className="text-td-meta text-ink-soft">{c}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </section>
         )}
