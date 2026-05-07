@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Share Modal — 사이클 11a (ADR-024).
- * Trip 공유 링크 생성 + URL 복사.
+ * Share Modal — 사이클 11a (ADR-024) + D5 인스타 공유.
+ * Trip 공유 링크 생성 + URL 복사 + 인스타 스토리 카드 저장.
  */
 
 import { useEffect, useState, useTransition, useRef, useCallback } from "react";
@@ -22,6 +22,7 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [permission, setPermission] = useState<"view" | "edit">("view");
+  const [downloading, setDownloading] = useState(false);
 
   // 드래그 dismiss
   const [dragY, setDragY] = useState(0);
@@ -102,6 +103,29 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
         setTimeout(() => setCopied(false), 2500);
       })
       .catch(() => setError("복사 실패 — 직접 선택해 복사해주세요."));
+  }
+
+  async function handleStoryDownload() {
+    if (!shareUrl) return;
+    setDownloading(true);
+    try {
+      const key = shareUrl.split("/share/")[1];
+      const res = await fetch(`/api/og/share/${key}/story`);
+      if (!res.ok) throw new Error("이미지 생성 실패");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "traveldiary-story.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("스토리 이미지 다운로드 실패");
+    } finally {
+      setDownloading(false);
+    }
   }
 
   return (
@@ -216,6 +240,14 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
               className="w-full py-2.5 bg-purple text-white rounded-lg text-td-body font-semibold hover:opacity-90 transition-opacity"
             >
               {copied ? "✅ 복사됨" : "URL 복사"}
+            </button>
+            <button
+              type="button"
+              onClick={handleStoryDownload}
+              disabled={downloading}
+              className="w-full py-2.5 bg-gradient-to-r from-amber to-accent text-white rounded-lg text-td-body font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {downloading ? "이미지 생성 중…" : "인스타 스토리 카드 저장"}
             </button>
             <div className="flex justify-center">
               <KakaoShareButton
