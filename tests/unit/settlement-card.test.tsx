@@ -292,3 +292,41 @@ describe("사이클 UU (ADR-042) — settledAt 정산 완료 마커 UI", () => {
     expect(html).toContain("line-through");
   });
 });
+
+describe("사이클 A5 — SettlementCard 송금 흐름 복사 버튼", () => {
+  function makeSettled(
+    id: string,
+    amountKrw: number,
+    splitWith: CostEntry["splitWith"],
+    settledAt: string,
+  ): CostEntry {
+    return { ...entry(id, amountKrw, splitWith), settledAt };
+  }
+
+  it("transfers 있을 때 복사 버튼 노출", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard entries={[entry("a", 10000, ["철수", "영희"])]} />,
+    );
+    expect(html).toContain("📋 송금 흐름 복사 (귀국 후 송금용)");
+    expect(html).toContain('aria-label="송금 흐름 텍스트 복사 — 한국 귀국 후 토스/카톡 송금"');
+  });
+
+  it("transfers 없을 때 (균등 부담 일치) 복사 버튼 미노출", () => {
+    // 같은 이름 2회 → normalizeSplitWith → 2명 → 결제자=혼자, share=혼자 → net 0 → transfers 0
+    const html = renderToStaticMarkup(
+      <SettlementCard entries={[entry("a", 10000, ["혼자", "혼자"])]} />,
+    );
+    expect(html).toContain("정산 완료 — 모두 균등 부담입니다");
+    expect(html).not.toContain("📋 송금 흐름 복사");
+  });
+
+  it("정산 완료된 건만 있을 때 복사 버튼 미노출 (미정산 영역 자체 미렌더)", () => {
+    const html = renderToStaticMarkup(
+      <SettlementCard
+        entries={[makeSettled("a", 10000, ["철수", "영희"], NOW)]}
+      />,
+    );
+    expect(html).not.toContain("📋 송금 흐름 복사");
+    expect(html).toContain("정산 완료된 1건");
+  });
+});

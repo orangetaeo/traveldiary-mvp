@@ -185,7 +185,7 @@ export function CostView({
           approxKrwRate={approxKrwRate}
         />
 
-        {/* 사이클 LL — AddCostForm 추출 */}
+        {/* 사이클 LL — AddCostForm 추출 + A5 entries (빈도 칩) */}
         <AddCostForm
           currency={currency}
           currencySymbol={currencySymbol}
@@ -193,6 +193,7 @@ export function CostView({
           isPending={isPending}
           onSubmit={handleAdd}
           onError={(msg) => showToast(msg, { variant: "warning" })}
+          entries={entries}
         />
 
         {/* 사이클 E1 + RR — 정산 흐름 카드 + 현지 통화 병기 */}

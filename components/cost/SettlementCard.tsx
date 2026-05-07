@@ -10,10 +10,16 @@
  * 사이클 UU (ADR-042): 정산 완료 토글. onSettle 미전달 시 토글 미노출 (후방 호환).
  *  - settledAt 있는 entry는 흐름에서 제외 (computeSettlement)
  *  - "정산 완료된 N건" details에서 되돌리기 가능
+ *
+ * 사이클 A5 (디자인 갭 자율 발견 #3): 송금 흐름 텍스트 클립보드 복사.
+ *  - 한국 귀국 후 토스/카톡으로 보내기 쉽게
+ *  - 베트남에선 모모/잘로페이 deeplink 미지원 (외부 의존, R1 게이트 후 검토)
+ *  - clipboard API user gesture 기반 — 답습: components/share/ShareModal.tsx
  */
 
 "use client";
 
+import { useState } from "react";
 import {
   computeSettlement,
   formatKrw,
@@ -60,10 +66,30 @@ export function SettlementCard({
   onSettle,
 }: Props) {
   const result: SettlementResult = computeSettlement(entries);
+  const [copied, setCopied] = useState(false);
 
   // 사이클 UU — 미정산 + 정산완료 둘 다 0이면 카드 미렌더
   if (result.splitEntryCount === 0 && result.settledEntryCount === 0) {
     return null;
+  }
+
+  // 사이클 A5 — 송금 흐름 텍스트 클립보드 복사
+  function handleCopyTransfers() {
+    if (result.transfers.length === 0) return;
+    const lines = result.transfers.map(
+      (t) => `${t.from} → ${t.to}: ${formatKrw(t.amountKrw)}`,
+    );
+    const text = `여행 정산 송금 흐름\n${lines.join("\n")}`;
+    if (typeof navigator === "undefined" || !navigator.clipboard) return;
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      })
+      .catch(() => {
+        // silent — 사용자가 텍스트 직접 선택 가능
+      });
   }
 
   // 사이클 UU — 정산 완료된 split entries만 따로 모음 (UI details용)
@@ -115,29 +141,39 @@ export function SettlementCard({
               정산 완료 — 모두 균등 부담입니다.
             </p>
           ) : (
-            <ul className="space-y-td-xs mb-td-sm" aria-label="송금 흐름">
-              {result.transfers.map((t, i) => (
-                <li
-                  key={`${t.from}-${t.to}-${i}`}
-                  className="flex items-center justify-between gap-td-sm bg-surface-soft rounded-md px-3 py-2"
-                >
-                  <span className="text-td-meta text-ink">
-                    <strong className="font-semibold">{t.from}</strong>
-                    <span className="mx-2 text-ink-mute" aria-hidden>
-                      →
+            <>
+              <ul className="space-y-td-xs mb-td-sm" aria-label="송금 흐름">
+                {result.transfers.map((t, i) => (
+                  <li
+                    key={`${t.from}-${t.to}-${i}`}
+                    className="flex items-center justify-between gap-td-sm bg-surface-soft rounded-md px-3 py-2"
+                  >
+                    <span className="text-td-meta text-ink">
+                      <strong className="font-semibold">{t.from}</strong>
+                      <span className="mx-2 text-ink-mute" aria-hidden>
+                        →
+                      </span>
+                      <strong className="font-semibold">{t.to}</strong>
                     </span>
-                    <strong className="font-semibold">{t.to}</strong>
-                  </span>
-                  <span className="text-td-meta font-bold text-purple-deep tabular-nums">
-                    {formatWithLocal(
-                      t.amountKrw,
-                      approxKrwRate,
-                      currencySymbol,
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
+                    <span className="text-td-meta font-bold text-purple-deep tabular-nums">
+                      {formatWithLocal(
+                        t.amountKrw,
+                        approxKrwRate,
+                        currencySymbol,
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={handleCopyTransfers}
+                className="w-full mb-td-sm py-2 bg-surface-soft text-ink-soft border border-divider rounded-md text-td-caption hover:bg-surface-card hover:text-ink"
+                aria-label="송금 흐름 텍스트 복사 — 한국 귀국 후 토스/카톡 송금"
+              >
+                {copied ? "✅ 복사됨" : "📋 송금 흐름 복사 (귀국 후 송금용)"}
+              </button>
+            </>
           )}
 
           <details className="text-td-caption text-ink-mute">
