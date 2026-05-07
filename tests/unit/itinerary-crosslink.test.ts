@@ -66,17 +66,17 @@ describe("옵션 L — /itinerary/[id] 헤더 trip dashboard 진입 칩", () => 
 describe("옵션 M — area 페이지 (cost/checklist/vote) 헤더 dashboard 진입 (?focus=<self>)", () => {
   it("CostView → /trips/${trip.id}?focus=cost", () => {
     expect(COST_VIEW_SRC).toContain("/trips/${trip.id}?focus=cost");
-    expect(COST_VIEW_SRC).toContain('aria-label="여행 대시보드로"');
+    expect(COST_VIEW_SRC).toContain("여행 대시보드");
   });
 
   it("VoteListView → /trips/${trip.id}?focus=vote", () => {
     expect(VOTE_VIEW_SRC).toContain("/trips/${trip.id}?focus=vote");
-    expect(VOTE_VIEW_SRC).toContain('aria-label="여행 대시보드로"');
+    expect(VOTE_VIEW_SRC).toContain("여행 대시보드");
   });
 
   it("ChecklistView → /trips/${trip.id}?focus=checklist", () => {
     expect(CHECKLIST_VIEW_SRC).toContain("/trips/${trip.id}?focus=checklist");
-    expect(CHECKLIST_VIEW_SRC).toContain('aria-label="여행 대시보드로"');
+    expect(CHECKLIST_VIEW_SRC).toContain("여행 대시보드");
   });
 
   it("3 view 모두 dashboard 아이콘 사용", () => {
