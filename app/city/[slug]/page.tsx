@@ -432,7 +432,16 @@ export default function CityPage({ params }: { params: { slug: string } }) {
 
         {/* Section 7: Phrase Book */}
         <section id="phrases" className="mb-td-lg scroll-mt-24">
-          <h3 className="text-td-card-title text-ink mb-td-sm">상황별 문장</h3>
+          <div className="flex items-center justify-between mb-td-sm">
+            <h3 className="text-td-card-title text-ink">상황별 문장</h3>
+            {/* 옵션 P (Session AA cap 5) — /phrases 풀 페이지(14문장 + TTS) 진입 */}
+            <Link
+              href="/phrases"
+              className="text-td-caption text-purple-deep hover:underline"
+            >
+              전체 14문장 + 발음 →
+            </Link>
+          </div>
           <div className="space-y-td-sm">
             {city.phrases.map((p, i) => (
               <PhraseCard key={i} phrase={p} />
