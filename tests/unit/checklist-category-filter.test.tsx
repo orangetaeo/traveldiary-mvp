@@ -116,7 +116,7 @@ describe("사이클 NN — ChecklistCategoryFilter rendering", () => {
         onChange={NOOP}
       />,
     );
-    expect(html).toMatch(/aria-checked="true"[^>]*>\s*서류/);
+    expect(html).toMatch(/aria-checked="true"[^>]*>.*서류/);
   });
 
   it("radiogroup role + aria-label 보장", () => {

@@ -26,6 +26,11 @@ export function ItineraryMap({
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY;
 
   if (!apiKey) {
+    const encodedName = encodeURIComponent(placeName ?? `${lat},${lng}`);
+    const googleUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    const naverUrl = `https://map.naver.com/v5/search/${encodedName}`;
+    const kakaoUrl = `https://map.kakao.com/?q=${encodedName}`;
+
     return (
       <section className="px-td-md py-td-sm">
         <div
@@ -38,10 +43,41 @@ export function ItineraryMap({
           >
             map
           </span>
-          <p className="text-td-meta text-ink-soft">지도 미설정</p>
-          <p className="text-td-caption text-ink-mute mt-td-xxs tabular-nums">
+          <p className="text-td-body text-ink font-medium mb-td-xxs">
+            {placeName ?? "위치"}
+          </p>
+          <p className="text-td-caption text-ink-mute tabular-nums mb-td-sm">
             {lat.toFixed(4)}, {lng.toFixed(4)}
           </p>
+          <div className="flex gap-td-xs flex-wrap justify-center">
+            <a
+              href={googleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-card border border-divider rounded-full text-td-caption font-medium text-ink hover:border-purple/40 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[14px]" aria-hidden>open_in_new</span>
+              Google 지도
+            </a>
+            <a
+              href={naverUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-card border border-divider rounded-full text-td-caption font-medium text-ink hover:border-purple/40 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[14px]" aria-hidden>open_in_new</span>
+              네이버 지도
+            </a>
+            <a
+              href={kakaoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-card border border-divider rounded-full text-td-caption font-medium text-ink hover:border-purple/40 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[14px]" aria-hidden>open_in_new</span>
+              카카오맵
+            </a>
+          </div>
         </div>
       </section>
     );

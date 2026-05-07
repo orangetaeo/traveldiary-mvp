@@ -55,6 +55,7 @@ export function AddItemModal({
   const [category, setCategory] = useState<ItemCategory>("food");
   const [flexibility, setFlexibility] = useState<ItemFlexibility>("flexible");
   const [duration, setDuration] = useState(60);
+  const [address, setAddress] = useState("");
 
   // 드래그 dismiss
   const [dragY, setDragY] = useState(0);
@@ -219,6 +220,26 @@ export function AddItemModal({
               maxLength={80}
               className="px-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft focus:outline focus:outline-purple"
             />
+          </label>
+
+          <label className="flex flex-col">
+            <span className="text-td-caption text-ink-soft mb-1">
+              위치 메모
+              <span className="text-ink-mute ml-1">(선택)</span>
+            </span>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-ink-mute text-[16px]" aria-hidden>
+                location_on
+              </span>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="예: 다낭 미케비치 인근"
+                maxLength={120}
+                className="w-full pl-8 pr-td-sm py-2 border border-divider rounded-lg text-td-body bg-surface-soft focus:outline focus:outline-purple"
+              />
+            </div>
           </label>
 
           <div className="grid grid-cols-2 gap-td-sm">
