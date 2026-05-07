@@ -11,6 +11,7 @@ import {
   uberUrl,
   grabUrl,
   kakaoMapUrl,
+  googleMapsDirectionsUrl,
 } from "@/lib/utils/deeplinks";
 
 const PQ_CENTER = { lat: 10.225, lng: 103.96 };
@@ -84,5 +85,36 @@ describe("deeplinks — kakaoMapUrl", () => {
   it("이름의 쉼표는 공백으로 치환", () => {
     const url = kakaoMapUrl(PQ_CENTER, "푸꾸옥, 베트남");
     expect(url).not.toContain(",베트남"); // 쉼표 제거됨
+  });
+});
+
+const DA_NANG = { lat: 16.054, lng: 108.202 };
+
+describe("deeplinks — googleMapsDirectionsUrl", () => {
+  it("origin + destination 좌표 포함", () => {
+    const url = googleMapsDirectionsUrl(PQ_CENTER, DA_NANG);
+    expect(url).toContain("google.com/maps/dir");
+    expect(url).toContain("10.225");
+    expect(url).toContain("16.054");
+  });
+
+  it("기본 travelmode = driving", () => {
+    const url = googleMapsDirectionsUrl(PQ_CENTER, DA_NANG);
+    expect(url).toContain("travelmode=driving");
+  });
+
+  it("walking 모드", () => {
+    const url = googleMapsDirectionsUrl(PQ_CENTER, DA_NANG, "walking");
+    expect(url).toContain("travelmode=walking");
+  });
+
+  it("transit 모드", () => {
+    const url = googleMapsDirectionsUrl(PQ_CENTER, DA_NANG, "transit");
+    expect(url).toContain("travelmode=transit");
+  });
+
+  it("목적지 이름 포함", () => {
+    const url = googleMapsDirectionsUrl(PQ_CENTER, DA_NANG, "driving", "다낭 대성당");
+    expect(url).toContain(encodeURIComponent("다낭 대성당"));
   });
 });

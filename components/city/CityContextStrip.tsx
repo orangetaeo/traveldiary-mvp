@@ -38,7 +38,18 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
             <span className="text-td-caption text-danger font-bold">응급</span>
           </div>
           <div className="leading-tight">
-            <p className="text-td-badge text-ink-mute">{ambulance?.phone ?? "—"}</p>
+            {ambulance?.phone ? (
+              <a
+                href={`tel:${ambulance.phone.replace(/\s/g, "")}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-td-badge text-danger underline underline-offset-2"
+                aria-label={`응급 전화 ${ambulance.phone}`}
+              >
+                {ambulance.phone}
+              </a>
+            ) : (
+              <p className="text-td-badge text-ink-mute">—</p>
+            )}
             <p className="text-td-badge text-ink font-semibold truncate">
               {embassy?.label.replace(/^주\s*[^\s]+\s+/, "") ?? "한국 영사관"}
             </p>
