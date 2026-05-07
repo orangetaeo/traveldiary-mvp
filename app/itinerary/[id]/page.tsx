@@ -18,6 +18,8 @@ import Link from "next/link";
 import { ItineraryView } from "@/components/itinerary/ItineraryView";
 // DIAG isolate (binary search): reference 보존(lint clean) — 원복 시 JSX 활성화
 const _DiagItineraryViewRef = ItineraryView;
+const _DiagCityCtxRef = CityContextStrip;
+const _DiagEmergencyRef = EmergencyHeaderButton;
 import { isDemoTrip } from "@/lib/seed";
 import { getCityByCode, resolveCityByCode } from "@/lib/seed/cities";
 import { resolveTripBundle } from "@/lib/repositories/trip.repository";
@@ -125,10 +127,12 @@ async function renderItinerary(
           <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
         <div className="flex items-center gap-td-xs">
-          {/* 사이클 P (ADR-035) — 응급 빠른 액세스 */}
-          {resolvedCity && (
-            <EmergencyHeaderButton citySlug={resolvedCity.slug} emphasized={isOnTrip} />
-          )}
+          {/* 사이클 P (ADR-035) — 응급 빠른 액세스
+              DIAG isolate: 원복 시 활성화
+              {resolvedCity && (
+                <EmergencyHeaderButton citySlug={resolvedCity.slug} emphasized={isOnTrip} />
+              )}
+          */}
           {isOnTrip && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent-soft text-accent-deep rounded-full text-td-caption font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-deep animate-pulse" aria-hidden />
@@ -210,12 +214,18 @@ async function renderItinerary(
           </div>
         </section>
 
-        {/* 사이클 P (ADR-035) — CityContextStrip currentMode 무관 노출 */}
-        {resolvedCity && (
-          <div className="mb-td-md">
-            <CityContextStrip city={resolvedCity} />
-          </div>
-        )}
+        {/* 사이클 P (ADR-035) — CityContextStrip currentMode 무관 노출
+            DIAG isolate: 원복 시 활성화
+            {resolvedCity && (
+              <div className="mb-td-md">
+                <CityContextStrip city={resolvedCity} />
+              </div>
+            )}
+        */}
+        <div className="mx-td-md mb-td-md p-td-md bg-blue-soft border border-blue/40 rounded-md text-td-meta text-ink">
+          [DIAG isolate] CityContextStrip + EmergencyHeaderButton 임시 제거 — 페이지가 정상 렌더되면 범인은 둘 중 하나.
+          {resolvedCity ? ` (resolvedCity slug: ${resolvedCity.slug})` : " (resolvedCity null)"}
+        </div>
 
         {/* DIAG isolate: ItineraryView 임시 제거. 원복 시 아래 JSX 활성화:
             <ItineraryView
