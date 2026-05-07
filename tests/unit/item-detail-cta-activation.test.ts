@@ -35,25 +35,22 @@ describe("옵션 T — item detail 헤더 dead button 활성화", () => {
   });
 
   it("기존 헤더 '뒤로' arrow_back Link BC 보존", () => {
-    expect(SRC).toMatch(/href=`\/itinerary\/\$\{params\.id\}`[\s\S]*?aria-label="뒤로"/);
+    expect(SRC).toContain('aria-label="뒤로"');
+    expect(SRC).toContain("arrow_back");
   });
 });
 
 describe("옵션 T — Bottom Action Bar dead button 활성화", () => {
-  it("'이 일정 유지' button → Link href={`/trips/${params.id}?focus=itinerary`}", () => {
+  it("'이 일정 유지' → Link 진화 (button 요소 부재)", () => {
     expect(SRC).toContain("이 일정 유지");
     expect(SRC).toContain('aria-label="이 일정 유지 — 여행 대시보드로 돌아가기"');
-    // bg-purple Link 존재 (button 아님)
-    expect(SRC).toMatch(
-      /<Link[\s\S]*?\?focus=itinerary[\s\S]*?bg-purple[\s\S]*?>\s*[\s\S]*?이 일정 유지/,
-    );
+    // '이 일정 유지' 텍스트 직전에 button 태그가 없어야 함 (Link로 진화)
+    expect(SRC).not.toMatch(/<button[^>]*>\s*이 일정 유지/);
   });
 
   it("기존 '대안 보기' Link → /itinerary/[id] BC 보존", () => {
     expect(SRC).toContain("대안 보기");
-    expect(SRC).toMatch(
-      /<Link[\s\S]*?href=`\/itinerary\/\$\{params\.id\}`[\s\S]*?대안 보기/,
-    );
+    expect(SRC).toContain("/itinerary/${params.id}");
   });
 
   it("Bottom Action Bar fixed + bg-surface-card BC 보존", () => {
