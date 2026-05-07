@@ -31,8 +31,19 @@ const bundles: DemoTripBundle[] = [
   { trip: daLatTrip, items: daLatItinerary },
 ];
 
+/** 단축 ID → 정식 trip ID 별칭. URL에서 demo-phu-quoc 등으로 접근 시 대응. */
+const TRIP_ALIASES: Record<string, string> = {
+  "demo-phu-quoc": "demo-trip-phu-quoc",
+  "demo-da-nang": "demo-trip-da-nang",
+  "demo-ho-chi-minh": "demo-trip-ho-chi-minh",
+  "demo-hanoi": "demo-trip-hanoi",
+  "demo-nha-trang": "demo-trip-nha-trang",
+  "demo-da-lat": "demo-trip-da-lat",
+};
+
 export function getDemoTrip(tripId: string): DemoTripBundle | null {
-  return bundles.find((b) => b.trip.id === tripId) ?? null;
+  const resolved = TRIP_ALIASES[tripId] ?? tripId;
+  return bundles.find((b) => b.trip.id === resolved) ?? null;
 }
 
 export function getDemoItem(tripId: string, itemId: string): ItineraryItem | null {
