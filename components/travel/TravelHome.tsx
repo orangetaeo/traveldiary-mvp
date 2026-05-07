@@ -157,6 +157,13 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
             <EmergencyHeaderButton citySlug={city.slug} emphasized />
           )}
           <Link
+            href={`/morning/${trip.id}`}
+            aria-label="오늘의 브리핑"
+            className="text-ink-soft hover:text-ink p-1 rounded-full"
+          >
+            <span className="material-symbols-outlined">wb_sunny</span>
+          </Link>
+          <Link
             href={`/itinerary/${trip.id}`}
             aria-label="일정 전체"
             className="text-ink-soft hover:text-ink p-1 rounded-full"
