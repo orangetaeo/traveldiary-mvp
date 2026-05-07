@@ -183,7 +183,16 @@ export default function CityPage({ params }: { params: { slug: string } }) {
 
         {/* Section 2: Payment */}
         <section id="payment" className="mb-td-lg scroll-mt-24">
-          <h3 className="text-td-card-title text-ink mb-td-sm">결제 정보</h3>
+          <div className="flex items-center justify-between mb-td-sm">
+            <h3 className="text-td-card-title text-ink">결제 정보</h3>
+            {/* 사이클 W3 (A4 디자인 갭) — 결제 풀 페이지로 이동 */}
+            <Link
+              href={`/city/${city.slug}/payment`}
+              className="text-td-caption text-purple-deep hover:underline"
+            >
+              전체 결제 가이드 →
+            </Link>
+          </div>
           <div className="grid grid-cols-2 gap-td-sm mb-td-sm">
             <div className="bg-surface-card border border-divider rounded-lg p-td-sm">
               <p className="text-td-meta text-ink-soft">현재 환율 (대략)</p>
