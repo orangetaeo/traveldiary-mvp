@@ -3,6 +3,9 @@
  * ContactCard / LossGuideCard.
  */
 
+"use client";
+
+import { useState } from "react";
 import type { EmergencyContact } from "@/lib/types";
 import type { LossGuide } from "@/lib/constants/koreanLossContacts";
 
@@ -58,15 +61,45 @@ export function ContactCard({ contact }: { contact: EmergencyContact }) {
         </div>
       </div>
       {contact.phone && (
-        <a
-          href={`tel:${contact.phone.replace(/\s/g, "")}`}
-          className="text-ink-mute shrink-0"
-          aria-label={`${label} 전화`}
-        >
-          <span className="material-symbols-outlined">call</span>
-        </a>
+        <div className="flex items-center gap-1 shrink-0">
+          <CopyButton text={contact.phone.replace(/\s/g, "")} label={`${label} 번호 복사`} />
+          <a
+            href={`tel:${contact.phone.replace(/\s/g, "")}`}
+            className="text-ink-mute hover:text-purple transition-colors"
+            aria-label={`${label} 전화`}
+          >
+            <span className="material-symbols-outlined">call</span>
+          </a>
+        </div>
       )}
     </div>
+  );
+}
+
+function CopyButton({ text, label }: { text: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // 클립보드 API 미지원 시 무시
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      aria-label={label}
+      className="text-ink-mute hover:text-purple transition-colors"
+    >
+      <span className="material-symbols-outlined text-[20px]">
+        {copied ? "check" : "content_copy"}
+      </span>
+    </button>
   );
 }
 
