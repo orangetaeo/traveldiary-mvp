@@ -232,7 +232,7 @@ export function PlaceDiscoveryView({
         {/* 4. Filter Chips */}
         <section className="mt-td-md">
           <div
-            className="flex overflow-x-auto px-td-md gap-td-xs no-scrollbar pb-1"
+            className="flex overflow-x-auto px-td-md gap-td-xs hide-scrollbar pb-1"
             aria-label="결과 필터"
           >
             {FILTER_CHIPS.map((chip) => {

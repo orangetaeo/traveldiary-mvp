@@ -131,7 +131,7 @@ export function DayRouteMapView({
         </div>
 
         {/* Horizontal Timeline Cards */}
-        <div className="flex overflow-x-auto no-scrollbar gap-td-sm px-td-md pb-td-sm snap-x snap-mandatory">
+        <div className="flex overflow-x-auto hide-scrollbar gap-td-sm px-td-md pb-td-sm snap-x snap-mandatory">
           {stops.map((stop, idx) => (
             <button
               key={stop.id}
