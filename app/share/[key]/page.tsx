@@ -110,7 +110,7 @@ export default async function SharedTripPage({
       <main className="max-w-xl mx-auto px-td-md">
         {/* C3 — 보기 전용 배너 (회색 배지 + disabled 시각 차단) */}
         <div className="bg-surface-soft border border-divider rounded-lg px-td-md py-td-sm mt-td-sm flex items-center gap-td-sm">
-          <span className="material-symbols-outlined text-ink-mute text-[20px]" aria-hidden>
+          <span className="material-symbols-outlined text-ink-mute text-td-icon-lg" aria-hidden>
             lock
           </span>
           <p className="text-td-meta text-ink-soft">

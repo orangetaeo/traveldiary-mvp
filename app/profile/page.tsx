@@ -154,7 +154,7 @@ function QuickLink({
       }`}
     >
       <span
-        className="material-symbols-outlined text-purple mb-3 block text-[24px]"
+        className="material-symbols-outlined text-purple mb-3 block text-td-icon-xl"
         aria-hidden
       >
         {icon}

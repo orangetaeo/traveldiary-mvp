@@ -56,7 +56,7 @@ export default function SettingsReminderPage() {
               className="flex items-start gap-td-sm border-b border-divider last:border-b-0 pb-td-xs last:pb-0"
             >
               <span
-                className="material-symbols-outlined text-purple-deep text-[20px] mt-0.5 shrink-0"
+                className="material-symbols-outlined text-purple-deep text-td-icon-lg mt-0.5 shrink-0"
                 aria-hidden
               >
                 alarm

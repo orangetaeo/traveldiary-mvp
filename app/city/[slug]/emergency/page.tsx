@@ -106,7 +106,7 @@ export default function CityEmergencyPage({
                 href={`tel:${translator.phone.replace(/\s/g, "")}`}
                 className="inline-flex items-center gap-1 bg-purple text-white px-4 py-2.5 rounded-md text-td-body font-medium hover:opacity-90 transition-opacity active:scale-95"
               >
-                <span className="material-symbols-outlined text-[18px]">call</span>
+                <span className="material-symbols-outlined text-td-icon">call</span>
                 전화하기
               </a>
             )}

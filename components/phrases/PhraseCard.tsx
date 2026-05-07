@@ -69,7 +69,7 @@ export function PhraseCard({ phrase }: Props) {
                 : "bg-purple-soft text-purple-deep hover:bg-purple hover:text-white"
           }`}
         >
-          <span className="material-symbols-outlined text-[18px]" aria-hidden>
+          <span className="material-symbols-outlined text-td-icon" aria-hidden>
             {isSpeaking ? "graphic_eq" : "volume_up"}
           </span>
           <span className="text-td-meta font-medium">

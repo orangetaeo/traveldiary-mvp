@@ -164,7 +164,7 @@ function ItineraryCreatingInner() {
       <div className="mt-6 flex-1 flex flex-col justify-end">
         {!done && (
           <div className="bg-surface-card border border-divider rounded-md p-3 flex items-start gap-2">
-            <span className="material-symbols-outlined text-amber text-[18px] shrink-0 mt-0.5">lightbulb</span>
+            <span className="material-symbols-outlined text-amber text-td-icon shrink-0 mt-0.5">lightbulb</span>
             <p className="text-td-caption text-ink-soft leading-relaxed" key={tipIdx}>
               {shuffledTips[tipIdx]}
             </p>

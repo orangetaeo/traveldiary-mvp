@@ -154,7 +154,7 @@ export default function SharedListPage() {
           <>
             {/* 검색 input */}
             <div className="relative mb-3">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute text-[20px]">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute text-td-icon-lg">
                 search
               </span>
               <input
