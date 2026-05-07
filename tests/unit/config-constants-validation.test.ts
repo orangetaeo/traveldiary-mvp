@@ -91,17 +91,44 @@ describe("next.config.js — 보안 헤더", () => {
     expect(nextConfigSrc).toContain("/:path*");
   });
 
-  it("보안 헤더 5종 모두 존재", () => {
+  it("보안 헤더 6종 모두 존재", () => {
     const requiredHeaders = [
       "Strict-Transport-Security",
       "X-Frame-Options",
       "X-Content-Type-Options",
       "Referrer-Policy",
       "Permissions-Policy",
+      "Content-Security-Policy",
     ];
     for (const header of requiredHeaders) {
       expect(nextConfigSrc, `${header} 누락`).toContain(header);
     }
+  });
+
+  it("CSP — default-src 'self'", () => {
+    expect(nextConfigSrc).toContain("default-src 'self'");
+  });
+
+  it("CSP — frame-ancestors 'none' (X-Frame-Options 보완)", () => {
+    expect(nextConfigSrc).toContain("frame-ancestors 'none'");
+  });
+
+  it("CSP — img-src 허용 출처 (self + data + blob + picsum + Google Maps)", () => {
+    expect(nextConfigSrc).toContain("img-src");
+    expect(nextConfigSrc).toContain("data:");
+    expect(nextConfigSrc).toContain("blob:");
+    expect(nextConfigSrc).toContain("picsum.photos");
+    expect(nextConfigSrc).toContain("maps.googleapis.com");
+  });
+
+  it("CSP — frame-src Google Maps embed만 허용", () => {
+    expect(nextConfigSrc).toContain("frame-src");
+    expect(nextConfigSrc).toContain("www.google.com");
+  });
+
+  it("CSP — form-action + base-uri self 제한", () => {
+    expect(nextConfigSrc).toContain("form-action 'self'");
+    expect(nextConfigSrc).toContain("base-uri 'self'");
   });
 });
 
