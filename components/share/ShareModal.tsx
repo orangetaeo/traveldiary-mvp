@@ -249,11 +249,36 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
             >
               {downloading ? "이미지 생성 중…" : "인스타 스토리 카드 저장"}
             </button>
-            <div className="flex justify-center">
+            {/* D5 확장 — SNS 공유 버튼 그리드 */}
+            <div className="flex justify-center gap-td-sm flex-wrap">
               <KakaoShareButton
                 url={shareUrl}
                 text="TravelDiary 여행 일정을 공유합니다"
               />
+              <button
+                type="button"
+                onClick={() => window.open(
+                  `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent("여행 일정 공유합니다 ✈️")}`,
+                  "_blank", "noopener,noreferrer,width=550,height=420"
+                )}
+                aria-label="X(Twitter)로 공유"
+                className="inline-flex items-center gap-1 px-td-sm py-td-xs rounded-full bg-ink text-white font-medium text-td-meta hover:bg-ink/80 transition-colors"
+              >
+                <span className="text-td-icon-md font-bold" aria-hidden>𝕏</span>
+                X 공유
+              </button>
+              <button
+                type="button"
+                onClick={() => window.open(
+                  `https://www.threads.net/intent/post?text=${encodeURIComponent(`여행 일정 공유합니다 ✈️ ${shareUrl}`)}`,
+                  "_blank", "noopener,noreferrer,width=550,height=420"
+                )}
+                aria-label="Threads로 공유"
+                className="inline-flex items-center gap-1 px-td-sm py-td-xs rounded-full bg-ink/80 text-white font-medium text-td-meta hover:bg-ink/60 transition-colors"
+              >
+                <span className="material-symbols-outlined text-td-icon-md" aria-hidden>alternate_email</span>
+                Threads
+              </button>
             </div>
           </div>
         )}
