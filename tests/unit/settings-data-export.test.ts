@@ -18,8 +18,11 @@ describe("/settings/data-export — placeholder shell", () => {
     expect(src).toContain("내 데이터 내보내기");
   });
 
-  it("설정 복귀 링크 (/settings)", () => {
-    expect(src).toContain('href="/settings"');
+  it("설정 복귀 — PlaceholderShell wrap + default backHref('/settings')", () => {
+    // PR #265 PlaceholderShell DRY 추출 후 — back link는 PlaceholderShell 내부.
+    // page.tsx는 default backHref 사용(=/settings) → backHref override 미지정으로 검증.
+    expect(src).toContain("PlaceholderShell");
+    expect(src).not.toContain("backHref=");
   });
 
   it("Hero 메시지 (한국어, 사이클 U-shell-dry: PlaceholderShell description)", () => {
