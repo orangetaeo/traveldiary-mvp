@@ -179,7 +179,7 @@ export function AddItemModal({
               <span className="material-symbols-outlined text-td-icon-sm" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
               AI 추천
             </p>
-            <div className="flex gap-td-xs overflow-x-auto no-scrollbar -mx-td-md px-td-md pb-1">
+            <div className="flex gap-td-xs overflow-x-auto hide-scrollbar -mx-td-md px-td-md pb-1">
               {top5.map((place) => (
                 <button
                   key={place.id}

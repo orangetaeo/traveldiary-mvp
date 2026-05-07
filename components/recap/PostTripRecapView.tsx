@@ -74,7 +74,7 @@ export function PostTripRecapView({
 
       {/* Stats Horizontal Scroll */}
       <section className="py-td-lg px-td-md">
-        <div className="flex overflow-x-auto gap-td-sm pb-td-xs snap-x snap-mandatory no-scrollbar">
+        <div className="flex overflow-x-auto gap-td-sm pb-td-xs snap-x snap-mandatory hide-scrollbar">
           {/* Card: 방문 */}
           <div className="min-w-[220px] flex-shrink-0 bg-gradient-to-br from-purple to-purple-deep p-td-md rounded-md shadow-sm text-white snap-center">
             <span className="material-symbols-outlined mb-td-sm text-3xl opacity-80">

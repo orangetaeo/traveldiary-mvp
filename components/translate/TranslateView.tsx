@@ -128,7 +128,7 @@ function CapturingView({
           >
             <span className="material-symbols-outlined text-white">close</span>
           </Link>
-          <h1 className="text-td-body font-semibold tracking-tight text-white">
+          <h1 className="text-td-body font-bold tracking-tight text-white">
             Camera Translator
           </h1>
         </div>

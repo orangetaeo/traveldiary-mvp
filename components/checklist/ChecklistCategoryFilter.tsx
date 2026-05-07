@@ -34,7 +34,7 @@ export function ChecklistCategoryFilter({ items, value, onChange }: Props) {
 
   return (
     <div
-      className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-td-md px-td-md"
+      className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 -mx-td-md px-td-md"
       role="radiogroup"
       aria-label="카테고리 필터"
     >

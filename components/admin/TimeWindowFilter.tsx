@@ -46,7 +46,7 @@ export function TimeWindowFilter({ current, basePath }: Props) {
 
   return (
     <div
-      className="flex gap-2 overflow-x-auto scrollbar-hide pb-1"
+      className="flex gap-2 overflow-x-auto hide-scrollbar pb-1"
       role="radiogroup"
       aria-label="시간 윈도우"
     >
