@@ -5,12 +5,22 @@
  *
  * 답습: 사이클 O/CC/DD/HH/JJ (presentation 컴포넌트 추출).
  * 책임: 비용 입력 폼 UI + 폼 state. 제출은 부모 콜백으로 위임.
+ *
+ * 사이클 A5 (디자인 갭 자율 발견 #3) — 그룹 분담금 자동 계산 UX:
+ *  - props에 entries (옵셔널, 후방 호환) — 기존 splitWith 빈도 추출 소스
+ *  - "일행과 정산" details 안에 빈도 칩 + "1/N 자동 채우기" 버튼
+ *  - 칩 클릭: 결제자 빈 칸이면 결제자, 아니면 함께 부담에 추가
+ *  - "1/N 자동 채우기": 빈도 ≥ 2 멤버 모두 적용 (결제자 비면 빈도 1위 → 결제자)
  */
 
-import { useState } from "react";
-import type { CostStatus } from "@/lib/types";
+import { useMemo, useState } from "react";
+import type { CostEntry, CostStatus } from "@/lib/types";
 import { parseSplitToken } from "@/lib/services/settlement";
 import { COST_CATEGORY_OPTIONS } from "@/lib/utils/cost-constants";
+import {
+  extractCommonMembers,
+  type MemberFrequency,
+} from "@/lib/cost-split-suggestions";
 
 const TODAY_ISO = new Date().toISOString().slice(0, 10);
 
@@ -31,6 +41,19 @@ interface AddCostFormProps {
   isPending: boolean;
   onSubmit: (input: AddCostFormSubmit) => void;
   onError: (msg: string) => void;
+  /** 사이클 A5 — 기존 entries (빈도 칩 추천 소스). 미전달 시 추천 영역 미노출. */
+  entries?: CostEntry[];
+}
+
+/** 함께 부담 input 문자열에 신규 이름 추가 — 중복 회피, 쉼표 구분 */
+function appendToOthers(current: string, name: string): string {
+  const tokens = current
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  if (tokens.includes(name)) return current;
+  tokens.push(name);
+  return tokens.join(", ");
 }
 
 export function AddCostForm({
@@ -40,6 +63,7 @@ export function AddCostForm({
   isPending,
   onSubmit,
   onError,
+  entries,
 }: AddCostFormProps) {
   const [draftLabel, setDraftLabel] = useState("");
   const [draftAmountKrw, setDraftAmountKrw] = useState("");
@@ -49,6 +73,12 @@ export function AddCostForm({
   const [draftDate, setDraftDate] = useState(TODAY_ISO);
   const [draftPayer, setDraftPayer] = useState("");
   const [draftSplitMembers, setDraftSplitMembers] = useState("");
+
+  /** 사이클 A5 — entries 변경 시 빈도 추출 (memo) */
+  const memberFrequency: MemberFrequency[] = useMemo(
+    () => (entries && entries.length > 0 ? extractCommonMembers(entries) : []),
+    [entries],
+  );
 
   /** KRW 또는 local 둘 중 하나만 입력해도 자동 산출. 둘 다 입력 시 우선: local */
   function deriveAmounts(
@@ -125,6 +155,39 @@ export function AddCostForm({
     setDraftPayer("");
     setDraftSplitMembers("");
   }
+
+  /** 사이클 A5 — 칩 클릭. 결제자 빈 칸이면 결제자에, 아니면 함께 부담에 추가 */
+  function handleSuggestionTap(name: string) {
+    if (draftPayer.trim().length === 0) {
+      setDraftPayer(name);
+      return;
+    }
+    if (name === draftPayer.trim()) return; // 결제자와 동일 — 무시
+    setDraftSplitMembers((current) => appendToOthers(current, name));
+  }
+
+  /** 사이클 A5 — "1/N 자동 채우기". 빈도 ≥ 2 멤버 모두 적용 (결제자 비면 빈도 1위 → 결제자) */
+  function handleAutoFill() {
+    const recurring = memberFrequency.filter((m) => m.count >= 2);
+    if (recurring.length === 0) return;
+    let payer = draftPayer.trim();
+    let pool = recurring;
+    if (payer.length === 0) {
+      payer = recurring[0].name;
+      pool = recurring.slice(1);
+      setDraftPayer(payer);
+    }
+    setDraftSplitMembers((current) => {
+      let next = current;
+      for (const m of pool) {
+        if (m.name === payer) continue;
+        next = appendToOthers(next, m.name);
+      }
+      return next;
+    });
+  }
+
+  const recurringCount = memberFrequency.filter((m) => m.count >= 2).length;
 
   return (
     <section id="add-cost-form" className="bg-surface-card border border-divider rounded-md p-td-md mb-td-lg">
@@ -205,6 +268,49 @@ export function AddCostForm({
             일행과 정산 (선택)
           </summary>
           <div className="space-y-td-xs mt-td-xs">
+            {memberFrequency.length > 0 && (
+              <div
+                className="flex flex-wrap items-center gap-td-xs"
+                aria-label="자주 함께한 동행자"
+              >
+                <span className="text-td-caption text-ink-mute">
+                  자주 함께한 동행자:
+                </span>
+                {memberFrequency.map((m) => {
+                  const isRecurring = m.count >= 2;
+                  return (
+                    <button
+                      key={m.name}
+                      type="button"
+                      onClick={() => handleSuggestionTap(m.name)}
+                      className={
+                        isRecurring
+                          ? "px-2 py-0.5 rounded-full text-td-caption bg-purple-soft text-purple-deep border border-purple-soft hover:bg-purple-soft/80"
+                          : "px-2 py-0.5 rounded-full text-td-caption bg-surface-soft text-ink-soft border border-divider hover:bg-surface-card"
+                      }
+                      aria-label={`${m.name} 추가 — ${m.count}회 함께함`}
+                    >
+                      {m.name}
+                      {isRecurring && (
+                        <span className="ml-1 text-[10px] tabular-nums opacity-80">
+                          ×{m.count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+                {recurringCount >= 1 && (
+                  <button
+                    type="button"
+                    onClick={handleAutoFill}
+                    className="ml-auto px-2 py-0.5 rounded-md text-td-caption text-purple-deep font-semibold hover:underline"
+                    aria-label="자주 함께한 동행자 모두로 1/N 자동 채우기"
+                  >
+                    1/N 자동 채우기 →
+                  </button>
+                )}
+              </div>
+            )}
             <input
               type="text"
               placeholder="결제자 (예: 나)"
