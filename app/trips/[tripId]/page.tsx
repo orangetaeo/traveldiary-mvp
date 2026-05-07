@@ -28,6 +28,7 @@ import {
   buildTripDashboardData,
 } from "@/lib/services/trip-dashboard";
 import { dDay } from "@/lib/utils/item-display";
+import { formatStartDateLabel, todayKstISO } from "@/lib/utils/trip-display";
 
 export async function generateMetadata({
   params,
@@ -49,24 +50,6 @@ const COUNTRY_FLAG: Record<string, string> = {
   JP: "🇯🇵",
   KR: "🇰🇷",
 };
-
-const KO_DAY_OF_WEEK = ["일", "월", "화", "수", "목", "금", "토"];
-
-function formatStartDate(iso: string): string {
-  const d = new Date(`${iso}T00:00:00.000Z`);
-  if (isNaN(d.getTime())) return iso;
-  const month = d.getUTCMonth() + 1;
-  const day = d.getUTCDate();
-  const dow = KO_DAY_OF_WEEK[d.getUTCDay()];
-  return `${month}월 ${day}일 (${dow})`;
-}
-
-function todayKstISO(): string {
-  // KST(+09:00) 기준 yyyy-mm-dd. 서버 timezone 영향 회피.
-  const now = new Date();
-  const kstMs = now.getTime() + 9 * 60 * 60 * 1000;
-  return new Date(kstMs).toISOString().slice(0, 10);
-}
 
 export default async function TripDashboardPage({
   params,
@@ -116,7 +99,7 @@ export default async function TripDashboardPage({
           destination={trip.destination}
           destinationFlag={flag}
           nights={trip.nights}
-          startDateLabel={formatStartDate(trip.startDate)}
+          startDateLabel={formatStartDateLabel(trip.startDate)}
           dDayValue={dDay(trip.startDate, todayKstISO())}
           partySize={data.party.size}
           hero={heroVisual}
