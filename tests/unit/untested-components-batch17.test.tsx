@@ -210,61 +210,82 @@ describe("trackFunnelStep (analytics/funnel)", () => {
   });
 
   it("sendBeacon 없는 환경 — fetch fallback", async () => {
-    const originalBeacon = navigator.sendBeacon;
-    const mockFetch = vi.fn().mockResolvedValue({});
-    const originalFetch = globalThis.fetch;
-    globalThis.fetch = mockFetch;
+    // navigator가 없는 Node 환경 대응
+    const hasNavigator = typeof globalThis.navigator !== "undefined";
+    if (hasNavigator) {
+      const originalBeacon = navigator.sendBeacon;
+      Object.defineProperty(navigator, "sendBeacon", {
+        value: undefined,
+        writable: true,
+        configurable: true,
+      });
 
-    // sendBeacon 제거
-    Object.defineProperty(navigator, "sendBeacon", {
-      value: undefined,
-      writable: true,
-      configurable: true,
-    });
+      const mockFetch = vi.fn().mockResolvedValue({});
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = mockFetch;
 
-    const { trackFunnelStep } = await import("@/lib/analytics/funnel");
-    trackFunnelStep("view");
+      const { trackFunnelStep } = await import("@/lib/analytics/funnel");
+      trackFunnelStep("view");
 
-    // fetch가 호출됐는지 확인
-    expect(mockFetch).toHaveBeenCalledWith(
-      "/api/analytics/funnel",
-      expect.objectContaining({
-        method: "POST",
-        keepalive: true,
-      }),
-    );
+      expect(mockFetch).toHaveBeenCalledWith(
+        "/api/analytics/funnel",
+        expect.objectContaining({ method: "POST", keepalive: true }),
+      );
 
-    // 복원
-    globalThis.fetch = originalFetch;
-    Object.defineProperty(navigator, "sendBeacon", {
-      value: originalBeacon,
-      writable: true,
-      configurable: true,
-    });
+      globalThis.fetch = originalFetch;
+      Object.defineProperty(navigator, "sendBeacon", {
+        value: originalBeacon,
+        writable: true,
+        configurable: true,
+      });
+    } else {
+      // Node 환경: navigator 없으면 fetch fallback 경로
+      const mockFetch = vi.fn().mockResolvedValue({});
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = mockFetch;
+
+      const { trackFunnelStep } = await import("@/lib/analytics/funnel");
+      trackFunnelStep("view");
+
+      // navigator 없으므로 fetch fallback
+      expect(mockFetch).toHaveBeenCalledWith(
+        "/api/analytics/funnel",
+        expect.objectContaining({ method: "POST", keepalive: true }),
+      );
+
+      globalThis.fetch = originalFetch;
+    }
   });
 
   it("sendBeacon 있는 환경 — sendBeacon 호출", async () => {
-    const mockBeacon = vi.fn().mockReturnValue(true);
-    const originalBeacon = navigator.sendBeacon;
-    Object.defineProperty(navigator, "sendBeacon", {
-      value: mockBeacon,
-      writable: true,
-      configurable: true,
-    });
+    // navigator 정의
+    const hadNavigator = typeof globalThis.navigator !== "undefined";
+    if (!hadNavigator) {
+      // Node CI: navigator 자체가 없으므로 stub 생성
+      Object.defineProperty(globalThis, "navigator", {
+        value: { sendBeacon: vi.fn().mockReturnValue(true) },
+        writable: true,
+        configurable: true,
+      });
+    } else {
+      Object.defineProperty(navigator, "sendBeacon", {
+        value: vi.fn().mockReturnValue(true),
+        writable: true,
+        configurable: true,
+      });
+    }
 
     const { trackFunnelStep } = await import("@/lib/analytics/funnel");
     trackFunnelStep("step1", { userId: "u1" });
 
-    expect(mockBeacon).toHaveBeenCalledWith(
+    expect(navigator.sendBeacon).toHaveBeenCalledWith(
       "/api/analytics/funnel",
       expect.any(Blob),
     );
 
-    // 복원
-    Object.defineProperty(navigator, "sendBeacon", {
-      value: originalBeacon,
-      writable: true,
-      configurable: true,
-    });
+    if (!hadNavigator) {
+      // @ts-expect-error cleanup
+      delete globalThis.navigator;
+    }
   });
 });
