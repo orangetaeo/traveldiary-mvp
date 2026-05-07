@@ -15,7 +15,7 @@ import {
 } from "@/lib/repositories/photo.repository";
 import { isDbConnected } from "@/lib/prisma";
 import { getActorId } from "@/lib/auth/session";
-import { canWriteTrip } from "@/lib/auth/authorize";
+import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { TripPhoto } from "@/lib/types";
 
@@ -33,6 +33,7 @@ export async function addPhoto(input: {
   url: string;
   caption?: string;
   dayIndex?: number;
+  shareKey?: string;
 }): Promise<PhotoActionResult<TripPhoto>> {
   if (!input.url || typeof input.url !== "string" || input.url.length > 500) {
     return { ok: false, code: "invalid" };
@@ -42,7 +43,7 @@ export async function addPhoto(input: {
     return { ok: true, demo: true };
   }
 
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -81,12 +82,13 @@ export async function addPhoto(input: {
 export async function removePhoto(input: {
   id: string;
   tripId: string;
+  shareKey?: string;
 }): Promise<PhotoActionResult<{ id: string }>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
 
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 

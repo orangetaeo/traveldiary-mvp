@@ -21,7 +21,7 @@ import {
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { isDbConnected } from "@/lib/prisma";
 import { getActorId, getOwnerId } from "@/lib/auth/session";
-import { canWriteTrip } from "@/lib/auth/authorize";
+import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 import {
   generateItinerary,
   aiGenerationAvailable,
@@ -130,6 +130,8 @@ export interface SetTripModeInput {
    * 좌표(lat/lng)는 절대 포함 금지. buildModeTransitionMetadata가 화이트리스트 필터링.
    */
   context?: ModeTransitionContext;
+  /** 11d — ShareLink edit 권한으로 mutation 허용. */
+  shareKey?: string;
 }
 
 export type SetTripModeResult =
@@ -146,7 +148,7 @@ export async function setTripMode(
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -203,6 +205,8 @@ export interface RecordModeTransitionSkipInput {
   trigger?: "manual" | "geolocation";
   /** dDay/boundaryHit/destinationCode만. 좌표 X. */
   context?: ModeTransitionContext;
+  /** 11d — ShareLink edit 권한으로 mutation 허용. */
+  shareKey?: string;
 }
 
 export type RecordModeTransitionSkipResult =
@@ -216,7 +220,7 @@ export async function recordModeTransitionSkip(
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 

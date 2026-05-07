@@ -14,7 +14,7 @@ import {
 } from "@/lib/repositories/review.repository";
 import { isDbConnected } from "@/lib/prisma";
 import { getActorId } from "@/lib/auth/session";
-import { canWriteTrip } from "@/lib/auth/authorize";
+import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { TripReview } from "@/lib/types";
 
@@ -31,6 +31,7 @@ export async function saveReview(input: {
   tripId: string;
   rating: number;
   text: string;
+  shareKey?: string;
 }): Promise<ReviewActionResult<TripReview>> {
   // 입력 검증
   const rating = Math.floor(Number(input.rating));
@@ -44,7 +45,7 @@ export async function saveReview(input: {
     return { ok: true, demo: true };
   }
 
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 

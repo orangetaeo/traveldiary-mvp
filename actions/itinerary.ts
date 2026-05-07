@@ -19,7 +19,7 @@ import {
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
-import { canWriteTrip } from "@/lib/auth/authorize";
+import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { ItineraryItem } from "@/lib/types";
 
@@ -33,12 +33,12 @@ export type AddItineraryItemResult =
   | { ok: false; code: "internal" | "forbidden" };
 
 export async function addItineraryItem(
-  input: AddItineraryItemInput,
+  input: AddItineraryItemInput & { shareKey?: string },
 ): Promise<AddItineraryItemResult> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -83,12 +83,12 @@ export type ReorderItineraryItemsResult =
   | { ok: false; code: "internal" | "not_found" | "forbidden" };
 
 export async function reorderItineraryItems(
-  input: ReorderItineraryItemsInput,
+  input: ReorderItineraryItemsInput & { shareKey?: string },
 ): Promise<ReorderItineraryItemsResult> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 

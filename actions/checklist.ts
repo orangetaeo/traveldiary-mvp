@@ -28,7 +28,7 @@ import { isDbConnected } from "@/lib/prisma";
 import { ensureDemoTripInDb } from "@/lib/repositories/trip.repository";
 import { DEFAULT_CHECKLIST_TEMPLATE } from "@/lib/seed/checklist-template";
 import { getActorId } from "@/lib/auth/session";
-import { canWriteTrip } from "@/lib/auth/authorize";
+import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { ChecklistItem } from "@/lib/types";
 
@@ -42,12 +42,12 @@ export type ChecklistActionResult<T = unknown> =
 // ═══════════════════════════════════════════════════════════════════
 
 export async function addChecklistItem(
-  input: CreateChecklistInput,
+  input: CreateChecklistInput & { shareKey?: string },
 ): Promise<ChecklistActionResult<ChecklistItem>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -82,11 +82,12 @@ export async function addChecklistItem(
 
 export async function addFromTemplate(input: {
   tripId: string;
+  shareKey?: string;
 }): Promise<ChecklistActionResult<ChecklistItem[]>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -135,11 +136,12 @@ export async function addFromTemplate(input: {
 export async function toggleChecklist(input: {
   itemId: string;
   tripId: string;
+  shareKey?: string;
 }): Promise<ChecklistActionResult<ChecklistItem>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -169,11 +171,12 @@ export async function moveChecklist(input: {
   itemId: string;
   tripId: string;
   direction: MoveDirection;
+  shareKey?: string;
 }): Promise<ChecklistActionResult<ChecklistItem> | { ok: true; demo: false; data: ChecklistItem; noOp: true }> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
@@ -214,11 +217,12 @@ export async function bulkToggleChecklist(input: {
   tripId: string;
   itemIds: string[];
   done: boolean;
+  shareKey?: string;
 }): Promise<ChecklistActionResult<{ updatedCount: number; done: boolean }>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
   if (input.itemIds.length === 0) {
@@ -265,11 +269,12 @@ export async function bulkToggleChecklist(input: {
 export async function bulkDeleteChecklist(input: {
   tripId: string;
   itemIds: string[];
+  shareKey?: string;
 }): Promise<ChecklistActionResult<{ deletedCount: number }>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
   if (input.itemIds.length === 0) {
@@ -318,11 +323,12 @@ export async function bulkDeleteChecklist(input: {
 export async function deleteChecklist(input: {
   itemId: string;
   tripId: string;
+  shareKey?: string;
 }): Promise<ChecklistActionResult<{ id: string }>> {
   if (!isDbConnected) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 

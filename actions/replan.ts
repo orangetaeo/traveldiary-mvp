@@ -20,7 +20,7 @@ import { generateReplanOptions, type ReplanTrigger } from "@/lib/replan";
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
-import { canWriteTrip } from "@/lib/auth/authorize";
+import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 
 export type ReplanOptionId = "option-recommend" | "option-safe" | "option-force";
 
@@ -29,6 +29,7 @@ export interface CommitReplanInput {
   optionId: ReplanOptionId;
   trigger: ReplanTrigger;
   expectedTripUpdatedAt?: string;
+  shareKey?: string;
 }
 
 export type CommitReplanResult =
@@ -47,7 +48,7 @@ export async function commitReplan(
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 

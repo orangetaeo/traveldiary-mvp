@@ -1,7 +1,8 @@
 /**
- * Share Link view-only 페이지 — 사이클 11a (ADR-024).
+ * Share Link 페이지 — 사이클 11a (ADR-024) + 11d (edit 권한 검증).
  *
- * 권한: view만. 편집 X. 만료/철회 시 404.
+ * 권한: view (보기 전용) 또는 edit (편집 가능 — 일정 상세로 이동).
+ * 만료/철회 시 404.
  * 사이클 F: og:image 동적 생성 (인스타·카카오톡 미리보기).
  */
 
@@ -106,25 +107,45 @@ export default async function SharedTripPage({
             공유 받은 여행
           </h1>
         </div>
-        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-td-caption font-bold bg-surface-soft text-ink-soft">
-          <span className="material-symbols-outlined text-td-icon-sm">lock</span>
+        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-td-caption font-bold ${
+          link.permission === "edit"
+            ? "bg-amber-soft text-amber-deep"
+            : "bg-surface-soft text-ink-soft"
+        }`}>
+          <span className="material-symbols-outlined text-td-icon-sm">
+            {link.permission === "edit" ? "edit" : "lock"}
+          </span>
           {link.permission === "view" ? "보기 전용" : "편집 가능"}
         </span>
       </header>
 
       <main className="max-w-xl mx-auto px-td-md">
-        {/* C3 — 보기 전용 배너 (회색 배지 + disabled 시각 차단) */}
-        <div className="bg-surface-soft border border-divider rounded-lg px-td-md py-td-sm mt-td-sm flex items-center gap-td-sm">
-          <span className="material-symbols-outlined text-ink-mute text-td-icon-lg" aria-hidden>
-            lock
-          </span>
-          <p className="text-td-meta text-ink-soft">
-            <span className="font-bold">보기 전용</span> — 일정 수정은 불가합니다.{" "}
-            <Link href="/onboarding" className="underline font-medium text-purple-deep">
-              내 여행 만들기
-            </Link>
-          </p>
-        </div>
+        {/* 11d — 권한별 배너 */}
+        {link.permission === "edit" ? (
+          <div className="bg-amber-soft border border-amber/30 rounded-lg px-td-md py-td-sm mt-td-sm flex items-center gap-td-sm">
+            <span className="material-symbols-outlined text-amber-deep text-td-icon-lg" aria-hidden>
+              edit
+            </span>
+            <p className="text-td-meta text-amber-deep">
+              <span className="font-bold">편집 가능</span> — 이 링크로 일정을 수정할 수 있습니다.{" "}
+              <Link href={`/itinerary/${trip.id}?shareKey=${params.key}`} className="underline font-medium">
+                일정 편집하기
+              </Link>
+            </p>
+          </div>
+        ) : (
+          <div className="bg-surface-soft border border-divider rounded-lg px-td-md py-td-sm mt-td-sm flex items-center gap-td-sm">
+            <span className="material-symbols-outlined text-ink-mute text-td-icon-lg" aria-hidden>
+              lock
+            </span>
+            <p className="text-td-meta text-ink-soft">
+              <span className="font-bold">보기 전용</span> — 일정 수정은 불가합니다.{" "}
+              <Link href="/onboarding" className="underline font-medium text-purple-deep">
+                내 여행 만들기
+              </Link>
+            </p>
+          </div>
+        )}
 
         <section className="py-td-lg">
           <p className="text-td-meta text-ink-soft mb-td-xxs">
@@ -178,9 +199,13 @@ export default async function SharedTripPage({
                           <EvidencePanel evidence={item.evidence} />
                         </div>
                       )}
-                      {/* C3 — 보기 전용 시각 차단: 각 카드에 회색 배지 */}
-                      <span className="absolute top-2 right-2 text-td-micro px-1.5 py-0.5 rounded-full bg-surface-soft text-ink-mute font-bold">
-                        보기 전용
+                      {/* 11d — 권한별 카드 뱃지 */}
+                      <span className={`absolute top-2 right-2 text-td-micro px-1.5 py-0.5 rounded-full font-bold ${
+                        link.permission === "edit"
+                          ? "bg-amber-soft text-amber-deep"
+                          : "bg-surface-soft text-ink-mute"
+                      }`}>
+                        {link.permission === "edit" ? "편집 가능" : "보기 전용"}
                       </span>
                       {/* C5 — 아이템별 댓글/리액션 */}
                       <ItemCommentToggle

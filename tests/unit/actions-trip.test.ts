@@ -31,6 +31,7 @@ vi.mock("@/lib/auth/session", () => ({
 const mockCanWriteTrip = vi.fn<() => Promise<boolean>>();
 vi.mock("@/lib/auth/authorize", () => ({
   canWriteTrip: () => mockCanWriteTrip(),
+  canWriteTripOrViaShareLink: () => mockCanWriteTrip(),
 }));
 
 const mockCreateTripWithSeed = vi.fn();

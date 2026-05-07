@@ -13,7 +13,7 @@ import {
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { getActorId } from "@/lib/auth/session";
-import { canWriteTrip } from "@/lib/auth/authorize";
+import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 import { resolveActorIdForTrip } from "@/lib/auth/actor-resolution";
 import type { Vote } from "@/lib/types";
 
@@ -29,12 +29,12 @@ export type CreateVoteResult =
   | { ok: false; code: "internal" | "forbidden" | "invalid" };
 
 export async function createVote(
-  input: CreateVoteInput,
+  input: CreateVoteInput & { shareKey?: string },
 ): Promise<CreateVoteResult> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
   }
-  if (!(await canWriteTrip(input.tripId))) {
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
   const labels = input.optionLabels
@@ -70,12 +70,12 @@ export type CastVoteResult =
   | { ok: true; demo: false; data: Vote }
   | { ok: false; code: "internal" | "forbidden" | "not_found" | "no_actor" };
 
-export async function castVote(input: CastVoteInput): Promise<CastVoteResult> {
+export async function castVote(input: CastVoteInput & { shareKey?: string }): Promise<CastVoteResult> {
   if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
     return { ok: true, demo: true };
   }
-  // 투표는 owner뿐만 아니라 일행도 가능하지만, 11d 단계에선 owner만
-  if (!(await canWriteTrip(input.tripId))) {
+  // 11d — owner OR shareLink edit 권한
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
     return { ok: false, code: "forbidden" };
   }
 
