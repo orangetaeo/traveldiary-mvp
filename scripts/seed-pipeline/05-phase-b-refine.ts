@@ -408,7 +408,11 @@ function buildEvidence(
 // ═══════════════════════════════════════════════════════════════════
 
 function generateId(city: string, category: SeedCategory, name: string, index: number): string {
-  const prefix = city === "phu-quoc" ? "pq" : city === "da-nang" ? "dn" : city.slice(0, 2);
+  const CITY_PREFIX: Record<string, string> = {
+    "phu-quoc": "pq", "da-nang": "dn", "ho-chi-minh": "hcm",
+    "hanoi": "han", "nha-trang": "nha", "da-lat": "dl",
+  };
+  const prefix = CITY_PREFIX[city] ?? city.slice(0, 2);
   const catShort = { food: "food", spot: "spot", shopping: "shop", rest: "rest" }[category];
   // 간단한 slug 생성
   const slug = name
