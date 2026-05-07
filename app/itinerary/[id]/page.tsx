@@ -47,8 +47,44 @@ export default async function ItineraryPage({
   searchParams,
 }: {
   params: { id: string };
-  searchParams: { day?: string };
+  searchParams: { day?: string; debug?: string };
 }) {
+  try {
+    return await renderItinerary(params, searchParams);
+  } catch (err) {
+    // Railway stdout 로그용 — Server stderr에 stack 노출
+    console.error("[ItineraryPage] render throw", err);
+    if (searchParams.debug === "1") {
+      const message = err instanceof Error ? err.message : String(err);
+      const stack = err instanceof Error ? (err.stack ?? "(no stack)") : "(non-Error throw)";
+      const cause = err instanceof Error && err.cause ? String(err.cause) : "";
+      return (
+        <div className="min-h-screen bg-surface-soft p-4 text-ink">
+          <h1 className="text-lg font-bold mb-2">[DEBUG] ItineraryPage throw</h1>
+          <p className="text-sm text-ink-soft mb-2">
+            URL에 <code>?debug=1</code> 추가 시에만 노출. 평상시엔 error.tsx 표시.
+          </p>
+          <pre className="bg-surface-card p-3 rounded-md border border-divider whitespace-pre-wrap text-xs overflow-auto">
+            <strong>params:</strong> {JSON.stringify(params)}
+            {"\n"}
+            <strong>tripId:</strong> {params.id}
+            {"\n\n"}
+            <strong>message:</strong> {message}
+            {cause ? `\n\ncause: ${cause}` : ""}
+            {"\n\nstack:\n"}
+            {stack}
+          </pre>
+        </div>
+      );
+    }
+    throw err;
+  }
+}
+
+async function renderItinerary(
+  params: { id: string },
+  searchParams: { day?: string; debug?: string },
+) {
   const bundle = await resolveTripBundle(params.id);
   if (!bundle) notFound();
 
