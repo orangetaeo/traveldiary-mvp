@@ -187,3 +187,43 @@ describe("QuickActions", () => {
     expect(html).toContain("비용 관리");
   });
 });
+
+describe("BentoSummary cross-link (옵션 L)", () => {
+  it("tripId 주입 → 4 카드 모두 Link로 wrap (각 영역 href)", () => {
+    const html = renderToStaticMarkup(
+      <BentoSummary data={FULL_DATA} tripId="trip-pqc" />,
+    );
+    expect(html).toContain('href="/itinerary/trip-pqc"');
+    expect(html).toContain('href="/cost/trip-pqc"');
+    expect(html).toContain('href="/checklist/trip-pqc"');
+    expect(html).toContain('href="/vote/trip-pqc"');
+  });
+
+  it("tripId 주입 + Empty data → 빈 카드도 클릭 가능 (각 영역 href)", () => {
+    const html = renderToStaticMarkup(
+      <BentoSummary data={EMPTY_DATA} tripId="trip-empty" />,
+    );
+    expect(html).toContain('href="/itinerary/trip-empty"');
+    expect(html).toContain('href="/cost/trip-empty"');
+    expect(html).toContain('href="/checklist/trip-empty"');
+    expect(html).toContain('href="/vote/trip-empty"');
+  });
+
+  it("tripId 미주입 → href 부재 (BC, 정적 div 유지)", () => {
+    const html = renderToStaticMarkup(<BentoSummary data={FULL_DATA} />);
+    expect(html).not.toContain('href="/itinerary/');
+    expect(html).not.toContain('href="/cost/');
+    expect(html).not.toContain('href="/checklist/');
+    expect(html).not.toContain('href="/vote/');
+  });
+
+  it("tripId + focusKey 동시 → focused 카드는 Link이면서 ring + id 유지", () => {
+    const html = renderToStaticMarkup(
+      <BentoSummary data={FULL_DATA} tripId="trip-pqc" focusKey="cost" />,
+    );
+    expect(html).toContain('href="/cost/trip-pqc"');
+    expect(html).toContain('id="focus-cost"');
+    expect(html).toContain('data-focused="true"');
+    expect(html).toContain("ring-purple");
+  });
+});
