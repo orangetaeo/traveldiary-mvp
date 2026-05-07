@@ -140,6 +140,9 @@ KPT 회고 → 학습 추출 → 분류 → 저장 → 다음 사이클 적용
 | 2026-05-07 | **DB Place 테이블 연결**: 대안보기·일정짜기 UI가 DB에서 장소 조회 (푸꾸옥 752 + 다낭 1,075). PR #231, #233, #238 |
 | 2026-05-07 | **4개 도시 시드 확장**: Google Places API 파이프라인으로 SGN(836)+HAN(565)+NHA(606)+DLI(486) = 2,493곳 추가. 총 4,324곳. PR #254 |
 | 2026-05-07 | **디자인 시스템 완전 정리 (7 PR)**: PR #273(Heavy), #278(High), #280(Medium), #282(Low), #285(폰트 토큰), #286(스페이싱+아이콘+색상). tailwind.config에 td-badge(10px)·td-micro(9px)·td-xl(32px)·아이콘 6단·kakao 색상 토큰 추가. 하드코딩 hex/폰트/아이콘/색상 0건, 모달 backdrop·스크롤바·헤더 높이·border-radius 통일 완료 |
+| 2026-05-07 | **A3 관광지 이미지 (PR #292)**: `/api/places/photo` 프록시 API (Google Places Photo → 이미지 스트림, API 키 서버 격리, Cache-Control 24h/7d). `getPlacePhotoUrl()` 유틸 + `place.repository`·`discover-places.ts` imageUrl 매핑. 푸꾸옥 704곳 + 다낭 1,021곳 = 1,725개 Discover 카드 썸네일 활성화 |
+| 2026-05-07 | **A1 동선 지도 DB 연동 (PR #296)**: `buildRouteStops()` 유틸 — ItineraryItem[] → RouteStop[] 변환 (bounding box 핀 정규화 + Haversine 도보/차량 거리 계산). `/itinerary/[id]/map` 실 DB 데이터 연동. Google Maps deeplink에 좌표 + 경유지(waypoints) 포함. 11개 단위 테스트 |
+| 2026-05-07 | **A2 드래그 정렬**: 사이클 10에서 이미 구현 완료 확인 (HTML5 드래그 + scheduledAt 스왑 + 서버 영속화 + 모바일 화살표 fallback). Tier 1 A항목 3/5 완료 (A1✅ A2✅ A3✅ A5✅, A4 검색 미착수) |
 
 ---
 
