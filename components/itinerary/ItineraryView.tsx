@@ -7,6 +7,8 @@ import { ReplanTriggerCard } from "./ReplanTriggerCard";
 import { TripSecondaryActions } from "./TripSecondaryActions";
 import { ItineraryItemCard } from "./ItineraryItemCard";
 import { DayTabsBar } from "./DayTabsBar";
+import { DayRouteMiniMap } from "./DayRouteMiniMap";
+import { AddItemDashedCard } from "./AddItemDashedCard";
 import { ItineraryCoachMark } from "./ItineraryCoachMark";
 import {
   generateReplanOptions,
@@ -346,12 +348,18 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
 
   return (
     <>
-      {/* 사이클 JJ — DayTabsBar 추출 (Day 탭 + A5 자유 추가) */}
+      {/* DayTabsBar — Day 탭 (디자인 갭 #1: + FAB 제거) */}
       <DayTabsBar
         dayCount={trip.nights + 1}
         activeDay={activeDay}
         onActiveDayChange={setActiveDay}
-        onAddOpen={() => setAddOpen(true)}
+      />
+
+      {/* 디자인 갭 #1 (U3) — 미니 동선 지도 임베드 (현재 day 기준, 0건이면 hide) */}
+      <DayRouteMiniMap
+        tripId={trip.id}
+        dayIndex={activeDay}
+        items={dayItems}
       />
 
       {/* Timeline */}
@@ -361,12 +369,6 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
             className="absolute left-[31px] top-6 bottom-6 w-0.5 bg-divider z-0"
             aria-hidden
           />
-        )}
-
-        {dayItems.length === 0 && (
-          <p className="text-td-body text-ink-soft text-center py-td-lg">
-            이 날의 일정이 없습니다.
-          </p>
         )}
 
         {dayItems.map((item, idx) => (
@@ -394,6 +396,13 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
             onMoveDown={(id) => handleArrowMove(id, "down")}
           />
         ))}
+
+        {/* 디자인 갭 #1 (U1) — Day 카드 섹션 마지막에 dashed 추가 카드.
+            empty(0건)이면 강조 모드, 그 외엔 보조 강조. */}
+        <AddItemDashedCard
+          onClick={() => setAddOpen(true)}
+          emphasized={dayItems.length === 0}
+        />
       </div>
 
       {/* Replan + Travel Mode 진입점 */}
