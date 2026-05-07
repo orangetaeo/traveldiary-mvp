@@ -649,6 +649,19 @@ describe("TravelHome", () => {
     expect(html).toContain("일정 전체");
     expect(html).toContain("ADR-014");
   });
+
+  it("Bottom Bar — 옵션 R 대시보드 진입 칩 (?focus=itinerary)", () => {
+    const html = renderToStaticMarkup(
+      <TravelHome trip={TRAVEL_TRIP} items={TRAVEL_ITEMS} />,
+    );
+    // amber 칩 + dashboard 아이콘 + ?focus=itinerary 진입
+    expect(html).toContain(`/trips/${TRAVEL_TRIP.id}?focus=itinerary`);
+    expect(html).toContain("aria-label=\"여행 대시보드 — 일정 카드 강조\"");
+    expect(html).toContain("bg-amber-soft");
+    // dashboard material-symbols 아이콘 + 라벨 텍스트
+    expect(html).toContain(">dashboard<");
+    expect(html).toContain(">대시보드<");
+  });
 });
 
 // ─── 헬퍼 함수 단위 테스트 ───────────────────────────

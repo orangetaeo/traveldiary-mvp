@@ -319,13 +319,26 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
 
       {/* Bottom Bar */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full px-td-md py-td-sm bg-surface-card/90 backdrop-blur-md border-t border-divider z-40 flex justify-between items-center">
-        <Link
-          href={`/itinerary/${trip.id}`}
-          className="text-td-meta text-ink-soft hover:text-ink flex items-center gap-1"
-        >
-          <span className="material-symbols-outlined text-td-icon-md">arrow_back</span>
-          일정 전체
-        </Link>
+        <div className="flex items-center gap-td-sm">
+          <Link
+            href={`/itinerary/${trip.id}`}
+            className="text-td-meta text-ink-soft hover:text-ink flex items-center gap-1"
+          >
+            <span className="material-symbols-outlined text-td-icon-md">arrow_back</span>
+            일정 전체
+          </Link>
+          {/* 옵션 R — 여행 대시보드 진입 (옵션 L+M+N 답습 amber 톤) */}
+          <Link
+            href={`/trips/${trip.id}?focus=itinerary`}
+            aria-label="여행 대시보드 — 일정 카드 강조"
+            className="inline-flex items-center gap-1 px-td-xs py-1 rounded-full bg-amber-soft text-amber-deep text-td-caption font-medium hover:bg-amber/15 transition-colors"
+          >
+            <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>
+              dashboard
+            </span>
+            대시보드
+          </Link>
+        </div>
         <p className="text-td-caption text-ink-mute">ADR-014 · 데모 토글</p>
       </div>
 
