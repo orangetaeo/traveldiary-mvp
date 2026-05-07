@@ -92,6 +92,10 @@ export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
                     >
                       {OTA_LABEL[offer.ota]}
                     </span>
+                    {/* F6 — 개별 제휴 라벨 */}
+                    <span className="inline-block px-1.5 py-0.5 rounded text-td-micro text-ink-mute bg-surface-soft">
+                      제휴
+                    </span>
                     {isCheapest && (
                       <span className="inline-block px-2 py-0.5 rounded-full text-td-caption font-bold bg-success text-white">
                         최저가
@@ -134,6 +138,12 @@ export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
             );
           })}
       </div>
+
+      {/* F6 — 제휴 링크 공시 문구 */}
+      <p className="text-td-micro text-ink-mute mt-td-xs leading-relaxed">
+        <span className="material-symbols-outlined text-[12px] align-middle mr-0.5" aria-hidden>info</span>
+        이 링크를 통해 예약하면 TravelDiary가 소정의 수수료를 받습니다. 사용자 부담 추가 비용은 없습니다.
+      </p>
     </section>
   );
 }

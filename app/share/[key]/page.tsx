@@ -9,9 +9,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { fetchShareLinkBySyncKey } from "@/lib/repositories/share.repository";
-import { listCommentsByShareLinkId } from "@/lib/repositories/shareComment.repository";
+import { listCommentsByShareLinkId, countCommentsByItem } from "@/lib/repositories/shareComment.repository";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
 import { CommentSection } from "@/components/share/CommentSection";
+import { ItemCommentToggle } from "@/components/share/ItemCommentToggle";
 import { ReceivedKeyTracker } from "@/components/share/ReceivedKeyTracker";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { formatTime } from "@/lib/utils/item-display";
@@ -59,7 +60,11 @@ export default async function SharedTripPage({
   const { trip, items } = bundle;
 
   // 사이클 R (ADR-036) — 익명 댓글/리액션
-  const comments = await listCommentsByShareLinkId(link.id);
+  // C5 — 전체 댓글 + 아이템별 카운트 병렬 로드
+  const [comments, commentCounts] = await Promise.all([
+    listCommentsByShareLinkId(link.id),
+    countCommentsByItem(link.id),
+  ]);
   const isExpired = !!link.expiresAt && new Date(link.expiresAt) < new Date();
   const isRevoked = !!link.revokedAt;
   const commentsDisabled = isExpired || isRevoked;
@@ -177,6 +182,15 @@ export default async function SharedTripPage({
                       <span className="absolute top-2 right-2 text-td-micro px-1.5 py-0.5 rounded-full bg-surface-soft text-ink-mute font-bold">
                         보기 전용
                       </span>
+                      {/* C5 — 아이템별 댓글/리액션 */}
+                      <ItemCommentToggle
+                        syncKey={params.key}
+                        itemId={item.id}
+                        itemName={item.name}
+                        initialComments={comments.filter((c) => c.itemId === item.id)}
+                        disabled={commentsDisabled}
+                        disabledReason={disabledReason}
+                      />
                     </article>
                   );
                 })}
@@ -185,10 +199,10 @@ export default async function SharedTripPage({
           )
         ))}
 
-        {/* 사이클 R (ADR-036) — 익명 댓글/리액션 */}
+        {/* 사이클 R (ADR-036) — 익명 댓글/리액션 (trip 전체 + C5 아이템별 분리) */}
         <CommentSection
           syncKey={params.key}
-          initialComments={comments}
+          initialComments={comments.filter((c) => c.itemId === null)}
           disabled={commentsDisabled}
           disabledReason={disabledReason}
         />
