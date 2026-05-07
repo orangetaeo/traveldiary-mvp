@@ -113,13 +113,22 @@ export default async function ItineraryItemPage({
           </Link>
           <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
-        <button
-          type="button"
-          aria-label="알림"
-          className="p-2 rounded-full hover:bg-surface-soft transition-colors"
-        >
-          <span className="material-symbols-outlined text-purple">notifications</span>
-        </button>
+        <div className="flex items-center gap-td-xs">
+          <Link
+            href={`/trips/${params.id}?focus=itinerary`}
+            aria-label="여행 대시보드 — 일정 카드 강조"
+            className="p-2 rounded-full text-ink-soft hover:text-ink hover:bg-surface-soft transition-colors"
+          >
+            <span className="material-symbols-outlined" aria-hidden>dashboard</span>
+          </Link>
+          <Link
+            href="/notifications"
+            aria-label="알림"
+            className="p-2 rounded-full hover:bg-surface-soft transition-colors"
+          >
+            <span className="material-symbols-outlined text-purple">notifications</span>
+          </Link>
+        </div>
       </header>
 
       <main className="max-w-xl mx-auto">
@@ -298,20 +307,22 @@ export default async function ItineraryItemPage({
         )}
       </main>
 
-      {/* Bottom Action Bar (Fixed) */}
+      {/* Bottom Action Bar (Fixed) — 옵션 T: dead button 활성화 */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full p-td-md bg-surface-card/90 backdrop-blur-md border-t border-divider z-50 flex gap-td-sm">
         <Link
           href={`/itinerary/${params.id}`}
+          aria-label="이 일정의 대안 — 일정 목록으로"
           className="flex-1 py-3 border border-divider rounded-md text-td-body text-ink font-semibold text-center hover:bg-surface-soft transition-colors"
         >
           대안 보기
         </Link>
-        <button
-          type="button"
-          className="flex-[2] py-3 bg-purple text-white rounded-md text-td-body font-bold hover:opacity-90 active:scale-95 transition-all shadow-lg"
+        <Link
+          href={`/trips/${params.id}?focus=itinerary`}
+          aria-label="이 일정 유지 — 여행 대시보드로 돌아가기"
+          className="flex-[2] py-3 bg-purple text-white rounded-md text-td-body font-bold text-center hover:opacity-90 active:scale-95 transition-all shadow-lg"
         >
           이 일정 유지
-        </button>
+        </Link>
       </div>
     </div>
   );
