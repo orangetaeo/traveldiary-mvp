@@ -115,7 +115,7 @@ export default function SharedListPage() {
   return (
     <main className="bg-surface min-h-dvh pb-24" aria-label="받은 여행 목록">
       <BottomNav active="trips" />
-      <header className="sticky top-0 z-10 bg-surface-card/95 backdrop-blur-sm border-b border-divider">
+      <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider">
         <div className="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
           <Link
             href="/trips"

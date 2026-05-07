@@ -46,7 +46,7 @@ export default async function ProfilePage() {
   return (
     <div className="min-h-screen bg-surface text-ink pb-24">
       {/* TopAppBar */}
-      <header className="bg-surface-card/95 backdrop-blur-sm border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-4 h-16">
+      <header className="bg-surface-card/90 backdrop-blur-md border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-4 h-16">
         <Link
           href="/"
           aria-label="홈"

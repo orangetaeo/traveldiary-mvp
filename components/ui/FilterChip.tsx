@@ -30,7 +30,7 @@ export function FilterChip({
 
   let style = "";
   if (active && variant === "danger") {
-    style = "bg-danger-soft text-danger-deep border border-danger";
+    style = "bg-danger text-white border border-danger font-medium";
   } else if (active) {
     style = "bg-purple text-white border border-purple";
   } else if (variant === "danger") {

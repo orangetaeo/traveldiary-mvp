@@ -52,11 +52,12 @@ describe("FilterChip", () => {
     expect(html).toContain("선택됨");
   });
 
-  it("active + danger → bg-danger-soft 스타일", () => {
+  it("active + danger → bg-danger 강조 스타일", () => {
     const html = renderToStaticMarkup(
       <FilterChip active variant="danger">위험</FilterChip>,
     );
-    expect(html).toContain("bg-danger-soft");
+    expect(html).toContain("bg-danger");
+    expect(html).toContain("text-white");
   });
 
   it("inactive + danger → border-danger", () => {
@@ -64,7 +65,7 @@ describe("FilterChip", () => {
       <FilterChip variant="danger">알레르기</FilterChip>,
     );
     expect(html).toContain("border-danger");
-    expect(html).not.toContain("bg-danger-soft");
+    expect(html).not.toContain("bg-danger text-white");
   });
 
   it("button 엘리먼트 렌더링", () => {

@@ -97,7 +97,7 @@ export default async function TripDashboardPage({
   return (
     <div className="min-h-screen bg-surface text-ink pb-24">
       {/* TopAppBar */}
-      <header className="sticky top-0 z-50 bg-surface-card/95 backdrop-blur-sm border-b border-divider flex items-center px-4 h-16">
+      <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider flex items-center px-4 h-16">
         <div className="flex items-center justify-between w-full max-w-md mx-auto">
           <Link
             href="/trips"
