@@ -426,6 +426,9 @@ export interface RouteStop {
   isActive?: boolean;
   pinX: number;
   pinY: number;
+  /** 실 좌표 (A1 — Google Maps 길찾기 deeplink 용) */
+  lat?: number;
+  lng?: number;
 }
 
 /** PlaceDiscoveryView — 장소 카테고리 */
