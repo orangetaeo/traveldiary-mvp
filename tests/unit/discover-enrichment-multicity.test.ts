@@ -5,7 +5,9 @@
  *  - 다낭 enrichment lookup 머지 (5건 시범)
  *  - 하노이 시드 직접 enrichment (5건)
  *  - 호치민 시드 직접 enrichment (4건)
- *  - 미적용 시드는 graceful degradation (optional 필드 undefined)
+ *  - 나트랑 시드 직접 enrichment (4건) — 사이클 2 추가
+ *  - 달랏 시드 직접 enrichment (4건) — 사이클 2 추가
+ *  - 치앙마이는 V4 게이트 보류 (베트남 단일 정책)
  */
 
 import { describe, it, expect } from "vitest";
@@ -102,12 +104,68 @@ describe("Discover Place Enrichment — 다도시 (디자인 갭 #1 U2)", () => 
     });
   });
 
-  describe("나트랑/달랏/치앙마이는 미보강 (다음 사이클)", () => {
-    it("나트랑 카드는 enrichment 미적용 (graceful)", async () => {
+  describe("나트랑 (시드 직접 update — 4건 모두, 사이클 2)", () => {
+    it("빈원더스 → 한국 후기 인용 + AI 이유 + 가족 추천", async () => {
       const { DEMO_DISCOVER_PLACES } = await import("@/lib/seed/discover-places");
       const target = DEMO_DISCOVER_PLACES.find((p) => p.id === "discover-nt-vinwonders");
+      expect(target?.priceLevel).toBe(3);
+      expect(target?.koreanReviewQuote?.text).toContain("케이블카");
+      expect(target?.koreanReviewCount).toBe(318);
+      expect(target?.aiReason).toContain("한국인 가족");
+    });
+
+    it("나트랑 해산물 거리 → 한식 OK 뱃지", async () => {
+      const { DEMO_DISCOVER_PLACES } = await import("@/lib/seed/discover-places");
+      const target = DEMO_DISCOVER_PLACES.find((p) => p.id === "discover-nt-seafood");
+      expect(target?.koreanFoodFriendly).toBe(true);
+      expect(target?.koreanReviewQuote?.text).toContain("랍스타");
+    });
+
+    it("나트랑 4건 모두 enrichment 적용 (회귀 가드)", async () => {
+      const { DEMO_DISCOVER_PLACES } = await import("@/lib/seed/discover-places");
+      const ntCards = DEMO_DISCOVER_PLACES.filter(
+        (p) => p.id.startsWith("discover-nt-"),
+      );
+      expect(ntCards.length).toBe(4);
+      expect(ntCards.every((p) => !!p.koreanReviewQuote)).toBe(true);
+      expect(ntCards.every((p) => !!p.aiReason)).toBe(true);
+      expect(ntCards.every((p) => !!p.priceLevel)).toBe(true);
+    });
+  });
+
+  describe("달랏 (시드 직접 update — 4건 모두, 사이클 2)", () => {
+    it("랑비앙 일출 → 사진 명소 AI 이유", async () => {
+      const { DEMO_DISCOVER_PLACES } = await import("@/lib/seed/discover-places");
+      const target = DEMO_DISCOVER_PLACES.find((p) => p.id === "discover-dl-langbiang");
+      expect(target?.priceLevel).toBe(2);
+      expect(target?.koreanReviewQuote?.text).toContain("일출");
+      expect(target?.aiReason).toContain("인생샷");
+    });
+
+    it("달랏 야시장 → 한식 OK + 반짱느엉 인용", async () => {
+      const { DEMO_DISCOVER_PLACES } = await import("@/lib/seed/discover-places");
+      const target = DEMO_DISCOVER_PLACES.find((p) => p.id === "discover-dl-nightmarket");
+      expect(target?.koreanFoodFriendly).toBe(true);
+      expect(target?.koreanReviewQuote?.text).toContain("반짱느엉");
+    });
+
+    it("달랏 4건 모두 enrichment 적용 (회귀 가드)", async () => {
+      const { DEMO_DISCOVER_PLACES } = await import("@/lib/seed/discover-places");
+      const dlCards = DEMO_DISCOVER_PLACES.filter(
+        (p) => p.id.startsWith("discover-dl-"),
+      );
+      expect(dlCards.length).toBe(4);
+      expect(dlCards.every((p) => !!p.koreanReviewQuote)).toBe(true);
+      expect(dlCards.every((p) => !!p.aiReason)).toBe(true);
+      expect(dlCards.every((p) => !!p.priceLevel)).toBe(true);
+    });
+  });
+
+  describe("치앙마이는 V4 게이트 보류 (베트남 단일 정책)", () => {
+    it("치앙마이 카드는 enrichment 미적용 — feedback_vietnam_only_focus", async () => {
+      const { DEMO_DISCOVER_PLACES } = await import("@/lib/seed/discover-places");
+      const target = DEMO_DISCOVER_PLACES.find((p) => p.id === "discover-cm-doisuthep");
       expect(target).toBeDefined();
-      // 다음 사이클 보강 대상 — 현재는 빈 상태
       expect(target?.koreanReviewQuote).toBeUndefined();
       expect(target?.aiReason).toBeUndefined();
     });
