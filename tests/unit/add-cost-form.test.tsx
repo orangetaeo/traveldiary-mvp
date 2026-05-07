@@ -16,8 +16,24 @@
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AddCostForm } from "@/components/cost/AddCostForm";
+import type { CostEntry } from "@/lib/types";
 
 const NOOP = () => {};
+
+function makeEntry(splitWith: CostEntry["splitWith"]): CostEntry {
+  return {
+    id: `e-${Math.random()}`,
+    tripId: "t1",
+    date: "2026-05-07",
+    label: "lab",
+    amountKrw: 10000,
+    status: "paid",
+    category: "food",
+    createdAt: "2026-05-07T00:00:00Z",
+    updatedAt: "2026-05-07T00:00:00Z",
+    splitWith,
+  };
+}
 
 describe("사이클 LL — AddCostForm", () => {
   it("카테고리 6종 + 상태 3종 노출", () => {
@@ -150,5 +166,94 @@ describe("사이클 LL — AddCostForm", () => {
       />,
     );
     expect(html).toContain("즈엉동 야시장 저녁");
+  });
+});
+
+describe("사이클 A5 — AddCostForm 동행자 빈도 칩", () => {
+  it("entries 미전달 시 자주 함께한 동행자 영역 미노출", () => {
+    const html = renderToStaticMarkup(
+      <AddCostForm
+        currency="VND"
+        currencySymbol="₫"
+        approxKrwRate={20}
+        isPending={false}
+        onSubmit={NOOP}
+        onError={NOOP}
+      />,
+    );
+    expect(html).not.toContain("자주 함께한 동행자");
+    expect(html).not.toContain("1/N 자동 채우기");
+  });
+
+  it("entries 빈 배열 시에도 미노출", () => {
+    const html = renderToStaticMarkup(
+      <AddCostForm
+        currency="VND"
+        currencySymbol="₫"
+        approxKrwRate={20}
+        isPending={false}
+        onSubmit={NOOP}
+        onError={NOOP}
+        entries={[]}
+      />,
+    );
+    expect(html).not.toContain("자주 함께한 동행자");
+  });
+
+  it("멤버 1회 등장 시 칩 노출 + 1/N 버튼 미노출 (≥ 2회 조건)", () => {
+    const html = renderToStaticMarkup(
+      <AddCostForm
+        currency="VND"
+        currencySymbol="₫"
+        approxKrwRate={20}
+        isPending={false}
+        onSubmit={NOOP}
+        onError={NOOP}
+        entries={[makeEntry(["나", "영희"])]}
+      />,
+    );
+    expect(html).toContain("자주 함께한 동행자");
+    expect(html).toContain("나");
+    expect(html).toContain("영희");
+    // 1회만 등장 → 1/N 버튼 노출 안 됨
+    expect(html).not.toContain("1/N 자동 채우기");
+  });
+
+  it("멤버 ≥ 2회 등장 시 ×N 배지 + 1/N 자동 채우기 버튼 노출", () => {
+    const html = renderToStaticMarkup(
+      <AddCostForm
+        currency="VND"
+        currencySymbol="₫"
+        approxKrwRate={20}
+        isPending={false}
+        onSubmit={NOOP}
+        onError={NOOP}
+        entries={[
+          makeEntry(["나", "영희"]),
+          makeEntry(["나", "영희", "철수"]),
+          makeEntry(["나"]),
+        ]}
+      />,
+    );
+    expect(html).toContain("×3"); // 나
+    expect(html).toContain("×2"); // 영희
+    expect(html).toContain("1/N 자동 채우기");
+    expect(html).toContain('aria-label="자주 함께한 동행자 모두로 1/N 자동 채우기"');
+  });
+
+  it("aria-label 칩 동행자 추가 (회수 표기)", () => {
+    const html = renderToStaticMarkup(
+      <AddCostForm
+        currency="VND"
+        currencySymbol="₫"
+        approxKrwRate={20}
+        isPending={false}
+        onSubmit={NOOP}
+        onError={NOOP}
+        entries={[makeEntry(["나", "영희"])]}
+      />,
+    );
+    expect(html).toContain('aria-label="나 추가 — 1회 함께함"');
+    expect(html).toContain('aria-label="영희 추가 — 1회 함께함"');
   });
 });
