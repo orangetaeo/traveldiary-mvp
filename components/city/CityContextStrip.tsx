@@ -45,9 +45,9 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
           </div>
         </Link>
 
-        {/* 2. 환전 */}
+        {/* 2. 환전 — 사이클 W3 (A4 디자인 갭): payment 풀 페이지로 변경 */}
         <Link
-          href={`/city/${city.slug}#payment`}
+          href={`/city/${city.slug}/payment`}
           className="flex-shrink-0 w-24 h-20 bg-surface-card border border-divider rounded-md p-2 flex flex-col justify-between shadow-sm hover:border-amber/40 transition-colors"
         >
           <div className="flex justify-between items-start">
