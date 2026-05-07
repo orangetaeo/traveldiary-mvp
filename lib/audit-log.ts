@@ -85,6 +85,8 @@ export type AuditAction =
   | "affiliate.declined"
   | "auth.login"
   | "auth.logout"
+  // 사이클 8 (G3) — 계정 삭제 (ADR-049)
+  | "auth.account_delete"
   // 자율 모드 비용 거버넌스 (사이클 AAAA2, ADR-047)
   | "usage.budget.warn"
   | "usage.budget.throw"
