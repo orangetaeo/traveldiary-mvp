@@ -19,6 +19,8 @@ export interface LegalPlaceholderShellProps {
   highlights: string[];
   /** 마지막 갱신 일자 (placeholder는 빈 문자열 OK) */
   lastUpdated?: string;
+  /** Hero 원형 아이콘 (Material Symbols 이름). 기본 "gavel". */
+  iconName?: string;
 }
 
 export function LegalPlaceholderShell({
@@ -26,6 +28,7 @@ export function LegalPlaceholderShell({
   description,
   highlights,
   lastUpdated,
+  iconName = "gavel",
 }: LegalPlaceholderShellProps) {
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
@@ -51,7 +54,7 @@ export function LegalPlaceholderShell({
               className="material-symbols-outlined text-purple-deep text-3xl"
               aria-hidden
             >
-              gavel
+              {iconName}
             </span>
           </div>
           <h2 className="text-td-title text-ink text-center mb-td-xxs">

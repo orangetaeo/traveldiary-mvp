@@ -19,7 +19,8 @@ const SETTING_SECTIONS = [
     title: "알림",
     items: [
       { icon: "notifications", label: "알림 설정", href: "/permission/notification" },
-      { icon: "schedule", label: "리마인더 시간", href: "#", sub: "출발 30분 전" },
+      // 사이클 U-deadlinks (2026-05-07) — placeholder shell 라우트 활성 (이전 href="#")
+      { icon: "schedule", label: "리마인더 시간", href: "/settings/reminder", sub: "출발 30분 전" },
     ],
   },
   {
@@ -43,15 +44,18 @@ const SETTING_SECTIONS = [
     title: "데이터",
     items: [
       { icon: "download", label: "내 데이터 내보내기", href: "#" },
-      { icon: "cached", label: "캐시 삭제", href: "#" },
+      // 사이클 U-deadlinks (2026-05-07) — placeholder shell 라우트 활성 (이전 href="#")
+      { icon: "cached", label: "캐시 삭제", href: "/settings/cache" },
     ],
   },
   {
     title: "앱 정보",
     items: [
       { icon: "info", label: "버전", href: "#", sub: "v0.1.0 (MVP)" },
-      { icon: "description", label: "오픈소스 라이선스", href: "#" },
-      { icon: "bug_report", label: "버그 신고", href: "#" },
+      // 사이클 U-deadlinks (2026-05-07) — placeholder shell 라우트 활성 (이전 href="#")
+      { icon: "description", label: "오픈소스 라이선스", href: "/legal/oss" },
+      // 사이클 U-deadlinks (2026-05-07) — 외부 mailto 링크 (Next/Link mailto: 자동 외부 처리)
+      { icon: "bug_report", label: "버그 신고", href: "mailto:bizcomhome@gmail.com?subject=%5BTravelDiary%5D%20%EB%B2%84%EA%B7%B8%20%EC%8B%A0%EA%B3%A0" },
     ],
   },
 ] as const;

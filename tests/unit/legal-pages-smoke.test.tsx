@@ -21,6 +21,7 @@ vi.mock("next/link", () => ({
 
 import TermsPage from "@/app/legal/terms/page";
 import PrivacyPage from "@/app/legal/privacy/page";
+import OssLicensesPage from "@/app/legal/oss/page";
 
 describe("/legal/terms placeholder 페이지", () => {
   it("정적 마크업 + 핵심 카피", () => {
@@ -83,7 +84,7 @@ describe("/legal/privacy placeholder 페이지", () => {
   });
 });
 
-describe("LegalPlaceholderShell 공통 — 두 페이지 모두", () => {
+describe("LegalPlaceholderShell 공통 — Terms/Privacy", () => {
   it.each([
     ["TermsPage", TermsPage],
     ["PrivacyPage", PrivacyPage],
@@ -93,5 +94,46 @@ describe("LegalPlaceholderShell 공통 — 두 페이지 모두", () => {
     expect(html).toContain("주요 항목");
     expect(html).toContain("BLOCKER 7");
     expect(html).toContain("사업자 등록");
+  });
+});
+
+describe("/legal/oss placeholder 페이지 — 사이클 U-deadlinks", () => {
+  it("정적 마크업 + 핵심 카피", () => {
+    const html = renderToStaticMarkup(<OssLicensesPage />);
+    expect(html).toContain("오픈소스 라이선스");
+    expect(html).toContain("도움을 받아 만들어졌습니다");
+    expect(html).toContain("정식 문서 준비 중");
+  });
+
+  it("핵심 의존성 가시화 — Next/React/TypeScript/Tailwind/Prisma/shadcn", () => {
+    const html = renderToStaticMarkup(<OssLicensesPage />);
+    expect(html).toContain("Next.js 14");
+    expect(html).toContain("React 18");
+    expect(html).toContain("TypeScript 5");
+    expect(html).toContain("Tailwind CSS 3");
+    expect(html).toContain("Prisma 7");
+    expect(html).toContain("shadcn/ui");
+  });
+
+  it("라이선스 키워드 — MIT / Apache 2.0", () => {
+    const html = renderToStaticMarkup(<OssLicensesPage />);
+    expect(html).toContain("MIT");
+    expect(html).toContain("Apache 2.0");
+  });
+
+  it("LegalPlaceholderShell 답습 — iconName=description (gavel 아님)", () => {
+    const html = renderToStaticMarkup(<OssLicensesPage />);
+    // iconName prop으로 "description" 전달 → Hero 아이콘은 description
+    expect(html).toContain("description");
+    // shell 자체 구조는 답습 — 주요 항목 헤더 + amber 노트
+    expect(html).toContain("주요 항목");
+    expect(html).toContain("BLOCKER 7");
+  });
+
+  it("/settings 뒤로가기 + 교차 링크", () => {
+    const html = renderToStaticMarkup(<OssLicensesPage />);
+    expect(html).toContain('href="/settings"');
+    expect(html).toContain('href="/legal/terms"');
+    expect(html).toContain('href="/legal/privacy"');
   });
 });
