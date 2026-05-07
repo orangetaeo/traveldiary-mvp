@@ -16,6 +16,7 @@ import {
   BUCKET_LABEL,
   CHECKLIST_CATEGORY_LABEL,
   CATEGORY_TONE,
+  CATEGORY_ICON,
 } from "@/lib/utils/checklist-constants";
 
 interface Props {
@@ -109,10 +110,13 @@ export function ChecklistBucketList({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-td-xs flex-wrap">
                         <span
-                          className={`inline-block px-2 py-0.5 rounded-full text-td-caption font-bold ${
+                          className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-td-caption font-bold ${
                             CATEGORY_TONE[item.category]
                           }`}
                         >
+                          <span className="material-symbols-outlined text-[12px]" aria-hidden="true">
+                            {CATEGORY_ICON[item.category]}
+                          </span>
                           {CHECKLIST_CATEGORY_LABEL[item.category]}
                         </span>
                         <p

@@ -47,24 +47,44 @@ export function CostTotals({
       <h2 className="text-td-title text-ink tabular-nums">
         합계 {totals.total.toLocaleString()}원
       </h2>
+      {approxKrwRate > 0 && (
+        <p className="text-td-meta text-ink-mute tabular-nums mt-td-xxs">
+          ≈ {currencySymbol}{Math.round(totals.total * approxKrwRate).toLocaleString()} {currency}
+        </p>
+      )}
       <div className="grid grid-cols-3 gap-td-xs mt-td-md">
         <div className="bg-success-soft p-td-sm rounded-md">
           <p className="text-td-caption text-success-deep uppercase">결제</p>
           <p className="text-td-card-title text-success-deep tabular-nums">
             {totals.paid.toLocaleString()}원
           </p>
+          {approxKrwRate > 0 && totals.paid > 0 && (
+            <p className="text-td-caption text-success-deep/70 tabular-nums">
+              {currencySymbol}{Math.round(totals.paid * approxKrwRate).toLocaleString()}
+            </p>
+          )}
         </div>
         <div className="bg-purple-soft p-td-sm rounded-md">
           <p className="text-td-caption text-purple-deep uppercase">예약</p>
           <p className="text-td-card-title text-purple-deep tabular-nums">
             {totals.booked.toLocaleString()}원
           </p>
+          {approxKrwRate > 0 && totals.booked > 0 && (
+            <p className="text-td-caption text-purple-deep/70 tabular-nums">
+              {currencySymbol}{Math.round(totals.booked * approxKrwRate).toLocaleString()}
+            </p>
+          )}
         </div>
         <div className="bg-amber-soft p-td-sm rounded-md">
           <p className="text-td-caption text-amber-deep uppercase">예정</p>
           <p className="text-td-card-title text-amber-deep tabular-nums">
             {totals.planned.toLocaleString()}원
           </p>
+          {approxKrwRate > 0 && totals.planned > 0 && (
+            <p className="text-td-caption text-amber-deep/70 tabular-nums">
+              {currencySymbol}{Math.round(totals.planned * approxKrwRate).toLocaleString()}
+            </p>
+          )}
         </div>
       </div>
     </section>

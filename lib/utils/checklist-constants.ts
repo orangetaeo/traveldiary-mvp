@@ -52,6 +52,15 @@ export const CATEGORY_TONE: Record<ChecklistCategory, string> = {
   custom: "bg-surface-soft text-ink-soft",
 };
 
+export const CATEGORY_ICON: Record<ChecklistCategory, string> = {
+  documents: "description",
+  clothing: "checkroom",
+  electronics: "devices",
+  forbidden: "block",
+  declarable: "warning",
+  custom: "more_horiz",
+};
+
 export const CATEGORY_ACTIVE_TONE: Record<ChecklistCategory, string> = {
   documents: "bg-purple text-white border-purple",
   clothing: "bg-success-deep text-white border-success-deep",

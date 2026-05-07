@@ -55,9 +55,13 @@ export default async function ProfilePage() {
           <span className="material-symbols-outlined text-ink">home</span>
         </Link>
         <h1 className="text-td-title font-black text-ink">내 프로필</h1>
-        <span className="w-10 h-10 flex items-center justify-center rounded-full">
+        <Link
+          href="/settings"
+          aria-label="설정"
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-soft transition-colors"
+        >
           <span className="material-symbols-outlined text-ink-mute">settings</span>
-        </span>
+        </Link>
       </header>
 
       <main className="max-w-md mx-auto px-4 pt-6 pb-8">
@@ -67,8 +71,12 @@ export default async function ProfilePage() {
 
           {currentUserId ? (
             <div className="bg-surface-card border border-divider rounded-md p-4 flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-purple-soft border border-divider flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-purple text-[28px]">person</span>
+              <div className="w-16 h-16 rounded-full bg-purple-soft border-2 border-purple/30 flex items-center justify-center shrink-0">
+                {userName ? (
+                  <span className="text-xl font-bold text-purple">{userName.charAt(0)}</span>
+                ) : (
+                  <span className="material-symbols-outlined text-purple text-[28px]">person</span>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-td-card-title font-medium text-ink truncate">
