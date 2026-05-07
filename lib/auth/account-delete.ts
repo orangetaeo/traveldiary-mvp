@@ -19,6 +19,13 @@ import { prisma } from "../prisma";
 import { SYSTEM_OWNER_ID } from "./session";
 import { sanitizeAuditValue } from "../audit-log";
 
+// 외부 호환 re-export — client 모달이 직접 shared로 import하도록 사이클 8 hotfix에서 분리.
+// 기존 호출처(테스트/route.ts)는 경로 무변경.
+export {
+  ACCOUNT_DELETE_CONFIRM_PHRASE,
+  isValidAccountDeleteConfirm,
+} from "./account-delete-shared";
+
 export interface AnonymizeAccountResult {
   ok: boolean;
   /** 익명화 실패 시 원인 코드 ("db_unavailable" | "user_not_found" | "tx_failed") */
@@ -99,9 +106,5 @@ export async function anonymizeUserAccount(
   }
 }
 
-/** 텍스트 confirm 입력값 검증 — 클라이언트 + 서버 공통 사용. */
-export const ACCOUNT_DELETE_CONFIRM_PHRASE = "계정 삭제";
-
-export function isValidAccountDeleteConfirm(input: unknown): boolean {
-  return typeof input === "string" && input.trim() === ACCOUNT_DELETE_CONFIRM_PHRASE;
-}
+// PHRASE/validator는 client에서도 사용되므로 ./account-delete-shared.ts로 분리됨.
+// 위 re-export로 기존 호출처 호환 유지.

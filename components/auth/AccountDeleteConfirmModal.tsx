@@ -10,7 +10,7 @@
 "use client";
 
 import { useState } from "react";
-import { ACCOUNT_DELETE_CONFIRM_PHRASE } from "@/lib/auth/account-delete";
+import { ACCOUNT_DELETE_CONFIRM_PHRASE } from "@/lib/auth/account-delete-shared";
 
 interface AccountDeleteConfirmModalProps {
   open: boolean;
