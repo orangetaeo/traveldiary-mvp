@@ -14,6 +14,12 @@ export default defineConfig({
     environment: "node",
     globals: false,
     reporters: ["default"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json"],
+      include: ["lib/**", "actions/**", "app/api/**"],
+      exclude: ["node_modules", ".next", "tests"],
+    },
   },
   // 사이클 E (ADR-031) — StatusBadge .tsx 테스트 위해 자동 JSX runtime
   esbuild: {
