@@ -106,6 +106,181 @@ export const DA_NANG_ZONES: SearchZone[] = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════
+// 호치민 6개 구역
+// ═══════════════════════════════════════════════════════════════════
+
+export const HO_CHI_MINH_ZONES: SearchZone[] = [
+  {
+    id: "hcm-district1",
+    name: "1군 중심 (동커이/벤탄/부이비엔)",
+    lat: 10.776,
+    lng: 106.700,
+    radiusMeters: 2500,
+  },
+  {
+    id: "hcm-district3",
+    name: "3군 역사 (통일궁/전쟁박물관)",
+    lat: 10.779,
+    lng: 106.691,
+    radiusMeters: 2000,
+  },
+  {
+    id: "hcm-thao-dien",
+    name: "타오디엔 (카페/브런치)",
+    lat: 10.802,
+    lng: 106.740,
+    radiusMeters: 2000,
+  },
+  {
+    id: "hcm-district5",
+    name: "5군 쩌런 (차이나타운)",
+    lat: 10.754,
+    lng: 106.664,
+    radiusMeters: 2000,
+  },
+  {
+    id: "hcm-binh-thanh",
+    name: "빈탄 (사이공펄/랜드마크81)",
+    lat: 10.800,
+    lng: 106.722,
+    radiusMeters: 2500,
+  },
+  {
+    id: "hcm-district7",
+    name: "7군 푸미흥 (한인타운)",
+    lat: 10.729,
+    lng: 106.720,
+    radiusMeters: 3000,
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// 하노이 5개 구역
+// ═══════════════════════════════════════════════════════════════════
+
+export const HANOI_ZONES: SearchZone[] = [
+  {
+    id: "han-old-quarter",
+    name: "구시가지 36거리 (호안끼엠)",
+    lat: 21.034,
+    lng: 105.852,
+    radiusMeters: 2000,
+  },
+  {
+    id: "han-ba-dinh",
+    name: "바딘 (호치민 영묘/문묘)",
+    lat: 21.037,
+    lng: 105.834,
+    radiusMeters: 2500,
+  },
+  {
+    id: "han-tay-ho",
+    name: "타이호 (서호/카페거리)",
+    lat: 21.054,
+    lng: 105.830,
+    radiusMeters: 3000,
+  },
+  {
+    id: "han-dong-da",
+    name: "동다 (하노이역/현지 맛집)",
+    lat: 21.018,
+    lng: 105.832,
+    radiusMeters: 2000,
+  },
+  {
+    id: "han-hai-ba-trung",
+    name: "하이바쯩 (현지 문화/분짜)",
+    lat: 21.018,
+    lng: 105.852,
+    radiusMeters: 2500,
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// 나트랑 5개 구역
+// ═══════════════════════════════════════════════════════════════════
+
+export const NHA_TRANG_ZONES: SearchZone[] = [
+  {
+    id: "nha-tran-phu",
+    name: "트란푸 비치 (비치프론트 핵심)",
+    lat: 12.239,
+    lng: 109.197,
+    radiusMeters: 2500,
+  },
+  {
+    id: "nha-north",
+    name: "북부 (포나가르/롱선사)",
+    lat: 12.267,
+    lng: 109.195,
+    radiusMeters: 2000,
+  },
+  {
+    id: "nha-vinpearl",
+    name: "빈펄/혼쩨 (빈원더스)",
+    lat: 12.209,
+    lng: 109.215,
+    radiusMeters: 3000,
+  },
+  {
+    id: "nha-west",
+    name: "서부 (탑바 머드스파/시내)",
+    lat: 12.250,
+    lng: 109.182,
+    radiusMeters: 2000,
+  },
+  {
+    id: "nha-south",
+    name: "남부 (바이다이 비치)",
+    lat: 12.210,
+    lng: 109.190,
+    radiusMeters: 3000,
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// 달랏 5개 구역
+// ═══════════════════════════════════════════════════════════════════
+
+export const DA_LAT_ZONES: SearchZone[] = [
+  {
+    id: "dl-center",
+    name: "시내 중심 (쑤언흐엉 호수/야시장)",
+    lat: 11.942,
+    lng: 108.438,
+    radiusMeters: 2500,
+  },
+  {
+    id: "dl-langbiang",
+    name: "랑비앙 산 (일출 투어)",
+    lat: 12.042,
+    lng: 108.419,
+    radiusMeters: 4000,
+  },
+  {
+    id: "dl-datanla",
+    name: "다탄라 폭포 (알파인 코스터)",
+    lat: 11.889,
+    lng: 108.443,
+    radiusMeters: 3000,
+  },
+  {
+    id: "dl-tuyen-lam",
+    name: "뚜옌럼 호수 (케이블카/사찰)",
+    lat: 11.900,
+    lng: 108.440,
+    radiusMeters: 3000,
+  },
+  {
+    id: "dl-north",
+    name: "북부 (사랑의 계곡/꽃밭)",
+    lat: 11.974,
+    lng: 108.420,
+    radiusMeters: 2000,
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
 // 도시 설정 매핑
 // ═══════════════════════════════════════════════════════════════════
 
@@ -121,6 +296,30 @@ export const CITY_CONFIGS = {
     name: "다낭",
     zones: DA_NANG_ZONES,
     targetCount: 400,
+  },
+  "ho-chi-minh": {
+    code: "SGN",
+    name: "호치민",
+    zones: HO_CHI_MINH_ZONES,
+    targetCount: 600,
+  },
+  "hanoi": {
+    code: "HAN",
+    name: "하노이",
+    zones: HANOI_ZONES,
+    targetCount: 500,
+  },
+  "nha-trang": {
+    code: "NHA",
+    name: "나트랑",
+    zones: NHA_TRANG_ZONES,
+    targetCount: 400,
+  },
+  "da-lat": {
+    code: "DLI",
+    name: "달랏",
+    zones: DA_LAT_ZONES,
+    targetCount: 300,
   },
 } as const;
 

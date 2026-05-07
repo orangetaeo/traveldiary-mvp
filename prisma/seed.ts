@@ -102,10 +102,34 @@ async function main() {
     join(root, "lib", "seed", "places", "phu-quoc-places.json"),
   );
 
-  // 다낭 (파이프라인 실행 후 추가됨)
+  // 다낭
   total += await seedPlaces(
     "DAD",
     join(root, "lib", "seed", "places", "da-nang-places.json"),
+  );
+
+  // 호치민
+  total += await seedPlaces(
+    "SGN",
+    join(root, "lib", "seed", "places", "ho-chi-minh-places.json"),
+  );
+
+  // 하노이
+  total += await seedPlaces(
+    "HAN",
+    join(root, "lib", "seed", "places", "hanoi-places.json"),
+  );
+
+  // 나트랑
+  total += await seedPlaces(
+    "NHA",
+    join(root, "lib", "seed", "places", "nha-trang-places.json"),
+  );
+
+  // 달랏
+  total += await seedPlaces(
+    "DLI",
+    join(root, "lib", "seed", "places", "da-lat-places.json"),
   );
 
   console.log(`\n🌱 시드 완료: 총 ${total}곳`);

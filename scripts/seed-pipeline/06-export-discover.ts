@@ -77,6 +77,27 @@ function estimateDistance(zone: string): string {
     "dn-ba-na": "바나힐",
     "dn-hoi-an": "호이안",
     "dn-ngu-hanh-son": "오행산",
+    "hcm-district1": "1군",
+    "hcm-district3": "3군",
+    "hcm-thao-dien": "타오디엔",
+    "hcm-district5": "5군",
+    "hcm-binh-thanh": "빈탄",
+    "hcm-district7": "7군",
+    "han-old-quarter": "구시가지",
+    "han-ba-dinh": "바딘",
+    "han-tay-ho": "타이호",
+    "han-dong-da": "동다",
+    "han-hai-ba-trung": "하이바쯩",
+    "nha-tran-phu": "트란푸",
+    "nha-north": "북부",
+    "nha-vinpearl": "빈펄",
+    "nha-west": "서부",
+    "nha-south": "남부",
+    "dl-center": "시내",
+    "dl-langbiang": "랑비앙",
+    "dl-datanla": "다탄라",
+    "dl-tuyen-lam": "뚜옌럼",
+    "dl-north": "북부",
   };
   return distMap[zone] ?? "시내";
 }
@@ -84,6 +105,10 @@ function estimateDistance(zone: string): string {
 const CITY_DEST_MAP: Record<string, string> = {
   "phu-quoc": "푸꾸옥",
   "da-nang": "다낭",
+  "ho-chi-minh": "호치민",
+  "hanoi": "하노이",
+  "nha-trang": "나트랑",
+  "da-lat": "달랏",
 };
 
 async function main() {
