@@ -337,7 +337,7 @@ describe("PostTripRecapView", () => {
         moments={MOMENTS}
       />,
     );
-    expect(html).toContain("카카오톡으로 공유");
-    expect(html).toContain("인스타 스토리로 내보내기");
+    expect(html).toContain("여행 공유하기");
+    expect(html).toContain("마무리 페이지로");
   });
 });
