@@ -15,7 +15,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ItineraryView } from "@/components/itinerary/ItineraryView";
+// DIAG: ItineraryView import 임시 제거 (binary search 진단)
+// import { ItineraryView } from "@/components/itinerary/ItineraryView";
 import { isDemoTrip } from "@/lib/seed";
 import { getCityByCode, resolveCityByCode } from "@/lib/seed/cities";
 import { resolveTripBundle } from "@/lib/repositories/trip.repository";
