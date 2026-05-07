@@ -16,6 +16,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ItineraryView } from "@/components/itinerary/ItineraryView";
+// DIAG isolate (binary search): reference 보존(lint clean) — 원복 시 JSX 활성화
+const _DiagItineraryViewRef = ItineraryView;
 import { isDemoTrip } from "@/lib/seed";
 import { getCityByCode, resolveCityByCode } from "@/lib/seed/cities";
 import { resolveTripBundle } from "@/lib/repositories/trip.repository";
@@ -215,12 +217,23 @@ async function renderItinerary(
           </div>
         )}
 
-        <ItineraryView
-          trip={trip}
-          initialItems={items}
-          initialDay={parseDayParam(searchParams.day, trip.nights) ?? 0}
-          suggestions={suggestions}
-        />
+        {/* DIAG isolate: ItineraryView 임시 제거. 원복 시 아래 JSX 활성화:
+            <ItineraryView
+              trip={trip}
+              initialItems={items}
+              initialDay={parseDayParam(searchParams.day, trip.nights) ?? 0}
+              suggestions={suggestions}
+            />
+        */}
+        <div className="mx-td-md p-td-md bg-amber-soft border border-amber/40 rounded-md">
+          <p className="text-td-body text-amber-deep font-semibold">
+            [DIAG isolate] ItineraryView 임시 제거 — 페이지가 정상 렌더되면
+            범인은 ItineraryView 내부.
+          </p>
+          <p className="text-td-meta text-ink mt-td-xs">
+            items: {items.length}곳 · day: {String(parseDayParam(searchParams.day, trip.nights) ?? 0)} · suggestions: {suggestions.length}건
+          </p>
+        </div>
       </main>
 
       <BottomNav active="itinerary" />
