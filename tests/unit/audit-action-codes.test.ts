@@ -65,6 +65,11 @@ const KNOWN_ACTION_CODES = new Set([
   // 사이클 5 (G8) — OTA 결제 후 self-report (BLOCKER 7 webhook 부재 시 수동 신호)
   "affiliate.confirmed",
   "affiliate.declined",
+  // review (E2)
+  "review.save",
+  // photo (E3)
+  "photo.add",
+  "photo.delete",
 ]);
 
 /* ════════════════════════════════════════════
@@ -159,8 +164,8 @@ describe("audit action 코드 리소스 분류", () => {
     codesByResource.get(resource)!.push(code);
   }
 
-  it("10개 리소스 그룹 존재", () => {
-    expect(codesByResource.size).toBe(10);
+  it("12개 리소스 그룹 존재", () => {
+    expect(codesByResource.size).toBe(12);
   });
 
   it("checklist 리소스에 5개 이상 action", () => {

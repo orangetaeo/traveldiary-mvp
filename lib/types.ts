@@ -491,6 +491,35 @@ export interface AppNotification {
   createdAt: string;
 }
 
+// ═══════════════════════════════════════════════════════════
+// E2 — TRIP REVIEW
+// ═══════════════════════════════════════════════════════════
+
+export interface TripReview {
+  id: string;
+  tripId: string;
+  actorId: string | null;
+  rating: number;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ═══════════════════════════════════════════════════════════
+// E3 — TRIP PHOTO
+// ═══════════════════════════════════════════════════════════
+
+export interface TripPhoto {
+  id: string;
+  tripId: string;
+  actorId: string | null;
+  url: string;
+  caption?: string;
+  dayIndex?: number;
+  sortOrder: number;
+  createdAt: string;
+}
+
 /** PostTripRecapView — 통계 */
 export interface RecapStats {
   placesVisited: number;

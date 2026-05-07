@@ -62,6 +62,8 @@ const MODEL_TO_REPO: Record<string, string> = {
   Vote: "vote.repository.ts",
   EvidenceCache: "evidence-cache.repository.ts",
   Place: "place.repository.ts",
+  TripReview: "review.repository.ts",
+  TripPhoto: "photo.repository.ts",
 };
 
 /* ════════════════════════════════════════════
@@ -69,8 +71,8 @@ const MODEL_TO_REPO: Record<string, string> = {
  * ════════════════════════════════════════════ */
 
 describe("Prisma schema — model 수", () => {
-  it("14개 model 존재", () => {
-    expect(PRISMA_MODELS.length).toBe(14);
+  it("16개 model 존재", () => {
+    expect(PRISMA_MODELS.length).toBe(16);
   });
 
   it("알려진 model 전체 등록", () => {
@@ -86,6 +88,8 @@ describe("Prisma schema — model 수", () => {
       "ShareLink",
       "Trip",
       "TripMember",
+      "TripPhoto",
+      "TripReview",
       "User",
       "ValidationResult",
       "Vote",
@@ -98,8 +102,8 @@ describe("Prisma schema — model 수", () => {
  * ════════════════════════════════════════════ */
 
 describe("repository 파일 수", () => {
-  it("15개 repository 파일 존재", () => {
-    expect(repoFiles.length).toBe(15);
+  it("17개 repository 파일 존재", () => {
+    expect(repoFiles.length).toBe(17);
   });
 });
 

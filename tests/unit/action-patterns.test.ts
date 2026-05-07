@@ -115,8 +115,8 @@ describe("action 데모 모드 fallback", () => {
  * ════════════════════════════════════════════ */
 
 describe("action 파일 목록", () => {
-  it("13개 action 파일 존재 (추가 시 패턴 검증 대상)", () => {
-    expect(ACTION_FILES.length).toBe(13);
+  it("15개 action 파일 존재 (추가 시 패턴 검증 대상)", () => {
+    expect(ACTION_FILES.length).toBe(15);
   });
 
   it("알려진 action 파일 전체 등록", () => {
@@ -128,8 +128,10 @@ describe("action 파일 목록", () => {
       "evidence.ts",
       "itinerary.ts",
       "ota-booking-confirm.ts",
+      "photo.ts",
       "place.ts",
       "replan.ts",
+      "review.ts",
       "share.ts",
       "shareComment.ts",
       "translate.ts",

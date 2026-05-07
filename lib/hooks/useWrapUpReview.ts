@@ -1,16 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { TripReview } from "@/lib/types";
 
 /**
- * Wrap-up 후기 LocalStorage hook — useItemCheckins 답습.
+ * Wrap-up 후기 hook — E2 업그레이드.
  *
- * /wrap-up/[tripId] 별점(0~5) + 텍스트 후기 임시 저장. 정식 출시 시 TripReview 모델
- * + 마이그 + R1 사인오프 + writeAuditLog 후 DB 영속화.
+ * DB initialReview가 있으면 그것을 초기값으로 사용.
+ * 없으면 LocalStorage fallback (오프라인/데모 모드).
+ * 편집 중에는 LocalStorage에 실시간 임시 저장.
  *
  * 키: `td-wrap-review-${tripId}` → { rating, text }
- *
- * 다중 trip 격리 + LocalStorage 비활성(SSR)에 안전. QuotaExceeded silent skip.
  */
 
 const STORAGE_KEY_PREFIX = "td-wrap-review-";
@@ -58,16 +58,29 @@ export function writeWrapUpReviewToStorage(
       JSON.stringify(review),
     );
   } catch {
-    // QuotaExceeded — silent skip (input_guard 답습)
+    // QuotaExceeded — silent skip
   }
 }
 
-export function useWrapUpReview(tripId: string) {
-  const [review, setReview] = useState<WrapUpReview>(EMPTY);
+export function useWrapUpReview(
+  tripId: string,
+  initialReview?: TripReview | null,
+) {
+  const [review, setReview] = useState<WrapUpReview>(() => {
+    if (initialReview && (initialReview.rating > 0 || initialReview.text.length > 0)) {
+      return { rating: initialReview.rating, text: initialReview.text };
+    }
+    return EMPTY;
+  });
 
   useEffect(() => {
-    setReview(readWrapUpReviewFromStorage(tripId));
-  }, [tripId]);
+    // DB 초기값이 있으면 그것을 우선. 없으면 LocalStorage fallback.
+    if (initialReview && (initialReview.rating > 0 || initialReview.text.length > 0)) {
+      setReview({ rating: initialReview.rating, text: initialReview.text });
+    } else {
+      setReview(readWrapUpReviewFromStorage(tripId));
+    }
+  }, [tripId, initialReview]);
 
   const setRating = useCallback(
     (rating: number) => {
