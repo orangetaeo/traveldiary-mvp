@@ -68,7 +68,13 @@ export const hoiAnCity: City = {
     season: "건기 (1~7월) · 우기 (8~12월)",
     avgTempC: { min: 22, max: 33 },
     notes: "다낭과 동일 기후. 9~11월 태풍·홍수 주의(투본강 범람 사례). 4~5월이 베스트",
+    clothing: ["반팔·반바지·샌들 (3~8월)", "우기엔 장화급 방수 신발 (골목 침수 가능)", "자외선 차단제·모자 필수", "안방비치 수영복·래시가드"],
   },
+
+  medicalFacilities: [
+    { label: "호이안 종합병원", type: "hospital", address: "4 Trần Hưng Đạo, Sơn Phong", phone: "+84 235 3861 364", hours: "24시간", notes: "소규모. 중증은 다낭 Vinmec으로 이송" },
+    { label: "Nhà Thuốc Pharmacity (구시가지)", type: "pharmacy", address: "Trần Hưng Đạo, Cẩm Phô", hours: "07:30~21:30", notes: "올드타운 인근 약국" },
+  ],
 
   // ── 시그니처 가이드 (호이안 본질) ───────────────────────────────────
   curatedGuides: [

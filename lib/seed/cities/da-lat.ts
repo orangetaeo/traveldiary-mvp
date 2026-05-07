@@ -70,7 +70,13 @@ export const daLatCity: City = {
     season: "건기 (12~3월) · 우기 (4~11월)",
     avgTempC: { min: 12, max: 24 },
     notes: "연평균 18°C — 베트남 유일 가을·겨울 도시. 새벽엔 5°C까지. 긴팔 + 가벼운 자켓 필수. 1~2월 매화·12월 코스모스",
+    clothing: ["두꺼운 자켓·니트 필수 (새벽 5°C)", "긴바지·운동화 (고원 트레킹)", "우기엔 방수 자켓·방수 신발", "베트남 유일 겨울 옷 필요 도시"],
   },
+
+  medicalFacilities: [
+    { label: "달랏 종합병원(Bệnh viện Đa khoa Lâm Đồng)", type: "hospital", address: "4 Phạm Ngọc Thạch, Phường 6", phone: "+84 263 3822 154", hours: "24시간", notes: "달랏 최대 공공 병원. 영어 제한적" },
+    { label: "Nhà Thuốc Long Châu (달랏 시장 인근)", type: "pharmacy", address: "Nguyễn Thị Minh Khai, Phường 1", hours: "07:00~22:00", notes: "달랏 야시장 도보 3분. 감기약·진통제 구비" },
+  ],
 
   // ── 시그니처 가이드 ─────────────────────────────────────────────────
   curatedGuides: [

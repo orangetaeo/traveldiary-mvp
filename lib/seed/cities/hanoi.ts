@@ -63,7 +63,15 @@ export const hanoiCity: City = {
     avgTempC: { min: 10, max: 32 },
     notes:
       "호치민과 달리 4계절. 12~2월 10도 내외 서늘 — 패딩 필요. 5~9월 우기 + 폭염. 10~11월·3~4월이 베스트 시즌",
+    clothing: ["12~2월 패딩·니트·두꺼운 자켓 필수", "5~9월 반팔·반바지 + 접이식 우산", "10~11월·3~4월 가벼운 긴팔·바람막이", "사원 방문 시 무릎·어깨 가리는 옷"],
   },
+
+  medicalFacilities: [
+    { label: "하노이 프렌치 병원(Hôpital Français de Hanoi)", type: "hospital", address: "1 Phương Mai, Đống Đa", phone: "+84 24 3574 1111", hours: "24시간 응급실", notes: "외국인 전용. 영어·한국어 통역 가능" },
+    { label: "Vinmec Times City", type: "hospital", address: "458 Minh Khai, Hai Bà Trưng", phone: "+84 24 3974 3556", hours: "24시간 응급실", notes: "한국어 가능 의료진. 보험 직불" },
+    { label: "Nhà Thuốc Long Châu (호안끼엠)", type: "pharmacy", address: "Hàng Bông, Hoàn Kiếm", hours: "07:00~22:00", notes: "구시가지 인근 체인 약국" },
+    { label: "Nhà Thuốc Pharmacity (서호 인근)", type: "pharmacy", address: "Thanh Niên, Tây Hồ", hours: "08:00~21:30", notes: "서호 산책로 인근" },
+  ],
 
   // ── 시그니처 가이드 (북부 차별화) ────────────────────────────────────
   curatedGuides: [

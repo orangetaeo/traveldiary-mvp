@@ -70,7 +70,13 @@ export const canThoCity: City = {
     season: "건기 (12~4월) · 우기 (5~11월)",
     avgTempC: { min: 24, max: 33 },
     notes: "건기가 베스트. 우기 5~7월은 부유시장 활기 ↑(과일 수확). 9~11월 메콩 범람기",
+    clothing: ["반팔·반바지·샌들 (연중 열대)", "부유시장 새벽 배 위 — 바람막이·모자", "자외선 차단제 필수 (메콩 수면 반사)", "우기엔 방수 샌들·우비"],
   },
+
+  medicalFacilities: [
+    { label: "껀터 중앙병원(Bệnh viện Đa khoa TW Cần Thơ)", type: "hospital", address: "315 Nguyễn Văn Linh, Ninh Kiều", phone: "+84 292 3820 072", hours: "24시간", notes: "메콩델타 최대 병원. 영어 제한적" },
+    { label: "Nhà Thuốc Long Châu (닌끼에우 부두 인근)", type: "pharmacy", address: "Hai Bà Trưng, Ninh Kiều", hours: "07:00~22:00", notes: "부유시장 부두 도보 5분" },
+  ],
 
   // ── 시그니처 가이드 ─────────────────────────────────────────────────
   curatedGuides: [

@@ -61,7 +61,15 @@ export const hoChiMinhCity: City = {
     season: "건기 (12~4월) · 우기 (5~11월)",
     avgTempC: { min: 24, max: 34 },
     notes: "12~2월이 베스트(선선·건조). 우기 오후 스콜 30분~1시간",
+    clothing: ["반팔·반바지·샌들 (연중)", "자외선 차단제·모자 필수", "우기엔 접이식 우산 상비", "쇼핑몰·카페 냉방 강함 — 가벼운 긴팔"],
   },
+
+  medicalFacilities: [
+    { label: "FV 병원(Franco-Vietnamese Hospital)", type: "hospital", address: "6 Nguyễn Lương Bằng, Quận 7", phone: "+84 28 5411 3333", hours: "24시간 응급실", notes: "외국인 전용. 한국어 통역 가능. 보험 직불" },
+    { label: "Vinmec Central Park", type: "hospital", address: "208 Nguyễn Hữu Cảnh, Bình Thạnh", phone: "+84 28 3622 1166", hours: "24시간 응급실", notes: "한국어 가능 의료진" },
+    { label: "Nhà Thuốc Long Châu (1군 중심)", type: "pharmacy", address: "Nguyễn Huệ, Quận 1", hours: "07:00~22:00", notes: "체인 약국. 여행자 밀집 지역" },
+    { label: "Nhà Thuốc Pharmacity (벤탄시장 인근)", type: "pharmacy", address: "Lê Thánh Tôn, Quận 1", hours: "07:30~22:00", notes: "벤탄시장 도보 2분. 영어 소통 가능" },
+  ],
 
   // ── 시그니처 가이드 ──────────────────────────────────────────────────
   curatedGuides: [

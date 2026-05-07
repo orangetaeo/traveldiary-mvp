@@ -40,7 +40,7 @@ describe("C3 — /city/[slug] 신규 섹션 (visa/utilities/weather)", () => {
 
   it("weather 섹션 존재", () => {
     expect(src).toContain('id="weather"');
-    expect(src).toContain("날씨·기후");
+    expect(src).toContain("날씨·복장");
   });
 
   it("시즌 + 평균 기온 표시", () => {
@@ -67,13 +67,18 @@ describe("C3 — chip nav 업데이트", () => {
 
   it("weather chip 추가", () => {
     expect(src).toContain('"weather"');
-    expect(src).toContain('"날씨"');
+    expect(src).toContain('"날씨·복장"');
   });
 
-  it("총 8개 chip (응급·결제·교통·비자·준비물·날씨·문장·시그니처)", () => {
+  it("medical chip 추가 (F2)", () => {
+    expect(src).toContain('"medical"');
+    expect(src).toContain('"약국·병원"');
+  });
+
+  it("총 9개 chip (응급·약국·결제·교통·비자·준비물·날씨·문장·시그니처)", () => {
     const chipMatches = src.match(/\{ id: "/g);
     expect(chipMatches).not.toBeNull();
-    expect(chipMatches!.length).toBeGreaterThanOrEqual(8);
+    expect(chipMatches!.length).toBeGreaterThanOrEqual(9);
   });
 });
 

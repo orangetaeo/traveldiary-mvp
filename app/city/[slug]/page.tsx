@@ -28,11 +28,12 @@ interface ChipDef {
 
 const CHIPS: ChipDef[] = [
   { id: "emergency", label: "응급", danger: true },
+  { id: "medical", label: "약국·병원" },
   { id: "payment", label: "결제" },
   { id: "transport", label: "교통" },
   { id: "visa", label: "비자" },
   { id: "utilities", label: "준비물" },
-  { id: "weather", label: "날씨" },
+  { id: "weather", label: "날씨·복장" },
   { id: "phrases", label: "상황별 문장" },
   { id: "guides", label: "시그니처" },
 ];
@@ -181,6 +182,72 @@ export default function CityPage({ params }: { params: { slug: string } }) {
           </div>
         </section>
 
+        {/* Section 1.5: Medical Facilities (F2) */}
+        {city.medicalFacilities && city.medicalFacilities.length > 0 && (
+          <section id="medical" className="mb-td-lg scroll-mt-24">
+            <h3 className="text-td-card-title text-ink mb-td-sm">약국·병원</h3>
+            <div className="space-y-td-sm">
+              {city.medicalFacilities.map((fac, i) => (
+                <div
+                  key={i}
+                  className="bg-surface-card border border-divider rounded-md p-td-md"
+                >
+                  <div className="flex items-start gap-td-sm">
+                    <span
+                      className={`material-symbols-outlined text-td-icon-lg shrink-0 ${
+                        fac.type === "pharmacy"
+                          ? "text-success"
+                          : fac.type === "hospital"
+                            ? "text-danger"
+                            : "text-purple"
+                      }`}
+                      aria-hidden
+                    >
+                      {fac.type === "pharmacy"
+                        ? "local_pharmacy"
+                        : fac.type === "hospital"
+                          ? "local_hospital"
+                          : fac.type === "dental"
+                            ? "dentistry"
+                            : "medical_services"}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-td-xs mb-td-xxs">
+                        <p className="text-td-body text-ink font-semibold">{fac.label}</p>
+                        <span className={`text-td-badge px-1.5 py-0.5 rounded-full font-bold ${
+                          fac.type === "pharmacy"
+                            ? "bg-success-soft text-success-deep"
+                            : fac.type === "hospital"
+                              ? "bg-danger-soft text-danger-deep"
+                              : "bg-purple-soft text-purple-deep"
+                        }`}>
+                          {fac.type === "pharmacy" ? "약국" : fac.type === "hospital" ? "병원" : fac.type === "dental" ? "치과" : "클리닉"}
+                        </span>
+                      </div>
+                      <p className="text-td-meta text-ink-soft">{fac.address}</p>
+                      {fac.hours && (
+                        <p className="text-td-meta text-ink-mute">{fac.hours}</p>
+                      )}
+                      {fac.notes && (
+                        <p className="text-td-meta text-ink-soft mt-td-xxs">{fac.notes}</p>
+                      )}
+                    </div>
+                    {fac.phone && (
+                      <a
+                        href={`tel:${fac.phone.replace(/\s/g, "")}`}
+                        className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-success-soft hover:bg-success/20 transition-colors"
+                        aria-label={`${fac.label} 전화`}
+                      >
+                        <span className="material-symbols-outlined text-success-deep text-td-icon">call</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Section 2: Payment */}
         <section id="payment" className="mb-td-lg scroll-mt-24">
           <div className="flex items-center justify-between mb-td-sm">
@@ -326,10 +393,10 @@ export default function CityPage({ params }: { params: { slug: string } }) {
           </section>
         )}
 
-        {/* Section 6: Weather */}
+        {/* Section 6: Weather + Clothing (B6) */}
         {city.weather && (
           <section id="weather" className="mb-td-lg scroll-mt-24">
-            <h3 className="text-td-card-title text-ink mb-td-sm">날씨·기후</h3>
+            <h3 className="text-td-card-title text-ink mb-td-sm">날씨·복장</h3>
             <div className="bg-surface-card border border-divider rounded-md p-td-md space-y-td-xs">
               <div className="flex items-center gap-td-xs">
                 <span className="material-symbols-outlined text-amber-deep text-td-icon" aria-hidden>thermostat</span>
@@ -344,6 +411,22 @@ export default function CityPage({ params }: { params: { slug: string } }) {
                 <p className="text-td-meta text-ink-soft">{city.weather.notes}</p>
               )}
             </div>
+            {city.weather.clothing && city.weather.clothing.length > 0 && (
+              <div className="mt-td-sm bg-surface-card border border-divider rounded-md p-td-md">
+                <div className="flex items-center gap-td-xs mb-td-sm">
+                  <span className="material-symbols-outlined text-purple text-td-icon" aria-hidden>checkroom</span>
+                  <p className="text-td-body text-ink font-semibold">복장 추천</p>
+                </div>
+                <ul className="space-y-td-xs">
+                  {city.weather.clothing.map((item, i) => (
+                    <li key={i} className="flex items-start gap-td-xs">
+                      <span className="text-purple text-td-meta mt-0.5">•</span>
+                      <p className="text-td-meta text-ink-soft">{item}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
         )}
 

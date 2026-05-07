@@ -62,7 +62,15 @@ export const daNangCity: City = {
     season: "건기 (1~7월) · 우기 (8~12월)",
     avgTempC: { min: 22, max: 33 },
     notes: "9~11월 태풍 가능. 4~5월이 베스트 시즌",
+    clothing: ["반팔·반바지·샌들 (3~8월)", "자외선 차단제·모자 필수", "우기엔 우산·방수 자켓", "바나힐은 시내보다 5~8도 낮음 — 긴팔 챙길 것"],
   },
+
+  medicalFacilities: [
+    { label: "Vinmec 다낭 국제병원", type: "hospital", address: "30 Tháng 4, Hải Châu", phone: "+84 236 3711 111", hours: "24시간 응급실", notes: "한국어 가능 의료진. 보험 직불 가능" },
+    { label: "패밀리 메디컬 프랙티스(Family Medical Practice)", type: "clinic", address: "96-98 Nguyễn Hữu Thọ, Hải Châu", phone: "+84 236 3582 700", hours: "월~토 08:00~17:00", notes: "외국인 전용 클리닉. 영어·한국어 통역 가능" },
+    { label: "Nhà Thuốc Long Châu (한시장 인근)", type: "pharmacy", address: "Trần Phú, Hải Châu", hours: "07:00~22:00", notes: "체인 약국. 영어 기본 소통 가능" },
+    { label: "Nhà Thuốc An Khang (미케비치)", type: "pharmacy", address: "Võ Nguyên Giáp, Sơn Trà", hours: "07:30~21:30", notes: "해변 인근 약국. 자외선 차단제·모기약 구비" },
+  ],
 
   // ── 시그니처 가이드 ──────────────────────────────────────────────────
   curatedGuides: [

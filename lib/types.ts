@@ -365,7 +365,21 @@ export interface City {
     season: string;
     avgTempC?: { min: number; max: number };
     notes?: string;
+    /** B6 — 계절별 복장 추천 (예: ["반팔·반바지", "우산 필수", "자외선 차단제"]) */
+    clothing?: string[];
   };
+  /** F2 — 약국·병원·클리닉 위치 */
+  medicalFacilities?: MedicalFacility[];
+}
+
+/** F2 — 약국·병원·클리닉 정보 */
+export interface MedicalFacility {
+  label: string;
+  type: "pharmacy" | "hospital" | "clinic" | "dental";
+  address: string;
+  phone?: string;
+  hours?: string;
+  notes?: string;
 }
 
 /**

@@ -64,7 +64,15 @@ export const phuQuocCity: City = {
     season: "건기 (11~4월, 베스트) · 우기 (5~10월)",
     avgTempC: { min: 24, max: 32 },
     notes: "5~10월 스콜성 비 잦음. 11~3월이 일출/해변 베스트",
+    clothing: ["반팔·반바지·샌들 (연중)", "자외선 차단제·선글라스 필수", "우기엔 접이식 우산·방수 샌들", "냉방 강한 실내용 가벼운 긴팔"],
   },
+
+  medicalFacilities: [
+    { label: "빈멕(Vinmec) 푸꾸옥 국제병원", type: "hospital", address: "Bãi Dài, Gành Dầu", phone: "+84 297 3985 588", hours: "24시간 응급실", notes: "한국어 가능 의료진. 보험 직불 가능" },
+    { label: "푸꾸옥 종합병원", type: "hospital", address: "Dương Đông town center", phone: "+84 297 3846 074", hours: "24시간", notes: "공공 병원. 영어 가능 의료진 제한적" },
+    { label: "Nhà Thuốc Long Châu (즈엉동)", type: "pharmacy", address: "30 Tháng 4 Street, Dương Đông", hours: "07:00~22:00", notes: "체인 약국. 영어 기본 소통 가능. 두통·소화제·모기약 구비" },
+    { label: "Nhà Thuốc Pharmacity (빈펄 인근)", type: "pharmacy", address: "Bãi Dài area", hours: "08:00~21:00", notes: "관광지 인근 체인 약국" },
+  ],
 
   // ── 시그니처 가이드 (1건) ────────────────────────────────────────────
   curatedGuides: [
