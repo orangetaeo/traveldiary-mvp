@@ -62,7 +62,7 @@ export default async function SharedTripPage({
 
   // 사이클 R (ADR-036) — 익명 댓글/리액션
   // C5 — 전체 댓글 + 아이템별 카운트 병렬 로드
-  const [comments, commentCounts] = await Promise.all([
+  const [comments, _commentCounts] = await Promise.all([
     listCommentsByShareLinkId(link.id),
     countCommentsByItem(link.id),
   ]);
