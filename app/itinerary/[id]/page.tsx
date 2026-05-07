@@ -16,10 +16,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ItineraryView } from "@/components/itinerary/ItineraryView";
-// DIAG isolate (binary search): reference 보존(lint clean) — 원복 시 JSX 활성화
-const _DiagItineraryViewRef = ItineraryView;
-const _DiagCityCtxRef = CityContextStrip;
-const _DiagEmergencyRef = EmergencyHeaderButton;
 import { isDemoTrip } from "@/lib/seed";
 import { getCityByCode, resolveCityByCode } from "@/lib/seed/cities";
 import { resolveTripBundle } from "@/lib/repositories/trip.repository";
@@ -127,7 +123,7 @@ async function renderItinerary(
           <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
         <div className="flex items-center gap-td-xs">
-          {/* 사이클 P (ADR-035) — 응급 빠른 액세스 — DIAG split cap 9: EmergencyHeaderButton 단독 활성 */}
+          {/* 사이클 P (ADR-035) — 응급 빠른 액세스 */}
           {resolvedCity && (
             <EmergencyHeaderButton citySlug={resolvedCity.slug} emphasized={isOnTrip} />
           )}
@@ -212,37 +208,19 @@ async function renderItinerary(
           </div>
         </section>
 
-        {/* 사이클 P (ADR-035) — CityContextStrip currentMode 무관 노출
-            DIAG isolate: 원복 시 활성화
-            {resolvedCity && (
-              <div className="mb-td-md">
-                <CityContextStrip city={resolvedCity} />
-              </div>
-            )}
-        */}
-        <div className="mx-td-md mb-td-md p-td-md bg-blue-soft border border-blue/40 rounded-md text-td-meta text-ink">
-          [DIAG split cap 9] EmergencyHeaderButton 단독 활성 + CityContextStrip 격리 유지.
-          페이지 정상이면 범인 = CityContextStrip. 깨지면 범인 = EmergencyHeaderButton.
-          {resolvedCity ? ` (resolvedCity slug: ${resolvedCity.slug})` : " (resolvedCity null)"}
-        </div>
+        {/* 사이클 P (ADR-035) — CityContextStrip currentMode 무관 노출 */}
+        {resolvedCity && (
+          <div className="mb-td-md">
+            <CityContextStrip city={resolvedCity} />
+          </div>
+        )}
 
-        {/* DIAG isolate: ItineraryView 임시 제거. 원복 시 아래 JSX 활성화:
-            <ItineraryView
-              trip={trip}
-              initialItems={items}
-              initialDay={parseDayParam(searchParams.day, trip.nights) ?? 0}
-              suggestions={suggestions}
-            />
-        */}
-        <div className="mx-td-md p-td-md bg-amber-soft border border-amber/40 rounded-md">
-          <p className="text-td-body text-amber-deep font-semibold">
-            [DIAG isolate] ItineraryView 임시 제거 — 페이지가 정상 렌더되면
-            범인은 ItineraryView 내부.
-          </p>
-          <p className="text-td-meta text-ink mt-td-xs">
-            items: {items.length}곳 · day: {String(parseDayParam(searchParams.day, trip.nights) ?? 0)} · suggestions: {suggestions.length}건
-          </p>
-        </div>
+        <ItineraryView
+          trip={trip}
+          initialItems={items}
+          initialDay={parseDayParam(searchParams.day, trip.nights) ?? 0}
+          suggestions={suggestions}
+        />
       </main>
 
       <BottomNav active="itinerary" />

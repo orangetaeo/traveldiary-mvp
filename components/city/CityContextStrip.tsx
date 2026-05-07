@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * City Context Strip — Stitch #19 매핑 (사이클 8 M5).
  *
@@ -8,6 +10,12 @@
  *   3. 교통 (transport.primary)
  *   4. 시그니처 가이드 (curatedGuides[0])
  *   5. 도시 정보 풀 페이지 → /city/[slug]
+ *
+ * "use client" 사유: tel: 링크가 부모 Link click을 stopPropagation해야 하는 onClick
+ * 이벤트 핸들러를 갖고 있음 (PR #300 D3). Server Component에서 event handler를
+ * 자식 element prop에 전달하면 runtime throw "Event handlers cannot be passed to
+ * Client Component props" → 라이브 회귀 (digest 1775101332). 본 컴포넌트의 단순
+ * JSX는 client island로 swap해도 SSR 정상.
  *
  * 색상은 globals.css의 디자인 토큰 사용 (보라 #7C3AED, 코랄 #F97316, 빨강 #BA1A1A).
  */
