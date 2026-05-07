@@ -152,7 +152,7 @@ describe("MorningBriefing — 정적 마크업", () => {
     expect(html).toContain("오늘의 베트남어");
   });
 
-  it("CTA — 전체 일정 보기 링크 + 뒤로가기 링크", () => {
+  it("CTA — 전체 일정 보기 + 오늘의 진행 상황 (옵션 N) + 뒤로가기 링크", () => {
     const html = renderToStaticMarkup(
       <MorningBriefing
         trip={TRIP}
@@ -165,7 +165,9 @@ describe("MorningBriefing — 정적 마크업", () => {
       />,
     );
     expect(html).toContain("전체 일정 보기");
+    expect(html).toContain("오늘의 진행 상황");
     expect(html).toContain('href="/itinerary/trip-pqc"');
+    expect(html).toContain('href="/trips/trip-pqc?focus=itinerary"');
     expect(html).toContain('href="/travel/trip-pqc"');
   });
 

@@ -149,13 +149,22 @@ export function MorningBriefing({
           </p>
         </section>
 
-        {/* CTA — 전체 일정 보기 */}
-        <Link
-          href={`/itinerary/${trip.id}`}
-          className="block w-full text-center bg-surface-card border border-divider py-3 rounded-md text-td-body font-semibold text-ink hover:bg-surface-soft transition-colors"
-        >
-          전체 일정 보기
-        </Link>
+        {/* CTA — 전체 일정 보기 + 대시보드 진입 (옵션 N — focus=itinerary) */}
+        <div className="grid grid-cols-2 gap-td-sm">
+          <Link
+            href={`/itinerary/${trip.id}`}
+            className="block text-center bg-surface-card border border-divider py-3 rounded-md text-td-body font-semibold text-ink hover:bg-surface-soft transition-colors"
+          >
+            전체 일정 보기
+          </Link>
+          <Link
+            href={`/trips/${trip.id}?focus=itinerary`}
+            aria-label="여행 대시보드 — 일정 카드 강조"
+            className="block text-center bg-mode-primary text-white py-3 rounded-md text-td-body font-semibold hover:opacity-90 transition-opacity"
+          >
+            오늘의 진행 상황
+          </Link>
+        </div>
 
         <p className="text-td-caption text-ink-mute text-center pt-td-xs">
           매일 아침 알림은 출시 후 활성화돼요 (R1 게이트 + PWA 푸시).
