@@ -5,7 +5,20 @@
 
 ---
 
-## ✅ 이번 세션 완료 사항
+## ✅ 최근 세션 완료 사항
+
+### DB Place → UI 연결 (2026-05-07)
+
+- **Prisma 마이그레이션**: `add-place-model` → Place 테이블 프로덕션 DB 생성
+- **시드 적용**: 푸꾸옥 752곳 + 다낭 1,075곳 = 1,827곳 프로덕션 DB 적재
+- **시드 버그 수정**: `prisma/seed.ts`에 Prisma 7 PrismaPg 드라이버 어댑터 누락 수정
+- **DB 연결**: `place.repository.ts`에 `getDiscoverPlaces()` 추가 — DB Place → DiscoverPlace 변환
+- **discover 페이지 + itinerary 페이지**: DB 우선 조회 → 시드 fallback
+- **ItineraryView**: 시드 직접 import 제거 → suggestions props 수신
+- **데이터 정합성**: 다낭 시드에 푸꾸옥 장소 오분류 1건 제거 (Pepper Farm)
+- **데모 trip ID 별칭**: `demo-phu-quoc` → `demo-trip-phu-quoc` 등 6개 도시 대응
+- **Railway 배포**: 공개 DB URL (`switchback.proxy.rlwy.net`) 사용 로컬 마이그레이션/시드 패턴 확립
+- **PR**: #231 (DB 연결), #233 (오분류 제거), #238 (별칭 지원)
 
 ### 하네스 시스템 v2 (도서관 형태) 구축
 
@@ -75,43 +88,37 @@ memory/
 
 ## 📌 다음 세션 우선순위
 
-### 우선순위 1: DB 셋업 (T14 + R1 + R3)
+### 우선순위 1: 사용자 흐름 갭 마무리 (6/8 완료)
 
 ```
-1. Prisma 스키마 작성 (S-09 참조)
-   - Trip, ItineraryItem, ItineraryDependency
-   - Evidence (JSON), ValidationResult
-   - User, TripMember
-   - AuditLog ⭐ (S-13 절대 규칙)
-   - EvidenceCache
-2. PostgreSQL 마이그레이션 (Railway 또는 로컬)
-3. Repository 레이어 (lib/repositories/)
+남은 갭:
+- 사이클 6: G1+G2 4-OAuth 게이트 batch
+- 사이클 8: G3 로그아웃/계정 삭제
 ```
 
-### 우선순위 2: 핵심 API (T10 + R4 + T16 + T13)
+### 우선순위 2: Place 데이터 확장
 
 ```
-1. Trip API — 생성, 조회, 수정 (감사 로그 동시)
-2. Itinerary API — DAG 생성·재계획
-3. Place API — 검색·검증 (T4)·근거 (T3)
-모든 API에 입력 검증 + Rate Limit + 권한 체크
+1. 나머지 베트남 도시 시드 파이프라인 (호치민, 하노이, 나트랑, 달랏)
+2. Place → ItineraryItem 연결 (일정 추가 시 DB 장소 정보 활용)
+3. 장소 검색 API (키워드/카테고리/지역 필터)
 ```
 
-### 우선순위 3: M1 추천 근거 패널 (T1 + T3 + T4 + T17)
+### 우선순위 3: Place 데이터 품질
 
 ```
-1. 일정 상세 화면 (LEVEL 1)
-2. EvidencePanel 컴포넌트 (S-12)
-3. 근거 부족 시 패널 숨김 로직
+1. 시드 파이프라인 zone 분류 정확도 개선
+2. 도시 간 오분류 자동 탐지 스크립트
 ```
 
-### 우선순위 4: M2 D-Day 모드 전환 (T7 + T17)
+### 참고: Railway 로컬 마이그레이션/시드 패턴
 
-```
-1. TravelModeContext (lib/types.ts)
-2. detectModeTransition 로직 (S-04)
-3. UI 색상 전환 (디자인 토큰)
-4. 위치 권한 거부 시 fallback (T16)
+```bash
+# 공개 DB URL로 마이그레이션 (internal URL은 로컬에서 접근 불가)
+DATABASE_URL="postgresql://postgres:***@switchback.proxy.rlwy.net:53253/railway" npx prisma migrate dev --name <name>
+
+# 시드 실행
+DATABASE_URL="..." npx tsx prisma/seed.ts
 ```
 
 ---
