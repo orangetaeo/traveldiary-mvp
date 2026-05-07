@@ -23,6 +23,31 @@ interface Props {
   drivingKm: number;
 }
 
+// ─── Helpers ────────────────────────────────────
+
+/** 좌표 우선, 없으면 장소명으로 Google Maps Directions URL 생성 (A1) */
+function stopToParam(stop: RouteStop): string {
+  if (stop.lat != null && stop.lng != null) return `${stop.lat},${stop.lng}`;
+  return stop.name;
+}
+
+function buildDirectionsUrl(stops: RouteStop[]): string {
+  if (stops.length === 0) return "https://www.google.com/maps";
+  const origin = stopToParam(stops[0]);
+  const dest = stopToParam(stops[stops.length - 1]);
+  const base = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}`;
+  // 중간 경유지 (최대 8개 — Google Maps URL 제한)
+  if (stops.length > 2) {
+    const waypoints = stops
+      .slice(1, -1)
+      .slice(0, 8)
+      .map(stopToParam)
+      .join("|");
+    return `${base}&waypoints=${encodeURIComponent(waypoints)}`;
+  }
+  return base;
+}
+
 // ─── Component ─────────────────────────────────
 
 export function DayRouteMapView({
@@ -120,7 +145,7 @@ export function DayRouteMapView({
         {/* FAB */}
         <div className="flex justify-end px-td-md mb-td-md">
           <a
-            href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(stops[0]?.name ?? "")}&destination=${encodeURIComponent(stops[stops.length - 1]?.name ?? "")}`}
+            href={buildDirectionsUrl(stops)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-td-sm bg-purple hover:bg-purple-deep text-white font-medium px-td-lg py-3 rounded-full shadow-lg transition-colors"
