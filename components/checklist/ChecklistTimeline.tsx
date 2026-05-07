@@ -6,7 +6,7 @@
  */
 
 import type { ChecklistItem, DDayBucket } from "@/lib/types";
-import { BUCKET_ORDER, BUCKET_LABEL } from "@/lib/utils/checklist-constants";
+import { BUCKET_ORDER } from "@/lib/utils/checklist-constants";
 
 interface Props {
   items: ChecklistItem[];
