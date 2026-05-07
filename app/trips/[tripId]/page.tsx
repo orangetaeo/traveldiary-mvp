@@ -110,7 +110,7 @@ export default async function TripDashboardPage({
           hero={heroVisual}
         />
 
-        <BentoSummary data={data} focusKey={focusKey} />
+        <BentoSummary data={data} focusKey={focusKey} tripId={trip.id} />
 
         <WeatherStrip forecast={forecast} />
 
