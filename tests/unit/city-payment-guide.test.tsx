@@ -95,12 +95,26 @@ describe("/city/[slug]/payment — 베트남 도시", () => {
     expect(html).toContain("ATM");
   });
 
-  it("정산 카드 cross-link — /trips 진입점", () => {
+  it("정산 카드 cross-link — 매칭 trip → /trips/[tripId] + destination 컨텍스트", () => {
     const html = renderToStaticMarkup(
       <CityPaymentPage params={{ slug: "phu-quoc" }} />,
     );
+    // 옵션 G — 매칭 trip이 있으면 동적 trip 링크
+    expect(html).toContain('href="/trips/demo-trip-phu-quoc"');
+    expect(html).toContain("푸꾸옥 여행 정산 보기");
+    expect(html).toContain('data-trip-aware="true"');
+  });
+
+  it("정산 카드 cross-link — 매칭 없으면 /trips 일반 진입 (회귀 fallback)", () => {
+    // hoi-an은 베트남 도시지만 listDemoTrips()에 trip 없음 → fallback
+    const html = renderToStaticMarkup(
+      <CityPaymentPage params={{ slug: "hoi-an" }} />,
+    );
     expect(html).toContain('href="/trips"');
-    expect(html).toContain("내 여행 정산");
+    expect(html).toContain("내 여행 정산 보기");
+    expect(html).toContain('data-trip-aware="false"');
+    // 매칭 trip 없으므로 destination 메시지 변형 미사용
+    expect(html).not.toContain("호이안 여행 정산 보기");
   });
 
   it("뒤로가기 — /city/${slug}", () => {
