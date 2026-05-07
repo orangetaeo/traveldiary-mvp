@@ -27,7 +27,7 @@ export function AccountDeleteWarningModal({
       aria-labelledby="account-delete-warning-title"
     >
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-ink/40 backdrop-blur-md"
         onClick={onCancel}
         aria-hidden="true"
       />

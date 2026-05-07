@@ -32,9 +32,9 @@ export function ContactCard({ contact }: { contact: EmergencyContact }) {
   const label = EMERGENCY_CATEGORY_LABEL[contact.category ?? ""] ?? "연락처";
 
   return (
-    <div className="bg-surface-card border border-divider p-3 rounded-md flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="bg-surface-soft p-2 rounded-lg text-danger shrink-0">
+    <div className="bg-surface-card border border-divider p-td-sm rounded-md flex items-center justify-between">
+      <div className="flex items-center gap-td-sm">
+        <div className="bg-surface-soft p-td-xs rounded-lg text-danger shrink-0">
           <span className="material-symbols-outlined" aria-hidden>
             {icon}
           </span>
@@ -106,7 +106,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 export function LossGuideCard({ guide }: { guide: LossGuide }) {
   return (
     <article className="bg-surface-card border border-divider rounded-md shadow-[0_4px_12px_rgba(15,23,42,0.05)] overflow-hidden">
-      <header className="bg-amber-soft border-b border-amber/40 px-4 py-3 flex items-center gap-2">
+      <header className="bg-amber-soft border-b border-amber/40 px-td-md py-td-sm flex items-center gap-td-xs">
         <span className="text-[24px]" aria-hidden>
           {guide.emoji}
         </span>
@@ -114,13 +114,13 @@ export function LossGuideCard({ guide }: { guide: LossGuide }) {
           {guide.title}
         </h4>
       </header>
-      <div className="p-4 space-y-4">
+      <div className="p-td-md space-y-td-md">
         {/* Steps */}
         <div>
-          <p className="text-td-caption text-ink-mute uppercase mb-2">
+          <p className="text-td-caption text-ink-mute uppercase mb-td-xs">
             단계
           </p>
-          <ol className="space-y-1.5">
+          <ol className="space-y-td-xxs">
             {guide.steps.map((step, i) => (
               <li
                 key={i}
@@ -135,10 +135,10 @@ export function LossGuideCard({ guide }: { guide: LossGuide }) {
         {/* Contacts */}
         {guide.contacts.length > 0 && (
           <div>
-            <p className="text-td-caption text-ink-mute uppercase mb-2">
+            <p className="text-td-caption text-ink-mute uppercase mb-td-xs">
               연락·자료
             </p>
-            <ul className="space-y-1.5">
+            <ul className="space-y-td-xxs">
               {guide.contacts.map((c, i) => (
                 <li
                   key={i}

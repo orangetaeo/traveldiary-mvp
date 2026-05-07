@@ -77,7 +77,7 @@ export function LoginButton({
     <button
       type="button"
       onClick={handleLogin}
-      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-td-meta font-semibold text-ink bg-[#FEE500] hover:opacity-90 transition-opacity"
+      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-td-meta font-semibold text-ink bg-kakao hover:opacity-90 transition-opacity"
     >
       <span className="material-symbols-outlined text-[18px]" aria-hidden>
         chat_bubble
