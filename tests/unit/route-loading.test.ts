@@ -75,4 +75,51 @@ describe("라우트별 loading.tsx 스켈레톤", () => {
     const src = fs.readFileSync(path.resolve("app/travel/[id]/loading.tsx"), "utf-8");
     expect(src).toContain('active="trips"');
   });
+
+  it("가이드 — BottomNav active='trips'", () => {
+    const src = fs.readFileSync(path.resolve("app/guide/loading.tsx"), "utf-8");
+    expect(src).toContain('active="trips"');
+  });
+
+  it("받은 일정 — BottomNav active='trips'", () => {
+    const src = fs.readFileSync(path.resolve("app/shared/loading.tsx"), "utf-8");
+    expect(src).toContain('active="trips"');
+  });
+
+  it("번역 — BottomNav active='itinerary'", () => {
+    const src = fs.readFileSync(path.resolve("app/translate/loading.tsx"), "utf-8");
+    expect(src).toContain('active="itinerary"');
+  });
+});
+
+describe("page ↔ loading.tsx BottomNav active 일치 (UX 깜빡임 회귀 방지)", () => {
+  const pairs: { name: string; page: string; loading: string; active: string }[] = [
+    {
+      name: "번역",
+      page: "app/translate/page.tsx",
+      loading: "app/translate/loading.tsx",
+      active: "itinerary",
+    },
+    {
+      name: "가이드",
+      page: "app/guide/page.tsx",
+      loading: "app/guide/loading.tsx",
+      active: "trips",
+    },
+    {
+      name: "받은 일정",
+      page: "app/shared/page.tsx",
+      loading: "app/shared/loading.tsx",
+      active: "trips",
+    },
+  ];
+
+  pairs.forEach(({ name, page, loading, active }) => {
+    it(`${name} — page.tsx + loading.tsx 모두 active='${active}'`, () => {
+      const pageSrc = fs.readFileSync(path.resolve(page), "utf-8");
+      const loadingSrc = fs.readFileSync(path.resolve(loading), "utf-8");
+      expect(pageSrc).toContain(`active="${active}"`);
+      expect(loadingSrc).toContain(`active="${active}"`);
+    });
+  });
 });

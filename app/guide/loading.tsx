@@ -29,7 +29,7 @@ export default function GuideLoading() {
         ))}
       </div>
 
-      <BottomNav active="home" />
+      <BottomNav active="trips" />
     </div>
   );
 }
