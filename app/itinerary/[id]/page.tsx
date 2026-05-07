@@ -224,6 +224,7 @@ async function renderItinerary(
         */}
         <div className="mx-td-md mb-td-md p-td-md bg-blue-soft border border-blue/40 rounded-md text-td-meta text-ink">
           [DIAG isolate] CityContextStrip + EmergencyHeaderButton 임시 제거 — 페이지가 정상 렌더되면 범인은 둘 중 하나.
+          {resolvedCity ? ` (resolvedCity slug: ${resolvedCity.slug})` : " (resolvedCity null)"}
         </div>
 
         {/* DIAG isolate: ItineraryView 임시 제거. 원복 시 아래 JSX 활성화:
