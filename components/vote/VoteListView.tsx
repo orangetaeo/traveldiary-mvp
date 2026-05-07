@@ -98,6 +98,14 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
           </Link>
           <h1 className="text-lg font-bold text-ink tracking-tight">일행 투표</h1>
         </div>
+        {/* 옵션 M (Session AA cap 2) — trip dashboard 진입 (?focus=vote) */}
+        <Link
+          href={`/trips/${trip.id}?focus=vote`}
+          aria-label="여행 대시보드로"
+          className="p-2 rounded-full text-amber-deep hover:bg-amber-soft transition-colors"
+        >
+          <span className="material-symbols-outlined">dashboard</span>
+        </Link>
       </header>
 
       <main className="max-w-xl mx-auto px-td-md py-td-lg space-y-td-lg">

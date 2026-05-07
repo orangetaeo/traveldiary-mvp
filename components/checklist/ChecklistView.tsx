@@ -348,15 +348,25 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
             D-Day 체크리스트
           </h1>
         </div>
-        {total > 0 && (
-          <button
-            type="button"
-            onClick={toggleSelectionMode}
-            className="text-td-meta font-semibold text-purple hover:text-purple-deep transition-colors px-2"
+        <div className="flex items-center gap-td-xs">
+          {total > 0 && (
+            <button
+              type="button"
+              onClick={toggleSelectionMode}
+              className="text-td-meta font-semibold text-purple hover:text-purple-deep transition-colors px-2"
+            >
+              {selectionMode ? "취소" : "선택"}
+            </button>
+          )}
+          {/* 옵션 M (Session AA cap 2) — trip dashboard 진입 (?focus=checklist) */}
+          <Link
+            href={`/trips/${trip.id}?focus=checklist`}
+            aria-label="여행 대시보드로"
+            className="p-2 rounded-full text-amber-deep hover:bg-amber-soft transition-colors"
           >
-            {selectionMode ? "취소" : "선택"}
-          </button>
-        )}
+            <span className="material-symbols-outlined">dashboard</span>
+          </Link>
+        </div>
       </header>
 
       <main className="max-w-xl mx-auto px-td-md">
