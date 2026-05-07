@@ -60,6 +60,8 @@ export function AccountDeleteOrchestrator({
             setError("입력한 문구가 일치하지 않습니다.");
           } else if (code === "not_authenticated" || code === "invalid_token") {
             setError("로그인이 만료됐어요. 다시 로그인해주세요.");
+          } else if (code === "rate_limited") {
+            setError("잠시 후 다시 시도해주세요. (5분 1회 제한)");
           } else {
             setError("삭제에 실패했어요. 잠시 뒤 다시 시도해주세요.");
           }
@@ -68,8 +70,13 @@ export function AccountDeleteOrchestrator({
         }
         try {
           window.localStorage.removeItem(CLIENT_UUID_STORAGE_KEY);
-        } catch {
-          // private mode 등 — 무시
+        } catch (err) {
+          // private mode / quota 초과 등. 익명화는 이미 서버에서 완료됐으므로 UX
+          // 영향 없음 — 가시성을 위해 console.warn만. (사이클 9 ADR-049 deferred Minor)
+          console.warn(
+            "[account-delete] localStorage clear failed (anonymization already committed server-side)",
+            err,
+          );
         }
         setStep("idle");
         router.replace("/account/deleted");

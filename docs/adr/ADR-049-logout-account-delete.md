@@ -98,13 +98,13 @@ stateless JWT + 짧은 access TTL(15분)으로 cookie clear 충분. refresh TTL(
 - **재가입 시 데이터 단절**: 사용자가 같은 카카오 계정으로 재로그인하면 새 User row 생성 (이전 익명화된 row와 단절). 이는 의도된 동작 — "계정 삭제 = 새 출발".
 - **운영자 수동 복구 절차**: `UPDATE User SET deletedAt = NULL, email = ?, kakaoId = ?, name = ?` + 관련 Trip의 ownerId reassign 역방향. 사이클 9에서 `scripts/restore-user.ts` 박제 검토.
 
-### T13 코드 리뷰 — 차기 사이클 deferred (Minor)
+### T13 코드 리뷰 — 사이클 9 처리 (✅ 4/5)
 
-- **DELETE /api/auth/account CSRF 강화**: SameSite=Lax + 텍스트 confirm phrase로 1차 방어. 차기 사이클에서 Origin/Referer 헤더 검증 추가. confirm phrase가 공개 상수("계정 삭제")라 공격자도 알 수 있으나, 인증된 cookie 보유자만 트리거 가능 + 텍스트 입력 UI는 클라이언트 게이트.
-- **rate limit**: 동일 user 5분 1회 제한. 차기 사이클 (in-memory or DB 카운터).
-- **외부 노출 reason 코드 매핑**: 현재 `result.reason`이 클라이언트에 그대로 노출 (`tx_failed`, `db_unavailable`). 차기 사이클에 외부 안정 코드로 매핑.
-- **JWT refresh token revocation 리스트**: ADR §결정 D5 — 차기 사이클 별도 ADR.
-- **localStorage `removeItem` private mode silent fail**: clientUuid가 보존될 가능성. 차기 사이클에 audit log 또는 console.warn으로 가시성 추가.
+- ✅ **CSRF Origin/Referer 헤더 검증**: `isSameOriginRequest()` — Origin 우선 + Referer fallback + host 비교. cross-origin/누락 시 403 `forbidden_origin` + audit `auth.account_delete_origin_blocked` (security). CSRF 차단은 confirm/JWT보다 우선 (인증 정보 누설 차단).
+- ✅ **Rate limit (사이클 9)**: `lib/auth/accountDeleteRateLimit.ts` — userId 기반 5분 1회 (LIMIT=1, WINDOW_MS=300_000). 박제 lookupRateLimit 패턴 답습 (Map<string, number[]> in-memory). 초과 시 429 `rate_limited` + audit `auth.account_delete_rate_limited` (security). 영속 store는 사이클 R1 게이트(JWT refresh revocation과 묶음).
+- ✅ **외부 reason 매핑 (사이클 9)**: `mapAccountDeleteReason()` — 모든 내부 reason(`tx_failed`/`db_unavailable`/`user_not_found`/`unknown`) → `internal_error` 통일. raw reason은 server console.error에서만 추적 (정보 누설 차단).
+- ✅ **localStorage 가시성 (사이클 9)**: `AccountDeleteOrchestrator.handleConfirm` — `console.warn` 추가. UX 영향 없음 (이미 server-side 익명화 commit 완료, redirect도 진행).
+- ⏸️ **JWT refresh token revocation 리스트**: D5 — 별도 ADR-050(예정), R1 게이트.
 
 ### T13 코드 리뷰 — 즉시 fix 적용
 
@@ -122,3 +122,12 @@ stateless JWT + 짧은 access TTL(15분)으로 cookie clear 충분. refresh TTL(
 - 사이클 8 머지 후 라이브에서 settings → 로그아웃 → /account/deleted 흐름 E2E nightly 추가 검증
 - audit `auth.account_delete` row가 정상 기록되는지 (DB 검증)
 - 익명화 후 동행자 trip이 그대로 유지되는지 (SYSTEM_OWNER_ID 보유 trip 조회 가능)
+- (사이클 9) audit `auth.account_delete_origin_blocked` / `auth.account_delete_rate_limited` row가 abuse 시도 시 기록되는지
+
+## 변경 이력
+
+| 일자 | 사이클 | 변경 |
+|------|-------|------|
+| 2026-05-06 | 8 | 초기 — D1~D5 결정 + 익명화 트랜잭션 + 모달/페이지 + audit `auth.account_delete` |
+| 2026-05-07 | 8 hotfix | server-only 분리 — `lib/auth/account-delete-shared.ts`로 PHRASE/validator 격리, account-delete.ts는 re-export로 외부 호환. CI 빌드 실패 fix. |
+| 2026-05-07 | 9 | T13 deferred Minor 4/5 처리 — CSRF Origin/Referer 검증 + userId 기반 rate limit 5분 1회 + reason 매핑(`internal_error`) + localStorage console.warn. audit enum 2개 추가(`auth.account_delete_origin_blocked` / `auth.account_delete_rate_limited`). JWT refresh revocation은 ADR-050(예정)으로 분리. |

@@ -87,6 +87,9 @@ export type AuditAction =
   | "auth.logout"
   // 사이클 8 (G3) — 계정 삭제 (ADR-049)
   | "auth.account_delete"
+  // 사이클 9 — ADR-049 deferred Minor (CSRF + rate limit)
+  | "auth.account_delete_rate_limited"
+  | "auth.account_delete_origin_blocked"
   // 자율 모드 비용 거버넌스 (사이클 AAAA2, ADR-047)
   | "usage.budget.warn"
   | "usage.budget.throw"
