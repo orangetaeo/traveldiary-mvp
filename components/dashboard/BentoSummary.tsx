@@ -10,21 +10,24 @@
 
 import type { TripDashboardData } from "@/lib/services/trip-dashboard";
 import { formatKrw } from "@/lib/utils/format-krw";
+import { focusElementId, type FocusKey } from "@/lib/utils/focus-key";
 
 interface BentoSummaryProps {
   data: TripDashboardData;
+  /** 옵션 J — 외부 진입 시 강조할 카드 키. undefined면 강조 없음. */
+  focusKey?: FocusKey;
 }
 
-export function BentoSummary({ data }: BentoSummaryProps) {
+export function BentoSummary({ data, focusKey }: BentoSummaryProps) {
   return (
     <section
       aria-label="여행 요약"
       className="mt-td-lg grid grid-cols-2 gap-td-sm"
     >
-      <ItineraryCard data={data.itinerary} />
-      <BudgetCard data={data.cost} />
-      <ChecklistCard data={data.checklist} />
-      <VoteCard data={data.vote} />
+      <ItineraryCard data={data.itinerary} focused={focusKey === "itinerary"} />
+      <BudgetCard data={data.cost} focused={focusKey === "cost"} />
+      <ChecklistCard data={data.checklist} focused={focusKey === "checklist"} />
+      <VoteCard data={data.vote} focused={focusKey === "vote"} />
     </section>
   );
 }
@@ -32,14 +35,23 @@ export function BentoSummary({ data }: BentoSummaryProps) {
 function CardShell({
   children,
   ariaLabel,
+  focused,
+  focusId,
 }: {
   children: React.ReactNode;
   ariaLabel: string;
+  focused?: boolean;
+  focusId?: string;
 }) {
+  const focusClass = focused
+    ? "ring-2 ring-purple ring-offset-2 ring-offset-surface"
+    : "";
   return (
     <div
+      id={focused ? focusId : undefined}
       aria-label={ariaLabel}
-      className="bg-surface-card p-td-md rounded-md border border-divider shadow-[0_4px_12px_rgba(15,23,42,0.03)] flex flex-col justify-between min-h-[100px]"
+      data-focused={focused ? "true" : undefined}
+      className={`bg-surface-card p-td-md rounded-md border border-divider shadow-[0_4px_12px_rgba(15,23,42,0.03)] flex flex-col justify-between min-h-[100px] ${focusClass}`}
     >
       {children}
     </div>
@@ -68,9 +80,19 @@ function CardHeader({
   );
 }
 
-function ItineraryCard({ data }: { data: TripDashboardData["itinerary"] }) {
+function ItineraryCard({
+  data,
+  focused,
+}: {
+  data: TripDashboardData["itinerary"];
+  focused?: boolean;
+}) {
   return (
-    <CardShell ariaLabel="일정 요약">
+    <CardShell
+      ariaLabel="일정 요약"
+      focused={focused}
+      focusId={focusElementId("itinerary")}
+    >
       <CardHeader
         icon="map"
         label={data.count > 0 ? `일정 ${data.count}곳` : "일정 미설정"}
@@ -98,10 +120,17 @@ function ItineraryCard({ data }: { data: TripDashboardData["itinerary"] }) {
   );
 }
 
-function BudgetCard({ data }: { data: TripDashboardData["cost"] }) {
+function BudgetCard({
+  data,
+  focused,
+}: {
+  data: TripDashboardData["cost"];
+  focused?: boolean;
+}) {
+  const focusId = focusElementId("cost");
   if (data.totalKrw === 0) {
     return (
-      <CardShell ariaLabel="예산 요약">
+      <CardShell ariaLabel="예산 요약" focused={focused} focusId={focusId}>
         <CardHeader
           icon="payments"
           label="기록 없음"
@@ -112,7 +141,7 @@ function BudgetCard({ data }: { data: TripDashboardData["cost"] }) {
     );
   }
   return (
-    <CardShell ariaLabel="예산 요약">
+    <CardShell ariaLabel="예산 요약" focused={focused} focusId={focusId}>
       <CardHeader
         icon="payments"
         label={`예산 ${formatKrw(data.totalKrw)}`}
@@ -125,10 +154,17 @@ function BudgetCard({ data }: { data: TripDashboardData["cost"] }) {
   );
 }
 
-function ChecklistCard({ data }: { data: TripDashboardData["checklist"] }) {
+function ChecklistCard({
+  data,
+  focused,
+}: {
+  data: TripDashboardData["checklist"];
+  focused?: boolean;
+}) {
+  const focusId = focusElementId("checklist");
   if (data.totalCount === 0) {
     return (
-      <CardShell ariaLabel="체크리스트 요약">
+      <CardShell ariaLabel="체크리스트 요약" focused={focused} focusId={focusId}>
         <CardHeader
           icon="checklist"
           label="준비물 미설정"
@@ -139,7 +175,7 @@ function ChecklistCard({ data }: { data: TripDashboardData["checklist"] }) {
     );
   }
   return (
-    <CardShell ariaLabel="체크리스트 요약">
+    <CardShell ariaLabel="체크리스트 요약" focused={focused} focusId={focusId}>
       <CardHeader
         icon="checklist"
         label={`준비물 ${data.doneCount}/${data.totalCount}`}
@@ -167,17 +203,24 @@ function ChecklistCard({ data }: { data: TripDashboardData["checklist"] }) {
   );
 }
 
-function VoteCard({ data }: { data: TripDashboardData["vote"] }) {
+function VoteCard({
+  data,
+  focused,
+}: {
+  data: TripDashboardData["vote"];
+  focused?: boolean;
+}) {
+  const focusId = focusElementId("vote");
   if (data.totalCount === 0) {
     return (
-      <CardShell ariaLabel="투표 요약">
+      <CardShell ariaLabel="투표 요약" focused={focused} focusId={focusId}>
         <CardHeader icon="how_to_vote" label="투표 없음" iconClass="text-purple" />
         <p className="text-td-caption text-ink-mute">새 투표 만들기</p>
       </CardShell>
     );
   }
   return (
-    <CardShell ariaLabel="투표 요약">
+    <CardShell ariaLabel="투표 요약" focused={focused} focusId={focusId}>
       <CardHeader
         icon="how_to_vote"
         label={`투표 ${data.totalCount}건`}
