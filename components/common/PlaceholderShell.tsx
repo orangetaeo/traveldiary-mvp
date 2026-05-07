@@ -1,14 +1,9 @@
 /**
  * PlaceholderShell — 출시 전 정식 기능 대체 placeholder 페이지의 공통 chrome.
  *
- * 추출 배경 (사이클 U-shell-dry, 2026-05-07): LegalPlaceholderShell + cache + reminder
- * + data-export + admin 데모 마커 등 6번째 답습 임계점 도달. DRY 추출.
- *
- * 본 컴포넌트는 헤더 + Hero(원형 아이콘 + 제목 + 부제) + amber 정체성 노트 + 푸터
- * 링크만 담당. 본문(섹션·버튼·CTA)은 children으로 위임.
- *
- * LegalPlaceholderShell은 본 사이클에서 swap하지 않음(외부 호출처 5건 무중단 유지).
- * 다음 사이클에서 internal swap 진화 예정.
+ * 헤더 + Hero(원형 아이콘 + 제목 + 부제) + amber 정체성 노트 + 푸터 링크.
+ * 본문(섹션·버튼·CTA)은 children. amber 노트 뒤 추가 콘텐츠(lastUpdated/추가
+ * 교차 링크 등)는 footerExtra slot.
  *
  * server component (정적 마크업 — renderToStaticMarkup 직접 단언 가능).
  */
@@ -39,6 +34,8 @@ export interface PlaceholderShellProps {
   backAriaLabel?: string;
   /** 본문 (섹션 + 버튼 + 추가 CTA 등) */
   children: React.ReactNode;
+  /** amber 노트 뒤, 마지막 backHref Link 앞 slot — lastUpdated/추가 교차 링크 등 */
+  footerExtra?: React.ReactNode;
 }
 
 export function PlaceholderShell({
@@ -51,6 +48,7 @@ export function PlaceholderShell({
   backLabel = "← 설정으로",
   backAriaLabel = "설정으로 돌아가기",
   children,
+  footerExtra,
 }: PlaceholderShellProps) {
   const iconBg =
     iconVariant === "solid-purple" ? "bg-purple" : "bg-purple-soft";
@@ -112,6 +110,8 @@ export function PlaceholderShell({
             </div>
           </div>
         </section>
+
+        {footerExtra}
 
         <Link
           href={backHref}

@@ -1,8 +1,5 @@
 /**
- * PlaceholderShell 단위 테스트 — 사이클 U-shell-dry (2026-05-07).
- *
- * 6번째 답습 임계점에서 추출된 공통 chrome. LegalPlaceholderShell은 본 사이클에서는
- * 그대로 유지(외부 호출처 5건 무중단). 다음 사이클에서 internal swap 진화 예정.
+ * PlaceholderShell 단위 테스트 — chrome 정체성 + slot 분기.
  *
  * 검증:
  *  - 정체성 amber 노트 (info icon + role=note + aria-live)
@@ -11,6 +8,7 @@
  *  - description ReactNode 허용
  *  - back link default (/settings) + custom 분기
  *  - children 위치 (Hero 뒤 + amber 노트 앞)
+ *  - footerExtra 위치 (amber 노트 뒤 + backHref Link 앞)
  */
 
 import { describe, it, expect, vi } from "vitest";
@@ -211,6 +209,42 @@ describe("PlaceholderShell — 정체성 + chrome", () => {
     );
     expect(html).toContain("<strong>강조</strong>");
     expect(html).toContain("본문");
+  });
+
+  it("footerExtra slot — amber 노트 뒤 + backHref Link 앞에 렌더", () => {
+    const html = renderToStaticMarkup(
+      <PlaceholderShell
+        title="t"
+        description="d"
+        iconName="info"
+        note={NOTE}
+        footerExtra={<div data-testid="extra-slot">추가 정보 슬롯</div>}
+      >
+        <p />
+      </PlaceholderShell>,
+    );
+    expect(html).toContain('data-testid="extra-slot"');
+    expect(html).toContain("추가 정보 슬롯");
+    const noteIdx = html.indexOf("준비 중");
+    const extra = html.indexOf("추가 정보 슬롯");
+    const back = html.indexOf("← 설정으로");
+    expect(noteIdx).toBeLessThan(extra);
+    expect(extra).toBeLessThan(back);
+  });
+
+  it("footerExtra 미전달 시 추가 마크업 0 (외부 호출처 무영향)", () => {
+    const without = renderToStaticMarkup(
+      <PlaceholderShell
+        title="t"
+        description="d"
+        iconName="info"
+        note={NOTE}
+      >
+        <p />
+      </PlaceholderShell>,
+    );
+    // amber 노트 닫는 </section> 직후 backHref Link <a 시작
+    expect(without).toMatch(/<\/section>\s*<a[^>]+href="\/settings"/);
   });
 
   it("server component (no 'use client')", () => {
