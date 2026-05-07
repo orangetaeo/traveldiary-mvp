@@ -35,9 +35,9 @@ export default function BookingConfirmationPage({ params: _params }: PageProps) 
       {/* Header */}
       <header className="sticky top-0 z-40 bg-surface-card/90 backdrop-blur-md border-b border-divider flex items-center justify-between px-4 h-14">
         <Link
-          href="/"
+          href="/trips"
           className="p-2 rounded-full hover:bg-surface-soft transition-colors"
-          aria-label="홈으로"
+          aria-label="내 여행 목록으로"
         >
           <span className="material-symbols-outlined text-ink">close</span>
         </Link>
@@ -129,18 +129,23 @@ export default function BookingConfirmationPage({ params: _params }: PageProps) 
           </div>
         </div>
 
-        {/* Actions */}
+        {/* Actions — 옵션 V: redirect 정합 (/ → /trips) + dead share 버튼 활성화 (Link로) */}
         <div className="space-y-td-xs">
           <Link
-            href="/"
+            href="/trips"
+            aria-label="내 여행 목록에서 일정 확인"
             className="block w-full py-td-sm rounded-md bg-ink text-white text-td-body font-bold text-center transition-opacity hover:opacity-90"
           >
             내 일정에서 확인
           </Link>
-          <button className="w-full py-td-sm rounded-md border border-divider text-td-body font-semibold text-ink hover:bg-surface-soft transition-colors flex items-center justify-center gap-td-xxs">
-            <span className="material-symbols-outlined text-lg">share</span>
+          <Link
+            href="/trips"
+            aria-label="일행에게 공유 — 내 여행 목록에서 일정 선택 후 공유"
+            className="w-full py-td-sm rounded-md border border-divider text-td-body font-semibold text-ink hover:bg-surface-soft transition-colors flex items-center justify-center gap-td-xxs"
+          >
+            <span className="material-symbols-outlined text-lg" aria-hidden>share</span>
             일행에게 공유
-          </button>
+          </Link>
         </div>
       </main>
     </div>
