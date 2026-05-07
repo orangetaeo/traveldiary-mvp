@@ -9,7 +9,7 @@
 ---
 
 ## 1. 다음 사이클
-**진행 중**: 사용자 흐름 갭 **6/8 완료** (2026-05-06 Session K~P) — 사이클 1(G5/G6 모드전환 ✅ #209) → 2(G7 받은 trip 배너 ✅ #212) → 3(G4 일정 coach mark ✅ #215) → 4(G9 카메라 권한 가이드 ✅ #217) → 5(G8 OTA reentry self-report ✅ #223) → 7(G10 약관/개인정보 placeholder ✅ #226). 다음 = **사이클 8(G3 로그아웃/계정 삭제, R1 검토 1 사이클)** 또는 사이클 6(G1+G2 4-OAuth 게이트 batch — 사용자 콘솔 4건 + R1 의존성 결정).
+**OPEN PR 5건 모두 CI=SUCCESS — 머지 가능 (사용자 권한)**: #265(PlaceholderShell DRY) / #270(A3 phrases) / #272(ENTRY.md 갱신) / #276(A4 OCR viewfinder) / #281(A2 도착 체크인). 디자인 갭 **U1~U5 + A1~A4 = 9/10 완료**. **다음 권장**: ① PR 5건 일괄 머지 + worktree cleanup → ② A5 다른 세션(`a5-split-suggestions-1600` 워크트리, push 0) 결과 회수 → ③ 자율 발견(예: /wrap-up/recap 진화 또는 LegalPlaceholderShell internal swap). **충돌 회피**: a5-split 영역(SettlementCard / CostEntry.splits) 진입 시 다른 세션 흔적 grep 필수.
 
 ## 2. 활성 게이트 (batch)
 **없음.** 게이트 발생 시 `memory/project_gate_batch_YYYY_MM_DD.md` 위치 + 본 라인 `🔴 활성 게이트 N건` 갱신.
