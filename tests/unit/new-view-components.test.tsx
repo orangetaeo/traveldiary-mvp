@@ -62,7 +62,7 @@ describe("NotificationListView", () => {
 });
 
 describe("PlaceDiscoveryView", () => {
-  it("렌더 성공 + 장소명 포함", () => {
+  it("렌더 성공 + 화면 제목 포함", () => {
     const html = renderToStaticMarkup(
       <PlaceDiscoveryView
         tripId="demo-trip-phu-quoc"
@@ -72,10 +72,12 @@ describe("PlaceDiscoveryView", () => {
         verifiedCount={5}
       />,
     );
-    expect(html).toContain(DEMO_DISCOVER_PLACES[0].name);
+    // 재설계 후 정렬로 [0] 카드가 첫 노출 보장 안 됨 → 화면 제목 + destination 단언
+    expect(html).toContain("AI 추천 장소");
+    expect(html).toContain("푸꾸옥");
   });
 
-  it("카테고리 필터 렌더", () => {
+  it("카테고리 그리드 6 카드 렌더 (디자인 갭 #1 U2 재설계)", () => {
     const html = renderToStaticMarkup(
       <PlaceDiscoveryView
         tripId="demo-trip-phu-quoc"
@@ -86,8 +88,12 @@ describe("PlaceDiscoveryView", () => {
       />,
     );
     expect(html).toContain("전체");
-    expect(html).toContain("맛집");
+    expect(html).toContain("음식");
     expect(html).toContain("관광");
+    expect(html).toContain("쇼핑");
+    expect(html).toContain("자연");
+    expect(html).toContain("카페");
+    expect(html).toContain("어떤 곳을 찾으세요?");
   });
 
   it("badge ai/popular 렌더", () => {
