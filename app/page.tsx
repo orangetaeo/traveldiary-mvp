@@ -98,13 +98,13 @@ export default async function HomePage() {
       {/* TopAppBar */}
       <header className="bg-surface-card/90 backdrop-blur-md border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
         <div className="flex items-center gap-td-sm">
-          <button
-            type="button"
+          <Link
+            href="/settings"
             className="hover:bg-surface-soft transition-colors p-2 rounded-full"
-            aria-label="메뉴"
+            aria-label="메뉴 — 설정"
           >
             <span className="material-symbols-outlined text-ink">menu</span>
-          </button>
+          </Link>
           <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
         <LoginButton
