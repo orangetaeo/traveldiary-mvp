@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
 import type { DiscoverPlace, PlaceCategory } from "@/lib/types";
+import { matchPlace } from "@/lib/utils/place-search";
 
 export type { PlaceCategory, DiscoverPlace } from "@/lib/types";
 
@@ -99,8 +100,7 @@ export function PlaceDiscoveryView({
       list = list.filter((p) => p.category === activeCategory);
     }
     if (query.trim()) {
-      const q = query.trim().toLowerCase();
-      list = list.filter((p) => p.name.toLowerCase().includes(q));
+      list = list.filter((p) => matchPlace(p, query));
     }
     if (activeFilters.has("rating")) {
       list = list.filter((p) => p.rating >= 4.5);
@@ -154,7 +154,10 @@ export function PlaceDiscoveryView({
         <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={() => setSearchOpen((v) => !v)}
+            onClick={() => {
+              setSearchOpen((v) => !v);
+              if (!searchOpen) setActiveCategory("all");
+            }}
             aria-label="검색 토글"
             aria-pressed={searchOpen ? "true" : "false"}
             className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
@@ -270,7 +273,11 @@ export function PlaceDiscoveryView({
                 search_off
               </span>
               <p className="text-td-body text-ink-soft">조건에 맞는 곳이 없어요</p>
-              <p className="text-td-meta text-ink-mute mt-1">필터를 줄여보세요</p>
+              <p className="text-td-meta text-ink-mute mt-1">
+                {query.trim()
+                  ? "이름·지역·카테고리·후기로 검색됩니다"
+                  : "필터를 줄여보세요"}
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-td-sm">
