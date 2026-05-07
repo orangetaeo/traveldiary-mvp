@@ -232,14 +232,40 @@ export async function deleteCommentRow(
 
 export async function listCommentsByShareLinkId(
   shareLinkId: string,
+  /** C5 — null이면 전체, string이면 해당 아이템만, "trip"이면 trip-level(itemId=null)만 */
+  itemFilter?: string | null,
 ): Promise<ShareCommentRow[]> {
   if (!prisma) return [];
+  const where: Record<string, unknown> = { shareLinkId, deletedAt: null };
+  if (itemFilter === "trip") {
+    where.itemId = null;
+  } else if (typeof itemFilter === "string") {
+    where.itemId = itemFilter;
+  }
   const rows = await prisma.shareComment.findMany({
-    where: { shareLinkId, deletedAt: null },
+    where,
     orderBy: { createdAt: "desc" },
     take: 100,
   });
   return rows.map(rowToComment);
+}
+
+/** C5 — 아이템별 댓글 수 맵 (shareLinkId 기준) */
+export async function countCommentsByItem(
+  shareLinkId: string,
+): Promise<Record<string, number>> {
+  if (!prisma) return {};
+  const rows = await prisma.shareComment.groupBy({
+    by: ["itemId"],
+    where: { shareLinkId, deletedAt: null },
+    _count: { id: true },
+  });
+  const map: Record<string, number> = {};
+  for (const r of rows) {
+    const key = r.itemId ?? "_trip";
+    map[key] = r._count.id;
+  }
+  return map;
 }
 
 // ─── 본인 활동 (사이클 YY) ───────────────────────────────────────────

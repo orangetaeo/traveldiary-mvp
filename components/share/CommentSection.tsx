@@ -32,6 +32,10 @@ interface CommentSectionProps {
   /** ShareLink 만료/revoke 시 작성 차단 — 표시만, 검증은 서버에서 다시 */
   disabled?: boolean;
   disabledReason?: string;
+  /** C5 — 아이템별 댓글. null이면 trip 전체, string이면 해당 아이템 */
+  itemId?: string | null;
+  /** C5 — 아이템 내 인라인 모드 (축약 UI) */
+  compact?: boolean;
 }
 
 const DEMO_STORAGE_KEY_PREFIX = "td_demo_comments_";
@@ -41,6 +45,8 @@ export function CommentSection({
   initialComments,
   disabled = false,
   disabledReason,
+  itemId = null,
+  compact = false,
 }: CommentSectionProps) {
   const [comments, setComments] = useState<ShareCommentRow[]>(initialComments);
   const [nickname, setNickname] = useState("");
@@ -103,6 +109,7 @@ export function CommentSection({
     startTransition(async () => {
       const result = await createCommentAction({
         syncKey,
+        itemId,
         nickname: nickname.trim(),
         body: body.trim(),
         reaction,
@@ -120,7 +127,7 @@ export function CommentSection({
       const newComment: ShareCommentRow = {
         id: fakeId,
         shareLinkId: "demo",
-        itemId: null,
+        itemId: itemId ?? null,
         nickname: nickname.trim(),
         body: body.trim(),
         reaction,
@@ -156,16 +163,18 @@ export function CommentSection({
     });
   }
 
+  const headingId = compact ? `comment-heading-${itemId}` : "comment-heading";
+
   return (
     <section
-      aria-labelledby="comment-heading"
-      className="mt-td-lg pt-td-lg border-t border-divider"
+      aria-labelledby={headingId}
+      className={compact ? "mt-td-sm pt-td-sm border-t border-divider/50" : "mt-td-lg pt-td-lg border-t border-divider"}
     >
       <h3
-        id="comment-heading"
-        className="text-td-card-title text-ink mb-td-sm"
+        id={headingId}
+        className={compact ? "text-td-meta text-ink-soft mb-td-xs" : "text-td-card-title text-ink mb-td-sm"}
       >
-        함께 의견 나누기
+        {compact ? "의견 남기기" : "함께 의견 나누기"}
       </h3>
       {disabled && (
         <p className="bg-amber-soft text-amber-deep text-td-meta px-td-md py-td-sm rounded-lg mb-td-md">
