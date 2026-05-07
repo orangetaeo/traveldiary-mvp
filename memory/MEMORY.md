@@ -143,6 +143,12 @@ KPT 회고 → 학습 추출 → 분류 → 저장 → 다음 사이클 적용
 | 2026-05-07 | **A3 관광지 이미지 (PR #292)**: `/api/places/photo` 프록시 API (Google Places Photo → 이미지 스트림, API 키 서버 격리, Cache-Control 24h/7d). `getPlacePhotoUrl()` 유틸 + `place.repository`·`discover-places.ts` imageUrl 매핑. 푸꾸옥 704곳 + 다낭 1,021곳 = 1,725개 Discover 카드 썸네일 활성화 |
 | 2026-05-07 | **A1 동선 지도 DB 연동 (PR #296)**: `buildRouteStops()` 유틸 — ItineraryItem[] → RouteStop[] 변환 (bounding box 핀 정규화 + Haversine 도보/차량 거리 계산). `/itinerary/[id]/map` 실 DB 데이터 연동. Google Maps deeplink에 좌표 + 경유지(waypoints) 포함. 11개 단위 테스트 |
 | 2026-05-07 | **A2 드래그 정렬**: 사이클 10에서 이미 구현 완료 확인 (HTML5 드래그 + scheduledAt 스왑 + 서버 영속화 + 모바일 화살표 fallback). Tier 1 A항목 3/5 완료 (A1✅ A2✅ A3✅ A5✅, A4 검색 미착수) |
+| 2026-05-07 | **D2+D3+D4 외부 딥링크 (PR #300)**: CityContextStrip 응급 전화 tel: 클릭 가능화, TransportCard onAction 핸들러 (Grab/도보/대중교통 → 외부 앱 연결), `googleMapsDirectionsUrl()` 유틸 추가. 테스트 +7 |
+| 2026-05-07 | **A4 장소 검색 (PR #301)**: `matchPlace()` 멀티필드 검색 유틸 (이름·존·AI이유·한국 후기·카테고리 키워드). PlaceDiscoveryView 검색 강화. 테스트 +13 |
+| 2026-05-07 | **B6 날씨·복장 + F2 약국·병원 (PR #302)**: 베트남 8도시 시드에 clothing(4항목씩) + medicalFacilities(2~4곳씩) 추가. /city/[slug] 날씨·복장 카드 + 약국·병원 섹션 + chip nav 9개. MedicalFacility 타입 신규. 테스트 갱신 |
+| 2026-05-07 | **C4 일행 투표**: 사이클 E에서 이미 완전 구현 확인 (Vote 모델 + createVote/castVote 서버 액션 + VoteListView 241줄 + /vote/[tripId] 페이지 + 테스트) |
+| 2026-05-07 | **D5 인스타 스토리 공유 (PR #304)**: `/api/og/share/[key]/story` — 1080×1920 세로 Story 이미지 (ImageResponse, 의존성 0). ShareModal에 "인스타 스토리 카드 저장" 다운로드 버튼. 테스트 +7 |
+| 2026-05-07 | **🎉 Tier 1 + Tier 2 전부 완료**. 남은 Tier 3은 의도적 미루기 (C5 댓글, C6 갤러리, D8 항공권, E1~E4 여행 후, B7 팁, F3 사고 가이드, F6 광고 라벨) |
 
 ---
 
