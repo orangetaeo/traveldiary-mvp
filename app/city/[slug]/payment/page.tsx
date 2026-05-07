@@ -22,6 +22,8 @@ import {
   EXCHANGE_KRW_SAMPLES,
 } from "@/lib/constants/koreanPaymentGuide";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { listDemoTrips } from "@/lib/seed";
+import { findActiveTripByCity } from "@/lib/services/payment-trip-link";
 
 export function generateMetadata({
   params,
@@ -71,6 +73,8 @@ export default function CityPaymentPage({
   const symbol = city.payment.currencySymbol;
   const rate = city.payment.approxKrwRate;
   const krw100 = (100 / rate).toFixed(2);
+
+  const activeTrip = findActiveTripByCity(params.slug, listDemoTrips());
 
   return (
     <div className="min-h-screen bg-surface text-ink pb-24">
@@ -267,6 +271,7 @@ export default function CityPaymentPage({
         {/* TravelDiary 정산 연결 */}
         <section
           aria-labelledby="settlement-heading"
+          data-trip-aware={activeTrip ? "true" : "false"}
           className="bg-surface-card border border-divider rounded-md p-4"
         >
           <h3
@@ -282,14 +287,17 @@ export default function CityPaymentPage({
             그룹 더치페이는 TravelDiary 정산 카드로
           </h3>
           <p className="text-td-meta text-ink-soft mb-3">
-            여행 중 비용을 추가하면 일행과 자동으로 N분의 1 분담 — 한국 귀국
-            후 토스·카카오페이로 송금하면 끝.
+            {activeTrip
+              ? `${activeTrip.destination} 여행 중 비용을 추가하면 일행과 자동 N분의 1 분담 — 한국 귀국 후 토스·카카오페이로 송금하면 끝.`
+              : "여행 중 비용을 추가하면 일행과 자동으로 N분의 1 분담 — 한국 귀국 후 토스·카카오페이로 송금하면 끝."}
           </p>
           <Link
-            href="/trips"
+            href={activeTrip ? `/trips/${activeTrip.tripId}` : "/trips"}
             className="inline-flex items-center gap-1 text-td-meta text-purple-deep hover:underline"
           >
-            내 여행 정산 보기
+            {activeTrip
+              ? `${activeTrip.destination} 여행 정산 보기`
+              : "내 여행 정산 보기"}
             <span
               className="material-symbols-outlined text-td-icon-sm"
               aria-hidden
