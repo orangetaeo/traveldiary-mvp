@@ -10,6 +10,8 @@ import { DayTabsBar } from "./DayTabsBar";
 import { DayRouteMiniMap } from "./DayRouteMiniMap";
 import { AddItemDashedCard } from "./AddItemDashedCard";
 import { ItineraryCoachMark } from "./ItineraryCoachMark";
+import { TransportCard } from "./TransportCard";
+import { computeTransportSuggestion } from "@/lib/itinerary-transport";
 import {
   generateReplanOptions,
   type ReplanTrigger,
@@ -371,31 +373,48 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
           />
         )}
 
-        {dayItems.map((item, idx) => (
-          <ItineraryItemCard
-            key={item.id}
-            item={item}
-            tripId={trip.id}
-            isFeatured={item.id === featuredId}
-            isOnTrip={isOnTrip}
-            showEvidence={
-              item.id === evidenceCardId &&
-              !!item.evidence &&
-              item.evidence.reasons.length > 0
-            }
-            isDragging={item.id === draggingId}
-            isDragOver={item.id === dragOverId}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDragEnd={handleDragEnd}
-            onDrop={handleDrop}
-            isFirst={idx === 0}
-            isLast={idx === dayItems.length - 1}
-            onMoveUp={(id) => handleArrowMove(id, "up")}
-            onMoveDown={(id) => handleArrowMove(id, "down")}
-          />
-        ))}
+        {dayItems.map((item, idx) => {
+          const prev = idx > 0 ? dayItems[idx - 1] : null;
+          const transport = prev ? computeTransportSuggestion(prev, item) : null;
+          return (
+            <div key={item.id}>
+              {transport && (
+                <div className="my-td-sm pl-[44px] relative z-10">
+                  <TransportCard
+                    from={prev!.name}
+                    to={item.name}
+                    distanceKm={transport.distanceKm}
+                    options={transport.options}
+                    recommendedMode={transport.recommendedMode}
+                    recommendedReason={transport.recommendedReason}
+                  />
+                </div>
+              )}
+              <ItineraryItemCard
+                item={item}
+                tripId={trip.id}
+                isFeatured={item.id === featuredId}
+                isOnTrip={isOnTrip}
+                showEvidence={
+                  item.id === evidenceCardId &&
+                  !!item.evidence &&
+                  item.evidence.reasons.length > 0
+                }
+                isDragging={item.id === draggingId}
+                isDragOver={item.id === dragOverId}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDragEnd={handleDragEnd}
+                onDrop={handleDrop}
+                isFirst={idx === 0}
+                isLast={idx === dayItems.length - 1}
+                onMoveUp={(id) => handleArrowMove(id, "up")}
+                onMoveDown={(id) => handleArrowMove(id, "down")}
+              />
+            </div>
+          );
+        })}
 
         {/* 디자인 갭 #1 (U1) — Day 카드 섹션 마지막에 dashed 추가 카드.
             empty(0건)이면 강조 모드, 그 외엔 보조 강조. */}
