@@ -132,14 +132,24 @@ function CapturingView({
             Camera Translator
           </h1>
         </div>
-        {/* 사이클 4 (G9) — 카메라 권한 도움말 진입점 (이전 settings 데드 버튼 자리) */}
-        <Link
-          href="/permission/camera"
-          aria-label="카메라 권한 도움말"
-          className="p-2 rounded-full hover:bg-white/10"
-        >
-          <span className="material-symbols-outlined text-white">help</span>
-        </Link>
+        <div className="flex items-center gap-td-xxs">
+          {/* 사이클 W3 (A3) — 베트남어 핵심 문장 카드 진입점 */}
+          <Link
+            href="/phrases"
+            aria-label="베트남어 핵심 문장 카드"
+            className="p-2 rounded-full hover:bg-white/10"
+          >
+            <span className="material-symbols-outlined text-white">menu_book</span>
+          </Link>
+          {/* 사이클 4 (G9) — 카메라 권한 도움말 진입점 (이전 settings 데드 버튼 자리) */}
+          <Link
+            href="/permission/camera"
+            aria-label="카메라 권한 도움말"
+            className="p-2 rounded-full hover:bg-white/10"
+          >
+            <span className="material-symbols-outlined text-white">help</span>
+          </Link>
+        </div>
       </header>
 
       {/* Faux camera viewport — 그라디언트 + 메뉴판 placeholder */}
