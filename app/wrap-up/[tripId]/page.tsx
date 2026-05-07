@@ -11,6 +11,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { resolveTrip } from "@/lib/services/resolved-trip";
+import { WrapUpReviewCard } from "@/components/wrap-up/WrapUpReviewCard";
 
 interface PageProps {
   params: { tripId: string };
@@ -123,37 +124,8 @@ export default function WrapUpPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Review Card */}
-        <section className="px-td-md py-td-md">
-          <div className="bg-surface-soft rounded-md p-td-md border border-divider shadow-sm">
-            <h2 className="text-td-card-title text-ink mb-td-sm">여행 후기 남기기</h2>
-            {/* Star Rating */}
-            <div className="flex gap-0.5 mb-td-sm">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span
-                  key={star}
-                  className={`material-symbols-outlined ${star <= 4 ? "text-amber" : "text-ink-mute"}`}
-                  style={{ fontVariationSettings: star <= 4 ? "'FILL' 1" : "'FILL' 0" }}
-                >
-                  star
-                </span>
-              ))}
-            </div>
-            <textarea
-              className="w-full bg-surface-card border border-divider rounded-md p-td-sm text-td-body focus:ring-purple focus:border-purple mb-td-sm h-24 placeholder:text-ink-mute resize-none"
-              placeholder="여행의 소중한 순간을 기록하세요."
-              readOnly
-            />
-            <div className="flex gap-td-xs">
-              <button className="flex-1 py-td-xs rounded-md border border-divider text-td-body font-semibold text-ink transition-colors hover:bg-surface-soft">
-                건너뛰기
-              </button>
-              <button className="flex-1 py-td-xs rounded-md bg-purple text-white text-td-body font-semibold transition-opacity hover:opacity-90">
-                공유하기
-              </button>
-            </div>
-          </div>
-        </section>
+        {/* Review Card — 별점/후기 LocalStorage 임시 저장 */}
+        <WrapUpReviewCard tripId={trip.id} />
 
         {/* Next Trip */}
         <section className="py-td-md">
