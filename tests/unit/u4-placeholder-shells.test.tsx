@@ -22,83 +22,67 @@ vi.mock("next/link", () => ({
   }) => <a href={href} {...rest}>{children}</a>,
 }));
 
-import CostScanPage from "@/app/cost/[tripId]/scan/page";
 import SettingsEmailSyncPage from "@/app/settings/email-sync/page";
 
-describe("/cost/[tripId]/scan 영수증 스캔 placeholder", () => {
-  const tripId = "demo-pq-2026-mvp";
+// /cost/[tripId]/scan — ReceiptScanView 클라이언트 컴포넌트로 전환됨.
+// renderToStaticMarkup 불가 → source grep 검증.
+describe("/cost/[tripId]/scan 영수증 스캔 (source grep)", () => {
+  const pageSrc = readFileSync(
+    resolve(__dirname, "../../app/cost/[tripId]/scan/page.tsx"),
+    "utf-8",
+  );
+  const viewSrc = readFileSync(
+    resolve(__dirname, "../../components/cost/ReceiptScanView.tsx"),
+    "utf-8",
+  );
 
-  it("정적 마크업 + 핵심 카피", () => {
-    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
-    expect(html).toContain("영수증 스캔");
-    expect(html).toContain("영수증을 찍으면 자동 입력");
-    expect(html).toContain("준비 중");
+  it("페이지가 ReceiptScanView 클라이언트 컴포넌트를 사용한다", () => {
+    expect(pageSrc).toContain("ReceiptScanView");
+    expect(pageSrc).toContain("tripId");
   });
 
-  it("3대 핵심 기능 노출", () => {
-    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
-    expect(html).toContain("베트남 동(VND) → 원(KRW) 자동 환산");
-    expect(html).toContain("메뉴/장소 카테고리 자동 분류");
-    expect(html).toContain("사진은 기기 안에서만 처리");
+  it("ReceiptScanView에 'use client' 지시문이 있다", () => {
+    expect(viewSrc).toContain('"use client"');
   });
 
-  it("뒤로가기 + CTA — /cost/[tripId]로 이동", () => {
-    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
-    expect(html).toContain(`href="/cost/${tripId}"`);
-    expect(html).toContain("비용 직접 입력하기");
+  it("scanReceiptAction 서버 액션을 호출한다", () => {
+    expect(viewSrc).toContain("scanReceiptAction");
   });
 
-  it("정식 출시 조건 명시 — Vision API + R1 사인오프 + ADR", () => {
-    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
-    expect(html).toContain("Vision API");
-    expect(html).toContain("R1");
-    expect(html).toContain("ADR");
+  it("addCost 서버 액션으로 비용을 등록한다", () => {
+    expect(viewSrc).toContain("addCost");
   });
 
-  it("ARIA — role=note + aria-live=polite + aria-labelledby", () => {
-    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
-    expect(html).toContain('role="note"');
-    expect(html).toContain('aria-live="polite"');
-    expect(html).toContain('aria-labelledby="receipt-features-heading"');
+  it("카메라 촬영 + 갤러리 입력 지원 (file input)", () => {
+    expect(viewSrc).toContain('accept="image/*"');
+    expect(viewSrc).toContain('capture="environment"');
   });
 
-  it("tripId 동적 — 시드 외 trip ID도 라우트 매개변수로 전달 가능", () => {
-    const html = renderToStaticMarkup(
-      <CostScanPage params={{ tripId: "abc-trip-123" }} />,
-    );
-    expect(html).toContain('href="/cost/abc-trip-123"');
+  it("VND → KRW 환율 변환이 포함된다", () => {
+    expect(viewSrc).toContain("CURRENCY_TO_KRW");
+    expect(viewSrc).toContain("VND");
   });
 
-  // Stitch screen c389873963894d0c819c40692eea88bc 매핑 회귀 가드 (Session X cap 1)
-  it("Stitch viewfinder — 가이드 카피 + 추출 항목 카피", () => {
-    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
-    expect(html).toContain("영수증을 사각형 안에 맞춰주세요");
-    expect(html).toContain("가게명/금액/날짜/카테고리를 자동으로 추출해요");
+  it("카테고리 선택이 가능하다 (COST_CATEGORY_OPTIONS)", () => {
+    expect(viewSrc).toContain("COST_CATEGORY_OPTIONS");
   });
 
-  it("TopAppBar — 닫기(close) + 도움말(help) 진입점", () => {
-    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
-    expect(html).toContain('aria-label="닫기"');
-    expect(html).toContain('aria-label="카메라 권한 도움말"');
-    expect(html).toContain('href="/permission/camera"');
+  it("영수증 사각형 가이드 + 추출 항목 카피가 포함된다", () => {
+    expect(viewSrc).toContain("영수증을 사각형 안에 맞춰주세요");
+    expect(viewSrc).toContain("가게명/금액/날짜/카테고리를 자동으로 추출해요");
   });
 
-  it("카메라 컨트롤 데모 — flash/촬영/갤러리 모두 disabled (정식 활성 전 visual only)", () => {
-    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
-    expect(html).toContain('aria-label="플래시 (준비 중)"');
-    expect(html).toContain('aria-label="촬영 (준비 중)"');
-    expect(html).toContain('aria-label="갤러리 (준비 중)"');
-    // disabled 속성은 React가 boolean으로 렌더링
-    const disabledMatches = html.match(/disabled=""/g) ?? [];
-    expect(disabledMatches.length).toBeGreaterThanOrEqual(3);
+  it("에러 상태 + 로딩 상태 UI가 포함된다", () => {
+    expect(viewSrc).toContain("영수증 인식 중");
+    expect(viewSrc).toContain("인식 실패");
   });
 
-  it("amber 데모 마커 — 🟡 + R1 + Vision API + 비용 가드 ADR", () => {
-    const html = renderToStaticMarkup(<CostScanPage params={{ tripId }} />);
-    expect(html).toContain("🟡 데모 — 준비 중");
-    expect(html).toContain("Vision API");
-    expect(html).toContain("R1 보안 사인오프");
-    expect(html).toContain("비용 가드 ADR");
+  it("결과 확인 화면에서 편집 가능 필드가 있다 (vendor, total, currency, date, category)", () => {
+    expect(viewSrc).toContain("setVendor");
+    expect(viewSrc).toContain("setTotal");
+    expect(viewSrc).toContain("setCurrency");
+    expect(viewSrc).toContain("setDate");
+    expect(viewSrc).toContain("setCategory");
   });
 });
 

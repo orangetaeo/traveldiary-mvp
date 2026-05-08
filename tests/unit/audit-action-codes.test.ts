@@ -49,6 +49,8 @@ const KNOWN_ACTION_CODES = new Set([
   "cost.add",
   "cost.update",
   "cost.delete",
+  // receipt OCR
+  "receipt.scanned",
   // evidence / validation
   "evidence.gathered",
   "validation.completed",
@@ -164,8 +166,8 @@ describe("audit action 코드 리소스 분류", () => {
     codesByResource.get(resource)!.push(code);
   }
 
-  it("12개 리소스 그룹 존재", () => {
-    expect(codesByResource.size).toBe(12);
+  it("13개 리소스 그룹 존재", () => {
+    expect(codesByResource.size).toBe(13);
   });
 
   it("checklist 리소스에 5개 이상 action", () => {

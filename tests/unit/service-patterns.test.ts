@@ -59,8 +59,8 @@ const PURE_LOGIC_SERVICES = [
  * ════════════════════════════════════════════ */
 
 describe("service 파일 목록", () => {
-  it("24개 service 파일 존재", () => {
-    expect(ALL_SERVICES.length).toBe(24);
+  it("25개 service 파일 존재", () => {
+    expect(ALL_SERVICES.length).toBe(25);
   });
 
   it("외부 API 서비스 7개", () => {
