@@ -9,6 +9,7 @@
 
 import type { Metadata } from "next";
 import { ReceiptScanView } from "@/components/cost/ReceiptScanView";
+import { visionAvailable } from "@/lib/services/google-vision";
 
 export const metadata: Metadata = {
   title: "영수증 스캔 — TRAVELDIARY",
@@ -20,5 +21,5 @@ export default function CostScanPage({
 }: {
   params: { tripId: string };
 }) {
-  return <ReceiptScanView tripId={params.tripId} />;
+  return <ReceiptScanView tripId={params.tripId} scanAvailable={visionAvailable()} />;
 }
