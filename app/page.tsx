@@ -171,7 +171,7 @@ export default async function HomePage({
         </section>
 
         {/* Day Tabs */}
-        <nav className="flex gap-td-xs mb-td-md overflow-x-auto pb-2" aria-label="여행 일자">
+        <nav className="flex gap-td-xs mb-td-md overflow-x-auto touch-pan-x overscroll-x-contain pb-2" aria-label="여행 일자">
           {Array.from({ length: phuQuocTrip.nights + 1 }, (_, i) => i).map((d) => {
             const active = d === 0;
             return (

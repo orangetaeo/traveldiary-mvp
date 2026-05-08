@@ -148,7 +148,7 @@ export default function CityPage({ params }: { params: { slug: string } }) {
         {/* Sticky chip row */}
         <nav
           aria-label="섹션 이동"
-          className="sticky top-16 z-30 bg-surface-soft/90 backdrop-blur-sm py-td-xs flex gap-td-xs overflow-x-auto hide-scrollbar -mx-td-md px-td-md mb-td-lg"
+          className="sticky top-16 z-30 bg-surface-soft/90 backdrop-blur-sm py-td-xs flex gap-td-xs overflow-x-auto touch-pan-x overscroll-x-contain hide-scrollbar -mx-td-md px-td-md mb-td-lg"
         >
           {CHIPS.map((chip) => (
             <a
