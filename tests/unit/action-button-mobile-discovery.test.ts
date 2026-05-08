@@ -58,8 +58,8 @@ describe("액션 버튼 모바일 발견성", () => {
         expect(hasMobileOpacity).toBe(true);
       });
 
-      it("focus-visible 또는 focus 키보드 노출 유지", () => {
-        expect(src).toMatch(/focus(-visible)?:opacity-100/);
+      it("focus-within 또는 focus-visible 키보드 노출 유지", () => {
+        expect(src).toMatch(/focus(-within|-visible)?:opacity-100/);
       });
     });
   }

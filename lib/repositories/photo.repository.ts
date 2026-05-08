@@ -74,6 +74,41 @@ export async function createPhoto(
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// updatePhoto — 캡션 수정
+// ═══════════════════════════════════════════════════════════════════
+
+export interface UpdatePhotoResult {
+  before: { caption: string | undefined };
+  after: { caption: string | undefined };
+  photo: TripPhoto;
+}
+
+export async function updatePhoto(
+  id: string,
+  caption: string | undefined,
+): Promise<UpdatePhotoResult | "not_found" | null> {
+  if (!prisma) return null;
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.tripPhoto.findUnique({ where: { id } });
+      if (!before) return "not_found" as const;
+      const after = await tx.tripPhoto.update({
+        where: { id },
+        data: { caption: caption ?? null },
+      });
+      return {
+        before: { caption: before.caption ?? undefined },
+        after: { caption: after.caption ?? undefined },
+        photo: rowToPhoto(after),
+      };
+    });
+  } catch (err) {
+    console.error("[photo.repository] updatePhoto failed", err);
+    return null;
+  }
+}
+
 export async function deletePhoto(
   id: string,
 ): Promise<{ before: TripPhoto } | "not_found" | null> {

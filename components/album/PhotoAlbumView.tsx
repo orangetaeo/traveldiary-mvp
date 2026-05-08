@@ -9,7 +9,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { addPhoto, removePhoto } from "@/actions/photo";
+import { addPhoto, editPhoto, removePhoto } from "@/actions/photo";
 import type { TripPhoto } from "@/lib/types";
 
 interface Props {
@@ -46,7 +46,15 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [optimisticHidden, setOptimisticHidden] = useState<Set<string>>(new Set());
 
-  const visiblePhotos = photos.filter((p) => !optimisticHidden.has(p.id));
+  // 캡션 편집
+  const [editingPhoto, setEditingPhoto] = useState<TripPhoto | null>(null);
+  const [editCaption, setEditCaption] = useState("");
+  // 옵티미스틱 캡션 오버라이드
+  const [captionOverrides, setCaptionOverrides] = useState<Map<string, string | undefined>>(new Map());
+
+  const visiblePhotos = photos
+    .filter((p) => !optimisticHidden.has(p.id))
+    .map((p) => (captionOverrides.has(p.id) ? { ...p, caption: captionOverrides.get(p.id) } : p));
   const grouped = groupByDay(visiblePhotos);
   const dayKeys = Array.from(grouped.keys()).sort((a, b) => a - b);
 
@@ -88,6 +96,37 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
       }
     });
   };
+
+  function handleEditCaption() {
+    if (!editingPhoto) return;
+    const trimmed = editCaption.trim() || undefined;
+    if (trimmed === editingPhoto.caption) {
+      setEditingPhoto(null);
+      return;
+    }
+
+    const prev = editingPhoto;
+    setCaptionOverrides((m) => new Map(m).set(prev.id, trimmed));
+    setEditingPhoto(null);
+
+    startTransition(async () => {
+      const result = await editPhoto({
+        id: prev.id,
+        tripId,
+        caption: trimmed,
+      });
+      if (!result.ok) {
+        setCaptionOverrides((m) => {
+          const next = new Map(m);
+          next.delete(prev.id);
+          return next;
+        });
+        setError(`캡션 수정 실패: ${result.code}`);
+        return;
+      }
+      if (!result.demo) router.refresh();
+    });
+  }
 
   return (
     <div className="px-td-md py-td-md">
@@ -142,21 +181,33 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                     className="w-full h-auto object-cover"
                     loading="lazy"
                   />
-                  {isDeletablePhoto(photo) && (
-                    <button
-                      type="button"
-                      onClick={() => setConfirmDeleteId(photo.id)}
-                      aria-label="사진 삭제"
-                      className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white opacity-80 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100 transition-opacity"
-                    >
-                      <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>delete</span>
-                    </button>
-                  )}
                   {photo.caption && (
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
                       <span className="text-white text-td-caption">{photo.caption}</span>
                     </div>
                   )}
+                  {/* 호버 시 편집/삭제 버튼 — DB 사진만 편집/삭제 가능 */}
+                  {isDeletablePhoto(photo) && <div className="absolute top-1 right-1 flex gap-1 opacity-80 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingPhoto(photo);
+                        setEditCaption(photo.caption ?? "");
+                      }}
+                      aria-label="캡션 수정"
+                      className="w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">edit</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDeleteId(photo.id)}
+                      aria-label="사진 삭제"
+                      className="w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-danger/80"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">close</span>
+                    </button>
+                  </div>}
                 </div>
               ))}
             </div>
@@ -241,6 +292,51 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                 className="flex-1 py-td-xs rounded-md bg-purple text-white text-td-body font-semibold disabled:opacity-40"
               >
                 {isPending ? "추가 중..." : "추가"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 캡션 수정 모달 */}
+      {editingPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-td-md"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingPhoto(null);
+          }}
+        >
+          <div className="bg-surface-card border border-divider rounded-lg p-td-md w-full max-w-md shadow-lg">
+            <h3 className="text-td-card-title text-ink mb-td-sm">캡션 수정</h3>
+            <input
+              type="text"
+              value={editCaption}
+              onChange={(e) => setEditCaption(e.target.value)}
+              maxLength={200}
+              autoFocus
+              placeholder="사진 설명..."
+              className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
+              aria-label="사진 캡션 수정"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleEditCaption();
+                if (e.key === "Escape") setEditingPhoto(null);
+              }}
+            />
+            <div className="flex gap-td-sm mt-td-sm">
+              <button
+                type="button"
+                onClick={() => setEditingPhoto(null)}
+                className="flex-1 py-2 border border-divider text-ink rounded-md text-td-body font-semibold hover:bg-surface-soft transition-colors"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleEditCaption}
+                disabled={isPending}
+                className="flex-1 py-2 bg-purple text-white rounded-md text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
+              >
+                {isPending ? "수정 중..." : "수정"}
               </button>
             </div>
           </div>

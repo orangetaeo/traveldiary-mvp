@@ -11,6 +11,7 @@ import {
   createPhoto,
   deletePhoto as deletePhotoFromDb,
   listPhotosByTrip,
+  updatePhoto,
   type CreatePhotoInput,
 } from "@/lib/repositories/photo.repository";
 import { isDbConnected } from "@/lib/prisma";
@@ -109,6 +110,43 @@ export async function removePhoto(input: {
   revalidatePath(`/wrap-up/${input.tripId}`);
   revalidatePath(`/wrap-up/${input.tripId}/album`);
   return { ok: true, demo: false, data: { id: input.id } };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// editPhoto — 캡션 수정
+// ═══════════════════════════════════════════════════════════════════
+
+export async function editPhoto(input: {
+  id: string;
+  tripId: string;
+  caption?: string;
+  shareKey?: string;
+}): Promise<PhotoActionResult<TripPhoto>> {
+  if (!isDbConnected) {
+    return { ok: true, demo: true };
+  }
+
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
+    return { ok: false, code: "forbidden" };
+  }
+
+  const result = await updatePhoto(input.id, input.caption?.slice(0, 200));
+  if (result === null) return { ok: false, code: "internal" };
+  if (result === "not_found") return { ok: false, code: "not_found" };
+
+  await writeAuditLog({
+    actorId: await getActorId(),
+    action: "photo.update",
+    resource: "TripPhoto",
+    resourceId: input.id,
+    before: { caption: result.before.caption ?? null },
+    after: { caption: result.after.caption ?? null },
+    metadata: { source: "web" },
+  });
+
+  revalidatePath(`/wrap-up/${input.tripId}`);
+  revalidatePath(`/wrap-up/${input.tripId}/album`);
+  return { ok: true, demo: false, data: result.photo };
 }
 
 // ═══════════════════════════════════════════════════════════════════

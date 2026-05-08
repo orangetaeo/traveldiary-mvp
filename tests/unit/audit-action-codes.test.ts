@@ -73,6 +73,7 @@ const KNOWN_ACTION_CODES = new Set([
   "review.save",
   // photo (E3)
   "photo.add",
+  "photo.update",
   "photo.delete",
   // user (프로필 편집)
   "user.update_profile",
