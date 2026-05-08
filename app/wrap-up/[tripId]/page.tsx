@@ -12,6 +12,10 @@ import { resolveTrip } from "@/lib/services/resolved-trip";
 import { WrapUpReviewCard } from "@/components/wrap-up/WrapUpReviewCard";
 import { SettlementSummary } from "@/components/wrap-up/SettlementSummary";
 import { getNextCitySuggestions } from "@/lib/wrap-up/next-city-suggestions";
+import {
+  getWrapUpHighlights,
+  highlightSubtitle,
+} from "@/lib/wrap-up/highlight-suggestions";
 import { loadReview } from "@/actions/review";
 import { listCostByTrip } from "@/lib/repositories/cost.repository";
 
@@ -19,19 +23,15 @@ interface PageProps {
   params: { tripId: string };
 }
 
-// --- 데모: 하이라이트 (추후 AI 자동 선별로 교체) ---
-const DEMO_HIGHLIGHTS = [
-  { day: 2, title: "로컬 맛집 탐방 🍜", subtitle: "한국 관광객 잘 모르는 로컬" },
-  { day: 3, title: "야경 포인트 🌃", subtitle: "시간대 완벽" },
-  { day: 4, title: "일출 감상 🌅", subtitle: "새벽 알람의 보람" },
-] as const;
-
 export default async function WrapUpPage({ params }: PageProps) {
   const resolved = resolveTrip(params.tripId);
   if (!resolved) notFound();
 
   const { trip, city, items, itemCount, verifiedCount } = resolved;
   const totalDays = trip.nights + 1;
+
+  // 자동 선별된 day별 highlight (실제 itineraryItem 데이터 기반)
+  const highlights = getWrapUpHighlights(items, { maxCount: 5 });
 
   // E2: DB에서 기존 후기 로드
   const existingReview = await loadReview(trip.id);
@@ -103,28 +103,51 @@ export default async function WrapUpPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Highlight Memories */}
-        <section className="py-td-md">
-          <div className="flex items-center justify-between px-td-md mb-td-sm">
-            <div className="flex items-center gap-2">
-              <h2 className="text-td-body font-bold text-ink">이 순간이 좋았어요</h2>
-              <span className="bg-purple text-white text-td-badge px-1.5 py-0.5 rounded-md font-bold">
-                AI 추천
-              </span>
-            </div>
-          </div>
-          <div className="flex overflow-x-auto touch-pan-x overscroll-x-contain gap-td-sm px-td-md pb-td-xs">
-            {DEMO_HIGHLIGHTS.map((h) => (
-              <div key={h.day} className="flex-none w-[240px]">
-                <div className="aspect-[16/10] rounded-md overflow-hidden mb-td-xxs border border-divider bg-surface-soft flex items-center justify-center">
-                  <span className="material-symbols-outlined text-4xl text-ink-mute">photo_camera</span>
-                </div>
-                <h3 className="text-td-body font-bold text-ink">Day {h.day} · {h.title}</h3>
-                <p className="text-td-caption text-ink-soft">{h.subtitle}</p>
+        {/* Highlight Memories — 실제 itineraryItem 자동 선별 (day별 1개) */}
+        {highlights.length > 0 && (
+          <section className="py-td-md">
+            <div className="flex items-center justify-between px-td-md mb-td-sm">
+              <div className="flex items-center gap-2">
+                <h2 className="text-td-body font-bold text-ink">이 순간이 좋았어요</h2>
+                <span className="bg-purple text-white text-td-badge px-1.5 py-0.5 rounded-md font-bold">
+                  AI 추천
+                </span>
               </div>
-            ))}
-          </div>
-        </section>
+            </div>
+            <div className="flex overflow-x-auto touch-pan-x overscroll-x-contain gap-td-sm px-td-md pb-td-xs">
+              {highlights.map((h) => (
+                <Link
+                  key={h.itemId}
+                  href={`/itinerary/${trip.id}/item/${h.itemId}`}
+                  className="flex-none w-[240px] group"
+                  aria-label={`Day ${h.day} ${h.title} 자세히 보기`}
+                >
+                  <div className="aspect-[16/10] rounded-md overflow-hidden mb-td-xxs border border-divider bg-surface-soft flex items-center justify-center transition-shadow group-hover:shadow-md">
+                    {h.photoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={h.photoUrl}
+                        alt={`Day ${h.day} ${h.title} 사진`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="material-symbols-outlined text-4xl text-ink-mute" aria-hidden>
+                        photo_camera
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-td-body font-bold text-ink group-hover:text-purple transition-colors">
+                    Day {h.day} · {h.title}
+                  </h3>
+                  <p className="text-td-caption text-ink-soft">
+                    {highlightSubtitle(h.category)}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Review Card — E2: DB 영속화 + LocalStorage 오프라인 fallback */}
         <WrapUpReviewCard tripId={trip.id} initialReview={existingReview} />
