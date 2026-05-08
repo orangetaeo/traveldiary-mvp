@@ -12,7 +12,6 @@
  */
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { addReceivedKey } from "@/lib/share/receivedKeys";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
@@ -27,7 +26,6 @@ interface Props {
 export function ReceivedKeyTracker({ shareKey, destination, nights }: Props) {
   const [showBanner, setShowBanner] = useState(false);
   const { toast, show: showToast } = useToast(5000);
-  const router = useRouter();
 
   useEffect(() => {
     const result = addReceivedKey(shareKey, { destination, nights });
@@ -37,7 +35,7 @@ export function ReceivedKeyTracker({ shareKey, destination, nights }: Props) {
         variant: "success",
         action: {
           label: "받은 여행",
-          onClick: () => router.push("/shared"),
+          onClick: () => { window.location.href = "/shared"; },
         },
       });
     }
