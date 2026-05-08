@@ -17,40 +17,39 @@ interface Props {
   onDismiss: () => void;
 }
 
-export function ReceivedTripBanner({ destination, onDismiss }: Props) {
-  const label = destination ? `${destination} 여행을` : "이 여행을";
+export function ReceivedTripBanner({ onDismiss }: Props) {
   return (
     <div
       role="status"
       aria-live="polite"
-      className="bg-amber-soft border-b border-amber-deep/20 px-td-md py-td-sm flex items-start gap-td-sm"
+      className="bg-purple-soft border-b border-purple/20 px-td-md py-td-sm flex items-start gap-td-sm"
     >
       <span
-        className="material-symbols-outlined text-amber-deep flex-shrink-0 mt-0.5"
+        className="material-symbols-outlined text-purple-deep flex-shrink-0 mt-0.5"
         style={{ fontVariationSettings: "'FILL' 1" }}
         aria-hidden
       >
         check_circle
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-td-meta text-amber-deep font-medium">
+        <p className="text-td-meta text-purple-deep font-bold">
           내 목록에 추가됐어요
         </p>
-        <p className="text-td-caption text-amber-deep/80 mt-0.5">
-          {label} 받은 여행 목록에서 다시 볼 수 있어요.
+        <p className="text-td-caption text-purple-deep/80 mt-0.5">
+          다음에 다시 보고 싶다면 받은 여행 목록에서 찾을 수 있어요.
         </p>
+        <Link
+          href="/shared"
+          className="inline-block mt-td-xs px-td-md py-1.5 rounded-full bg-purple text-white text-td-caption font-bold"
+        >
+          받은 여행 보기
+        </Link>
       </div>
-      <Link
-        href="/shared"
-        className="text-td-caption font-bold text-purple-deep hover:underline whitespace-nowrap shrink-0 self-center px-td-xs"
-      >
-        받은 여행 →
-      </Link>
       <button
         type="button"
         onClick={onDismiss}
         aria-label="배너 닫기"
-        className="text-amber-deep/60 hover:text-amber-deep p-1 -m-1 shrink-0"
+        className="text-purple-deep/60 hover:text-purple-deep p-1 -m-1 shrink-0"
       >
         <span className="material-symbols-outlined text-td-icon" aria-hidden>
           close
