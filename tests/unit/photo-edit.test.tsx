@@ -60,8 +60,8 @@ describe("PhotoAlbumView — 캡션 수정 + 삭제 연동", () => {
     expect(src).toContain("사진을 삭제할까요");
   });
 
-  it("옵티미스틱 삭제 — hiddenIds state 존재", () => {
-    expect(src).toContain("hiddenIds");
+  it("옵티미스틱 삭제 — optimisticHidden state 존재", () => {
+    expect(src).toContain("optimisticHidden");
   });
 
   it("옵티미스틱 캡션 — captionOverrides state 존재", () => {
@@ -81,7 +81,7 @@ describe("PhotoAlbumView — 캡션 수정 + 삭제 연동", () => {
   });
 
   it("삭제 실패 시 롤백 로직 존재", () => {
-    expect(src).toContain("삭제 실패");
+    expect(src).toContain("삭제에 실패했습니다");
   });
 
   it("router.refresh 호출 존재", () => {

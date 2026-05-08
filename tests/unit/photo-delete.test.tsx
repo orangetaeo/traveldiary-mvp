@@ -82,11 +82,11 @@ describe("PhotoAlbumView — 삭제 버튼", () => {
     expect(matches.length).toBe(1);
   });
 
-  it("삭제 버튼은 delete 아이콘 포함", () => {
+  it("삭제 버튼은 close 아이콘 포함", () => {
     const html = renderToStaticMarkup(
       <PhotoAlbumView tripId="t1" photos={[dbPhoto("a")]} totalDays={3} />,
     );
-    expect(html).toContain("delete");
+    expect(html).toContain("close");
   });
 
   it("빈 photos → 삭제 버튼 없음 + 빈 상태 메시지", () => {
