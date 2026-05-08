@@ -75,4 +75,14 @@ describe("Consumer — trip-scoped 페이지에서 itineraryTripId 전달", () =
       '<BottomNav active="itinerary" itineraryTripId={trip.id} />',
     );
   });
+
+  it("/vote/[tripId] — itineraryTripId={trip.id} 전달 (cap 3)", () => {
+    const VOTE = readFileSync(
+      resolve(process.cwd(), "app/vote/[tripId]/page.tsx"),
+      "utf-8",
+    );
+    expect(VOTE).toContain(
+      '<BottomNav active="itinerary" itineraryTripId={trip.id} />',
+    );
+  });
 });
