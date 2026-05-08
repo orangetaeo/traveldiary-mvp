@@ -449,7 +449,8 @@ model TripPhoto {
   actorId   String?
   actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
 
-  url       String   @db.VarChar(500)
+  // base64 data URL 지원을 위해 Text (사진 1장당 ~200~400KB → VARCHAR(500) 초과)
+  url       String   @db.Text
   caption   String?  @db.VarChar(200)
   dayIndex  Int?
   sortOrder Int      @default(0)

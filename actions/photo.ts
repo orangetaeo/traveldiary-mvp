@@ -29,6 +29,14 @@ export type PhotoActionResult<T = unknown> =
 // addPhoto
 // ═══════════════════════════════════════════════════════════════════
 
+/**
+ * 사진 URL 최대 길이 — base64 data URL 지원.
+ * 외부 URL은 보통 200자 미만, base64는 압축 사진 1장당 ~200~400KB.
+ * 5.5MB cap → 클라이언트 압축(1280px / JPEG 0.7) 후 4MB까지 허용.
+ * DB는 migration 20260508_trip_photo_url_text로 TEXT 변경됨.
+ */
+const PHOTO_URL_MAX_LENGTH = 5_500_000;
+
 export async function addPhoto(input: {
   tripId: string;
   url: string;
@@ -36,7 +44,11 @@ export async function addPhoto(input: {
   dayIndex?: number;
   shareKey?: string;
 }): Promise<PhotoActionResult<TripPhoto>> {
-  if (!input.url || typeof input.url !== "string" || input.url.length > 500) {
+  if (
+    !input.url ||
+    typeof input.url !== "string" ||
+    input.url.length > PHOTO_URL_MAX_LENGTH
+  ) {
     return { ok: false, code: "invalid" };
   }
 
