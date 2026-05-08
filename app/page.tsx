@@ -60,6 +60,14 @@ export default async function HomePage({
 
   // 인계 대상 여행 조회 (로그인된 사용자 + system-owner 여행 존재 시)
   let claimableTrips: ClaimableTrip[] = [];
+  // 본인 trip 미리보기 (갭 #1 — 로그인 사용자 첫 화면 본인 trip 노출)
+  let ownedTrips: {
+    id: string;
+    destination: string;
+    nights: number;
+    startDate: string;
+    itemCount: number;
+  }[] = [];
   if (currentUserId && prisma) {
     try {
       const systemTrips = await prisma.trip.findMany({
@@ -77,6 +85,23 @@ export default async function HomePage({
       }));
     } catch {
       // DB 오류 시 무시 — 배너 미표시
+    }
+    try {
+      const myTrips = await prisma.trip.findMany({
+        where: { ownerId: currentUserId, deletedAt: null },
+        include: { _count: { select: { items: true } } },
+        orderBy: { startDate: "asc" },
+        take: 3,
+      });
+      ownedTrips = myTrips.map((t) => ({
+        id: t.id,
+        destination: t.destination,
+        nights: t.nights,
+        startDate: t.startDate.toISOString().slice(0, 10),
+        itemCount: t._count.items,
+      }));
+    } catch {
+      // DB 오류 시 무시 — 섹션 미표시
     }
   }
 
@@ -135,6 +160,44 @@ export default async function HomePage({
               userName={currentUser.name ?? "여행자"}
             />
           </div>
+        )}
+
+        {/* 내 여행 — 로그인 사용자 본인 trip 노출 (갭 #1) */}
+        {ownedTrips.length > 0 && (
+          <section className="mb-td-md" data-testid="home-owned-trips">
+            <div className="flex items-baseline justify-between mb-td-sm">
+              <h2 className="text-td-card-title text-ink">
+                내 여행 {ownedTrips.length}개
+              </h2>
+              <Link
+                href="/trips"
+                className="text-td-caption text-purple-deep hover:underline"
+              >
+                전체 보기 →
+              </Link>
+            </div>
+            <div className="space-y-td-sm">
+              {ownedTrips.map((t) => (
+                <Link
+                  key={t.id}
+                  href={`/itinerary/${t.id}`}
+                  className="block p-td-md bg-surface-card border border-divider rounded-md hover:border-purple/40 transition-colors"
+                >
+                  <div className="flex items-baseline justify-between gap-td-xs">
+                    <p className="text-td-card-title text-ink truncate">
+                      {t.destination}
+                    </p>
+                    <span className="text-td-caption text-ink-mute tabular-nums shrink-0">
+                      {t.nights}박 {t.nights + 1}일
+                    </span>
+                  </div>
+                  <p className="text-td-caption text-ink-soft mt-td-xxs">
+                    {t.itemCount}개 일정
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Hero — 검증 뱃지 + 제목 + D-day + Summary */}
