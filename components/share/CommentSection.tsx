@@ -24,6 +24,7 @@ import type {
   ShareCommentRow,
 } from "@/lib/repositories/shareComment.repository";
 import { REACTION_FULL_LABEL } from "@/lib/constants/reaction-constants";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 interface CommentSectionProps {
   syncKey: string;
@@ -55,6 +56,7 @@ export function CommentSection({
   const [error, setError] = useState<string | null>(null);
   const [clientUuid, setClientUuid] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
 
   // 클라이언트 마운트 후 — clientUuid + 저장된 nickname 채움
   useEffect(() => {
@@ -145,7 +147,13 @@ export function CommentSection({
   }
 
   async function handleDelete(commentId: string) {
-    if (!confirm("이 댓글을 삭제할까요?")) return;
+    setDeletingCommentId(commentId);
+  }
+
+  function handleConfirmDeleteComment() {
+    if (!deletingCommentId) return;
+    const commentId = deletingCommentId;
+    setDeletingCommentId(null);
     startTransition(async () => {
       const result = await deleteCommentAction({
         syncKey,
@@ -158,7 +166,6 @@ export function CommentSection({
       }
       const next = comments.filter((c) => c.id !== commentId);
       setComments(next);
-      // 데모 모드 LocalStorage 갱신
       if (commentId.startsWith("demo-")) persistDemoComments(next);
     });
   }
@@ -294,6 +301,16 @@ export function CommentSection({
           })}
         </ul>
       )}
+      <ConfirmDialog
+        open={!!deletingCommentId}
+        title="댓글 삭제"
+        description="이 댓글을 삭제할까요?"
+        confirmLabel="삭제"
+        pendingLabel="삭제 중…"
+        icon="chat_bubble"
+        onConfirm={handleConfirmDeleteComment}
+        onCancel={() => setDeletingCommentId(null)}
+      />
     </section>
   );
 }

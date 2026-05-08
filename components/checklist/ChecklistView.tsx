@@ -12,6 +12,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -60,6 +61,9 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
 
   // 인라인 편집
   const [editingItem, setEditingItem] = useState<ChecklistItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<ChecklistItem | null>(null);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [showTemplateConfirm, setShowTemplateConfirm] = useState(false);
   const [editText, setEditText] = useState("");
 
   // 사이클 II — 멀티 선택 모드
@@ -129,11 +133,14 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
 
   function handleAddTemplate() {
     if (items.length > 0) {
-      if (!confirm("기존 항목 위에 기본 템플릿을 추가합니다. 계속할까요?")) {
-        return;
-      }
+      setShowTemplateConfirm(true);
+      return;
     }
+    executeAddTemplate();
+  }
 
+  function executeAddTemplate() {
+    setShowTemplateConfirm(false);
     startTransition(async () => {
       const result = await addFromTemplate({ tripId: trip.id });
       if (!result.ok) {
@@ -282,12 +289,13 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
   function handleBulkDelete() {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) return;
+    setShowBulkDeleteConfirm(true);
+  }
 
-    if (!confirm(`선택한 ${ids.length}개 항목을 삭제할까요? 되돌릴 수 없습니다.`)) {
-      return;
-    }
+  function executeBulkDelete() {
+    setShowBulkDeleteConfirm(false);
+    const ids = Array.from(selectedIds);
 
-    // 옵티미스틱 — 선택된 항목 즉시 제거
     const snapshot = items;
     setItems((prev) => prev.filter((it) => !selectedIds.has(it.id)));
 
@@ -359,7 +367,13 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
   }
 
   function handleDelete(item: ChecklistItem) {
-    if (!confirm(`"${item.text}" 항목을 삭제할까요?`)) return;
+    setDeletingItem(item);
+  }
+
+  function handleConfirmDelete() {
+    if (!deletingItem) return;
+    const item = deletingItem;
+    setDeletingItem(null);
 
     setItems((prev) => prev.filter((it) => it.id !== item.id));
 
@@ -369,7 +383,6 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
         tripId: trip.id,
       });
       if (!result.ok) {
-        // 롤백
         setItems((prev) => [...prev, item]);
         showToast(`삭제 실패: ${result.code}`, { variant: "danger" });
         return;
@@ -616,6 +629,40 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
       )}
 
       <Toast toast={toast} />
+
+      <ConfirmDialog
+        open={!!deletingItem}
+        title="항목 삭제"
+        description={`"${deletingItem?.text ?? ""}" 항목을 삭제할까요?`}
+        confirmLabel="삭제"
+        pendingLabel="삭제 중…"
+        icon="delete_forever"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeletingItem(null)}
+      />
+
+      <ConfirmDialog
+        open={showBulkDeleteConfirm}
+        title="일괄 삭제"
+        description={`선택한 ${selectedIds.size}개 항목을 삭제할까요? 되돌릴 수 없습니다.`}
+        confirmLabel="삭제"
+        pendingLabel="삭제 중…"
+        icon="delete_sweep"
+        onConfirm={executeBulkDelete}
+        onCancel={() => setShowBulkDeleteConfirm(false)}
+      />
+
+      <ConfirmDialog
+        open={showTemplateConfirm}
+        title="템플릿 추가"
+        description="기존 항목 위에 기본 템플릿을 추가합니다. 계속할까요?"
+        confirmLabel="추가"
+        pendingLabel="추가 중…"
+        icon="playlist_add"
+        danger={false}
+        onConfirm={executeAddTemplate}
+        onCancel={() => setShowTemplateConfirm(false)}
+      />
     </div>
   );
 }
