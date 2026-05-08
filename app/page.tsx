@@ -30,6 +30,8 @@ import { jwtAvailable } from "@/lib/auth/jwt";
 import { prisma } from "@/lib/prisma";
 
 import { OrganizationJsonLd, WebAppJsonLd } from "@/components/seo/JsonLd";
+import { TripClaimBanner } from "@/components/auth/TripClaimBanner";
+import type { ClaimableTrip } from "@/components/auth/TripClaimModal";
 import { todayISO } from "@/lib/seed/demo-date";
 import { splitName, formatTime, dDay, CATEGORY_ICON } from "@/lib/utils/item-display";
 const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
@@ -50,6 +52,28 @@ export default async function HomePage() {
           select: { id: true, name: true },
         })
       : null;
+
+  // 인계 대상 여행 조회 (로그인된 사용자 + system-owner 여행 존재 시)
+  let claimableTrips: ClaimableTrip[] = [];
+  if (currentUserId && prisma) {
+    try {
+      const systemTrips = await prisma.trip.findMany({
+        where: { ownerId: "system-owner-pqc", deletedAt: null },
+        include: { _count: { select: { items: true } } },
+        take: 10,
+      });
+      claimableTrips = systemTrips.map((t) => ({
+        id: t.id,
+        destination: t.destination,
+        nights: t.nights,
+        startDate: t.startDate.toISOString().slice(0, 10),
+        itemCount: t._count.items,
+        companions: 1,
+      }));
+    } catch {
+      // DB 오류 시 무시 — 배너 미표시
+    }
+  }
 
   // Stitch 디자인의 두 번째 카드(featured = AI 추천 최적) — Day 1에서 가장 의미 있는 항목
   const featuredId = "pq-item-1"; // 즈엉동 야시장
@@ -91,6 +115,16 @@ export default async function HomePage() {
       </header>
 
       <main className="px-td-md pt-td-lg">
+        {/* 여행 인계 배너 (Post-Signup) */}
+        {claimableTrips.length > 0 && currentUser && (
+          <div className="mb-td-md">
+            <TripClaimBanner
+              trips={claimableTrips}
+              userName={currentUser.name ?? "여행자"}
+            />
+          </div>
+        )}
+
         {/* Hero — 검증 뱃지 + 제목 + D-day + Summary */}
         <section className="mb-td-lg">
           <div className="mb-td-xxs">

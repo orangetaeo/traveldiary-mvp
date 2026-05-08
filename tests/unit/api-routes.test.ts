@@ -284,7 +284,7 @@ describe("GET /api/auth/kakao/callback", () => {
       ok: true,
       user: { kakaoId: "k123", nickname: "테스터", email: "test@test.com" },
     });
-    mockUpsertKakaoUser.mockResolvedValue({ id: "user-1" });
+    mockUpsertKakaoUser.mockResolvedValue({ user: { id: "user-1", kakaoId: "123", name: "T", email: null }, isNew: false });
     mockSignToken.mockResolvedValueOnce("access-jwt").mockResolvedValueOnce("refresh-jwt");
 
     const { GET } = await import("@/app/api/auth/kakao/callback/route");

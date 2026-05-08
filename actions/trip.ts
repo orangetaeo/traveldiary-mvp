@@ -242,3 +242,57 @@ export async function recordModeTransitionSkip(
 
   return { ok: true, demo: false };
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// claimAnonymousTrips — 회원가입 후 익명 여행 인계 (Stitch screen 5d88d706)
+//
+// 로그인 직후, system-owner 소유 Trip을 현재 사용자 계정으로 이전.
+// TripClaimModal에서 선택된 tripId[] 전달.
+// ═══════════════════════════════════════════════════════════════════
+
+export async function claimAnonymousTrips(
+  tripIds: string[],
+): Promise<{ ok: boolean; claimed: number }> {
+  if (!isDbConnected || tripIds.length === 0) {
+    return { ok: false, claimed: 0 };
+  }
+
+  const actorId = await getActorId();
+  if (!actorId) return { ok: false, claimed: 0 };
+
+  const { prisma } = await import("@/lib/prisma");
+  if (!prisma) return { ok: false, claimed: 0 };
+
+  try {
+    const result = await prisma.trip.updateMany({
+      where: {
+        id: { in: tripIds },
+        ownerId: "system-owner-pqc",
+        deletedAt: null,
+      },
+      data: { ownerId: actorId },
+    });
+
+    if (result.count > 0) {
+      await writeAuditLog({
+        actorId,
+        action: "trip.claim",
+        resource: "Trip",
+        resourceId: tripIds.join(","),
+        metadata: {
+          source: "post_signup_modal",
+          tripIds,
+          claimedCount: result.count,
+        },
+      });
+    }
+
+    revalidatePath("/");
+    revalidatePath("/trips");
+
+    return { ok: true, claimed: result.count };
+  } catch (err) {
+    console.error("[trip.actions] claimAnonymousTrips failed", err);
+    return { ok: false, claimed: 0 };
+  }
+}
