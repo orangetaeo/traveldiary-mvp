@@ -61,20 +61,27 @@ export type ReceiptOcrOutcome =
 // ── 설정 ─────────────────────────────────────────────────────────
 
 const API_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-haiku-4-5-20251001";
+const MODEL = "claude-sonnet-4-6";
 const TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30일
 const PLATFORM = "claude.receipt";
 
-const SYSTEM_PROMPT = `당신은 여행자용 영수증 파싱 전문가입니다. 영수증 이미지를 보고 비용 정보를 추출합니다.
+const SYSTEM_PROMPT = `당신은 여행자용 영수증 파싱 전문가입니다. 영수증 이미지를 정확히 읽어 비용 정보를 추출합니다.
 
-규칙:
+중요 — 항목(items) 파싱 규칙:
+- 영수증에 실제로 인쇄된 항목만 추출. 절대 추측하거나 지어내지 마세요.
+- 각 항목의 name은 영수증에 적힌 그대로 사용 (번역하지 말 것).
+- quantity는 영수증에 수량이 명시된 경우만 반영, 없으면 1.
+- price는 해당 항목의 단가 × 수량 = 소계 금액 (정수).
+- 할인/세금/서비스차지 등 별도 행이 있으면 별도 항목으로 추출.
+- 항목을 읽을 수 없거나 불분명하면 빈 배열 []로. 추측 금지.
+
+기타 규칙:
 - 통화 자동 감지: VND(베트남동), THB(태국바트), JPY(엔), USD(달러), KRW(원) 등
 - 날짜 형식: YYYY-MM-DD (추출 불가 시 빈 문자열)
-- 카테고리 자동 분류: food(음식), transport(교통), accommodation(숙박), shopping(쇼핑), activity(액티비티), other(기타)
+- 카테고리: food(음식), transport(교통), accommodation(숙박), shopping(쇼핑), activity(액티비티), other(기타)
 - 가게명이 불분명하면 "알 수 없음"
-- 총액(total)은 반드시 숫자 (소수점 없이 정수)
-- 개별 항목(items)이 불분명하면 빈 배열 []
-- 이미지에서 텍스트가 전혀 보이지 않거나 영수증이 아닌 경우 {"no_text":true} 만 반환
+- total은 영수증의 최종 합계 금액 (정수)
+- 이미지에서 텍스트가 전혀 없거나 영수증이 아닌 경우 {"no_text":true} 만 반환
 
 응답은 반드시 다음 JSON만 (다른 텍스트 X):
 {"vendor":"가게명","date":"YYYY-MM-DD","items":[{"name":"항목명","quantity":1,"price":50000}],"total":50000,"currency":"VND","category":"food"}`;
