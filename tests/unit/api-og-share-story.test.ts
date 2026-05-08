@@ -122,7 +122,7 @@ describe("GET /api/og/share/[key]/story", () => {
     );
 
     const headers = (res as unknown as { headers: Headers }).headers;
-    expect(headers.get("Cache-Control")).toBe("public, max-age=3600, s-maxage=3600");
+    expect(headers.get("Cache-Control")).toBe("public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
     expect(headers.get("Content-Disposition")).toContain("traveldiary-");
   });
 

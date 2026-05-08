@@ -40,10 +40,73 @@ const securityHeaders = [
   },
 ];
 
+// CDN 캐시 헤더 (런치 체크리스트 §📊 성능)
+// Next.js 빌드 해시 포함 정적 에셋은 immutable 장기 캐시.
+// OG 이미지·share 페이지는 stale-while-revalidate로 빠른 응답 + 백그라운드 갱신.
+const cacheRules = [
+  {
+    // Next.js 빌드 에셋 (_next/static) — 해시 기반 immutable
+    source: "/_next/static/:path*",
+    headers: [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=31536000, immutable",
+      },
+    ],
+  },
+  {
+    // 폰트·아이콘 정적 파일
+    source: "/fonts/:path*",
+    headers: [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=31536000, immutable",
+      },
+    ],
+  },
+  {
+    // favicon, manifest 등 루트 정적 파일
+    source: "/:file(favicon.ico|site.webmanifest|robots.txt|manifest.json)",
+    headers: [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=86400, stale-while-revalidate=604800",
+      },
+    ],
+  },
+  {
+    // OG 이미지 — 1h 브라우저 + 24h CDN + 7일 stale
+    source: "/api/og/:path*",
+    headers: [
+      {
+        key: "Cache-Control",
+        value:
+          "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+      },
+    ],
+  },
+  {
+    // 공유 페이지 — 짧은 캐시 + stale (편집 반영 속도 vs 성능 균형)
+    source: "/share/:path*",
+    headers: [
+      {
+        key: "Cache-Control",
+        value:
+          "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
+      },
+    ],
+  },
+];
+
 const nextConfig = {
   reactStrictMode: true,
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      // 보안 헤더 — 모든 경로
+      { source: "/:path*", headers: securityHeaders },
+      // CDN 캐시 헤더 — 경로별 차등
+      ...cacheRules,
+    ];
   },
 };
 

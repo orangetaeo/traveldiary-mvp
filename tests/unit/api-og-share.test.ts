@@ -91,7 +91,7 @@ describe("GET /api/og/share/[key]", () => {
 
     // MockImageResponse headers 검증
     const headers = (res as unknown as { headers: Headers }).headers;
-    expect(headers.get("Cache-Control")).toBe("public, max-age=3600, s-maxage=3600");
+    expect(headers.get("Cache-Control")).toBe("public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
   });
 
   it("Day 1 일정 수 계산", async () => {

@@ -300,7 +300,7 @@ export async function GET(
       width: 1080,
       height: 1920,
       headers: {
-        "Cache-Control": "public, max-age=3600, s-maxage=3600",
+        "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
         "Content-Disposition": `inline; filename="traveldiary-story.png"; filename*=UTF-8''traveldiary-${encodeURIComponent(trip.destination)}.png`,
       },
     },
