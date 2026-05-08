@@ -77,6 +77,8 @@ const KNOWN_ACTION_CODES = new Set([
   "photo.add",
   "photo.update",
   "photo.delete",
+  // vote (C4 일행 투표)
+  "vote.delete",
   // user (프로필 편집)
   "user.update_profile",
 ]);
@@ -173,8 +175,8 @@ describe("audit action 코드 리소스 분류", () => {
     codesByResource.get(resource)!.push(code);
   }
 
-  it("14개 리소스 그룹 존재", () => {
-    expect(codesByResource.size).toBe(14);
+  it("15개 리소스 그룹 존재", () => {
+    expect(codesByResource.size).toBe(15);
   });
 
   it("checklist 리소스에 5개 이상 action", () => {

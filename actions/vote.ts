@@ -9,6 +9,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import {
   castVoteToggle,
   createVoteRow,
+  deleteVoteRow,
 } from "@/lib/repositories/vote.repository";
 import { isDbConnected } from "@/lib/prisma";
 import { DEMO_TRIP_ID } from "@/lib/seed";
@@ -97,4 +98,43 @@ export async function castVote(input: CastVoteInput & { shareKey?: string }): Pr
 
   revalidatePath(`/vote/${input.tripId}`);
   return { ok: true, demo: false, data: result };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// deleteVote — 투표 삭제
+// ═══════════════════════════════════════════════════════════════════
+
+export type DeleteVoteResult =
+  | { ok: true; demo: true }
+  | { ok: true; demo: false; deletedId: string }
+  | { ok: false; code: "internal" | "forbidden" | "not_found" };
+
+export async function deleteVote(input: {
+  voteId: string;
+  tripId: string;
+  shareKey?: string;
+}): Promise<DeleteVoteResult> {
+  if (!isDbConnected || input.tripId === DEMO_TRIP_ID) {
+    return { ok: true, demo: true };
+  }
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
+    return { ok: false, code: "forbidden" };
+  }
+
+  const result = await deleteVoteRow(input.voteId, input.tripId);
+  if (result === null) return { ok: false, code: "internal" };
+  if (result === "not_found") return { ok: false, code: "not_found" };
+
+  await writeAuditLog({
+    actorId: await getActorId(),
+    action: "vote.delete",
+    resource: "Vote",
+    resourceId: input.voteId,
+    before: { question: result.before.question, tripId: result.before.tripId },
+    after: null,
+    metadata: { source: "web" },
+  });
+
+  revalidatePath(`/vote/${input.tripId}`);
+  return { ok: true, demo: false, deletedId: input.voteId };
 }
