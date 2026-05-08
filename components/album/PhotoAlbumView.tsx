@@ -147,7 +147,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                       type="button"
                       onClick={() => setConfirmDeleteId(photo.id)}
                       aria-label="사진 삭제"
-                      className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white opacity-80 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100 transition-opacity"
                     >
                       <span className="material-symbols-outlined text-td-icon-sm" aria-hidden>delete</span>
                     </button>

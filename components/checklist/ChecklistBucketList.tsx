@@ -166,7 +166,7 @@ export function ChecklistBucketList({
                         type="button"
                         onClick={() => onDelete(item)}
                         aria-label="삭제"
-                        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0 w-9 h-9 flex items-center justify-center"
+                        className="opacity-70 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0 w-9 h-9 flex items-center justify-center"
                       >
                         <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
                           close
