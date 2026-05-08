@@ -39,16 +39,24 @@ function groupByDay(photos: TripPhoto[]): Map<number, TripPhoto[]> {
 
 type AddMode = "file" | "url";
 
+interface UploadProgress {
+  current: number;
+  total: number;
+  succeeded: number;
+  failed: number;
+}
+
 export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
   const router = useRouter();
   const [showAddModal, setShowAddModal] = useState(false);
   const [addMode, setAddMode] = useState<AddMode>("file");
   const [url, setUrl] = useState("");
-  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const [isCompressing, setIsCompressing] = useState(false);
   const [caption, setCaption] = useState("");
   const [dayIndex, setDayIndex] = useState<number | undefined>(undefined);
   const [isPending, startTransition] = useTransition();
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   const [error, setError] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [optimisticHidden, setOptimisticHidden] = useState<Set<string>>(new Set());
@@ -73,47 +81,108 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
     setShowAddModal(false);
     setAddMode("file");
     setUrl("");
-    setFilePreview(null);
+    setFilePreviews([]);
     setCaption("");
     setDayIndex(undefined);
     setError("");
     setIsCompressing(false);
+    setUploadProgress(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleFileSelect = async (file: File) => {
+  const handleFilesSelect = async (files: FileList) => {
     setError("");
     setIsCompressing(true);
+    const previews: string[] = [];
+    let skipped = 0;
     try {
-      const result = await compressImageToDataUrl(file);
-      if (!result.ok) {
-        if (result.reason === "not_image") {
-          setError("이미지 파일만 추가할 수 있어요.");
+      for (const file of Array.from(files)) {
+        const result = await compressImageToDataUrl(file);
+        if (result.ok) {
+          previews.push(result.dataUrl);
         } else {
-          setError("사진을 처리하지 못했어요. 다른 사진을 선택해 주세요.");
+          skipped += 1;
         }
-        setFilePreview(null);
-        return;
       }
-      setFilePreview(result.dataUrl);
+      setFilePreviews(previews);
+      if (previews.length === 0) {
+        setError(
+          skipped > 0
+            ? "선택한 파일을 처리하지 못했어요. 이미지 파일만 가능해요."
+            : "사진을 선택해 주세요.",
+        );
+      } else if (skipped > 0) {
+        setError(`${skipped}장은 이미지가 아니라 건너뛰었어요.`);
+      }
     } finally {
       setIsCompressing(false);
     }
   };
 
+  const removeFilePreview = (idx: number) => {
+    setFilePreviews((prev) => prev.filter((_, i) => i !== idx));
+  };
+
   const handleAdd = () => {
     setError("");
-    const payloadUrl =
-      addMode === "file" ? filePreview?.trim() ?? "" : url.trim();
-    if (!payloadUrl) {
-      setError(
-        addMode === "file"
-          ? "사진을 먼저 선택해 주세요."
-          : "이미지 URL을 입력해 주세요.",
-      );
+    if (addMode === "file") {
+      if (filePreviews.length === 0) {
+        setError("사진을 먼저 선택해 주세요.");
+        return;
+      }
+      const captionInput = caption.trim() || undefined;
+      const dayIdx = dayIndex;
+      const total = filePreviews.length;
+      const queued = [...filePreviews];
+
+      setUploadProgress({ current: 0, total, succeeded: 0, failed: 0 });
+
+      startTransition(async () => {
+        let succeeded = 0;
+        let failed = 0;
+        let demoEncountered = false;
+        for (let i = 0; i < queued.length; i += 1) {
+          const dataUrl = queued[i]!;
+          setUploadProgress({ current: i + 1, total, succeeded, failed });
+          const result = await addPhoto({
+            tripId,
+            url: dataUrl,
+            caption: captionInput,
+            dayIndex: dayIdx,
+          });
+          if (result.ok) {
+            succeeded += 1;
+            if (result.demo) demoEncountered = true;
+          } else {
+            failed += 1;
+          }
+          setUploadProgress({ current: i + 1, total, succeeded, failed });
+        }
+
+        if (failed === 0) {
+          resetAddForm();
+          if (!demoEncountered) router.refresh();
+        } else {
+          setUploadProgress(null);
+          setError(
+            succeeded === 0
+              ? "사진 저장에 실패했어요. 잠시 후 다시 시도해주세요."
+              : `${succeeded}장 추가 완료, ${failed}장 실패. 실패한 사진은 그대로 남아 있어요.`,
+          );
+          // 실패 사진만 남기기 — 성공한 것은 제거
+          setFilePreviews((prev) => prev.slice(succeeded));
+          if (succeeded > 0 && !demoEncountered) router.refresh();
+        }
+      });
       return;
     }
 
+    // URL 모드 (단일)
+    const payloadUrl = url.trim();
+    if (!payloadUrl) {
+      setError("이미지 URL을 입력해 주세요.");
+      return;
+    }
     startTransition(async () => {
       const result = await addPhoto({
         tripId,
@@ -313,7 +382,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
               <button
                 type="button"
                 role="tab"
-                aria-selected={addMode === "file"}
+                aria-selected={addMode === "file" ? "true" : "false"}
                 onClick={() => {
                   setAddMode("file");
                   setError("");
@@ -332,7 +401,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
               <button
                 type="button"
                 role="tab"
-                aria-selected={addMode === "url"}
+                aria-selected={addMode === "url" ? "true" : "false"}
                 onClick={() => {
                   setAddMode("url");
                   setError("");
@@ -353,38 +422,94 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
             {addMode === "file" ? (
               <>
                 <label className="block text-td-meta text-ink-soft mb-td-xxs">
-                  사진 선택
+                  사진 선택 (여러 장 가능)
                 </label>
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  aria-label="사진 파일 선택"
+                  multiple
+                  aria-label="사진 파일 선택 (여러 장 가능)"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void handleFileSelect(file);
+                    const files = e.target.files;
+                    if (files && files.length > 0) void handleFilesSelect(files);
                   }}
                   className="block w-full text-td-meta text-ink-soft file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-td-meta file:font-semibold file:bg-purple-soft file:text-purple-deep hover:file:bg-purple-soft/80 mb-td-xxs"
                 />
                 <p className="text-td-caption text-ink-mute mb-td-sm">
-                  카메라 촬영 또는 갤러리·폴더에서 선택. 자동으로 1280px / 70%
-                  품질로 압축돼요.
+                  여러 장 한 번에 선택 가능. 자동으로 1280px / 70% 품질로 압축돼요.
                 </p>
 
                 {isCompressing && (
-                  <p className="text-td-caption text-ink-soft mb-td-sm">
+                  <p className="text-td-caption text-ink-soft mb-td-sm" role="status">
                     사진을 처리하고 있어요...
                   </p>
                 )}
 
-                {filePreview && !isCompressing && (
-                  <div className="relative mb-td-sm rounded-md overflow-hidden border border-divider">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={filePreview}
-                      alt="추가할 사진 미리 보기"
-                      className="w-full max-h-64 object-contain bg-black/5"
-                    />
+                {filePreviews.length > 0 && !isCompressing && (
+                  <div className="mb-td-sm">
+                    <p className="text-td-meta text-ink-soft mb-td-xxs">
+                      {filePreviews.length}장 선택됨
+                    </p>
+                    <div className="grid grid-cols-3 gap-td-xxs">
+                      {filePreviews.map((preview, idx) => (
+                        <div
+                          key={idx}
+                          className="relative aspect-square rounded-md overflow-hidden border border-divider bg-black/5"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={preview}
+                            alt={`추가할 사진 ${idx + 1}/${filePreviews.length}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeFilePreview(idx)}
+                            aria-label={`${idx + 1}번째 사진 선택 해제`}
+                            disabled={isPending}
+                            className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 disabled:opacity-40"
+                          >
+                            <span className="material-symbols-outlined text-[14px]" aria-hidden>
+                              close
+                            </span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {uploadProgress && (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="mb-td-sm p-td-xs rounded-md bg-purple-soft/40 border border-purple/20"
+                  >
+                    <p className="text-td-meta text-purple-deep font-semibold mb-1">
+                      업로드 중 — {uploadProgress.current} / {uploadProgress.total}
+                    </p>
+                    <div
+                      className="w-full h-1.5 bg-white/60 rounded-full overflow-hidden"
+                      role="progressbar"
+                      aria-valuenow={uploadProgress.current}
+                      aria-valuemin={0}
+                      aria-valuemax={uploadProgress.total}
+                      aria-label="사진 업로드 진행"
+                    >
+                      <div
+                        className="h-full bg-purple transition-[width]"
+                        // eslint-disable-next-line react/forbid-dom-props -- 동적 width는 progressbar 필수
+                        style={{
+                          width: `${(uploadProgress.current / Math.max(1, uploadProgress.total)) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    {uploadProgress.failed > 0 && (
+                      <p className="text-td-caption text-coral mt-1">
+                        실패 {uploadProgress.failed}장
+                      </p>
+                    )}
                   </div>
                 )}
               </>
@@ -404,7 +529,9 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
             )}
 
             <label className="block text-td-meta text-ink-soft mb-td-xxs">
-              설명 (선택)
+              {addMode === "file" && filePreviews.length > 1
+                ? "공통 설명 (선택, 모든 사진에 같게 적용)"
+                : "설명 (선택)"}
             </label>
             <input
               type="text"
@@ -423,6 +550,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
               onChange={(e) =>
                 setDayIndex(e.target.value ? Number(e.target.value) : undefined)
               }
+              aria-label="여행 일차 선택"
               className="w-full bg-surface-soft border border-divider rounded-md p-td-sm text-td-body mb-td-sm"
             >
               <option value="">선택 안함</option>
@@ -453,11 +581,17 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                 disabled={
                   isPending ||
                   isCompressing ||
-                  (addMode === "file" ? !filePreview : !url.trim())
+                  (addMode === "file" ? filePreviews.length === 0 : !url.trim())
                 }
                 className="flex-1 py-td-xs rounded-md bg-purple text-white text-td-body font-semibold disabled:opacity-40"
               >
-                {isPending ? "추가 중..." : "추가"}
+                {isPending && uploadProgress
+                  ? `추가 중 ${uploadProgress.current}/${uploadProgress.total}`
+                  : isPending
+                    ? "추가 중..."
+                    : addMode === "file" && filePreviews.length > 1
+                      ? `${filePreviews.length}장 추가`
+                      : "추가"}
               </button>
             </div>
           </div>

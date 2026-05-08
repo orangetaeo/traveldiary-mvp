@@ -143,8 +143,8 @@ describe("PhotoAlbumView 소스 — 사진 추가 모드 wiring", () => {
     expect(SRC).toMatch(/useState<AddMode>\("file"\)/);
   });
 
-  it("filePreview state + isCompressing state", () => {
-    expect(SRC).toContain("filePreview");
+  it("filePreviews state (다중) + isCompressing state", () => {
+    expect(SRC).toContain("filePreviews");
     expect(SRC).toContain("isCompressing");
   });
 
@@ -153,13 +153,14 @@ describe("PhotoAlbumView 소스 — 사진 추가 모드 wiring", () => {
     expect(SRC).toMatch(/fileInputRef\.current\.value\s*=\s*""/);
   });
 
-  it("handleFileSelect → compressImageToDataUrl 호출", () => {
-    expect(SRC).toContain("handleFileSelect");
+  it("handleFilesSelect → compressImageToDataUrl 호출", () => {
+    expect(SRC).toContain("handleFilesSelect");
     expect(SRC).toMatch(/compressImageToDataUrl\(file\)/);
   });
 
-  it("handleAdd: file 모드 → filePreview, url 모드 → url 분기", () => {
-    expect(SRC).toMatch(/addMode\s*===\s*"file"\s*\?\s*filePreview/);
+  it("handleAdd: file 모드는 filePreviews 다중 처리, url 모드는 단일", () => {
+    expect(SRC).toMatch(/addMode\s*===\s*"file"/);
+    expect(SRC).toMatch(/filePreviews\.length\s*===\s*0/);
   });
 
   it("resetAddForm으로 모달 닫기 + state 초기화", () => {
@@ -190,18 +191,18 @@ describe("PhotoAlbumView UI — 사진 추가 모달 segmented control", () => {
     expect(SRC).toMatch(/material-symbols-outlined[^>]*>\s*link\s*</);
   });
 
-  it("aria-selected는 addMode 분기로 동작", () => {
-    expect(SRC).toMatch(/aria-selected=\{addMode\s*===\s*"file"\}/);
-    expect(SRC).toMatch(/aria-selected=\{addMode\s*===\s*"url"\}/);
+  it("aria-selected는 명시적 \"true\"/\"false\" string (IDE a11y 정정)", () => {
+    expect(SRC).toContain('aria-selected={addMode === "file" ? "true" : "false"}');
+    expect(SRC).toContain('aria-selected={addMode === "url" ? "true" : "false"}');
   });
 
-  it("file input accept=\"image/*\" + aria-label", () => {
+  it("file input accept=\"image/*\" + multiple + aria-label (다중 가능 명시)", () => {
     expect(SRC).toContain('accept="image/*"');
-    expect(SRC).toContain('aria-label="사진 파일 선택"');
+    expect(SRC).toContain('aria-label="사진 파일 선택 (여러 장 가능)"');
   });
 
-  it("file input type=\"file\" + onChange handler", () => {
-    expect(SRC).toMatch(/type="file"[\s\S]*?onChange=\{[\s\S]*?handleFileSelect/);
+  it("file input type=\"file\" + multiple + handleFilesSelect onChange", () => {
+    expect(SRC).toMatch(/type="file"[\s\S]*?multiple[\s\S]*?onChange=\{[\s\S]*?handleFilesSelect/);
   });
 
   it("압축 안내 텍스트 (1280px / 70% 품질)", () => {
@@ -213,9 +214,9 @@ describe("PhotoAlbumView UI — 사진 추가 모달 segmented control", () => {
     expect(SRC).toContain("사진을 처리하고 있어요");
   });
 
-  it("filePreview 미리 보기 (img alt + max-h)", () => {
-    expect(SRC).toContain("추가할 사진 미리 보기");
-    expect(SRC).toContain("max-h-64");
+  it("미리 보기 grid (sequence alt 텍스트 + grid-cols-3)", () => {
+    expect(SRC).toMatch(/추가할 사진 \$\{idx\s*\+\s*1\}\/\$\{filePreviews\.length\}/);
+    expect(SRC).toContain("grid-cols-3");
   });
 
   it("error는 role=\"alert\" (스크린리더 즉시 안내)", () => {
@@ -229,8 +230,8 @@ describe("PhotoAlbumView UI — 사진 추가 모달 segmented control", () => {
     expect(SRC).toMatch(/:\s*\(\s*<>[\s\S]*?이미지 URL/);
   });
 
-  it("추가 버튼 disabled 분기 (file → !filePreview / url → !url.trim)", () => {
-    expect(SRC).toMatch(/addMode === "file"\s*\?\s*!filePreview\s*:\s*!url\.trim\(\)/);
+  it("추가 버튼 disabled 분기 (file → filePreviews.length === 0 / url → !url.trim)", () => {
+    expect(SRC).toMatch(/addMode === "file"\s*\?\s*filePreviews\.length\s*===\s*0\s*:\s*!url\.trim\(\)/);
   });
 
   it("isCompressing 중에도 추가 버튼 disabled", () => {
