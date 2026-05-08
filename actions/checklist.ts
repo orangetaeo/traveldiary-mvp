@@ -21,6 +21,7 @@ import {
   moveChecklistItem,
   setChecklistItemsDone,
   toggleChecklistItem,
+  updateChecklistItem,
   type CreateChecklistInput,
   type MoveDirection,
 } from "@/lib/repositories/checklist.repository";
@@ -314,6 +315,41 @@ export async function bulkDeleteChecklist(input: {
     demo: false,
     data: { deletedCount: result.deletedCount },
   };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// editChecklist — 항목 텍스트 인라인 수정
+// ═══════════════════════════════════════════════════════════════════
+
+export async function editChecklist(input: {
+  itemId: string;
+  tripId: string;
+  text: string;
+  shareKey?: string;
+}): Promise<ChecklistActionResult<ChecklistItem>> {
+  if (!isDbConnected) {
+    return { ok: true, demo: true };
+  }
+  if (!(await canWriteTripOrViaShareLink(input.tripId, input.shareKey))) {
+    return { ok: false, code: "forbidden" };
+  }
+
+  const result = await updateChecklistItem(input.itemId, input.text);
+  if (result === null) return { ok: false, code: "internal" };
+  if (result === "not_found") return { ok: false, code: "not_found" };
+
+  await writeAuditLog({
+    actorId: await getActorId(),
+    action: "checklist.edit",
+    resource: "ChecklistItem",
+    resourceId: input.itemId,
+    before: { text: result.before.text },
+    after: { text: result.after.text },
+    metadata: { source: "web" },
+  });
+
+  revalidatePath(`/checklist/${input.tripId}`);
+  return { ok: true, demo: false, data: result.item };
 }
 
 // ═══════════════════════════════════════════════════════════════════

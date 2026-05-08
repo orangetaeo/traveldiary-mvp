@@ -41,6 +41,7 @@ const KNOWN_ACTION_CODES = new Set([
   "itinerary.reorder",
   // checklist
   "checklist.add",
+  "checklist.edit",
   "checklist.toggle",
   "checklist.reorder",
   "checklist.bulk_toggle",

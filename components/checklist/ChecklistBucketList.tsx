@@ -24,6 +24,7 @@ interface Props {
   onToggle: (item: ChecklistItem) => void;
   onDelete: (item: ChecklistItem) => void;
   onMove?: (item: ChecklistItem, direction: "up" | "down") => void;
+  onEdit?: (item: ChecklistItem) => void;
   /** 사이클 II — 선택 모드 시 클릭 = 선택/해제, move/delete 비활성 */
   selectionMode?: boolean;
   selectedIds?: Set<string>;
@@ -35,6 +36,7 @@ export function ChecklistBucketList({
   onToggle,
   onDelete,
   onMove,
+  onEdit,
   selectionMode = false,
   selectedIds,
   onSelectToggle,
@@ -162,16 +164,30 @@ export function ChecklistBucketList({
                       </div>
                     )}
                     {!selectionMode && (
-                      <button
-                        type="button"
-                        onClick={() => onDelete(item)}
-                        aria-label="삭제"
-                        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity flex-shrink-0 w-9 h-9 flex items-center justify-center"
-                      >
-                        <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
-                          close
-                        </span>
-                      </button>
+                      <div className="flex items-center flex-shrink-0">
+                        {onEdit && (
+                          <button
+                            type="button"
+                            onClick={() => onEdit(item)}
+                            aria-label="수정"
+                            className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-purple transition-opacity w-9 h-9 flex items-center justify-center"
+                          >
+                            <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
+                              edit
+                            </span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => onDelete(item)}
+                          aria-label="삭제"
+                          className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity w-9 h-9 flex items-center justify-center"
+                        >
+                          <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
+                            close
+                          </span>
+                        </button>
+                      </div>
                     )}
                   </li>
                 );

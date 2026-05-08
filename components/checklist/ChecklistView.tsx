@@ -20,6 +20,7 @@ import {
   bulkDeleteChecklist,
   bulkToggleChecklist,
   deleteChecklist,
+  editChecklist,
   moveChecklist,
   toggleChecklist,
 } from "@/actions/checklist";
@@ -56,6 +57,10 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
   const [items, setItems] = useState<ChecklistItem[]>(initialItems);
   const [isPending, startTransition] = useTransition();
   const { toast, show: showToast } = useToast();
+
+  // 인라인 편집
+  const [editingItem, setEditingItem] = useState<ChecklistItem | null>(null);
+  const [editText, setEditText] = useState("");
 
   // 사이클 II — 멀티 선택 모드
   const [selectionMode, setSelectionMode] = useState(false);
@@ -307,6 +312,52 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
     });
   }
 
+  function handleStartEdit(item: ChecklistItem) {
+    setEditingItem(item);
+    setEditText(item.text);
+  }
+
+  function handleEditSubmit() {
+    if (!editingItem) return;
+    const trimmed = editText.trim();
+    if (!trimmed) {
+      showToast("항목 이름을 입력해주세요.", { variant: "warning" });
+      return;
+    }
+    if (trimmed === editingItem.text) {
+      setEditingItem(null);
+      return;
+    }
+
+    const prev = editingItem;
+    // 옵티미스틱
+    setItems((es) =>
+      es.map((it) => (it.id === prev.id ? { ...it, text: trimmed } : it)),
+    );
+    setEditingItem(null);
+
+    startTransition(async () => {
+      const result = await editChecklist({
+        itemId: prev.id,
+        tripId: trip.id,
+        text: trimmed,
+      });
+      if (!result.ok) {
+        setItems((es) =>
+          es.map((it) => (it.id === prev.id ? { ...it, text: prev.text } : it)),
+        );
+        showToast(`수정 실패: ${result.code}`, { variant: "danger" });
+        return;
+      }
+      if (result.demo) {
+        showToast("항목 수정 (데모 시뮬)", { variant: "info" });
+      } else {
+        showToast("항목 수정됨", { variant: "success" });
+        router.refresh();
+      }
+    });
+  }
+
   function handleDelete(item: ChecklistItem) {
     if (!confirm(`"${item.text}" 항목을 삭제할까요?`)) return;
 
@@ -461,6 +512,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
                 onToggle={handleToggle}
                 onDelete={handleDelete}
                 onMove={isFiltering ? undefined : handleMove}
+                onEdit={selectionMode ? undefined : handleStartEdit}
                 selectionMode={selectionMode}
                 selectedIds={selectedIds}
                 onSelectToggle={toggleItemSelection}
@@ -516,6 +568,50 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
           >
             삭제
           </button>
+        </div>
+      )}
+
+      {/* 인라인 편집 모달 */}
+      {editingItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-td-md"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingItem(null);
+          }}
+        >
+          <div className="bg-surface-card border border-divider rounded-lg p-td-md w-full max-w-md shadow-lg">
+            <h3 className="text-td-card-title text-ink mb-td-sm">항목 수정</h3>
+            <input
+              type="text"
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              maxLength={100}
+              autoFocus
+              className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
+              aria-label="체크리스트 항목 수정"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleEditSubmit();
+                if (e.key === "Escape") setEditingItem(null);
+              }}
+            />
+            <div className="flex gap-td-sm mt-td-sm">
+              <button
+                type="button"
+                onClick={() => setEditingItem(null)}
+                className="flex-1 py-2 border border-divider text-ink rounded-md text-td-body font-semibold hover:bg-surface-soft transition-colors"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleEditSubmit}
+                disabled={isPending}
+                className="flex-1 py-2 bg-purple text-white rounded-md text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
+              >
+                {isPending ? "수정 중…" : "수정"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
