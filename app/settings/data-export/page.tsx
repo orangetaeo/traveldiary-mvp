@@ -8,7 +8,13 @@
  * 박제 패턴 답습: components/common/PlaceholderShell (사이클 U-shell-dry).
  */
 
+import type { Metadata } from "next";
 import { PlaceholderShell } from "@/components/common/PlaceholderShell";
+
+export const metadata: Metadata = {
+  title: "데이터 내보내기 — TravelDiary",
+  description: "내 여행 데이터를 다운로드하세요.",
+};
 
 const INCLUDED_DATA: { label: string; sub: string }[] = [
   { label: "내 trip 목록", sub: "여행 단위 메타" },

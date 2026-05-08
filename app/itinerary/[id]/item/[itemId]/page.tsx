@@ -9,6 +9,7 @@
  * 사이클 5b 옵션 C (2026-04-30): Stitch HTML 통합 → React 변환.
  */
 
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { EvidencePanel } from "@/components/ui/EvidencePanel";
@@ -36,6 +37,21 @@ import {
   CATEGORY_GRADIENT,
 } from "@/lib/utils/item-display";
 import type { Evidence } from "@/lib/types";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string; itemId: string };
+}): Promise<Metadata> {
+  const bundle = await resolveTripBundle(params.id);
+  if (!bundle) return { title: "장소 상세 — TravelDiary" };
+  const item = bundle.items.find((i) => i.id === params.itemId) ?? getDemoItem(params.id, params.itemId);
+  const name = item?.name.split(" (")[0] ?? "장소";
+  return {
+    title: `${name} — ${bundle.trip.destination} 일정`,
+    description: `${name} 상세 정보 — 추천 근거, 검증 결과, OTA 가격 비교.`,
+  };
+}
 
 export default async function ItineraryItemPage({
   params,

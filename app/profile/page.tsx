@@ -8,8 +8,14 @@
  * BLOCKER 6 (actorId 격리) 완료 후 실 사용자 데이터로 전환 예정.
  */
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentUserId } from "@/lib/auth/session";
+
+export const metadata: Metadata = {
+  title: "내 프로필 — TravelDiary",
+  description: "프로필 관리, 인증 설정, 여행 통계를 확인하세요.",
+};
 import { kakaoAvailable } from "@/lib/auth/kakao";
 import { jwtAvailable } from "@/lib/auth/jwt";
 import { LoginButton } from "@/components/auth/LoginButton";

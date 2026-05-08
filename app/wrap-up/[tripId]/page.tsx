@@ -6,6 +6,7 @@
  * E3: 앨범 CTA 추가
  */
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { resolveTrip } from "@/lib/services/resolved-trip";
@@ -17,6 +18,16 @@ import { listCostByTrip } from "@/lib/repositories/cost.repository";
 
 interface PageProps {
   params: { tripId: string };
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const resolved = resolveTrip(params.tripId);
+  if (!resolved) return { title: "여행 정리 — TravelDiary" };
+  const { trip, city } = resolved;
+  return {
+    title: `${city.name} 여행 정리 — TravelDiary`,
+    description: `${city.name} ${trip.nights}박 ${trip.nights + 1}일 여행 마무리 — 통계, 후기, 정산 요약.`,
+  };
 }
 
 // --- 데모: 하이라이트 (추후 AI 자동 선별로 교체) ---

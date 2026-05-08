@@ -7,7 +7,7 @@
  * PostTripRecapView의 Moments 섹션을 발전시킨 독립 뷰.
  */
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addPhoto, editPhoto, removePhoto } from "@/actions/photo";
 import type { TripPhoto } from "@/lib/types";
@@ -52,11 +52,15 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
   // 옵티미스틱 캡션 오버라이드
   const [captionOverrides, setCaptionOverrides] = useState<Map<string, string | undefined>>(new Map());
 
-  const visiblePhotos = photos
-    .filter((p) => !optimisticHidden.has(p.id))
-    .map((p) => (captionOverrides.has(p.id) ? { ...p, caption: captionOverrides.get(p.id) } : p));
-  const grouped = groupByDay(visiblePhotos);
-  const dayKeys = Array.from(grouped.keys()).sort((a, b) => a - b);
+  const visiblePhotos = useMemo(
+    () =>
+      photos
+        .filter((p) => !optimisticHidden.has(p.id))
+        .map((p) => (captionOverrides.has(p.id) ? { ...p, caption: captionOverrides.get(p.id) } : p)),
+    [photos, optimisticHidden, captionOverrides],
+  );
+  const grouped = useMemo(() => groupByDay(visiblePhotos), [visiblePhotos]);
+  const dayKeys = useMemo(() => Array.from(grouped.keys()).sort((a, b) => a - b), [grouped]);
 
   const handleAdd = () => {
     if (!url.trim()) return;

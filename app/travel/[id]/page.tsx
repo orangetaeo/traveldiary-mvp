@@ -1,8 +1,20 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TravelHome } from "@/components/travel/TravelHome";
 import { resolveCityByCode } from "@/lib/seed/cities";
 import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { calculateTravelDay } from "@/lib/mode-transition";
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const bundle = await resolveTripBundle(params.id);
+  if (!bundle) return { title: "여행 중 — TravelDiary" };
+  const city = resolveCityByCode(bundle.trip.destinationCode);
+  const day = calculateTravelDay(bundle.trip.startDate);
+  return {
+    title: `Day ${day} · ${city?.name ?? bundle.trip.destination} 여행 중 — TravelDiary`,
+    description: `${bundle.trip.destination} 여행 ${day}일차 — 실시간 일정, 날씨, 현지 정보.`,
+  };
+}
 
 /**
  * 여행 중 홈 (M2 매직 모먼트 LEVEL 1) — `/travel/[id]`
