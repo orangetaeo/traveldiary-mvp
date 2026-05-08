@@ -15,6 +15,7 @@ import { jwtAvailable } from "@/lib/auth/jwt";
 import { LoginButton } from "@/components/auth/LoginButton";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { ProfileStats } from "@/components/profile/ProfileStats";
+import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
 import { prisma, isDbConnected } from "@/lib/prisma";
 
 export default async function ProfilePage() {
@@ -70,24 +71,7 @@ export default async function ProfilePage() {
           <h2 className="text-td-title mb-3">계정</h2>
 
           {currentUserId ? (
-            <div className="bg-surface-card border border-divider rounded-md p-4 flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-purple-soft border-2 border-purple/30 flex items-center justify-center shrink-0">
-                {userName ? (
-                  <span className="text-xl font-bold text-purple">{userName.charAt(0)}</span>
-                ) : (
-                  <span className="material-symbols-outlined text-purple text-[28px]">person</span>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-td-card-title font-medium text-ink truncate">
-                  {userName ?? "미설정"}
-                </p>
-                <p className="text-td-meta text-ink-mute truncate">
-                  {userEmail ?? "이메일 미설정"}
-                </p>
-              </div>
-              <span className="material-symbols-outlined text-ink-mute">chevron_right</span>
-            </div>
+            <ProfileEditForm currentName={userName} userEmail={userEmail} />
           ) : (
             <div className="bg-purple/5 border border-purple/20 rounded-md p-4">
               <p className="text-td-body text-ink-soft mb-3 leading-relaxed text-center">
