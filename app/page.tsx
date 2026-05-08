@@ -24,6 +24,7 @@ import { getCityByCode, isVietnamCity } from "@/lib/seed/cities";
 import { LoginButton } from "@/components/auth/LoginButton";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { SpeedDialFab } from "@/components/ui/SpeedDialFab";
+import { SplashOverlay } from "@/components/ui/SplashOverlay";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { kakaoAvailable } from "@/lib/auth/kakao";
 import { jwtAvailable } from "@/lib/auth/jwt";
@@ -87,6 +88,7 @@ export default async function HomePage({
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
+      <SplashOverlay />
       <OrganizationJsonLd
         name="TRAVELDIARY"
         url="https://traveldiary-mvp-production.up.railway.app"
