@@ -217,11 +217,10 @@ describe("api/diag/translate — GET", () => {
     vi.resetModules();
   });
 
-  it("키 모두 설정 → available: true + 마스킹", async () => {
-    process.env.GOOGLE_VISION_API_KEY = "AIzaSyAbcdefgh1234567890";
+  it("키 설정 → available: true + 마스킹", async () => {
     process.env.ANTHROPIC_API_KEY = "sk-ant-xyz1234567890abcdef";
-    vi.doMock("@/lib/services/google-vision", () => ({
-      visionAvailable: () => true,
+    vi.doMock("@/lib/services/menu-translation", () => ({
+      translateAvailable: () => true,
     }));
     vi.doMock("@/lib/services/anthropic-claude", () => ({
       claudeAvailable: () => true,
@@ -229,17 +228,16 @@ describe("api/diag/translate — GET", () => {
     const { GET } = await import("@/app/api/diag/translate/route");
     const res = GET();
     const data = await res.json();
-    expect(data.services.vision.available).toBe(true);
-    expect(data.services.vision.keyMask).toMatch(/^\*\*\*\*.{4}$/);
-    expect(data.services.claude.available).toBe(true);
-    expect(data.services.claude.keyMask).toMatch(/^\*\*\*\*.{4}$/);
+    expect(data.services.claudeVision.available).toBe(true);
+    expect(data.services.claudeVision.keyMask).toMatch(/^\*\*\*\*.{4}$/);
+    expect(data.services.claudeText.available).toBe(true);
+    expect(data.services.claudeText.keyMask).toMatch(/^\*\*\*\*.{4}$/);
   });
 
   it("키 미설정 → available: false + keyMask: null", async () => {
-    delete process.env.GOOGLE_VISION_API_KEY;
     delete process.env.ANTHROPIC_API_KEY;
-    vi.doMock("@/lib/services/google-vision", () => ({
-      visionAvailable: () => false,
+    vi.doMock("@/lib/services/menu-translation", () => ({
+      translateAvailable: () => false,
     }));
     vi.doMock("@/lib/services/anthropic-claude", () => ({
       claudeAvailable: () => false,
@@ -247,9 +245,9 @@ describe("api/diag/translate — GET", () => {
     const { GET } = await import("@/app/api/diag/translate/route");
     const res = GET();
     const data = await res.json();
-    expect(data.services.vision.available).toBe(false);
-    expect(data.services.vision.keyMask).toBeNull();
-    expect(data.services.claude.available).toBe(false);
-    expect(data.services.claude.keyMask).toBeNull();
+    expect(data.services.claudeVision.available).toBe(false);
+    expect(data.services.claudeVision.keyMask).toBeNull();
+    expect(data.services.claudeText.available).toBe(false);
+    expect(data.services.claudeText.keyMask).toBeNull();
   });
 });

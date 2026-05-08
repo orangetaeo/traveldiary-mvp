@@ -31,10 +31,13 @@ describe("/cost/[tripId]/scan 영수증 스캔 (source grep)", () => {
     resolve(__dirname, "../../app/cost/[tripId]/scan/page.tsx"),
     "utf-8",
   );
-  const viewSrc = readFileSync(
-    resolve(__dirname, "../../components/cost/ReceiptScanView.tsx"),
-    "utf-8",
-  );
+  // 사이클 JJ: ReceiptScanView → 3파일 분할. 전체 소스를 합쳐서 grep.
+  const viewSrc = [
+    readFileSync(resolve(__dirname, "../../components/cost/ReceiptScanView.tsx"), "utf-8"),
+    readFileSync(resolve(__dirname, "../../components/cost/ReceiptCaptureStep.tsx"), "utf-8"),
+    readFileSync(resolve(__dirname, "../../components/cost/ReceiptResultStep.tsx"), "utf-8"),
+    readFileSync(resolve(__dirname, "../../lib/utils/currency.ts"), "utf-8"),
+  ].join("\n");
 
   it("페이지가 ReceiptScanView 클라이언트 컴포넌트를 사용한다", () => {
     expect(pageSrc).toContain("ReceiptScanView");

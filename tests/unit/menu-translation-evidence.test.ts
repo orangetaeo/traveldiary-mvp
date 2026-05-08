@@ -2,7 +2,7 @@
  * MenuTranslation + KoreanEvidence 서비스 오케스트레이션 테스트 — Batch 16.
  *
  * 2 모듈:
- *  - lib/services/menu-translation.ts: translateMenuPhoto 파이프라인 분기
+ *  - lib/services/menu-translation.ts: translateMenuPhoto Claude Vision 단일 파이프라인
  *  - lib/services/korean-evidence.ts: gatherKoreanEvidence 집계
  */
 
@@ -12,16 +12,30 @@ vi.mock("server-only", () => ({}));
 
 /* ────────── menu-translation mocks ────────── */
 
-const mockOcr = vi.fn();
-const mockClaude = vi.fn();
-
-vi.mock("@/lib/services/google-vision", () => ({
-  ocrFromBase64Image: (...args: unknown[]) => mockOcr(...args),
+const mockGetEnvKey = vi.fn();
+vi.mock("@/lib/utils/env", () => ({
+  getEnvKey: (...args: unknown[]) => mockGetEnvKey(...args),
 }));
 
-vi.mock("@/lib/services/anthropic-claude", () => ({
-  translateMenuOcr: (...args: unknown[]) => mockClaude(...args),
+vi.mock("@/lib/usage-quota", () => ({
+  assertQuota: vi.fn(),
+  recordExternalCall: vi.fn(),
+  QuotaExceededError: class extends Error { cap = 0; },
 }));
+
+vi.mock("@/lib/autonomy/budget", () => ({
+  assertBudget: vi.fn(),
+  recordSpend: vi.fn(),
+  AutonomyPausedError: class extends Error { reason = ""; },
+  BudgetExceededError: class extends Error { tier = ""; thresholdUsd = 0; },
+}));
+
+vi.mock("@/lib/autonomy/model-pricing", () => ({
+  calculateCostUsd: vi.fn().mockReturnValue(0),
+}));
+
+const mockFetch = vi.fn();
+vi.stubGlobal("fetch", mockFetch);
 
 /* ────────── korean-evidence mocks ────────── */
 
@@ -38,81 +52,118 @@ vi.mock("@/lib/services/naver-search", () => ({
 describe("services — translateMenuPhoto", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetEnvKey.mockReturnValue(null);
   });
 
-  it("OCR demo → mode 'demo'", async () => {
-    mockOcr.mockResolvedValue({ mode: "demo" });
+  it("API 키 미설정 → mode 'demo'", async () => {
+    mockGetEnvKey.mockReturnValue(null);
     const { translateMenuPhoto } = await import("@/lib/services/menu-translation");
     const result = await translateMenuPhoto("base64data");
     expect(result.mode).toBe("demo");
-    expect(mockClaude).not.toHaveBeenCalled();
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it("OCR error → mode 'error' + stage 'ocr'", async () => {
-    mockOcr.mockResolvedValue({ mode: "error", code: "network", message: "timeout" });
+  it("Claude Vision API 에러 → mode 'error' + stage 'vision'", async () => {
+    mockGetEnvKey.mockReturnValue("sk-ant-test-key");
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 403,
+      json: async () => ({}),
+    });
     const { translateMenuPhoto } = await import("@/lib/services/menu-translation");
     const result = await translateMenuPhoto("img");
     expect(result.mode).toBe("error");
     if (result.mode === "error") {
-      expect(result.stage).toBe("ocr");
-      expect(result.code).toBe("network");
-      expect(result.message).toBe("timeout");
+      expect(result.stage).toBe("vision");
+      expect(result.code).toBe("claude_api_error");
+      expect(result.message).toBe("HTTP 403");
       expect(result.totalMs).toBeGreaterThanOrEqual(0);
     }
   });
 
-  it("OCR no_text → mode 'no_text' + ocrCached 전달", async () => {
-    mockOcr.mockResolvedValue({ mode: "no_text", cached: true, fetchDurationMs: 5 });
+  it("no_text 응답 → mode 'no_text'", async () => {
+    mockGetEnvKey.mockReturnValue("sk-ant-test-key");
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        content: [{ type: "text", text: '{"no_text":true}' }],
+        usage: { input_tokens: 100, output_tokens: 10 },
+      }),
+    });
     const { translateMenuPhoto } = await import("@/lib/services/menu-translation");
     const result = await translateMenuPhoto("img");
     expect(result.mode).toBe("no_text");
     if (result.mode === "no_text") {
-      expect(result.ocrCached).toBe(true);
       expect(result.totalMs).toBeGreaterThanOrEqual(0);
     }
   });
 
-  it("OCR ok + Claude demo → mode 'demo'", async () => {
-    mockOcr.mockResolvedValue({ mode: "ok", text: "메뉴 텍스트", cached: false, fetchDurationMs: 100 });
-    mockClaude.mockResolvedValue({ mode: "demo" });
-    const { translateMenuPhoto } = await import("@/lib/services/menu-translation");
-    const result = await translateMenuPhoto("img");
-    expect(result.mode).toBe("demo");
-  });
-
-  it("OCR ok + Claude error → mode 'error' + stage 'claude'", async () => {
-    mockOcr.mockResolvedValue({ mode: "ok", text: "food", cached: false, fetchDurationMs: 50 });
-    mockClaude.mockResolvedValue({ mode: "error", code: "api_error", message: "rate limit" });
+  it("네트워크 에러 → mode 'error' + code 'network'", async () => {
+    mockGetEnvKey.mockReturnValue("sk-ant-test-key");
+    mockFetch.mockRejectedValue(new Error("ECONNREFUSED"));
     const { translateMenuPhoto } = await import("@/lib/services/menu-translation");
     const result = await translateMenuPhoto("img");
     expect(result.mode).toBe("error");
     if (result.mode === "error") {
-      expect(result.stage).toBe("claude");
-      expect(result.code).toBe("api_error");
+      expect(result.stage).toBe("vision");
+      expect(result.code).toBe("network");
+      expect(result.message).toBe("ECONNREFUSED");
     }
   });
 
-  it("OCR ok + Claude ok → mode 'ok' + items + cached 플래그", async () => {
-    const items = [{ original: "Phở", translated: "쌀국수" }];
-    mockOcr.mockResolvedValue({ mode: "ok", text: "Phở", cached: true, fetchDurationMs: 0 });
-    mockClaude.mockResolvedValue({ mode: "ok", items, cached: false, fetchDurationMs: 200 });
+  it("정상 응답 → mode 'ok' + items + cached=false", async () => {
+    const items = [{ vn: "Phở", ko: "쌀국수", allergens: [] }];
+    mockGetEnvKey.mockReturnValue("sk-ant-test-key");
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        content: [{ type: "text", text: JSON.stringify({ items }) }],
+        usage: { input_tokens: 500, output_tokens: 50 },
+      }),
+    });
     const { translateMenuPhoto } = await import("@/lib/services/menu-translation");
     const result = await translateMenuPhoto("img");
     expect(result.mode).toBe("ok");
     if (result.mode === "ok") {
       expect(result.items).toEqual(items);
-      expect(result.ocrCached).toBe(true);
-      expect(result.claudeCached).toBe(false);
+      expect(result.cached).toBe(false);
       expect(result.totalMs).toBeGreaterThanOrEqual(0);
     }
   });
 
-  it("OCR 호출 → Claude에 text 전달", async () => {
-    mockOcr.mockResolvedValue({ mode: "ok", text: "Bánh mì 30K", cached: false, fetchDurationMs: 10 });
-    mockClaude.mockResolvedValue({ mode: "ok", items: [], cached: false, fetchDurationMs: 10 });
+  it("JSON 파싱 실패 → mode 'error' + code 'parse_error'", async () => {
+    mockGetEnvKey.mockReturnValue("sk-ant-test-key");
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        content: [{ type: "text", text: "이것은 JSON이 아닙니다" }],
+        usage: { input_tokens: 100, output_tokens: 20 },
+      }),
+    });
     const { translateMenuPhoto } = await import("@/lib/services/menu-translation");
-    await translateMenuPhoto("img");
-    expect(mockClaude).toHaveBeenCalledWith("Bánh mì 30K");
+    const result = await translateMenuPhoto("img");
+    expect(result.mode).toBe("error");
+    if (result.mode === "error") {
+      expect(result.stage).toBe("vision");
+      expect(result.code).toBe("parse_error");
+    }
+  });
+
+  it("Claude에 이미지 base64를 직접 전달", async () => {
+    mockGetEnvKey.mockReturnValue("sk-ant-test-key");
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        content: [{ type: "text", text: '{"items":[]}' }],
+        usage: { input_tokens: 100, output_tokens: 10 },
+      }),
+    });
+    const { translateMenuPhoto } = await import("@/lib/services/menu-translation");
+    await translateMenuPhoto("/9j/base64imagedata");
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.messages[0].content[0].type).toBe("image");
+    expect(body.messages[0].content[0].source.data).toBe("/9j/base64imagedata");
+    expect(body.messages[0].content[0].source.media_type).toBe("image/jpeg");
   });
 });
 

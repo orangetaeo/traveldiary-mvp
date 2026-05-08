@@ -36,8 +36,7 @@ describe("translateMenuPhotoAction", () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "ok",
       items: [{ original: "Phở", translated: "쌀국수", price: null }],
-      ocrCached: false,
-      claudeCached: false,
+      cached: false,
       totalMs: 1200,
     });
 
@@ -53,16 +52,15 @@ describe("translateMenuPhotoAction", () => {
     expect(log.resource).toBe("MenuTranslation");
     expect(log.resourceId).toBe("item-1");
     expect(log.after).toEqual({ itemCount: 1 });
-    expect(log.metadata.source).toBe("vision+claude");
+    expect(log.metadata.source).toBe("claude-vision");
     expect(log.metadata.mode).toBe("ok");
   });
 
-  it("ok + 전부 캐시 → audit 미기록", async () => {
+  it("ok + cached → audit 미기록", async () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "ok",
       items: [{ original: "A", translated: "B", price: null }],
-      ocrCached: true,
-      claudeCached: true,
+      cached: true,
       totalMs: 50,
     });
 
@@ -71,27 +69,12 @@ describe("translateMenuPhotoAction", () => {
     expect(mockWriteAuditLog).not.toHaveBeenCalled();
   });
 
-  it("ok + OCR만 fresh → audit 기록", async () => {
+  it("ok + fresh → audit 기록 (cached=false)", async () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "ok",
       items: [],
-      ocrCached: false,
-      claudeCached: true,
+      cached: false,
       totalMs: 300,
-    });
-
-    await translateMenuPhotoAction({ imageBase64: "img" });
-
-    expect(mockWriteAuditLog).toHaveBeenCalledOnce();
-  });
-
-  it("ok + Claude만 fresh → audit 기록", async () => {
-    mockTranslateMenuPhoto.mockResolvedValue({
-      mode: "ok",
-      items: [],
-      ocrCached: true,
-      claudeCached: false,
-      totalMs: 800,
     });
 
     await translateMenuPhotoAction({ imageBase64: "img" });
@@ -102,8 +85,8 @@ describe("translateMenuPhotoAction", () => {
   it("error → audit 기록", async () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "error",
-      stage: "ocr",
-      code: "vision_api_error",
+      stage: "vision",
+      code: "claude_api_error",
       message: "HTTP 403",
       totalMs: 200,
     });
@@ -118,14 +101,13 @@ describe("translateMenuPhotoAction", () => {
     const log = mockWriteAuditLog.mock.calls[0][0];
     expect(log.after).toBeNull();
     expect(log.metadata.mode).toBe("error");
-    expect(log.metadata.errorCode).toBe("vision_api_error");
-    expect(log.metadata.stage).toBe("ocr");
+    expect(log.metadata.errorCode).toBe("claude_api_error");
+    expect(log.metadata.stage).toBe("vision");
   });
 
   it("no_text → audit 기록", async () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "no_text",
-      ocrCached: false,
       totalMs: 150,
     });
 
@@ -149,7 +131,7 @@ describe("translateMenuPhotoAction", () => {
   it("contextId 미지정 → resourceId='unknown'", async () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "error",
-      stage: "claude",
+      stage: "vision",
       code: "network",
       totalMs: 100,
     });
@@ -172,8 +154,7 @@ describe("translateMenuPhotoAction", () => {
     const outcome = {
       mode: "ok" as const,
       items: [{ original: "X", translated: "Y", price: "10k" }],
-      ocrCached: false,
-      claudeCached: false,
+      cached: false,
       totalMs: 500,
     };
     mockTranslateMenuPhoto.mockResolvedValue(outcome);
