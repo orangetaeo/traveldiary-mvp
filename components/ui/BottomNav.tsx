@@ -8,6 +8,10 @@
  *
  * 다음 페이지 추가 시 즉시 활용:
  *   <BottomNav active="city" />   // 새 슬롯 필요 시 union 확장
+ *
+ * 2026-05-08: itineraryTripId 옵션 prop — trip-scoped 페이지에서 본인 trip ID 전달.
+ *   default DEMO_TRIP_ID (BC). /checklist/[tripId]·/cost/[tripId] 등 본인 trip
+ *   컨텍스트가 있는 페이지에서 BottomNav "일정" 슬롯이 그 trip 일정으로 가도록.
  */
 
 import Link from "next/link";
@@ -17,6 +21,8 @@ export type BottomNavSlot = "home" | "trips" | "itinerary" | "profile";
 
 interface BottomNavProps {
   active: BottomNavSlot;
+  /** 본인 trip ID — trip-scoped 페이지에서 전달. 미지정 시 DEMO_TRIP_ID (BC). */
+  itineraryTripId?: string;
 }
 
 interface SlotDef {
@@ -26,13 +32,13 @@ interface SlotDef {
   label: string;
 }
 
-function buildSlots(): SlotDef[] {
+function buildSlots(itineraryTripId: string): SlotDef[] {
   return [
     { key: "home", href: "/", icon: "home", label: "홈" },
     { key: "trips", href: "/trips", icon: "explore", label: "여행" },
     {
       key: "itinerary",
-      href: `/itinerary/${DEMO_TRIP_ID}`,
+      href: `/itinerary/${itineraryTripId}`,
       icon: "calendar_today",
       label: "일정",
     },
@@ -40,8 +46,11 @@ function buildSlots(): SlotDef[] {
   ];
 }
 
-export function BottomNav({ active }: BottomNavProps) {
-  const slots = buildSlots();
+export function BottomNav({
+  active,
+  itineraryTripId = DEMO_TRIP_ID,
+}: BottomNavProps) {
+  const slots = buildSlots(itineraryTripId);
   return (
     <nav
       className="bg-surface-card border-t border-divider fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full z-50 flex justify-around items-center h-16 pb-[env(safe-area-inset-bottom,0px)]"
