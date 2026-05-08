@@ -125,7 +125,13 @@ export default function SharedListPage() {
             <span className="material-symbols-outlined">arrow_back</span>
           </Link>
           <h1 className="text-lg font-semibold text-ink">받은 여행</h1>
-          <span className="w-10" aria-hidden />
+          <Link
+            href="/notifications"
+            className="text-purple transition-colors"
+            aria-label="알림"
+          >
+            <span className="material-symbols-outlined">notifications</span>
+          </Link>
         </div>
       </header>
 
