@@ -64,52 +64,74 @@ function CapturingView({
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-      showToast("이미지가 너무 큽니다 (10MB 이내).", { variant: "warning" });
+    if (file.size > 20 * 1024 * 1024) {
+      showToast("이미지가 너무 큽니다 (20MB 이내).", { variant: "warning" });
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      // "data:image/jpeg;base64,..." → base64만 추출
-      const base64 = dataUrl.split(",")[1] ?? "";
+    // 이미지를 Canvas로 리사이즈 후 전송 (최대 1600px, JPEG 80%)
+    const img = new Image();
+    img.onload = () => {
+      const MAX_DIM = 1600;
+      let { width, height } = img;
+      if (width > MAX_DIM || height > MAX_DIM) {
+        const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        showToast("이미지를 처리할 수 없어요.", { variant: "warning" });
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      const base64 = canvas.toDataURL("image/jpeg", 0.8).split(",")[1] ?? "";
       if (!base64) {
         showToast("이미지를 읽지 못했어요.", { variant: "warning" });
         return;
       }
 
       startTransition(async () => {
-        const result = await translateMenuPhotoAction({
-          imageBase64: base64,
-          contextId: tripId,
-        });
+        try {
+          const result = await translateMenuPhotoAction({
+            imageBase64: base64,
+            contextId: tripId,
+          });
 
-        if (result.mode === "demo") {
-          showToast("API 키 미설정 — 정적 시드로 시연됩니다.", { variant: "info" });
-          onShutter(); // 정적 시드 ResultsView로
-        } else if (result.mode === "ok") {
-          showToast(
-            `실 번역 ${result.items.length}건 (${result.totalMs}ms)`,
-            { variant: "success" },
-          );
-          // 5b-5에선 결과를 sessionStorage에 저장 → 사이클 5b-5.5에서 ResultsView 통합
-          sessionStorage.setItem(
-            "td-menu-translation",
-            JSON.stringify(result.items),
-          );
-          onShutter();
-        } else if (result.mode === "no_text") {
-          showToast("이미지에서 텍스트를 찾지 못했어요.", { variant: "warning" });
-        } else {
-          showToast(
-            `실패: ${result.stage} ${result.code} (${result.message ?? ""})`,
-            { variant: "danger" },
-          );
+          if (result.mode === "demo") {
+            showToast("API 키 미설정 — 정적 시드로 시연됩니다.", { variant: "info" });
+            onShutter();
+          } else if (result.mode === "ok") {
+            showToast(
+              `실 번역 ${result.items.length}건 (${result.totalMs}ms)`,
+              { variant: "success" },
+            );
+            sessionStorage.setItem(
+              "td-menu-translation",
+              JSON.stringify(result.items),
+            );
+            onShutter();
+          } else if (result.mode === "no_text") {
+            showToast("이미지에서 텍스트를 찾지 못했어요.", { variant: "warning" });
+          } else {
+            showToast(
+              `실패: ${result.stage} ${result.code} (${result.message ?? ""})`,
+              { variant: "danger" },
+            );
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "";
+          showToast(`번역 중 오류 발생${msg ? ` (${msg.slice(0, 80)})` : ""}`, { variant: "danger" });
         }
       });
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => {
+      showToast("이미지를 열 수 없어요.", { variant: "warning" });
+    };
+    img.src = URL.createObjectURL(file);
   }
 
   return (
