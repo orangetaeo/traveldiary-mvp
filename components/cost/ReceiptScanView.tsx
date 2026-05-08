@@ -118,19 +118,24 @@ function CaptureStep({
       }
 
       startTransition(async () => {
-        const result = await scanReceiptAction({ imageBase64: base64, tripId });
+        try {
+          const result = await scanReceiptAction({ imageBase64: base64, tripId });
 
-        if (result.mode === "demo") {
-          setError("API 키 미설정 — 데모 모드입니다. 비용을 직접 입력해주세요.");
-          setStatusMsg(null);
-        } else if (result.mode === "ok") {
-          setStatusMsg(null);
-          onResult(result.receipt, dataUrl);
-        } else if (result.mode === "no_text") {
-          setError("영수증에서 텍스트를 찾지 못했어요. 더 선명한 사진으로 다시 시도해주세요.");
-          setStatusMsg(null);
-        } else {
-          setError(`인식 실패: ${result.stage} — ${result.code}${result.message ? ` (${result.message})` : ""}`);
+          if (result.mode === "demo") {
+            setError("API 키 미설정 — 데모 모드입니다. 아래 '직접 비용 입력하기'를 이용해주세요.");
+            setStatusMsg(null);
+          } else if (result.mode === "ok") {
+            setStatusMsg(null);
+            onResult(result.receipt, dataUrl);
+          } else if (result.mode === "no_text") {
+            setError("영수증에서 텍스트를 찾지 못했어요. 더 선명한 사진으로 다시 시도해주세요.");
+            setStatusMsg(null);
+          } else {
+            setError(`인식 실패: ${result.stage} — ${result.code}${result.message ? ` (${result.message})` : ""}`);
+            setStatusMsg(null);
+          }
+        } catch {
+          setError("영수증 스캔 중 오류가 발생했어요. 아래 '직접 비용 입력하기'를 이용해주세요.");
           setStatusMsg(null);
         }
       });
