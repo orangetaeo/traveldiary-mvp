@@ -1,53 +1,56 @@
 /**
- * Home (Pre-trip) — Stitch #1 매핑
+ * Home — 두 모드 분기 (2026-05-08).
  *
- * Stitch screen: projects/4681512633268080895/screens/626e5350f3cc4f02a943486193eebd6b
- * Magic Moment: M1 추천 근거 패널
+ * Mode A (Welcome): 비로그인 OR 본인 trip 0건
+ *   - WelcomeHero (베트남 일몰 그라디언트 + 로그인 CTA + 데모 진입)
+ *   - MagicMomentsCarousel (M1~M4 4축 캐러셀, ORANGE TOUR 패턴 차용)
+ *   - 다른 도시 둘러보기 (베트남 6개 시드 카드)
+ *   - 여행 가이드 CTA
  *
- * 사이클 5b 옵션 C — Stitch HTML → React/Tailwind 변환 (2026-04-30).
- * 데모 모드: lib/seed의 푸꾸옥 데이터 직접 import (ADR-009).
+ * Mode B (Dashboard): 로그인 + 본인 trip ≥1
+ *   - DashboardHero (가장 가까운 trip + D-Day 카운트다운 + 일정/대시보드 진입)
+ *   - OwnedTripsChips (다중 trip 시 칩 selector)
+ *   - MagicMomentsCarousel (재방문자에게도 4축 환기)
+ *   - 다른 도시 둘러보기 (보조)
+ *
+ * PR #356(additive)을 supersede — 데모 푸꾸옥 타임라인 메인 노출 패턴 폐기.
+ * 데모 진입은 WelcomeHero의 보조 CTA + 다른 도시 카드로 분산.
  */
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { EvidencePanel } from "@/components/ui/EvidencePanel";
+import { listDemoTrips, DEMO_TRIP_ID } from "@/lib/seed";
+import { getCityByCode, isVietnamCity } from "@/lib/seed/cities";
+import { BottomNav } from "@/components/ui/BottomNav";
+import { SpeedDialFab } from "@/components/ui/SpeedDialFab";
+import { LoginButton } from "@/components/auth/LoginButton";
+import { getCurrentUserId } from "@/lib/auth/session";
+import { kakaoAvailable } from "@/lib/auth/kakao";
+import { jwtAvailable } from "@/lib/auth/jwt";
+import { prisma } from "@/lib/prisma";
+import { OrganizationJsonLd, WebAppJsonLd } from "@/components/seo/JsonLd";
+import { TripClaimBanner } from "@/components/auth/TripClaimBanner";
+import { AuthErrorBanner } from "@/components/auth/AuthErrorBanner";
+import type { ClaimableTrip } from "@/components/auth/TripClaimModal";
+import { WelcomeHero } from "@/components/home/WelcomeHero";
+import { MagicMomentsCarousel } from "@/components/home/MagicMomentsCarousel";
+import { buildMomentCards } from "@/components/home/MagicMomentsData";
+import {
+  DashboardHero,
+  OwnedTripsChips,
+  type OwnedTripSummary,
+} from "@/components/home/DashboardHero";
 
 export const metadata: Metadata = {
   title: "TRAVELDIARY — 베트남 자유여행 AI 동반자",
   description: "AI가 추천한 일정에 근거까지. 여행 중에는 살아 움직여요.",
 };
-import { phuQuocTrip, phuQuocItinerary } from "@/lib/seed/phu-quoc";
-import { listDemoItemsByDay, listDemoTrips, DEMO_TRIP_ID } from "@/lib/seed";
-import { getCityByCode, isVietnamCity } from "@/lib/seed/cities";
-import { LoginButton } from "@/components/auth/LoginButton";
-import { BottomNav } from "@/components/ui/BottomNav";
-import { SpeedDialFab } from "@/components/ui/SpeedDialFab";
-import { getCurrentUserId } from "@/lib/auth/session";
-import { kakaoAvailable } from "@/lib/auth/kakao";
-import { jwtAvailable } from "@/lib/auth/jwt";
-import { prisma } from "@/lib/prisma";
-
-import { OrganizationJsonLd, WebAppJsonLd } from "@/components/seo/JsonLd";
-import { TripClaimBanner } from "@/components/auth/TripClaimBanner";
-import { AuthErrorBanner } from "@/components/auth/AuthErrorBanner";
-import type { ClaimableTrip } from "@/components/auth/TripClaimModal";
-import { todayISO } from "@/lib/seed/demo-date";
-import { splitName, formatTime, dDay, CATEGORY_ICON } from "@/lib/utils/item-display";
-const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
 
 export default async function HomePage({
   searchParams,
 }: {
   searchParams: { auth_error?: string };
 }) {
-  const days = listDemoItemsByDay(DEMO_TRIP_ID);
-  const day1Items = days[0] ?? [];
-  const totalItems = phuQuocItinerary.length;
-  const dDayNum = dDay(phuQuocTrip.startDate, TODAY_ISO);
-
-  // 사이클 11b — 로그인 상태 + OAuth 가용성 확인
   const oauthAvailable = kakaoAvailable() && jwtAvailable();
   const currentUserId = oauthAvailable ? await getCurrentUserId() : null;
   const currentUser =
@@ -58,9 +61,30 @@ export default async function HomePage({
         })
       : null;
 
-  // 인계 대상 여행 조회 (로그인된 사용자 + system-owner 여행 존재 시)
+  let ownedTrips: OwnedTripSummary[] = [];
   let claimableTrips: ClaimableTrip[] = [];
   if (currentUserId && prisma) {
+    try {
+      const owned = await prisma.trip.findMany({
+        where: { ownerId: currentUserId, deletedAt: null },
+        include: { _count: { select: { items: true } } },
+        orderBy: { startDate: "asc" },
+        take: 5,
+      });
+      ownedTrips = owned.map((t) => ({
+        id: t.id,
+        destination: t.destination,
+        destinationCode: t.destinationCode,
+        nights: t.nights,
+        startDate: t.startDate.toISOString().slice(0, 10),
+        endDate: t.endDate.toISOString().slice(0, 10),
+        itemCount: t._count.items,
+        currentMode: t.currentMode,
+      }));
+    } catch {
+      // DB 오류 시 빈 배열 — Welcome 모드로 fallback
+    }
+
     try {
       const systemTrips = await prisma.trip.findMany({
         where: { ownerId: "system-owner-pqc", deletedAt: null },
@@ -76,14 +100,13 @@ export default async function HomePage({
         companions: 1,
       }));
     } catch {
-      // DB 오류 시 무시 — 배너 미표시
+      // DB 오류 시 무시 — 인계 배너 미표시
     }
   }
 
-  // Stitch 디자인의 두 번째 카드(featured = AI 추천 최적) — Day 1에서 가장 의미 있는 항목
-  const featuredId = "pq-item-1"; // 즈엉동 야시장
-  // Evidence가 가장 풍부한 마지막 카드에만 EvidencePanel 표시 (Stitch와 일치)
-  const evidenceCardId = day1Items[day1Items.length - 1]?.id;
+  const isDashboardMode = ownedTrips.length > 0;
+  const primaryTrip = ownedTrips[0];
+  const momentCards = buildMomentCards();
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
@@ -100,7 +123,7 @@ export default async function HomePage({
         applicationCategory="TravelApplication"
         operatingSystem="Web"
       />
-      {/* TopAppBar */}
+
       <header className="bg-surface-card/90 backdrop-blur-md border-b border-divider sticky top-0 z-40 flex justify-between items-center w-full px-td-md h-16">
         <div className="flex items-center gap-td-sm">
           <Link
@@ -119,17 +142,15 @@ export default async function HomePage({
         />
       </header>
 
-      <main className="px-td-md pt-td-lg">
-        {/* OAuth 에러 배너 */}
+      <main>
         {searchParams.auth_error && (
-          <div className="mb-td-md">
+          <div className="px-td-md pt-td-md">
             <AuthErrorBanner errorCode={searchParams.auth_error} />
           </div>
         )}
 
-        {/* 여행 인계 배너 (Post-Signup) */}
         {claimableTrips.length > 0 && currentUser && (
-          <div className="mb-td-md">
+          <div className="px-td-md pt-td-md">
             <TripClaimBanner
               trips={claimableTrips}
               userName={currentUser.name ?? "여행자"}
@@ -137,145 +158,28 @@ export default async function HomePage({
           </div>
         )}
 
-        {/* Hero — 검증 뱃지 + 제목 + D-day + Summary */}
-        <section className="mb-td-lg">
-          <div className="mb-td-xxs">
-            <Badge tone="info">AI가 24곳 검증 완료</Badge>
-          </div>
-          <h2 className="text-td-title text-ink mb-td-xxs">
-            {phuQuocTrip.destination} {phuQuocTrip.nights}박 {phuQuocTrip.nights + 1}일
-          </h2>
-          <p className="text-td-body text-ink-soft mb-td-md">
-            {dDayNum > 0
-              ? `출발까지 D-${dDayNum}`
-              : dDayNum === 0
-              ? "출발 당일"
-              : `진행 중 D+${-dDayNum}`}
-          </p>
+        {isDashboardMode && primaryTrip ? (
+          <>
+            <DashboardHero
+              trip={primaryTrip}
+              totalTrips={ownedTrips.length}
+              userName={currentUser?.name}
+            />
+            <OwnedTripsChips trips={ownedTrips} activeId={primaryTrip.id} />
+            <MagicMomentsCarousel cards={momentCards} />
+          </>
+        ) : (
+          <>
+            <WelcomeHero
+              oauthAvailable={oauthAvailable}
+              currentUserId={currentUserId}
+              currentUserName={currentUser?.name}
+            />
+            <MagicMomentsCarousel cards={momentCards} />
+          </>
+        )}
 
-          {/* Summary Strip — 3 columns */}
-          <div className="grid grid-cols-3 gap-td-xs p-td-sm bg-surface-card rounded-md border border-divider">
-            <div className="text-center border-r border-divider">
-              <p className="text-td-caption text-ink-soft">동선 거리</p>
-              <p className="text-td-meta font-bold text-ink mt-0.5">12km</p>
-            </div>
-            <div className="text-center border-r border-divider">
-              <p className="text-td-caption text-ink-soft">예상 경비</p>
-              <p className="text-td-meta font-bold text-ink mt-0.5">₩450,000</p>
-            </div>
-            <div className="text-center">
-              <p className="text-td-caption text-ink-soft">일정 항목</p>
-              <p className="text-td-meta font-bold text-ink mt-0.5">{totalItems}개</p>
-            </div>
-          </div>
-        </section>
-
-        {/* Day Tabs */}
-        <nav className="flex gap-td-xs mb-td-md overflow-x-auto touch-pan-x overscroll-x-contain pb-2" aria-label="여행 일자">
-          {Array.from({ length: phuQuocTrip.nights + 1 }, (_, i) => i).map((d) => {
-            const active = d === 0;
-            return (
-              <Link
-                key={d}
-                href={`/itinerary/${DEMO_TRIP_ID}?day=${d}`}
-                className={`px-td-md py-td-xs rounded-full text-td-meta whitespace-nowrap transition-colors ${
-                  active
-                    ? "bg-purple text-white shadow-sm"
-                    : "bg-surface-card text-ink-soft border border-divider hover:bg-surface-soft"
-                }`}
-                aria-current={active ? "page" : undefined}
-              >
-                Day {d + 1}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Timeline */}
-        <div className="relative space-y-td-md">
-          {/* Vertical line */}
-          <div
-            className="absolute left-[15px] top-6 bottom-6 w-0.5 bg-divider z-0"
-            aria-hidden
-          />
-
-          {day1Items.map((item) => {
-            const isFeatured = item.id === featuredId;
-            const time = formatTime(item.scheduledAt);
-            const { ko, en } = splitName(item.name);
-            const isBooked =
-              item.flexibility === "booked" || item.flexibility === "fixed";
-            const showEvidence =
-              item.id === evidenceCardId &&
-              item.evidence &&
-              item.evidence.reasons.length > 0;
-
-            return (
-              <div key={item.id} className="relative pl-td-lg">
-                {/* Dot icon */}
-                <div
-                  className={`absolute left-0 top-6 w-8 h-8 rounded-full flex items-center justify-center z-10 ${
-                    isFeatured
-                      ? "bg-purple text-white shadow-lg"
-                      : "bg-surface-card border-2 border-divider text-ink-soft"
-                  }`}
-                  aria-hidden
-                >
-                  <span className="material-symbols-outlined text-td-icon-md">
-                    {CATEGORY_ICON[item.category] ?? "place"}
-                  </span>
-                </div>
-
-                <Card
-                  variant={isFeatured ? "featured" : "raised"}
-                  className={`!p-td-md ${
-                    isFeatured ? "shadow-md" : "shadow-sm"
-                  }`}
-                >
-                  <Link
-                    href={`/itinerary/${DEMO_TRIP_ID}/item/${item.id}`}
-                    className="block -m-td-md p-td-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple rounded-lg"
-                  >
-                    <div className="flex justify-between items-start mb-td-xs">
-                      <div className="flex flex-col">
-                        <span
-                          className={`text-td-caption ${
-                            isFeatured ? "text-purple font-bold" : "text-ink-soft"
-                          }`}
-                        >
-                          {time}
-                        </span>
-                        {isFeatured && (
-                          <span className="text-td-caption text-purple">
-                            AI 추천 최적 도착
-                          </span>
-                        )}
-                      </div>
-                      {isBooked ? (
-                        <Badge tone="success">예약 완료</Badge>
-                      ) : (
-                        <Badge tone="info">AI 추천</Badge>
-                      )}
-                    </div>
-                    <h3 className="text-td-card-title text-ink">{ko}</h3>
-                    {en && (
-                      <p className="text-td-caption text-ink-soft mt-td-xxs">{en}</p>
-                    )}
-                  </Link>
-
-                  {showEvidence && (
-                    <div className="mt-td-sm">
-                      <EvidencePanel evidence={item.evidence} />
-                    </div>
-                  )}
-                </Card>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* 다른 도시 둘러보기 (사이클 D) — 사이클 I (ADR-033) "전체 보기" 링크 추가 */}
-        <section className="px-td-md pt-td-lg pb-td-md">
+        <section className="px-td-md pt-td-md pb-td-md">
           <div className="flex items-baseline justify-between mb-td-sm">
             <h2 className="text-td-card-title text-ink">다른 도시 둘러보기</h2>
             <Link
@@ -314,7 +218,6 @@ export default async function HomePage({
           </div>
         </section>
 
-        {/* 여행 가이드 CTA (C3 SEO) */}
         <section className="px-td-md pb-td-lg">
           <Link
             href="/guide"
@@ -340,7 +243,6 @@ export default async function HomePage({
         </section>
       </main>
 
-      {/* Speed Dial FAB — 메인 탭 시 검색·카메라 펼침 */}
       <SpeedDialFab bottomClassName="bottom-24" zIndex="z-40">
         <Link
           href={`/itinerary/${DEMO_TRIP_ID}/discover?day=0`}
@@ -364,7 +266,6 @@ export default async function HomePage({
         </Link>
       </SpeedDialFab>
 
-      {/* Bottom Nav — 사이클 O 컴포넌트 추출 (사이클 I ADR-033) */}
       <BottomNav active="home" />
     </div>
   );
