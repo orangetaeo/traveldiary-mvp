@@ -40,6 +40,8 @@ import {
   OwnedTripsChips,
   type OwnedTripSummary,
 } from "@/components/home/DashboardHero";
+import { sortTripsByPriority } from "@/lib/utils/trip-priority";
+import { todayISO } from "@/lib/seed/demo-date";
 
 export const metadata: Metadata = {
   title: "TRAVELDIARY — 베트남 자유여행 AI 동반자",
@@ -104,7 +106,10 @@ export default async function HomePage({
   }
 
   const isDashboardMode = ownedTrips.length > 0;
-  const primaryTrip = ownedTrips[0];
+  // cap 6: in-travel > 다가오는 가까운 > 과거 가까운 우선순위로 정렬.
+  // Prisma orderBy startDate asc는 안정 입력 보장, 메모리에서 priority 재정렬.
+  const sortedOwnedTrips = sortTripsByPriority(ownedTrips, todayISO());
+  const primaryTrip = sortedOwnedTrips[0];
   // Mode B: 본인 trip 컨텍스트로 카드 wiring (즉시 가치)
   // Mode A: 데모 trip으로 wiring (체험 유도)
   const momentCards = buildMomentCards(
@@ -173,10 +178,10 @@ export default async function HomePage({
           <>
             <DashboardHero
               trip={primaryTrip}
-              totalTrips={ownedTrips.length}
+              totalTrips={sortedOwnedTrips.length}
               userName={currentUser?.name}
             />
-            <OwnedTripsChips trips={ownedTrips} activeId={primaryTrip.id} />
+            <OwnedTripsChips trips={sortedOwnedTrips} activeId={primaryTrip.id} />
             <MagicMomentsCarousel cards={momentCards} />
           </>
         ) : (

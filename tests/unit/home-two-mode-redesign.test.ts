@@ -116,6 +116,18 @@ describe("홈 두 모드 분기 — app/page.tsx", () => {
     expect(PAGE).toContain('aria-label="주변 검색"');
     expect(PAGE).toContain('aria-label="카메라 번역"');
   });
+
+  it("cap 6 — sortTripsByPriority import + 메모리 재정렬 + sortedOwnedTrips 사용", () => {
+    expect(PAGE).toContain("@/lib/utils/trip-priority");
+    expect(PAGE).toContain("sortTripsByPriority(ownedTrips, todayISO())");
+    // primaryTrip은 정렬 결과의 첫 항목
+    expect(PAGE).toContain("const primaryTrip = sortedOwnedTrips[0]");
+    // OwnedTripsChips와 totalTrips도 정렬된 배열 사용 (활성 trip 강조 일관)
+    expect(PAGE).toContain("totalTrips={sortedOwnedTrips.length}");
+    expect(PAGE).toContain(
+      "<OwnedTripsChips trips={sortedOwnedTrips} activeId={primaryTrip.id} />",
+    );
+  });
 });
 
 describe("WelcomeHero — 비로그인/0건 사용자 가치 제안", () => {
