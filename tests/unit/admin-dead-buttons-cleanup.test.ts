@@ -18,15 +18,10 @@ const ADMIN_FUNNEL = resolve(__dirname, "../../app/admin/funnel/page.tsx");
 const ADMIN_AFFILIATE = resolve(__dirname, "../../app/admin/affiliate/page.tsx");
 
 describe("/admin 페이지 dead button 청소 — 옵션 Y", () => {
-  it("/admin '모든 로그 보기' button → disabled + '(준비 중)' 라벨", () => {
+  it("/admin '모든 로그 보기' → /admin/logs 활성 링크", () => {
     const source = readFileSync(ADMIN_INDEX, "utf-8");
-    expect(source).toContain("모든 로그 보기 (준비 중)");
-    expect(source).toMatch(/disabled\s*\n\s+aria-disabled/);
-  });
-
-  it("/admin '모든 로그 보기' aria-describedby — demo 배너 연결", () => {
-    const source = readFileSync(ADMIN_INDEX, "utf-8");
-    expect(source).toContain('aria-describedby="admin-demo-banner-heading"');
+    expect(source).toContain("모든 로그 보기");
+    expect(source).toContain("/admin/logs");
   });
 
   it("/admin/funnel 'CSV 내보내기' button → disabled + '(준비 중)' 라벨", () => {
@@ -52,9 +47,8 @@ describe("/admin 페이지 dead button 청소 — 옵션 Y", () => {
     expect(source).toContain("R1 사인오프 후 audit.export 기록");
   });
 
-  it("회귀 — 3 button 모두 cursor-not-allowed (CSS 인터랙션 시각 가드)", () => {
+  it("회귀 — funnel/affiliate 2 button cursor-not-allowed (CSS 인터랙션 시각 가드)", () => {
     const sources = [
-      readFileSync(ADMIN_INDEX, "utf-8"),
       readFileSync(ADMIN_FUNNEL, "utf-8"),
       readFileSync(ADMIN_AFFILIATE, "utf-8"),
     ];
