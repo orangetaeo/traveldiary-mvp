@@ -123,7 +123,7 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
   return (
     <div
       data-travel-mode="in-travel"
-      className="min-h-screen bg-surface-soft text-ink pb-32"
+      className="min-h-screen flex flex-col bg-surface-soft text-ink pb-32"
     >
       {/* GPS Banner */}
       <div className="w-full bg-success-soft px-td-md py-td-xs flex justify-between items-center sticky top-0 z-50">
@@ -286,9 +286,12 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
         </div>
       )}
 
-      {/* M5 City Context Strip — 사이클 P (ADR-035): currentMode 분기 제거, 항상 노출 */}
+      {/* M5 City Context Strip — 사이클 P (ADR-035): currentMode 분기 제거, 항상 노출.
+          mt-auto: 타임라인 콘텐츠가 짧을 때 strip이 화면 중앙에 떠 있는 현상 방지 — outer
+          flex-col 컨테이너에서 strip을 fixed bottom bar 직전 위치로 anchor. 콘텐츠가 길면
+          mt-auto는 무효 → 기존 동작 유지 (2026-05-08). */}
       {city && (
-        <div className="mt-td-md">
+        <div className="mt-auto pt-td-md">
           <CityContextStrip city={city} />
         </div>
       )}
