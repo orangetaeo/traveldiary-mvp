@@ -182,19 +182,12 @@ describe("TimeWindowFilter", () => {
  * ════════════════════════════════════════════ */
 
 describe("ReceivedTripBanner", () => {
-  it("destination 있으면 '{destination} 여행을' 표시", () => {
+  it("제목 + 설명 포함", () => {
     const html = renderToStaticMarkup(
       <ReceivedTripBanner destination="다낭" onDismiss={() => {}} />,
     );
-    expect(html).toContain("다낭 여행을");
-    expect(html).toContain("받은 여행 목록에서 다시 볼 수 있어요");
-  });
-
-  it("destination 없으면 '이 여행을' fallback", () => {
-    const html = renderToStaticMarkup(
-      <ReceivedTripBanner onDismiss={() => {}} />,
-    );
-    expect(html).toContain("이 여행을");
+    expect(html).toContain("내 목록에 추가됐어요");
+    expect(html).toContain("다음에 다시 보고 싶다면 받은 여행 목록에서 찾을 수 있어요");
   });
 
   it("role=status + aria-live=polite", () => {
@@ -210,7 +203,7 @@ describe("ReceivedTripBanner", () => {
       <ReceivedTripBanner destination="다낭" onDismiss={() => {}} />,
     );
     expect(html).toContain('href="/shared"');
-    expect(html).toContain("받은 여행 →");
+    expect(html).toContain("받은 여행 보기");
   });
 
   it("닫기 버튼 aria-label", () => {

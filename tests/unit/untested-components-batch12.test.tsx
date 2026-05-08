@@ -124,20 +124,13 @@ describe("MenuItemCard", () => {
 import { ReceivedTripBanner } from "@/components/share/ReceivedTripBanner";
 
 describe("ReceivedTripBanner", () => {
-  it("destination 있으면 라벨 포함", () => {
+  it("제목 + 설명 + CTA 버튼 포함", () => {
     const html = renderToStaticMarkup(
       <ReceivedTripBanner destination="다낭" onDismiss={() => {}} />,
     );
-    expect(html).toContain("다낭 여행을");
     expect(html).toContain("내 목록에 추가됐어요");
-    expect(html).toContain("받은 여행 →");
-  });
-
-  it("destination 없으면 '이 여행을'", () => {
-    const html = renderToStaticMarkup(
-      <ReceivedTripBanner onDismiss={() => {}} />,
-    );
-    expect(html).toContain("이 여행을");
+    expect(html).toContain("다음에 다시 보고 싶다면 받은 여행 목록에서 찾을 수 있어요");
+    expect(html).toContain("받은 여행 보기");
   });
 
   it("role=status aria-live", () => {
