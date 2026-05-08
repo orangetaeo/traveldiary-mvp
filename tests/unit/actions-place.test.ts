@@ -2,7 +2,6 @@
  * Place Verification Server Action 단위 테스트 — Batch 41a.
  *
  * actions/place.ts:
- *  - verifyPlaceAction (deprecated, 4 경로: verified fresh, not_found fresh, cached, error)
  *  - validateItemAction (forbidden, cached hit, fresh ok, try/catch fallbacks)
  */
 
@@ -53,86 +52,6 @@ vi.mock("@/lib/prisma", () => ({
   prisma: {},
   isDbConnected: true,
 }));
-
-/* ════════════════════════════════════════════
- * verifyPlaceAction (deprecated)
- * ════════════════════════════════════════════ */
-
-describe("actions/place — verifyPlaceAction", () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-    mockGetActorId.mockResolvedValue("user-1");
-  });
-
-  it("verified + fresh → audit 기록", async () => {
-    mockVerifyPlace.mockResolvedValue({
-      mode: "verified",
-      cached: false,
-      placeExists: true,
-      operatingStatus: "open",
-      placeId: "ChIJ...",
-      rating: 4.5,
-      userRatingsTotal: 200,
-      fetchDurationMs: 150,
-    });
-    const { verifyPlaceAction } = await import("@/actions/place");
-    const result = await verifyPlaceAction({ itemId: "it-1", name: "바나힐" });
-    expect(result.mode).toBe("verified");
-    expect(mockWriteAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({
-        action: "evidence.gathered",
-        resourceId: "it-1",
-        metadata: expect.objectContaining({ source: "google", cached: false }),
-      }),
-    );
-  });
-
-  it("verified + cached → audit 미기록", async () => {
-    mockVerifyPlace.mockResolvedValue({
-      mode: "verified",
-      cached: true,
-      placeExists: true,
-      operatingStatus: "open",
-      placeId: "ChIJ...",
-    });
-    const { verifyPlaceAction } = await import("@/actions/place");
-    await verifyPlaceAction({ itemId: "it-1", name: "바나힐" });
-    expect(mockWriteAuditLog).not.toHaveBeenCalled();
-  });
-
-  it("not_found + fresh → audit 기록 (placeExists: false)", async () => {
-    mockVerifyPlace.mockResolvedValue({
-      mode: "not_found",
-      cached: false,
-      placeExists: false,
-      fetchDurationMs: 80,
-    });
-    const { verifyPlaceAction } = await import("@/actions/place");
-    const result = await verifyPlaceAction({ itemId: "it-2", name: "없는곳" });
-    expect(result.mode).toBe("not_found");
-    expect(mockWriteAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({
-        after: { placeExists: false },
-      }),
-    );
-  });
-
-  it("error → audit with error metadata", async () => {
-    mockVerifyPlace.mockResolvedValue({
-      mode: "error",
-      code: "api_error",
-      message: "quota exceeded",
-    });
-    const { verifyPlaceAction } = await import("@/actions/place");
-    const result = await verifyPlaceAction({ itemId: "it-3", name: "문제" });
-    expect(result.mode).toBe("error");
-    expect(mockWriteAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({
-        metadata: expect.objectContaining({ error: "api_error" }),
-      }),
-    );
-  });
-});
 
 /* ════════════════════════════════════════════
  * validateItemAction

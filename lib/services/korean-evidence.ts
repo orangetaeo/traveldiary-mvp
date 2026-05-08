@@ -2,7 +2,7 @@
  * Korean Evidence Aggregator — 사이클 5b-6 (ADR-020).
  *
  * Naver Local + Blog 결과를 Evidence 형식으로 통합.
- * verifyPlaceAction 후속 단계 또는 별도 Server Action에서 호출.
+ * validateItemAction 후속 단계 또는 별도 Server Action에서 호출.
  */
 
 import "server-only";
