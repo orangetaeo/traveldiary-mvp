@@ -286,10 +286,13 @@ export default function AdminIndexPage({ searchParams }: PageProps) {
               </div>
             ))}
           </div>
-          <button className="w-full py-td-sm text-td-meta font-bold text-purple hover:bg-purple-soft/30 transition-colors rounded-md flex items-center justify-center gap-td-xxs">
+          <Link
+            href={`/admin/logs${keyParam}`}
+            className="w-full py-td-sm text-td-meta font-bold text-purple hover:bg-purple-soft/30 transition-colors rounded-md flex items-center justify-center gap-td-xxs"
+          >
             모든 로그 보기
             <span className="material-symbols-outlined text-lg">chevron_right</span>
-          </button>
+          </Link>
         </section>
       </main>
     </div>

@@ -25,8 +25,8 @@ const REPO_FILES = fs
  * ════════════════════════════════════════════ */
 
 describe("repository 파일 목록", () => {
-  it("17개 repository 파일 존재", () => {
-    expect(REPO_FILES.length).toBe(17);
+  it("18개 repository 파일 존재", () => {
+    expect(REPO_FILES.length).toBe(18);
   });
 
   it("알려진 repository 파일 전체 등록", () => {
@@ -34,6 +34,7 @@ describe("repository 파일 목록", () => {
     expect(names).toEqual([
       "ab.repository.ts",
       "affiliate.repository.ts",
+      "audit-log.repository.ts",
       "checklist.repository.ts",
       "cost.repository.ts",
       "evidence-cache.repository.ts",
