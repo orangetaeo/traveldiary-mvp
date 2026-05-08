@@ -92,8 +92,8 @@ export async function scanReceipt(imageBase64: string): Promise<ReceiptOcrOutcom
   if (!apiKey) return { mode: "demo" };
   const startedAt = Date.now();
 
-  // 캐시 확인 (이미지 해시 기반)
-  const cacheKey = hashCacheKey(`receipt-v2:${imageBase64.slice(0, 200)}`);
+  // 캐시 확인 (이미지 전체 해시 기반)
+  const cacheKey = hashCacheKey(`receipt-v2:${imageBase64}`);
   const cached = await getEvidenceCache<ParsedReceipt>(cacheKey, PLATFORM);
   if (cached) {
     return {
