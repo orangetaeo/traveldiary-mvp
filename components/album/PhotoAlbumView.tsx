@@ -18,6 +18,11 @@ interface Props {
   totalDays: number;
 }
 
+/** 일정 자동 수집 사진은 id가 "item-" 접두사 (album/page.tsx). DB 사진만 삭제 가능. */
+function isDeletablePhoto(photo: TripPhoto): boolean {
+  return !photo.id.startsWith("item-");
+}
+
 /** 사진을 dayIndex별로 그룹핑 */
 function groupByDay(photos: TripPhoto[]): Map<number, TripPhoto[]> {
   const map = new Map<number, TripPhoto[]>();
@@ -38,9 +43,9 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
   const [dayIndex, setDayIndex] = useState<number | undefined>(undefined);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [optimisticHidden, setOptimisticHidden] = useState<Set<string>>(new Set());
 
-  // 삭제 옵티미스틱
-  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
   // 캡션 편집
   const [editingPhoto, setEditingPhoto] = useState<TripPhoto | null>(null);
   const [editCaption, setEditCaption] = useState("");
@@ -48,7 +53,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
   const [captionOverrides, setCaptionOverrides] = useState<Map<string, string | undefined>>(new Map());
 
   const visiblePhotos = photos
-    .filter((p) => !hiddenIds.has(p.id))
+    .filter((p) => !optimisticHidden.has(p.id))
     .map((p) => (captionOverrides.has(p.id) ? { ...p, caption: captionOverrides.get(p.id) } : p));
   const grouped = groupByDay(visiblePhotos);
   const dayKeys = Array.from(grouped.keys()).sort((a, b) => a - b);
@@ -74,23 +79,23 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
     });
   };
 
-  function handleDelete(photo: TripPhoto) {
-    if (!confirm("사진을 삭제할까요?")) return;
-    setHiddenIds((prev) => new Set(prev).add(photo.id));
+  const handleDelete = (photoId: string) => {
+    setOptimisticHidden((prev) => new Set(prev).add(photoId));
+    setConfirmDeleteId(null);
     startTransition(async () => {
-      const result = await removePhoto({ id: photo.id, tripId });
-      if (!result.ok) {
-        setHiddenIds((prev) => {
+      const result = await removePhoto({ id: photoId, tripId });
+      if (result.ok) {
+        router.refresh();
+      } else {
+        setOptimisticHidden((prev) => {
           const next = new Set(prev);
-          next.delete(photo.id);
+          next.delete(photoId);
           return next;
         });
-        setError(`삭제 실패: ${result.code}`);
-        return;
+        setError("삭제에 실패했습니다. 다시 시도해주세요.");
       }
-      if (!result.demo) router.refresh();
     });
-  }
+  };
 
   function handleEditCaption() {
     if (!editingPhoto) return;
@@ -136,7 +141,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
       </button>
 
       {/* 사진 없을 때 */}
-      {photos.length === 0 && (
+      {visiblePhotos.length === 0 && (
         <div className="text-center py-16">
           <span className="material-symbols-outlined text-6xl text-ink-mute mb-td-sm block">
             photo_library
@@ -182,7 +187,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                     </div>
                   )}
                   {/* 호버 시 편집/삭제 버튼 */}
-                  <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  <div className="absolute top-1 right-1 flex gap-1 opacity-80 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                     <button
                       type="button"
                       onClick={() => {
@@ -196,7 +201,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(photo)}
+                      onClick={() => setConfirmDeleteId(photo.id)}
                       aria-label="사진 삭제"
                       className="w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-danger/80"
                     >
@@ -331,7 +336,47 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                 disabled={isPending}
                 className="flex-1 py-2 bg-purple text-white rounded-md text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
               >
-                {isPending ? "수정 중…" : "수정"}
+                {isPending ? "수정 중..." : "수정"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {confirmDeleteId && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-td-md"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setConfirmDeleteId(null);
+          }}
+        >
+          <div
+            role="alertdialog"
+            aria-label="사진 삭제 확인"
+            className="bg-surface-card w-full max-w-sm rounded-xl p-td-md"
+          >
+            <h2 className="text-td-card-title font-bold text-ink mb-td-xxs">
+              사진을 삭제할까요?
+            </h2>
+            <p className="text-td-body text-ink-soft mb-td-md">
+              삭제된 사진은 되돌릴 수 없습니다.
+            </p>
+            <div className="flex gap-td-xs">
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteId(null)}
+                className="flex-1 py-td-xs rounded-md border border-divider text-td-body font-semibold text-ink"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete(confirmDeleteId)}
+                disabled={isPending}
+                className="flex-1 py-td-xs rounded-md bg-coral text-white text-td-body font-semibold disabled:opacity-40"
+              >
+                삭제
               </button>
             </div>
           </div>
