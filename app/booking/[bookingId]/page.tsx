@@ -42,7 +42,13 @@ export default function BookingConfirmationPage({ params: _params }: PageProps) 
           <span className="material-symbols-outlined text-ink">close</span>
         </Link>
         <h1 className="text-sm font-semibold tracking-tight text-ink">예약 완료</h1>
-        <div className="w-10" /> {/* spacer */}
+        <Link
+          href="/notifications"
+          className="p-2 rounded-full hover:bg-surface-soft transition-colors"
+          aria-label="알림"
+        >
+          <span className="material-symbols-outlined text-ink">notifications</span>
+        </Link>
       </header>
 
       <main className="max-w-md mx-auto px-td-md py-td-lg space-y-td-lg">
