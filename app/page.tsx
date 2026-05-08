@@ -342,8 +342,8 @@ export default async function HomePage({
 
       {/* Speed Dial FAB — 메인 탭 시 검색·카메라 펼침 */}
       <SpeedDialFab bottomClassName="bottom-24" zIndex="z-40">
-        <button
-          type="button"
+        <Link
+          href={`/itinerary/${DEMO_TRIP_ID}/discover?day=0`}
           data-speed-dial-action="true"
           className="w-12 h-12 bg-surface-card text-ink border border-divider rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
           aria-label="주변 검색"
@@ -351,7 +351,7 @@ export default async function HomePage({
           <span className="material-symbols-outlined" aria-hidden="true">
             search
           </span>
-        </button>
+        </Link>
         <Link
           href="/translate"
           data-speed-dial-action="true"
