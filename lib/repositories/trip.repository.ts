@@ -438,6 +438,47 @@ export async function updateTripMode(
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// softDeleteTrip — trip soft-delete (deletedAt = now)
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Trip soft-delete. deletedAt = now() 설정.
+ * 기존 모든 쿼리가 deletedAt: null 필터 → cascade 불필요.
+ * ShareLink도 함께 revoke (isActive = false).
+ */
+export async function softDeleteTrip(
+  tripId: string,
+): Promise<{ destination: string; nights: number } | null> {
+  if (!prisma) return null;
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const trip = await tx.trip.findFirst({
+        where: { id: tripId, deletedAt: null },
+        select: { id: true, destination: true, nights: true },
+      });
+      if (!trip) return null;
+
+      await tx.trip.update({
+        where: { id: tripId },
+        data: { deletedAt: new Date() },
+      });
+
+      // ShareLink revoke — 삭제된 trip의 공유 링크 비활성화
+      await tx.shareLink.updateMany({
+        where: { tripId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+
+      return { destination: trip.destination, nights: trip.nights };
+    });
+  } catch (err) {
+    console.error("[trip.repository] softDeleteTrip failed", err);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // MUTATIONS — 사이클 10 (A2 reorder + A5 add)
 // ═══════════════════════════════════════════════════════════════════
 

@@ -20,6 +20,7 @@ import { TripHero } from "@/components/dashboard/TripHero";
 import { BentoSummary } from "@/components/dashboard/BentoSummary";
 import { WeatherStrip } from "@/components/dashboard/WeatherStrip";
 import { QuickActions } from "@/components/dashboard/QuickActions";
+import { TripDeleteButton } from "@/components/dashboard/TripDeleteButton";
 import { FocusScroller } from "@/components/dashboard/FocusScroller";
 import { getDemoTrip } from "@/lib/seed";
 import { getCityBySlug } from "@/lib/seed/cities";
@@ -122,6 +123,11 @@ export default async function TripDashboardPage({
         <WeatherStrip forecast={forecast} />
 
         <QuickActions tripId={trip.id} />
+
+        {/* 여행 삭제 — 하단 텍스트 버튼 + 확인 모달 */}
+        <div className="mt-td-lg pt-td-md border-t border-divider">
+          <TripDeleteButton tripId={trip.id} destination={trip.destination} />
+        </div>
       </main>
 
       {focusKey && <FocusScroller targetId={focusElementId(focusKey)} />}
