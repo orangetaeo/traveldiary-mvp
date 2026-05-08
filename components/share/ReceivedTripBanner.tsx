@@ -17,7 +17,7 @@ interface Props {
   onDismiss: () => void;
 }
 
-export function ReceivedTripBanner({ destination, onDismiss }: Props) {
+export function ReceivedTripBanner({ onDismiss }: Props) {
   return (
     <div
       role="status"
