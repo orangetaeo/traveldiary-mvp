@@ -104,7 +104,7 @@ export function NotificationListView({ notifications }: Props) {
       </header>
 
       {/* Filter Tabs */}
-      <div className="sticky top-14 z-30 bg-surface-card/90 backdrop-blur-sm px-td-md py-td-sm flex gap-td-xs overflow-x-auto hide-scrollbar border-b border-divider">
+      <div className="sticky top-14 z-30 bg-surface-card/90 backdrop-blur-sm px-td-md py-td-sm flex gap-td-xs overflow-x-auto touch-pan-x overscroll-x-contain hide-scrollbar border-b border-divider">
         {FILTERS.map((f) => (
           <button
             key={f.key}

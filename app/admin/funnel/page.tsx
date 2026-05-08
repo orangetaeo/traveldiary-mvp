@@ -204,13 +204,20 @@ export default async function FunnelDashboard({ searchParams }: PageProps) {
             </div>
 
             {/* Footer */}
+            {/* 옵션 Y (2026-05-08) — 데드 button → disabled + "(준비 중)". 실 CSV export +
+                audit.export 기록은 R1 사인오프 + ADR-046 audit log 집계 정책 게이트. */}
             <footer className="pt-td-lg border-t border-divider flex flex-col items-center gap-td-xs">
-              <button className="w-full md:w-auto px-td-lg py-td-sm bg-ink text-white rounded-md text-td-body font-bold flex items-center justify-center gap-td-xs hover:opacity-90 transition-opacity">
+              <button
+                type="button"
+                disabled
+                aria-disabled
+                className="w-full md:w-auto px-td-lg py-td-sm bg-ink/40 text-white rounded-md text-td-body font-bold flex items-center justify-center gap-td-xs cursor-not-allowed"
+              >
                 <span className="material-symbols-outlined text-td-icon-lg">download</span>
-                CSV 내보내기
+                CSV 내보내기 (준비 중)
               </button>
               <span className="text-td-caption text-ink-mute tabular-nums">
-                audit.export 기록됨
+                R1 사인오프 후 audit.export 기록
               </span>
             </footer>
           </>

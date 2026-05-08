@@ -43,6 +43,10 @@ interface AddCostFormProps {
   onError: (msg: string) => void;
   /** 사이클 A5 — 기존 entries (빈도 칩 추천 소스). 미전달 시 추천 영역 미노출. */
   entries?: CostEntry[];
+  /** 편집 모드 — 이 값이 세팅되면 폼이 수정 모드로 전환. */
+  editEntry?: CostEntry | null;
+  /** 편집 취소 콜백. */
+  onCancelEdit?: () => void;
 }
 
 /** 함께 부담 input 문자열에 신규 이름 추가 — 중복 회피, 쉼표 구분 */
@@ -64,6 +68,8 @@ export function AddCostForm({
   onSubmit,
   onError,
   entries,
+  editEntry,
+  onCancelEdit,
 }: AddCostFormProps) {
   const [draftLabel, setDraftLabel] = useState("");
   const [draftAmountKrw, setDraftAmountKrw] = useState("");
@@ -73,6 +79,43 @@ export function AddCostForm({
   const [draftDate, setDraftDate] = useState(TODAY_ISO);
   const [draftPayer, setDraftPayer] = useState("");
   const [draftSplitMembers, setDraftSplitMembers] = useState("");
+
+  /** editEntry 변경 시 폼 필드 프리필 */
+  const [lastEditId, setLastEditId] = useState<string | null>(null);
+  if (editEntry && editEntry.id !== lastEditId) {
+    setLastEditId(editEntry.id);
+    setDraftLabel(editEntry.label);
+    setDraftAmountKrw(String(editEntry.amountKrw));
+    setDraftAmountLocal(editEntry.amountLocal ? String(editEntry.amountLocal.value) : "");
+    setDraftCategory(editEntry.category ?? "food");
+    setDraftStatus(editEntry.status);
+    setDraftDate(editEntry.date);
+    // splitWith[0] = 결제자 (ADR-039 컨벤션)
+    if (editEntry.splitWith && editEntry.splitWith.length > 0) {
+      const payer = editEntry.splitWith[0];
+      setDraftPayer(typeof payer === "string" ? payer : payer.name);
+      const others = editEntry.splitWith.slice(1).map((t) =>
+        typeof t === "string" ? t : t.weight ? `${t.name}:${t.weight}` : t.name,
+      );
+      setDraftSplitMembers(others.join(", "));
+    } else {
+      setDraftPayer("");
+      setDraftSplitMembers("");
+    }
+  }
+  if (!editEntry && lastEditId !== null) {
+    setLastEditId(null);
+    setDraftLabel("");
+    setDraftAmountKrw("");
+    setDraftAmountLocal("");
+    setDraftCategory("food");
+    setDraftStatus("paid");
+    setDraftDate(TODAY_ISO);
+    setDraftPayer("");
+    setDraftSplitMembers("");
+  }
+
+  const isEditMode = !!editEntry;
 
   /** 사이클 A5 — entries 변경 시 빈도 추출 (memo) */
   const memberFrequency: MemberFrequency[] = useMemo(
@@ -191,7 +234,9 @@ export function AddCostForm({
 
   return (
     <section id="add-cost-form" className="bg-surface-card border border-divider rounded-md p-td-md mb-td-lg">
-      <h3 className="text-td-card-title text-ink mb-td-sm">비용 추가</h3>
+      <h3 className="text-td-card-title text-ink mb-td-sm">
+        {isEditMode ? "비용 수정" : "비용 추가"}
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-td-sm">
         <input
           type="text"
@@ -335,13 +380,26 @@ export function AddCostForm({
             </p>
           </div>
         </details>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="w-full py-2 bg-purple text-white rounded-md text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
-        >
-          {isPending ? "추가 중…" : "비용 추가"}
-        </button>
+        <div className={isEditMode ? "flex gap-td-sm" : ""}>
+          {isEditMode && onCancelEdit && (
+            <button
+              type="button"
+              onClick={onCancelEdit}
+              className="flex-1 py-2 border border-divider text-ink rounded-md text-td-body font-semibold hover:bg-surface-soft transition-colors"
+            >
+              취소
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={isPending}
+            className={`${isEditMode ? "flex-1" : "w-full"} py-2 bg-purple text-white rounded-md text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity`}
+          >
+            {isPending
+              ? isEditMode ? "수정 중…" : "추가 중…"
+              : isEditMode ? "수정" : "비용 추가"}
+          </button>
+        </div>
       </form>
     </section>
   );

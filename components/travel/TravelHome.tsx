@@ -298,8 +298,8 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
 
       {/* Speed Dial FAB — 메인 탭 시 검색·카메라 펼침 */}
       <SpeedDialFab bottomClassName="bottom-20" zIndex="z-50">
-        <button
-          type="button"
+        <Link
+          href={`/itinerary/${trip.id}/discover?day=0`}
           data-speed-dial-action="true"
           aria-label="주변 검색"
           className="w-12 h-12 rounded-full bg-surface-card border border-divider shadow-lg flex items-center justify-center active:scale-95 transition-all"
@@ -307,7 +307,7 @@ export function TravelHome({ trip, items, city }: TravelHomeProps) {
           <span className="material-symbols-outlined text-ink" aria-hidden="true">
             search
           </span>
-        </button>
+        </Link>
         <Link
           href={`/translate?trip=${trip.id}`}
           data-speed-dial-action="true"

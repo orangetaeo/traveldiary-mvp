@@ -94,12 +94,17 @@ export default function CityPage({ params }: { params: { slug: string } }) {
         <div className="flex items-center gap-td-xs">
           {/* 사이클 P (ADR-035) — 응급 빠른 액세스 */}
           <EmergencyHeaderButton citySlug={city.slug} />
-          <span
-            className="material-symbols-outlined text-ink-soft"
-            aria-hidden
+          {/* 2026-05-08 — dead account_circle <span> 활성화: /profile 진입
+              (홈 헤더 menu → /settings PR #322 답습 패턴). */}
+          <Link
+            href="/profile"
+            aria-label="내 프로필"
+            className="p-2 rounded-full hover:bg-surface-soft transition-colors"
           >
-            account_circle
-          </span>
+            <span className="material-symbols-outlined text-ink-soft" aria-hidden>
+              account_circle
+            </span>
+          </Link>
         </div>
       </header>
 
@@ -143,7 +148,7 @@ export default function CityPage({ params }: { params: { slug: string } }) {
         {/* Sticky chip row */}
         <nav
           aria-label="섹션 이동"
-          className="sticky top-16 z-30 bg-surface-soft/90 backdrop-blur-sm py-td-xs flex gap-td-xs overflow-x-auto hide-scrollbar -mx-td-md px-td-md mb-td-lg"
+          className="sticky top-16 z-30 bg-surface-soft/90 backdrop-blur-sm py-td-xs flex gap-td-xs overflow-x-auto touch-pan-x overscroll-x-contain hide-scrollbar -mx-td-md px-td-md mb-td-lg"
         >
           {CHIPS.map((chip) => (
             <a

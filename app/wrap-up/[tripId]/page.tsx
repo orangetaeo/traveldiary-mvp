@@ -113,7 +113,7 @@ export default async function WrapUpPage({ params }: PageProps) {
               </span>
             </div>
           </div>
-          <div className="flex overflow-x-auto gap-td-sm px-td-md pb-td-xs">
+          <div className="flex overflow-x-auto touch-pan-x overscroll-x-contain gap-td-sm px-td-md pb-td-xs">
             {DEMO_HIGHLIGHTS.map((h) => (
               <div key={h.day} className="flex-none w-[240px]">
                 <div className="aspect-[16/10] rounded-md overflow-hidden mb-td-xxs border border-divider bg-surface-soft flex items-center justify-center">
@@ -135,7 +135,7 @@ export default async function WrapUpPage({ params }: PageProps) {
         {/* Next Trip */}
         <section className="py-td-md">
           <h2 className="text-td-body font-bold text-ink px-td-md mb-td-sm">다음 여행은?</h2>
-          <div className="flex overflow-x-auto gap-td-sm px-td-md pb-td-xs">
+          <div className="flex overflow-x-auto touch-pan-x overscroll-x-contain gap-td-sm px-td-md pb-td-xs">
             {getNextCitySuggestions(trip.destinationCode, { limit: 5 }).map((c) => (
               <Link
                 key={c.code}

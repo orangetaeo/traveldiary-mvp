@@ -48,7 +48,7 @@ export function AllergenFilterChips({
       aria-label={ariaLabel}
       className="relative h-11 flex items-center bg-surface-soft border-b border-divider overflow-hidden"
     >
-      <div className="flex items-center gap-1.5 overflow-x-auto px-td-md w-full hide-scrollbar pr-12">
+      <div className="flex items-center gap-1.5 overflow-x-auto touch-pan-x overscroll-x-contain px-td-md w-full hide-scrollbar pr-12">
         {dangerItems.map((item) => (
           <Chip
             key={item.raw}

@@ -20,6 +20,7 @@ import { TripHero } from "@/components/dashboard/TripHero";
 import { BentoSummary } from "@/components/dashboard/BentoSummary";
 import { WeatherStrip } from "@/components/dashboard/WeatherStrip";
 import { QuickActions } from "@/components/dashboard/QuickActions";
+import { TripDeleteButton } from "@/components/dashboard/TripDeleteButton";
 import { FocusScroller } from "@/components/dashboard/FocusScroller";
 import { getDemoTrip } from "@/lib/seed";
 import { getCityBySlug } from "@/lib/seed/cities";
@@ -95,7 +96,14 @@ export default async function TripDashboardPage({
             <span className="material-symbols-outlined">arrow_back</span>
           </Link>
           <h1 className="font-semibold text-lg text-ink">TravelDiary</h1>
-          <span className="w-10" aria-hidden />
+          {/* 옵션 Z (2026-05-08) — 빈 spacer → /notifications 진입 (TravelHome 옵션 U 답습). */}
+          <Link
+            href="/notifications"
+            aria-label="알림"
+            className="p-2 -mr-2 rounded-full text-ink-soft hover:text-ink hover:bg-surface-soft transition-colors"
+          >
+            <span className="material-symbols-outlined" aria-hidden>notifications</span>
+          </Link>
         </div>
       </header>
 
@@ -115,6 +123,11 @@ export default async function TripDashboardPage({
         <WeatherStrip forecast={forecast} />
 
         <QuickActions tripId={trip.id} />
+
+        {/* 여행 삭제 — 하단 텍스트 버튼 + 확인 모달 */}
+        <div className="mt-td-lg pt-td-md border-t border-divider">
+          <TripDeleteButton tripId={trip.id} destination={trip.destination} />
+        </div>
       </main>
 
       {focusKey && <FocusScroller targetId={focusElementId(focusKey)} />}

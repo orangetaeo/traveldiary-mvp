@@ -17,9 +17,10 @@ import {
 interface Props {
   entries: CostEntry[];
   onDelete: (entry: CostEntry) => void;
+  onEdit?: (entry: CostEntry) => void;
 }
 
-export function CostEntriesList({ entries, onDelete }: Props) {
+export function CostEntriesList({ entries, onDelete, onEdit }: Props) {
   return (
     <section>
       <h3 className="text-td-card-title text-ink mb-td-sm">최근 입력</h3>
@@ -78,16 +79,30 @@ export function CostEntriesList({ entries, onDelete }: Props) {
                   )}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => onDelete(entry)}
-                aria-label="삭제"
-                className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity ml-td-sm flex-shrink-0"
-              >
-                <span className="material-symbols-outlined text-td-icon">
-                  close
-                </span>
-              </button>
+              <div className="flex items-center gap-td-xxs ml-td-sm flex-shrink-0">
+                {onEdit && (
+                  <button
+                    type="button"
+                    onClick={() => onEdit(entry)}
+                    aria-label="수정"
+                    className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-purple transition-opacity"
+                  >
+                    <span className="material-symbols-outlined text-td-icon">
+                      edit
+                    </span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => onDelete(entry)}
+                  aria-label="삭제"
+                  className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity"
+                >
+                  <span className="material-symbols-outlined text-td-icon">
+                    close
+                  </span>
+                </button>
+              </div>
             </li>
           ))}
         </ul>

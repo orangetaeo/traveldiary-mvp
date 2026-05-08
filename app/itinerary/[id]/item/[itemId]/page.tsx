@@ -174,7 +174,7 @@ export default async function ItineraryItemPage({
         {/* 추가 사진 갤러리 (photos 2장 이상일 때만) */}
         {item.photos && item.photos.length > 1 && (
           <section className="px-td-md pt-td-sm">
-            <div className="flex gap-td-xs overflow-x-auto hide-scrollbar -mx-td-md px-td-md">
+            <div className="flex gap-td-xs overflow-x-auto touch-pan-x overscroll-x-contain hide-scrollbar -mx-td-md px-td-md">
               {item.photos.slice(1).map((url, i) => (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

@@ -31,12 +31,17 @@ import { prisma } from "@/lib/prisma";
 
 import { OrganizationJsonLd, WebAppJsonLd } from "@/components/seo/JsonLd";
 import { TripClaimBanner } from "@/components/auth/TripClaimBanner";
+import { AuthErrorBanner } from "@/components/auth/AuthErrorBanner";
 import type { ClaimableTrip } from "@/components/auth/TripClaimModal";
 import { todayISO } from "@/lib/seed/demo-date";
 import { splitName, formatTime, dDay, CATEGORY_ICON } from "@/lib/utils/item-display";
 const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { auth_error?: string };
+}) {
   const days = listDemoItemsByDay(DEMO_TRIP_ID);
   const day1Items = days[0] ?? [];
   const totalItems = phuQuocItinerary.length;
@@ -115,6 +120,13 @@ export default async function HomePage() {
       </header>
 
       <main className="px-td-md pt-td-lg">
+        {/* OAuth 에러 배너 */}
+        {searchParams.auth_error && (
+          <div className="mb-td-md">
+            <AuthErrorBanner errorCode={searchParams.auth_error} />
+          </div>
+        )}
+
         {/* 여행 인계 배너 (Post-Signup) */}
         {claimableTrips.length > 0 && currentUser && (
           <div className="mb-td-md">
@@ -159,7 +171,7 @@ export default async function HomePage() {
         </section>
 
         {/* Day Tabs */}
-        <nav className="flex gap-td-xs mb-td-md overflow-x-auto pb-2" aria-label="여행 일자">
+        <nav className="flex gap-td-xs mb-td-md overflow-x-auto touch-pan-x overscroll-x-contain pb-2" aria-label="여행 일자">
           {Array.from({ length: phuQuocTrip.nights + 1 }, (_, i) => i).map((d) => {
             const active = d === 0;
             return (
@@ -330,8 +342,8 @@ export default async function HomePage() {
 
       {/* Speed Dial FAB — 메인 탭 시 검색·카메라 펼침 */}
       <SpeedDialFab bottomClassName="bottom-24" zIndex="z-40">
-        <button
-          type="button"
+        <Link
+          href={`/itinerary/${DEMO_TRIP_ID}/discover?day=0`}
           data-speed-dial-action="true"
           className="w-12 h-12 bg-surface-card text-ink border border-divider rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
           aria-label="주변 검색"
@@ -339,7 +351,7 @@ export default async function HomePage() {
           <span className="material-symbols-outlined" aria-hidden="true">
             search
           </span>
-        </button>
+        </Link>
         <Link
           href="/translate"
           data-speed-dial-action="true"

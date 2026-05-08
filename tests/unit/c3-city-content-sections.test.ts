@@ -108,3 +108,22 @@ describe("C3 — 시드 데이터 정합성 (country → city resolve)", () => {
     expect(indexSrc).toContain("city.visa ?? country.visa");
   });
 });
+
+// 2026-05-08 — /city/[slug] 헤더 dead account_circle <span> 활성화 회귀.
+// 홈 헤더 menu → /settings (PR #322 옵션 W) 답습 패턴.
+describe("/city/[slug] 헤더 — account_circle 활성 Link", () => {
+  const src = fs.readFileSync(
+    path.resolve("app/city/[slug]/page.tsx"),
+    "utf-8",
+  );
+
+  it("account_circle은 <Link href=\"/profile\">로 wrap (dead <span> 활성화)", () => {
+    // 활성 Link 패턴 존재 (account_circle이 Link 자식으로 위치)
+    expect(src).toMatch(/<Link\s+href="\/profile"[\s\S]{0,400}?account_circle/);
+    expect(src).toContain('aria-label="내 프로필"');
+  });
+
+  it("account_circle Link은 EmergencyHeaderButton 직후 위치 (헤더 우측 그룹)", () => {
+    expect(src).toMatch(/<EmergencyHeaderButton[\s\S]*?<Link[\s\S]*?href="\/profile"[\s\S]*?account_circle/);
+  });
+});

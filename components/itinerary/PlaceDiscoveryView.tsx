@@ -13,17 +13,18 @@
  * Pretendard only — 영문 버전 만들지 말 것 (feedback_stitch_pretendard_only).
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
-import type { DiscoverPlace, PlaceCategory } from "@/lib/types";
+import type { DiscoverPlace, PlaceCategory, ItemCategory } from "@/lib/types";
 import {
   scorePlace,
   getRecentSearches,
   addRecentSearch,
   clearRecentSearches,
 } from "@/lib/utils/place-search";
+import { addItineraryItem } from "@/actions/itinerary";
 
 export type { PlaceCategory, DiscoverPlace } from "@/lib/types";
 
@@ -77,6 +78,17 @@ function priceLabel(level: number | undefined): string {
   return "₩".repeat(Math.min(3, Math.max(1, level)));
 }
 
+/** PlaceCategory → ItemCategory 변환 (ItineraryItem은 4종류만) */
+const PLACE_TO_ITEM_CATEGORY: Record<PlaceCategory, ItemCategory> = {
+  food: "food",
+  cafe: "food",
+  spot: "spot",
+  nature: "spot",
+  activity: "spot",
+  nightlife: "spot",
+  shopping: "shopping",
+};
+
 // ── Component ────────────────────────────────────────────────────────────
 export function PlaceDiscoveryView({
   tripId,
@@ -95,6 +107,8 @@ export function PlaceDiscoveryView({
   const [showRecent, setShowRecent] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast, show: showToast } = useToast();
+  const [isPending, startTransition] = useTransition();
+  const [addingPlaceId, setAddingPlaceId] = useState<string | null>(null);
 
   // 디바운스 (200ms)
   useEffect(() => {
@@ -183,7 +197,45 @@ export function PlaceDiscoveryView({
   }, [places, activeCategory, activeFilters, debouncedQuery]);
 
   function handleAdd(place: DiscoverPlace) {
-    showToast(`"${place.name}" 일정에 추가됨 (데모)`, { variant: "success" });
+    if (isPending) return;
+    setAddingPlaceId(place.id);
+
+    // Day 기준 시간 계산: 09:00 + (기존 아이템 수 × 2시간) — 간단한 슬롯 배치
+    const baseHour = 9;
+    const existingCount = places.filter(
+      (p) => favorites.has(p.id), // 이미 추가된 장소 수 대용 (실제로는 서버 측 정보 필요)
+    ).length;
+    const hour = Math.min(baseHour + existingCount * 2, 21);
+    const scheduledAt = `2026-01-01T${String(hour).padStart(2, "0")}:00:00`;
+
+    const itemCategory = PLACE_TO_ITEM_CATEGORY[place.category] ?? "spot";
+    const durationMinutes = place.category === "food" || place.category === "cafe" ? 60 : 90;
+
+    startTransition(async () => {
+      const result = await addItineraryItem({
+        tripId,
+        dayIndex,
+        scheduledAt,
+        durationMinutes,
+        flexibility: "flexible",
+        priority: 3,
+        flexMinutes: 30,
+        name: place.name,
+        category: itemCategory,
+        location: {
+          lat: place.lat ?? 0,
+          lng: place.lng ?? 0,
+          address: place.address ?? "",
+        },
+      });
+      setAddingPlaceId(null);
+
+      if (result.ok) {
+        showToast(`"${place.name}" 일정에 추가됨`, { variant: "success" });
+      } else {
+        showToast(`추가 실패 — 다시 시도해 주세요`, { variant: "danger" });
+      }
+    });
   }
 
   function handleToggleFavorite(placeId: string) {
@@ -385,7 +437,7 @@ export function PlaceDiscoveryView({
         {/* 4. Filter Chips */}
         <section className="mt-td-md">
           <div
-            className="flex overflow-x-auto px-td-md gap-td-xs hide-scrollbar pb-1"
+            className="flex overflow-x-auto touch-pan-x overscroll-x-contain px-td-md gap-td-xs hide-scrollbar pb-1"
             aria-label="결과 필터"
           >
             {FILTER_CHIPS.map((chip) => {
@@ -437,6 +489,7 @@ export function PlaceDiscoveryView({
                   place={place}
                   tripId={tripId}
                   isFavorite={favorites.has(place.id)}
+                  isAdding={addingPlaceId === place.id}
                   onToggleFavorite={handleToggleFavorite}
                   onAdd={handleAdd}
                 />
@@ -456,12 +509,14 @@ function PlaceResultCard({
   place,
   tripId,
   isFavorite,
+  isAdding,
   onToggleFavorite,
   onAdd,
 }: {
   place: DiscoverPlace;
   tripId: string;
   isFavorite: boolean;
+  isAdding: boolean;
   onToggleFavorite: (id: string) => void;
   onAdd: (p: DiscoverPlace) => void;
 }) {
@@ -566,9 +621,10 @@ function PlaceResultCard({
         <button
           type="button"
           onClick={() => onAdd(place)}
-          className="mt-auto w-full py-1.5 text-td-meta font-bold text-purple-deep border border-purple/30 rounded-md hover:bg-purple-soft transition-colors"
+          disabled={isAdding}
+          className="mt-auto w-full py-1.5 text-td-meta font-bold text-purple-deep border border-purple/30 rounded-md hover:bg-purple-soft transition-colors disabled:opacity-50 disabled:cursor-wait"
         >
-          + 일정에 추가
+          {isAdding ? "추가 중…" : "+ 일정에 추가"}
         </button>
       </div>
     </article>

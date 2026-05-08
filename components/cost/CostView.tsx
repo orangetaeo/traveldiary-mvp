@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
-import { addCost, deleteCost, settleCost } from "@/actions/cost";
+import { addCost, deleteCost, settleCost, updateCost } from "@/actions/cost";
 import type { CostEntry, CostStatus, Trip } from "@/lib/types";
 import { SettlementCard } from "./SettlementCard";
 import { AddCostForm } from "./AddCostForm";
@@ -44,6 +44,7 @@ export function CostView({
   const [entries, setEntries] = useState<CostEntry[]>(initialEntries);
   const [isPending, startTransition] = useTransition();
   const { toast, show: showToast } = useToast();
+  const [editingEntry, setEditingEntry] = useState<CostEntry | null>(null);
 
   function handleAdd(input: {
     label: string;
@@ -90,6 +91,59 @@ export function CostView({
         showToast("비용 추가 (데모 시뮬)", { variant: "info" });
       } else {
         showToast(`비용 추가됨 — ${input.amountKrw.toLocaleString()}원`, { variant: "success" });
+        router.refresh();
+      }
+    });
+  }
+
+  function handleEdit(input: {
+    label: string;
+    amountKrw: number;
+    amountLocal?: { value: number; currency: string };
+    status: CostStatus;
+    category: string;
+    date: string;
+    splitWith?: Array<string | { name: string; weight?: number }>;
+  }) {
+    if (!editingEntry) return;
+    const prev = editingEntry;
+    const optimistic: CostEntry = {
+      ...prev,
+      label: input.label,
+      amountKrw: input.amountKrw,
+      amountLocal: input.amountLocal,
+      status: input.status,
+      category: input.category,
+      date: input.date,
+      splitWith: input.splitWith,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setEntries((es) => es.map((e) => (e.id === prev.id ? optimistic : e)));
+    setEditingEntry(null);
+
+    startTransition(async () => {
+      const result = await updateCost({
+        tripId: trip.id,
+        data: {
+          id: prev.id,
+          label: input.label,
+          amountKrw: input.amountKrw,
+          amountLocal: input.amountLocal,
+          status: input.status,
+          category: input.category,
+          date: input.date,
+        },
+      });
+      if (!result.ok) {
+        setEntries((es) => es.map((e) => (e.id === prev.id ? prev : e)));
+        showToast(`수정 실패: ${result.code}`, { variant: "danger" });
+        return;
+      }
+      if (result.demo) {
+        showToast("비용 수정 (데모 시뮬)", { variant: "info" });
+      } else {
+        showToast("비용 수정됨", { variant: "success" });
         router.refresh();
       }
     });
@@ -198,9 +252,11 @@ export function CostView({
           currencySymbol={currencySymbol}
           approxKrwRate={approxKrwRate}
           isPending={isPending}
-          onSubmit={handleAdd}
+          onSubmit={editingEntry ? handleEdit : handleAdd}
           onError={(msg) => showToast(msg, { variant: "warning" })}
           entries={entries}
+          editEntry={editingEntry}
+          onCancelEdit={() => setEditingEntry(null)}
         />
 
         {/* 사이클 E1 + RR — 정산 흐름 카드 + 현지 통화 병기 */}
@@ -213,7 +269,14 @@ export function CostView({
           />
         </section>
 
-        <CostEntriesList entries={entries} onDelete={handleDelete} />
+        <CostEntriesList
+          entries={entries}
+          onDelete={handleDelete}
+          onEdit={(entry) => {
+            setEditingEntry(entry);
+            document.getElementById("add-cost-form")?.scrollIntoView({ behavior: "smooth" });
+          }}
+        />
       </main>
 
       <Toast toast={toast} />
