@@ -536,6 +536,16 @@ function PlaceResultCard({
             src={place.imageUrl}
             alt={place.name}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              // API 키 미설정 등 이미지 로드 실패 시 카테고리 아이콘 fallback
+              const parent = e.currentTarget.parentElement;
+              if (parent) {
+                const icon = place.category === "food" ? "restaurant"
+                  : place.category === "cafe" ? "local_cafe"
+                  : "photo_camera";
+                parent.innerHTML = `<div class="w-full h-full flex items-center justify-center"><span class="material-symbols-outlined text-3xl text-ink-mute" aria-hidden="true">${icon}</span></div>`;
+              }
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

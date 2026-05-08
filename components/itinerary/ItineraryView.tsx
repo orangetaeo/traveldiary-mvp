@@ -542,14 +542,23 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
           emphasized={dayItems.length === 0}
         />
 
-        {/* AI 추천 장소 탐색 진입 */}
-        <Link
-          href={`/itinerary/${trip.id}/discover?day=${activeDay}`}
-          className="flex items-center justify-center gap-td-xs py-2.5 text-td-meta font-bold text-purple-deep hover:bg-purple-soft/30 rounded-md transition-colors"
-        >
-          <span className="material-symbols-outlined text-[18px]" aria-hidden>travel_explore</span>
-          AI 추천 장소 탐색
-        </Link>
+        {/* AI 추천 장소 탐색 + 지도 보기 진입 */}
+        <div className="flex gap-td-xs">
+          <Link
+            href={`/itinerary/${trip.id}/discover?day=${activeDay}`}
+            className="flex-1 flex items-center justify-center gap-td-xs py-2.5 text-td-meta font-bold text-purple-deep hover:bg-purple-soft/30 rounded-md transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]" aria-hidden>travel_explore</span>
+            AI 추천 탐색
+          </Link>
+          <Link
+            href={`/itinerary/${trip.id}/map`}
+            className="flex-1 flex items-center justify-center gap-td-xs py-2.5 text-td-meta font-bold text-purple-deep hover:bg-purple-soft/30 rounded-md transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]" aria-hidden>map</span>
+            지도 보기
+          </Link>
+        </div>
       </div>
 
       {/* Replan + Travel Mode 진입점 */}

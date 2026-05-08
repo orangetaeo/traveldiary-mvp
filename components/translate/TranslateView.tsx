@@ -308,14 +308,23 @@ function ResultsView({
             Camera Translator
           </h1>
         </div>
-        <button
-          type="button"
-          onClick={handleRetake}
-          aria-label="다시 촬영"
-          className="p-2 rounded-full hover:bg-surface-soft"
-        >
-          <span className="material-symbols-outlined text-purple">photo_camera</span>
-        </button>
+        <div className="flex items-center gap-td-xxs">
+          <Link
+            href="/phrases"
+            aria-label="베트남어 핵심 문장 카드"
+            className="p-2 rounded-full hover:bg-surface-soft"
+          >
+            <span className="material-symbols-outlined text-purple">menu_book</span>
+          </Link>
+          <button
+            type="button"
+            onClick={handleRetake}
+            aria-label="다시 촬영"
+            className="p-2 rounded-full hover:bg-surface-soft"
+          >
+            <span className="material-symbols-outlined text-purple">photo_camera</span>
+          </button>
+        </div>
       </header>
 
       {/* Photo Section (top 30%) */}
