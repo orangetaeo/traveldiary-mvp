@@ -572,6 +572,113 @@ export async function reorderItineraryItems(
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// MUTATIONS — 일정 항목 수정 / 삭제
+// ═══════════════════════════════════════════════════════════════════
+
+export interface UpdateItineraryItemInput {
+  itemId: string;
+  tripId: string;
+  name?: string;
+  category?: ItineraryItem["category"];
+  scheduledAt?: string;
+  durationMinutes?: number;
+  flexibility?: ItineraryItem["flexibility"];
+}
+
+export interface UpdateItineraryItemResult {
+  before: { name: string; category: string; scheduledAt: string; durationMinutes: number; flexibility: string };
+  after: { name: string; category: string; scheduledAt: string; durationMinutes: number; flexibility: string };
+  item: ItineraryItem;
+}
+
+export async function updateItineraryItem(
+  input: UpdateItineraryItemInput,
+): Promise<UpdateItineraryItemResult | "not_found" | null> {
+  if (!prisma) return null;
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.itineraryItem.findFirst({
+        where: { id: input.itemId, tripId: input.tripId },
+        include: { dependencies: { select: { dependencyId: true } } },
+      });
+      if (!before) return "not_found" as const;
+
+      const after = await tx.itineraryItem.update({
+        where: { id: input.itemId },
+        data: {
+          ...(input.name !== undefined && { name: input.name }),
+          ...(input.category !== undefined && { category: input.category }),
+          ...(input.scheduledAt !== undefined && { scheduledAt: new Date(input.scheduledAt) }),
+          ...(input.durationMinutes !== undefined && { durationMinutes: input.durationMinutes }),
+          ...(input.flexibility !== undefined && { flexibility: input.flexibility }),
+        },
+        include: { dependencies: { select: { dependencyId: true } } },
+      });
+
+      // Trip.updatedAt 갱신 (낙관적 동시성 신호)
+      await tx.trip.update({
+        where: { id: input.tripId },
+        data: { status: undefined },
+      }).catch(() => undefined);
+
+      return {
+        before: {
+          name: before.name,
+          category: before.category,
+          scheduledAt: before.scheduledAt.toISOString(),
+          durationMinutes: before.durationMinutes,
+          flexibility: before.flexibility,
+        },
+        after: {
+          name: after.name,
+          category: after.category,
+          scheduledAt: after.scheduledAt.toISOString(),
+          durationMinutes: after.durationMinutes,
+          flexibility: after.flexibility,
+        },
+        item: rowToItineraryItem(after),
+      };
+    });
+  } catch (err) {
+    console.error("[trip.repository] updateItineraryItem failed", err);
+    return null;
+  }
+}
+
+export async function deleteItineraryItem(
+  itemId: string,
+  tripId: string,
+): Promise<{ before: ItineraryItem } | "not_found" | null> {
+  if (!prisma) return null;
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.itineraryItem.findFirst({
+        where: { id: itemId, tripId },
+        include: { dependencies: { select: { dependencyId: true } } },
+      });
+      if (!before) return "not_found" as const;
+
+      // 의존성 엣지 삭제 (해당 항목이 dependent 또는 dependency인 경우)
+      await tx.itineraryDependency.deleteMany({
+        where: { OR: [{ dependentId: itemId }, { dependencyId: itemId }] },
+      });
+      await tx.itineraryItem.delete({ where: { id: itemId } });
+
+      // Trip.updatedAt 갱신
+      await tx.trip.update({
+        where: { id: tripId },
+        data: { status: undefined },
+      }).catch(() => undefined);
+
+      return { before: rowToItineraryItem(before) };
+    });
+  } catch (err) {
+    console.error("[trip.repository] deleteItineraryItem failed", err);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // 행 → 도메인 객체 변환
 // ═══════════════════════════════════════════════════════════════════
 
