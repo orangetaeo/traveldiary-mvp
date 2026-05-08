@@ -53,7 +53,8 @@ const SETTING_SECTIONS = [
   {
     title: "앱 정보",
     items: [
-      { icon: "info", label: "버전", href: "#", sub: "v0.1.0 (MVP)" },
+      // 옵션 X (2026-05-08) — 정보 표시 row, 이동 destination 부재 → info 분기 (이전 href="#" 데드 링크)
+      { icon: "info", label: "버전", info: true, sub: "v0.1.0 (MVP)" },
       // 사이클 U-deadlinks (2026-05-07) — placeholder shell 라우트 활성 (이전 href="#")
       { icon: "description", label: "오픈소스 라이선스", href: "/legal/oss" },
       // 사이클 U-deadlinks (2026-05-07) — 외부 mailto 링크 (Next/Link mailto: 자동 외부 처리)
@@ -113,14 +114,15 @@ export default function SettingsPage() {
               </div>
               <span className="material-symbols-outlined text-ink-mute text-lg">chevron_right</span>
             </Link>
+            {/* 옵션 X (2026-05-08) — 데드 href="#" 청소. /settings/account-link
+                placeholder shell로 라우팅 (4-OAuth 게이트 후 정식). */}
             <Link
-              href="#"
-              aria-disabled="true"
+              href="/settings/account-link"
               className="flex items-center justify-between px-td-sm py-td-xs hover:bg-surface-soft transition-colors"
             >
               <div className="flex items-center gap-td-sm">
                 <span className="material-symbols-outlined text-xl text-ink-soft">key</span>
-                <span className="text-td-body text-ink">카카오 연결 관리</span>
+                <span className="text-td-body text-ink">계정 연결 관리</span>
               </div>
               <div className="flex items-center gap-td-xxs">
                 <span className="text-td-caption text-ink-mute">준비 중</span>
@@ -151,28 +153,52 @@ export default function SettingsPage() {
               {section.title}
             </h2>
             <div className="bg-surface-card rounded-md border border-divider divide-y divide-divider overflow-hidden">
-              {section.items.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="flex items-center justify-between px-td-sm py-td-xs hover:bg-surface-soft transition-colors"
-                >
-                  <div className="flex items-center gap-td-sm">
-                    <span className="material-symbols-outlined text-xl text-ink-soft">
-                      {item.icon}
-                    </span>
-                    <span className="text-td-body text-ink">
-                      {item.label}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-td-xxs">
+              {section.items.map((item) => {
+                // 옵션 X (2026-05-08) — href 보유 분기는 Link, 부재 시 info 표시 row.
+                // 정보 표시(버전 등)는 클릭 불가 + chevron 제거로 비-인터랙티브 의도 명확화.
+                if ("href" in item) {
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className="flex items-center justify-between px-td-sm py-td-xs hover:bg-surface-soft transition-colors"
+                    >
+                      <div className="flex items-center gap-td-sm">
+                        <span className="material-symbols-outlined text-xl text-ink-soft">
+                          {item.icon}
+                        </span>
+                        <span className="text-td-body text-ink">
+                          {item.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-td-xxs">
+                        {"sub" in item && (
+                          <span className="text-td-caption text-ink-mute">{item.sub}</span>
+                        )}
+                        <span className="material-symbols-outlined text-ink-mute text-lg">chevron_right</span>
+                      </div>
+                    </Link>
+                  );
+                }
+                return (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between px-td-sm py-td-xs"
+                  >
+                    <div className="flex items-center gap-td-sm">
+                      <span className="material-symbols-outlined text-xl text-ink-soft">
+                        {item.icon}
+                      </span>
+                      <span className="text-td-body text-ink">
+                        {item.label}
+                      </span>
+                    </div>
                     {"sub" in item && (
                       <span className="text-td-caption text-ink-mute">{item.sub}</span>
                     )}
-                    <span className="material-symbols-outlined text-ink-mute text-lg">chevron_right</span>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           </section>
         ))}
