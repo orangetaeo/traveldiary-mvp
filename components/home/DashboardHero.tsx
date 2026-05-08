@@ -66,10 +66,26 @@ export function DashboardHero({
       aria-label="내 여행 대시보드"
     >
       <div className="px-td-md py-td-lg">
-        <div className="flex items-center justify-between mb-td-xs">
-          <p className="text-td-caption text-white/80 uppercase tracking-wide">
-            {userName ? `${userName}님의 여행` : "내 여행"}
-            {totalTrips > 1 ? ` · ${totalTrips}개` : ""}
+        <div className="flex items-center justify-between mb-td-xs gap-td-xs">
+          <p className="text-td-caption text-white/80 uppercase tracking-wide flex items-center gap-1.5">
+            <span>
+              {userName ? `${userName}님의 여행` : "내 여행"}
+              {totalTrips > 1 ? ` · ${totalTrips}개` : ""}
+            </span>
+            {/* cap 4: Mode B에서도 새 여행 추가 진입점 — /onboarding */}
+            <Link
+              href="/onboarding"
+              aria-label="새 여행 만들기 — 온보딩"
+              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-td-micro font-bold transition-colors"
+            >
+              <span
+                className="material-symbols-outlined text-td-icon-xs"
+                aria-hidden
+              >
+                add
+              </span>
+              추가
+            </Link>
           </p>
           <Badge tone={statusTone}>{statusLabel}</Badge>
         </div>
@@ -140,6 +156,20 @@ export function OwnedTripsChips({ trips, activeId }: OwnedTripsChipsProps) {
           </Link>
         );
       })}
+      {/* cap 4: trailing "+ 새 여행" chip — 다중 trip 시 끝에 추가 진입점 */}
+      <Link
+        href="/onboarding"
+        aria-label="새 여행 만들기 — 온보딩"
+        className="shrink-0 inline-flex items-center gap-1 px-td-sm py-td-xs rounded-full text-td-meta whitespace-nowrap bg-purple-soft text-purple-deep border border-purple/30 hover:bg-purple/15 transition-colors"
+      >
+        <span
+          className="material-symbols-outlined text-td-icon-sm"
+          aria-hidden
+        >
+          add
+        </span>
+        새 여행
+      </Link>
     </nav>
   );
 }

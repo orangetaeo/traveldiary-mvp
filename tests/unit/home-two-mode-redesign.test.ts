@@ -174,6 +174,28 @@ describe("DashboardHero — 로그인 + trip 사용자 D-Day 카운트다운", (
     expect(DASHBOARD).toMatch(/"info"\s*\|\s*"amber"\s*\|\s*"success"/);
     expect(DASHBOARD).not.toContain('"warning"');
   });
+
+  it("cap 4 — DashboardHero 헤더에 \"+ 추가\" 새 여행 만들기 진입점 (/onboarding)", () => {
+    expect(DASHBOARD).toContain('href="/onboarding"');
+    expect(DASHBOARD).toContain('aria-label="새 여행 만들기 — 온보딩"');
+    // 헤더 inline pill — text-td-micro + bg-white/15 (다크 그라디언트 배경에 어울리는 투명 화이트)
+    expect(DASHBOARD).toContain("bg-white/15");
+    expect(DASHBOARD).toContain("text-td-micro");
+  });
+
+  it("cap 4 — OwnedTripsChips trailing \"+ 새 여행\" chip (purple-soft + add 아이콘)", () => {
+    // OwnedTripsChips 안에 동일 /onboarding 링크 (chip 스타일)
+    const chipMatch = DASHBOARD.match(
+      /<nav[\s\S]+?aria-label="다른 여행"[\s\S]+?<\/nav>/,
+    );
+    expect(chipMatch).toBeTruthy();
+    expect(chipMatch![0]).toContain('href="/onboarding"');
+    expect(chipMatch![0]).toContain("새 여행");
+    expect(chipMatch![0]).toContain("bg-purple-soft");
+    expect(chipMatch![0]).toContain("text-purple-deep");
+    // material-symbols add 아이콘
+    expect(chipMatch![0]).toMatch(/material-symbols-outlined[\s\S]{0,50}>\s*add/);
+  });
 });
 
 describe("MagicMomentsCarousel — 4축 가로 캐러셀 (ORANGE TOUR 패턴)", () => {
