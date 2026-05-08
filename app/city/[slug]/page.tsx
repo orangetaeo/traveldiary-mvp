@@ -49,7 +49,7 @@ const CHIPS: ChipDef[] = [
   { id: "guides", label: "시그니처" },
 ];
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://traveldiary-mvp-production.up.railway.app";
+const BASE = process.env.NEXT_PUBLIC_APP_URL || "https://traveldiary-mvp-production.up.railway.app";
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const city = resolveCity(params.slug);

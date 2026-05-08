@@ -8,7 +8,7 @@
 import type { MetadataRoute } from "next";
 import { listCities } from "@/lib/seed/cities";
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://traveldiary-mvp-production.up.railway.app";
+const BASE = process.env.NEXT_PUBLIC_APP_URL || "https://traveldiary-mvp-production.up.railway.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const cities = listCities();

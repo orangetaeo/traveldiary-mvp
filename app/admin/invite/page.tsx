@@ -15,7 +15,7 @@ import { assertAdminAccess } from "@/lib/auth/admin-guard";
 export const dynamic = "force-dynamic";
 
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ??
+  process.env.NEXT_PUBLIC_APP_URL ||
   "https://traveldiary-mvp-production.up.railway.app";
 
 interface PageProps {

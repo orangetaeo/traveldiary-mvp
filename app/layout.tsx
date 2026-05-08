@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://traveldiary-mvp-production.up.railway.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://traveldiary-mvp-production.up.railway.app";
 
 export const metadata: Metadata = {
   title: {
