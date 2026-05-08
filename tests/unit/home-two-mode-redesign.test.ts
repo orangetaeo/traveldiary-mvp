@@ -106,10 +106,26 @@ describe("WelcomeHero — 비로그인/0건 사용자 가치 제안", () => {
     expect(WELCOME).toContain("to-amber");
   });
 
-  it("LoginButton 통합 + 데모 둘러보기 보조 CTA (DEMO_TRIP_ID)", () => {
+  it("primary CTA 분기 (cap 3) — isLoggedIn 변수로 LoginButton vs 새 여행 만들기 분기", () => {
+    expect(WELCOME).toContain("const isLoggedIn = currentUserId !== null");
+    // 비로그인 분기: LoginButton 노출 (BC)
     expect(WELCOME).toContain("<LoginButton");
+    // 로그인 분기: /onboarding "새 여행 만들기" 강조 CTA
+    expect(WELCOME).toContain('href="/onboarding"');
+    expect(WELCOME).toContain("새 여행 만들기");
+    expect(WELCOME).toContain('aria-label="새 여행 만들기 — 온보딩"');
+    expect(WELCOME).toContain("add_circle");
+  });
+
+  it("로그인 사용자 인사말 분기 (currentUserName 부착)", () => {
+    expect(WELCOME).toContain("isLoggedIn && currentUserName");
+    expect(WELCOME).toContain("베트남 첫 여행을 시작해요");
+  });
+
+  it("secondary 데모 둘러보기 CTA — 두 분기 모두 노출 (DEMO_TRIP_ID)", () => {
     expect(WELCOME).toMatch(/href=\{`\/itinerary\/\$\{DEMO_TRIP_ID\}`\}/);
     expect(WELCOME).toContain("데모로 둘러보기");
+    expect(WELCOME).toContain("play_circle");
   });
 
   it("핵심 가치 카피 (살아 움직이게 + 함께 만들어요)", () => {
