@@ -85,9 +85,17 @@ describe("C1 — 시드 파일 hardcoded startDate 제거", () => {
 // ═══════════════════════════════════════════
 
 describe("C1 — TODAY_ISO 동적 전환", () => {
-  it("app/page.tsx: todayISO import + 호출", () => {
-    const src = fs.readFileSync(path.resolve("app/page.tsx"), "utf-8");
+  it("components/home/DashboardHero.tsx: todayISO import + 호출 (홈 재설계 후 D-Day 계산 위임)", () => {
+    const src = fs.readFileSync(
+      path.resolve("components/home/DashboardHero.tsx"),
+      "utf-8",
+    );
     expect(src).toContain("todayISO");
+    expect(src).not.toContain('"2026-04-30"');
+  });
+
+  it("app/page.tsx: 하드코딩 날짜 부재 (D-Day 로직 DashboardHero 위임)", () => {
+    const src = fs.readFileSync(path.resolve("app/page.tsx"), "utf-8");
     expect(src).not.toContain('"2026-04-30"');
   });
 
