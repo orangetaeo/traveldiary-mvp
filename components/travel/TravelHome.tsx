@@ -18,6 +18,8 @@ interface TravelHomeProps {
   items: ItineraryItem[];
   /** 사이클 8 M5: 도시별 큐레이션 데이터. 미존재 도시면 null. 사이클 H: ResolvedCity (country merged) */
   city?: ResolvedCity | null;
+  /** 1-base 여행 일차 (SSR에서 calculateTravelDay로 계산 후 전달). 미지정 시 1 폴백 (BC). */
+  travelDay?: number;
 }
 
 /**
@@ -35,9 +37,9 @@ interface TravelHomeProps {
  *
  * 강조 색은 globals.css의 `--color-mode-primary` (data-travel-mode="in-travel" → 코랄).
  */
-export function TravelHome({ trip, items, city }: TravelHomeProps) {
-  // 데모: Day 1 고정. 사이클 5에서 calculateTravelDay(trip.startDate)로 교체.
-  const travelDay = 1;
+export function TravelHome({ trip, items, city, travelDay: travelDayProp }: TravelHomeProps) {
+  // SSR 측 calculateTravelDay(trip.startDate) 결과 사용. 미지정 시 1 폴백 (BC).
+  const travelDay = travelDayProp ?? 1;
   const dayIndex = travelDay - 1;
 
   const [now, setNow] = useState<Date | null>(null);
