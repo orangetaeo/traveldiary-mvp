@@ -160,6 +160,7 @@ export function TripClaimModal({
                     <img
                       src={trip.imageUrl}
                       alt={trip.destination}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   ) : (

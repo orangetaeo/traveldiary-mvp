@@ -179,6 +179,7 @@ export default async function SharedTripPage({
                           <img
                             src={item.photos[0]}
                             alt={item.name}
+                            loading="lazy"
                             className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                           />
                         )}

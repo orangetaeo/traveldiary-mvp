@@ -171,6 +171,7 @@ export function PostTripRecapView({
                 <img
                   src={m.imageUrl}
                   alt={m.alt}
+                  loading="lazy"
                   className="w-full h-auto object-cover"
                 />
               ) : (

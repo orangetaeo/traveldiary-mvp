@@ -535,6 +535,7 @@ function PlaceResultCard({
           <img
             src={place.imageUrl}
             alt={place.name}
+            loading="lazy"
             className="w-full h-full object-cover"
             onError={(e) => {
               // API 키 미설정 등 이미지 로드 실패 시 카테고리 아이콘 fallback

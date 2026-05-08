@@ -370,6 +370,7 @@ function ResultStep({
             <img
               src={previewUrl}
               alt="영수증 미리보기"
+              loading="lazy"
               className="w-full max-h-48 object-contain bg-surface-card"
             />
           </div>
