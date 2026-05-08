@@ -186,8 +186,8 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                       <span className="text-white text-td-caption">{photo.caption}</span>
                     </div>
                   )}
-                  {/* 호버 시 편집/삭제 버튼 */}
-                  <div className="absolute top-1 right-1 flex gap-1 opacity-80 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  {/* 호버 시 편집/삭제 버튼 — DB 사진만 편집/삭제 가능 */}
+                  {isDeletablePhoto(photo) && <div className="absolute top-1 right-1 flex gap-1 opacity-80 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                     <button
                       type="button"
                       onClick={() => {
@@ -207,7 +207,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                     >
                       <span className="material-symbols-outlined text-[16px]">close</span>
                     </button>
-                  </div>
+                  </div>}
                 </div>
               ))}
             </div>
