@@ -225,8 +225,12 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
         >
           <div
             role="dialog"
+            aria-modal="true"
             aria-label="사진 추가"
             className="bg-surface-card w-full max-w-lg rounded-t-xl p-td-md pb-8 animate-slide-up"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setShowAddModal(false);
+            }}
           >
             <h2 className="text-td-card-title font-bold text-ink mb-td-sm">
               사진 추가
@@ -306,8 +310,13 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
             if (e.target === e.currentTarget) setEditingPhoto(null);
           }}
         >
-          <div className="bg-surface-card border border-divider rounded-lg p-td-md w-full max-w-md shadow-lg">
-            <h3 className="text-td-card-title text-ink mb-td-sm">캡션 수정</h3>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-caption-title"
+            className="bg-surface-card border border-divider rounded-lg p-td-md w-full max-w-md shadow-lg"
+          >
+            <h3 id="edit-caption-title" className="text-td-card-title text-ink mb-td-sm">캡션 수정</h3>
             <input
               type="text"
               value={editCaption}
@@ -353,6 +362,7 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
         >
           <div
             role="alertdialog"
+            aria-modal="true"
             aria-label="사진 삭제 확인"
             className="bg-surface-card w-full max-w-sm rounded-xl p-td-md"
           >

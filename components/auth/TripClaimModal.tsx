@@ -80,7 +80,7 @@ export function TripClaimModal({
   if (trips.length === 0) return null;
 
   return (
-    <div role="dialog" aria-label="내 여행 인계" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div role="dialog" aria-modal="true" aria-label="내 여행 인계" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       {/* backdrop */}
       <div
         className="absolute inset-0 bg-ink/40 backdrop-blur-sm"

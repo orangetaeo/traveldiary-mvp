@@ -579,8 +579,13 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
             if (e.target === e.currentTarget) setEditingItem(null);
           }}
         >
-          <div className="bg-surface-card border border-divider rounded-lg p-td-md w-full max-w-md shadow-lg">
-            <h3 className="text-td-card-title text-ink mb-td-sm">항목 수정</h3>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-checklist-title"
+            className="bg-surface-card border border-divider rounded-lg p-td-md w-full max-w-md shadow-lg"
+          >
+            <h3 id="edit-checklist-title" className="text-td-card-title text-ink mb-td-sm">항목 수정</h3>
             <input
               type="text"
               value={editText}
