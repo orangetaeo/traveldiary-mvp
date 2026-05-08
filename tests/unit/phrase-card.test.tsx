@@ -11,6 +11,8 @@
 
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { PhraseCard } from "@/components/phrases/PhraseCard";
 import type { Phrase } from "@/lib/vietnamese-phrases";
 
@@ -69,5 +71,78 @@ describe("PhraseCard", () => {
     const html = renderToStaticMarkup(<PhraseCard phrase={PHRASE} />);
     // SSR 시점에는 SpeechSynthesis 미지원 분기 안 탐 — 활성 상태로 렌더
     expect(html).not.toContain("disabled=");
+  });
+});
+
+/* ════════════════════════════════════════════
+ * 복사 버튼 (clipboard.writeText) — 음성 미지원 환경 fallback
+ * ════════════════════════════════════════════ */
+
+describe("PhraseCard — 복사 버튼 (clipboard)", () => {
+  it("복사 버튼 + aria-label에 베트남어 문장 포함", () => {
+    const html = renderToStaticMarkup(<PhraseCard phrase={PHRASE} />);
+    expect(html).toContain('aria-label="Cho tôi xem thực đơn 베트남어 복사"');
+    expect(html).toContain("복사");
+  });
+
+  it("초기 상태 content_copy 아이콘 + '복사' 라벨", () => {
+    const html = renderToStaticMarkup(<PhraseCard phrase={PHRASE} />);
+    expect(html).toContain("content_copy");
+  });
+
+  it("aria-live='polite' 추가 (스크린 리더 상태 변경 안내)", () => {
+    const html = renderToStaticMarkup(<PhraseCard phrase={PHRASE} />);
+    expect(html).toContain('aria-live="polite"');
+  });
+
+  it("발음 듣기 버튼과 같은 컨테이너 (gap-td-xs flex)", () => {
+    const html = renderToStaticMarkup(<PhraseCard phrase={PHRASE} />);
+    expect(html).toContain("justify-end");
+    expect(html).toContain("gap-td-xs");
+  });
+
+  it("두 버튼 모두 type='button' (form submit 차단)", () => {
+    const html = renderToStaticMarkup(<PhraseCard phrase={PHRASE} />);
+    const matches = html.match(/type="button"/g) ?? [];
+    expect(matches.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+/* ════════════════════════════════════════════
+ * 소스 단언 — 클라이언트 로직 (clipboard state machine)
+ * ════════════════════════════════════════════ */
+
+describe("PhraseCard 소스 — clipboard wiring", () => {
+  const SRC = readFileSync(
+    resolve(process.cwd(), "components/phrases/PhraseCard.tsx"),
+    "utf-8",
+  );
+
+  it("navigator.clipboard.writeText로 베트남어 복사", () => {
+    expect(SRC).toContain("navigator.clipboard");
+    expect(SRC).toContain("writeText(phrase.vi)");
+  });
+
+  it("CopyState type union (idle | copied | error)", () => {
+    expect(SRC).toMatch(/type CopyState\s*=\s*"idle"\s*\|\s*"copied"\s*\|\s*"error"/);
+  });
+
+  it("clipboard 미지원 환경 → error 상태로 graceful degrade", () => {
+    expect(SRC).toMatch(/!navigator\.clipboard\?\.writeText/);
+  });
+
+  it("성공/실패 후 1500ms 자동 idle 복귀", () => {
+    const matches = SRC.match(/setTimeout\(\(\)\s*=>\s*setCopyState\("idle"\),\s*1500\)/g) ?? [];
+    expect(matches.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("try/catch로 clipboard write 실패 격리", () => {
+    expect(SRC).toMatch(/try\s*\{[\s\S]*navigator\.clipboard[\s\S]*\}\s*catch/);
+  });
+
+  it("발음 듣기 button BC 보존 (handleSpeak + SpeechSynthesisUtterance)", () => {
+    expect(SRC).toContain("handleSpeak");
+    expect(SRC).toContain("SpeechSynthesisUtterance");
+    expect(SRC).toContain('utterance.lang = "vi-VN"');
   });
 });
