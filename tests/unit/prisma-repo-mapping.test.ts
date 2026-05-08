@@ -102,8 +102,8 @@ describe("Prisma schema — model 수", () => {
  * ════════════════════════════════════════════ */
 
 describe("repository 파일 수", () => {
-  it("17개 repository 파일 존재", () => {
-    expect(repoFiles.length).toBe(17);
+  it("18개 repository 파일 존재", () => {
+    expect(repoFiles.length).toBe(18);
   });
 });
 
