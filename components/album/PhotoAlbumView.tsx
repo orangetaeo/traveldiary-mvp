@@ -10,6 +10,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addPhoto, editPhoto, removePhoto } from "@/actions/photo";
+import { PhotoLightbox } from "@/components/album/PhotoLightbox";
 import type { TripPhoto } from "@/lib/types";
 
 interface Props {
@@ -51,6 +52,9 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
   const [editCaption, setEditCaption] = useState("");
   // 옵티미스틱 캡션 오버라이드
   const [captionOverrides, setCaptionOverrides] = useState<Map<string, string | undefined>>(new Map());
+
+  // 라이트박스 (사진 확대 보기)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const visiblePhotos = photos
     .filter((p) => !optimisticHidden.has(p.id))
@@ -169,7 +173,9 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
               </span>
             </h2>
             <div className="columns-2 gap-td-xs space-y-td-xs">
-              {dayPhotos.map((photo) => (
+              {dayPhotos.map((photo) => {
+                const flatIndex = visiblePhotos.indexOf(photo);
+                return (
                 <div
                   key={photo.id}
                   className="relative rounded-md overflow-hidden border border-divider break-inside-avoid group"
@@ -181,13 +187,22 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                     className="w-full h-auto object-cover"
                     loading="lazy"
                   />
+                  {/* 클릭 영역 — 사진 확대 보기 (편집/삭제 버튼은 z-30으로 위에 배치) */}
+                  <button
+                    type="button"
+                    onClick={() => setLightboxIndex(flatIndex)}
+                    aria-label={photo.caption ? `${photo.caption} — 확대 보기` : "사진 확대 보기"}
+                    className="absolute inset-0 z-10 cursor-zoom-in focus-visible:ring-2 focus-visible:ring-purple"
+                  >
+                    <span className="sr-only">확대 보기</span>
+                  </button>
                   {photo.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 z-20 pointer-events-none">
                       <span className="text-white text-td-caption">{photo.caption}</span>
                     </div>
                   )}
-                  {/* 호버 시 편집/삭제 버튼 — DB 사진만 편집/삭제 가능 */}
-                  {isDeletablePhoto(photo) && <div className="absolute top-1 right-1 flex gap-1 opacity-80 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  {/* 호버 시 편집/삭제 버튼 — DB 사진만 편집/삭제 가능 (z-30으로 클릭 영역 위에) */}
+                  {isDeletablePhoto(photo) && <div className="absolute top-1 right-1 z-30 flex gap-1 opacity-80 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                     <button
                       type="button"
                       onClick={() => {
@@ -209,11 +224,21 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
                     </button>
                   </div>}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         );
       })}
+
+      {/* 라이트박스 — 사진 확대 보기 */}
+      {lightboxIndex !== null && (
+        <PhotoLightbox
+          photos={visiblePhotos}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
 
       {/* 사진 추가 모달 */}
       {showAddModal && (
