@@ -31,12 +31,17 @@ import { prisma } from "@/lib/prisma";
 
 import { OrganizationJsonLd, WebAppJsonLd } from "@/components/seo/JsonLd";
 import { TripClaimBanner } from "@/components/auth/TripClaimBanner";
+import { AuthErrorBanner } from "@/components/auth/AuthErrorBanner";
 import type { ClaimableTrip } from "@/components/auth/TripClaimModal";
 import { todayISO } from "@/lib/seed/demo-date";
 import { splitName, formatTime, dDay, CATEGORY_ICON } from "@/lib/utils/item-display";
 const TODAY_ISO = todayISO(); // C1: 고정 날짜 제거 → 실제 오늘 날짜
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { auth_error?: string };
+}) {
   const days = listDemoItemsByDay(DEMO_TRIP_ID);
   const day1Items = days[0] ?? [];
   const totalItems = phuQuocItinerary.length;
@@ -115,6 +120,13 @@ export default async function HomePage() {
       </header>
 
       <main className="px-td-md pt-td-lg">
+        {/* OAuth 에러 배너 */}
+        {searchParams.auth_error && (
+          <div className="mb-td-md">
+            <AuthErrorBanner errorCode={searchParams.auth_error} />
+          </div>
+        )}
+
         {/* 여행 인계 배너 (Post-Signup) */}
         {claimableTrips.length > 0 && currentUser && (
           <div className="mb-td-md">

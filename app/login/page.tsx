@@ -12,13 +12,18 @@ import Link from "next/link";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { kakaoAvailable } from "@/lib/auth/kakao";
 import { jwtAvailable } from "@/lib/auth/jwt";
+import { AuthErrorBanner } from "@/components/auth/AuthErrorBanner";
 
 export const metadata: Metadata = {
   title: "로그인 — 여행을 더 똑똑하게",
   description: "카카오 로그인으로 AI 여행 동반자를 시작하세요.",
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: { auth_error?: string };
+}) {
   const oauthReady = kakaoAvailable() && jwtAvailable();
   const userId = oauthReady ? await getCurrentUserId() : null;
   if (userId) redirect("/");
@@ -43,6 +48,13 @@ export default async function LoginPage() {
             <br />
             베트남 6개 도시, 4,300+ 장소.
           </p>
+
+          {/* OAuth 에러 배너 */}
+          {searchParams.auth_error && (
+            <div className="w-full mb-td-md">
+              <AuthErrorBanner errorCode={searchParams.auth_error} />
+            </div>
+          )}
 
           {/* 기능 하이라이트 3개 */}
           <div className="w-full space-y-td-sm mb-td-xl">
