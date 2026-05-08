@@ -186,8 +186,8 @@ describe("ReceivedTripBanner", () => {
     const html = renderToStaticMarkup(
       <ReceivedTripBanner destination="다낭" onDismiss={() => {}} />,
     );
-    expect(html).toContain("내 목록에 추가됐어요");
-    expect(html).toContain("다음에 다시 보고 싶다면 받은 여행 목록에서 찾을 수 있어요");
+    expect(html).toContain("공유 받은 여행이 추가됐어요");
+    expect(html).toContain("다음에 다시 보고 싶다면 공유 받은 여행 목록에서 찾을 수 있어요");
   });
 
   it("role=status + aria-live=polite", () => {
