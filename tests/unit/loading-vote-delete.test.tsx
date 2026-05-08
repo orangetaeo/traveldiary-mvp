@@ -146,8 +146,8 @@ describe("VoteListView — 삭제 기능", () => {
     expect(viewSrc).toContain("function handleDelete");
   });
 
-  it("삭제 확인 다이얼로그", () => {
-    expect(viewSrc).toContain("window.confirm");
+  it("삭제 확인 다이얼로그 (ConfirmDialog)", () => {
+    expect(viewSrc).toContain("ConfirmDialog");
   });
 
   it("낙관적 삭제 (filter)", () => {

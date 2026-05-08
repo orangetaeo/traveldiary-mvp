@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { castVote, createVote, deleteVote } from "@/actions/vote";
 import type { Trip, Vote } from "@/lib/types";
 
@@ -27,6 +28,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
   const { toast, show: showToast } = useToast();
   const [draftQuestion, setDraftQuestion] = useState("");
   const [draftOptions, setDraftOptions] = useState<string[]>(["", ""]);
+  const [deletingVote, setDeletingVote] = useState<{ id: string; question: string } | null>(null);
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -86,9 +88,14 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
   }
 
   function handleDelete(voteId: string, question: string) {
-    if (!window.confirm(`'${question}' 투표를 삭제하시겠습니까?`)) return;
+    setDeletingVote({ id: voteId, question });
+  }
 
-    // 낙관적 삭제
+  function handleConfirmDeleteVote() {
+    if (!deletingVote) return;
+    const { id: voteId } = deletingVote;
+    setDeletingVote(null);
+
     const prevVotes = votes;
     setVotes((prev) => prev.filter((v) => v.id !== voteId));
 
@@ -270,6 +277,16 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
       </main>
 
       <Toast toast={toast} />
+      <ConfirmDialog
+        open={!!deletingVote}
+        title="투표 삭제"
+        description={`'${deletingVote?.question ?? ""}' 투표를 삭제하시겠습니까?`}
+        confirmLabel="삭제"
+        pendingLabel="삭제 중…"
+        icon="how_to_vote"
+        onConfirm={handleConfirmDeleteVote}
+        onCancel={() => setDeletingVote(null)}
+      />
     </div>
   );
 }

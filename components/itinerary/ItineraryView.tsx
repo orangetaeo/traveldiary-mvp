@@ -35,6 +35,7 @@ import type { DiscoverPlace } from "@/lib/types";
 import { ShareModal } from "@/components/share/ShareModal";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 interface ItineraryViewProps {
   trip: Trip;
@@ -63,6 +64,7 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
   // 사이클 10 — A2 드래그 + A5 자유 추가 + 수정/삭제
   const [addOpen, setAddOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ItineraryItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<ItineraryItem | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   // 사이클 11a — M7 공유
@@ -382,13 +384,15 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
 
   // ── 일정 삭제 ────────────────────────────────────────
   function handleDeleteItem(item: ItineraryItem) {
-    const { ko } = (() => {
-      const parts = item.name.split(" (");
-      return { ko: parts[0] };
-    })();
-    if (!window.confirm(`'${ko}' 일정을 삭제하시겠습니까?`)) return;
+    setDeletingItem(item);
+  }
 
-    // 낙관적 업데이트
+  function handleConfirmDeleteItem() {
+    if (!deletingItem) return;
+    const item = deletingItem;
+    const ko = item.name.split(" (")[0];
+    setDeletingItem(null);
+
     const prevItems = items;
     setItems((prev) => prev.filter((it) => it.id !== item.id));
 
@@ -601,6 +605,17 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
       />
 
       <Toast toast={toast} />
+
+      <ConfirmDialog
+        open={!!deletingItem}
+        title="일정 삭제"
+        description={`'${deletingItem?.name.split(" (")[0] ?? ""}' 일정을 삭제하시겠습니까?`}
+        confirmLabel="삭제"
+        pendingLabel="삭제 중…"
+        icon="event_busy"
+        onConfirm={handleConfirmDeleteItem}
+        onCancel={() => setDeletingItem(null)}
+      />
 
       {/* 사이클 3 (G4) — M1 차별화 축 첫 진입 안내 (LocalStorage 1회 박제) */}
       <ItineraryCoachMark />
