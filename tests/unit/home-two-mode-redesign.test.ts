@@ -216,7 +216,8 @@ describe("MagicMomentsData — M1~M4 4축 정의", () => {
   it("M2 D-Day 모드 전환 — accent 코랄 + /travel 진입", () => {
     expect(DATA).toMatch(/M2\s*—\s*D-Day 모드 전환/);
     expect(DATA).toContain("from-accent to-accent-deep");
-    expect(DATA).toMatch(/href:\s*`\/travel\/\$\{DEMO_TRIP_ID\}`/);
+    // context-aware (2026-05-08): targetTripId 사용 — DEMO_TRIP_ID는 fallback
+    expect(DATA).toMatch(/href:\s*`\/travel\/\$\{targetTripId\}`/);
   });
 
   it("M3 Live Replan — purple-deep 그라디언트", () => {
@@ -227,11 +228,99 @@ describe("MagicMomentsData — M1~M4 4축 정의", () => {
   it("M4 카메라 번역 — amber 그라디언트 + /translate 진입", () => {
     expect(DATA).toMatch(/M4\s*—\s*카메라 번역/);
     expect(DATA).toContain("from-amber to-amber-deep");
-    expect(DATA).toContain('href: "/translate"');
+    // context-aware: own trip 시 ?trip= 쿼리 파라미터 부착, 데모 시 /translate 단순
+    expect(DATA).toMatch(/href:\s*isOwnTrip\s*\?\s*`\/translate\?trip=\$\{targetTripId\}`\s*:\s*"\/translate"/);
   });
 
   it("buildMomentCards 함수 export + MomentCard 타입", () => {
     expect(DATA).toContain("export function buildMomentCards");
     expect(DATA).toContain("MomentCard");
+  });
+});
+
+// ═════════════════════════════════════════════════════════════
+// Context-aware 동작 검증 (2026-05-08) — buildMomentCards 직접 호출
+// ═════════════════════════════════════════════════════════════
+
+import { buildMomentCards } from "@/components/home/MagicMomentsData";
+import { DEMO_TRIP_ID } from "@/lib/seed";
+
+describe("buildMomentCards — context-aware 동작", () => {
+  describe("Mode A (tripId 미지정) — 데모 trip으로 진입", () => {
+    const cards = buildMomentCards();
+
+    it("M1 추천 근거 — /itinerary/{DEMO_TRIP_ID}", () => {
+      expect(cards[0].href).toBe(`/itinerary/${DEMO_TRIP_ID}`);
+      expect(cards[0].hrefLabel).toBe("데모 일정 보기");
+    });
+
+    it("M2 D-Day 모드 — /travel/{DEMO_TRIP_ID}", () => {
+      expect(cards[1].href).toBe(`/travel/${DEMO_TRIP_ID}`);
+      expect(cards[1].hrefLabel).toBe("여행 중 모드 보기");
+    });
+
+    it("M3 Live Replan — /itinerary/{DEMO_TRIP_ID}", () => {
+      expect(cards[2].href).toBe(`/itinerary/${DEMO_TRIP_ID}`);
+      expect(cards[2].hrefLabel).toBe("재계획 시연 보기");
+    });
+
+    it("M4 카메라 번역 — /translate (쿼리 없음)", () => {
+      expect(cards[3].href).toBe("/translate");
+      expect(cards[3].hrefLabel).toBe("카메라 번역 열기");
+    });
+  });
+
+  describe("Mode B (tripId 지정) — 본인 trip으로 진입", () => {
+    const ownTripId = "trip-clxyz1234abcdef";
+    const cards = buildMomentCards({ tripId: ownTripId });
+
+    it("M1 추천 근거 — /itinerary/{ownTripId} + 본인 라벨", () => {
+      expect(cards[0].href).toBe(`/itinerary/${ownTripId}`);
+      expect(cards[0].hrefLabel).toBe("내 일정 추천 근거 보기");
+    });
+
+    it("M2 D-Day 모드 — /travel/{ownTripId} + 본인 라벨", () => {
+      expect(cards[1].href).toBe(`/travel/${ownTripId}`);
+      expect(cards[1].hrefLabel).toBe("내 여행 중 홈 열기");
+    });
+
+    it("M3 Live Replan — /itinerary/{ownTripId} + 본인 라벨", () => {
+      expect(cards[2].href).toBe(`/itinerary/${ownTripId}`);
+      expect(cards[2].hrefLabel).toBe("내 일정에서 재계획");
+    });
+
+    it("M4 카메라 번역 — /translate?trip={ownTripId} 쿼리 부착", () => {
+      expect(cards[3].href).toBe(`/translate?trip=${ownTripId}`);
+      // M4 라벨은 두 모드 동일 (카메라 번역 자체가 trip 무관)
+      expect(cards[3].hrefLabel).toBe("카메라 번역 열기");
+    });
+  });
+
+  describe("불변성 — 카드 4개 순서 + id 보존", () => {
+    const cardsA = buildMomentCards();
+    const cardsB = buildMomentCards({ tripId: "any" });
+
+    it("Mode A/B 모두 카드 4개 + id 순서 m1→m2→m3→m4 동일", () => {
+      expect(cardsA.map((c) => c.id)).toEqual(["m1", "m2", "m3", "m4"]);
+      expect(cardsB.map((c) => c.id)).toEqual(["m1", "m2", "m3", "m4"]);
+    });
+
+    it("Mode A/B 모두 4 카드 — 그라디언트/아이콘/배지 동일", () => {
+      for (let i = 0; i < 4; i++) {
+        expect(cardsA[i].gradient).toBe(cardsB[i].gradient);
+        expect(cardsA[i].icon).toBe(cardsB[i].icon);
+        expect(cardsA[i].badge).toBe(cardsB[i].badge);
+        expect(cardsA[i].title).toBe(cardsB[i].title);
+        expect(cardsA[i].description).toBe(cardsB[i].description);
+      }
+    });
+  });
+});
+
+describe("app/page.tsx — context-aware momentCards 전달", () => {
+  it("Mode B 분기 시 buildMomentCards에 primaryTrip.id 전달", () => {
+    expect(PAGE).toMatch(
+      /buildMomentCards\s*\(\s*\n?\s*isDashboardMode\s+&&\s+primaryTrip\s*\?\s*\{\s*tripId:\s*primaryTrip\.id\s*\}\s*:\s*\{\}\s*,?\s*\n?\s*\)/,
+    );
   });
 });

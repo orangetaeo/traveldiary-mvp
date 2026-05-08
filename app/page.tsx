@@ -105,7 +105,11 @@ export default async function HomePage({
 
   const isDashboardMode = ownedTrips.length > 0;
   const primaryTrip = ownedTrips[0];
-  const momentCards = buildMomentCards();
+  // Mode B: 본인 trip 컨텍스트로 카드 wiring (즉시 가치)
+  // Mode A: 데모 trip으로 wiring (체험 유도)
+  const momentCards = buildMomentCards(
+    isDashboardMode && primaryTrip ? { tripId: primaryTrip.id } : {},
+  );
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
