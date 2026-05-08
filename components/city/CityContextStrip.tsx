@@ -33,7 +33,11 @@ export function CityContextStrip({ city }: { city: ResolvedCity }) {
       aria-label="도시 컨텍스트 (M5)"
       className="px-td-md py-td-sm"
     >
-      <div className="flex overflow-x-auto gap-td-xs hide-scrollbar -mx-td-md px-td-md">
+      {/* touch-pan-x + overscroll-x-contain (2026-05-08): 모바일에서 가로 스와이프
+          시 브라우저가 수직 스크롤로 해석하여 페이지가 위로 밀려 strip이 화면에서
+          올라가는 현상 fix. touch-action: pan-x로 수직 제스처를 부모로 위임,
+          overscroll-behavior-x: contain으로 scroll chaining 차단. */}
+      <div className="flex overflow-x-auto touch-pan-x overscroll-x-contain gap-td-xs hide-scrollbar -mx-td-md px-td-md">
         {/* 1. 응급 */}
         <Link
           href={`/city/${city.slug}#emergency`}

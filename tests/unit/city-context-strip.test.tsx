@@ -130,4 +130,15 @@ describe("CityContextStrip", () => {
     expect(html).toContain("—");
     expect(html).toContain("한국 영사관");
   });
+
+  // 2026-05-08 — 가로 스와이프 시 페이지가 위로 밀리는 현상 fix.
+  // touch-action: pan-x로 수직 제스처 부모 위임, overscroll-behavior-x: contain으로
+  // scroll chaining 차단.
+  it("가로 스크롤 컨테이너 — touch-pan-x + overscroll-x-contain 적용", () => {
+    const html = renderToStaticMarkup(<CityContextStrip city={makeCity()} />);
+    // overflow-x-auto와 함께 touch-pan-x가 같은 컨테이너에 함께 적용됐는지
+    expect(html).toMatch(/overflow-x-auto[^"]*touch-pan-x/);
+    // overscroll-x-contain (scroll chaining 차단)
+    expect(html).toContain("overscroll-x-contain");
+  });
 });
