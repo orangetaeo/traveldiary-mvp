@@ -18,7 +18,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 
 export const dynamic = "force-dynamic";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "/";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "/";
 
 function makeRedirectError(reason: string): NextResponse {
   const url = new URL(`/?auth_error=${encodeURIComponent(reason)}`, APP_URL);
