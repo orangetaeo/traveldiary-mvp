@@ -110,6 +110,14 @@ export default async function HomePage({
   const momentCards = buildMomentCards(
     isDashboardMode && primaryTrip ? { tripId: primaryTrip.id } : {},
   );
+  // cap 5: SpeedDialFab 진입점도 동일 컨텍스트 인식 (변수 추출로 JSX 가독성 + 회귀 테스트 슬라이스 윈도우 유지)
+  const fabTripId =
+    isDashboardMode && primaryTrip ? primaryTrip.id : DEMO_TRIP_ID;
+  const fabDiscoverHref = `/itinerary/${fabTripId}/discover?day=0`;
+  const fabTranslateHref =
+    isDashboardMode && primaryTrip
+      ? `/translate?trip=${primaryTrip.id}`
+      : "/translate";
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
@@ -246,9 +254,11 @@ export default async function HomePage({
         </section>
       </main>
 
+      {/* SpeedDialFab — Mode B 시 본인 trip 컨텍스트로 wiring (cap 5).
+          cap 2 buildMomentCards context-aware 답습. */}
       <SpeedDialFab bottomClassName="bottom-24" zIndex="z-40">
         <Link
-          href={`/itinerary/${DEMO_TRIP_ID}/discover?day=0`}
+          href={fabDiscoverHref}
           data-speed-dial-action="true"
           className="w-12 h-12 bg-surface-card text-ink border border-divider rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
           aria-label="주변 검색"
@@ -258,7 +268,7 @@ export default async function HomePage({
           </span>
         </Link>
         <Link
-          href="/translate"
+          href={fabTranslateHref}
           data-speed-dial-action="true"
           className="w-12 h-12 bg-surface-card text-ink border border-divider rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform"
           aria-label="카메라 번역"

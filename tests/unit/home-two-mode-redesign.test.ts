@@ -97,6 +97,25 @@ describe("홈 두 모드 분기 — app/page.tsx", () => {
     expect(PAGE).toContain("@/components/home/MagicMomentsCarousel");
     expect(PAGE).toContain("@/components/home/MagicMomentsData");
   });
+
+  it("cap 5 — SpeedDialFab context-aware 변수 추출 (fabTripId/fabDiscoverHref/fabTranslateHref)", () => {
+    // 변수 추출 — Mode B 시 primaryTrip.id, Mode A 시 DEMO_TRIP_ID
+    expect(PAGE).toMatch(
+      /const fabTripId\s*=\s*\n?\s*isDashboardMode\s+&&\s+primaryTrip\s*\?\s*primaryTrip\.id\s*:\s*DEMO_TRIP_ID/,
+    );
+    expect(PAGE).toContain(
+      "const fabDiscoverHref = `/itinerary/${fabTripId}/discover?day=0`",
+    );
+    // /translate 진입점 — Mode B 시 ?trip=, Mode A 시 단순 (cap 2 카드 답습)
+    expect(PAGE).toMatch(
+      /const fabTranslateHref\s*=[\s\S]+?isDashboardMode\s+&&\s+primaryTrip[\s\S]+?`\/translate\?trip=\$\{primaryTrip\.id\}`[\s\S]+?:\s*"\/translate"/,
+    );
+    // FAB Link wiring + aria-label 보존
+    expect(PAGE).toContain("href={fabDiscoverHref}");
+    expect(PAGE).toContain("href={fabTranslateHref}");
+    expect(PAGE).toContain('aria-label="주변 검색"');
+    expect(PAGE).toContain('aria-label="카메라 번역"');
+  });
 });
 
 describe("WelcomeHero — 비로그인/0건 사용자 가치 제안", () => {
