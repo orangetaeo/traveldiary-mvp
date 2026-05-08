@@ -37,6 +37,15 @@ interface AddItemModalProps {
     category: ItemCategory;
   }) => void;
   isPending?: boolean;
+  /** 수정 모드 — 기존 항목 데이터를 pre-fill. */
+  editItem?: {
+    dayIndex: number;
+    scheduledAt: string;
+    durationMinutes: number;
+    flexibility: ItemFlexibility;
+    name: string;
+    category: ItemCategory;
+  } | null;
 }
 
 
@@ -48,7 +57,9 @@ export function AddItemModal({
   onClose,
   onSubmit,
   isPending,
+  editItem,
 }: AddItemModalProps) {
+  const isEditMode = Boolean(editItem);
   const [day, setDay] = useState(defaultDayIndex);
   const [time, setTime] = useState("12:00");
   const [name, setName] = useState("");
@@ -63,8 +74,24 @@ export function AddItemModal({
   const isDragging = useRef(false);
 
   useEffect(() => {
-    if (open) setDay(defaultDayIndex);
-  }, [open, defaultDayIndex]);
+    if (!open) return;
+    if (editItem) {
+      setDay(editItem.dayIndex);
+      const d = new Date(editItem.scheduledAt);
+      setTime(`${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`);
+      setName(editItem.name);
+      setCategory(editItem.category);
+      setFlexibility(editItem.flexibility);
+      setDuration(editItem.durationMinutes);
+    } else {
+      setDay(defaultDayIndex);
+      setTime("12:00");
+      setName("");
+      setCategory("food");
+      setFlexibility("flexible");
+      setDuration(60);
+    }
+  }, [open, defaultDayIndex, editItem]);
 
   useEffect(() => {
     if (!open) return;
@@ -165,15 +192,17 @@ export function AddItemModal({
             id="add-item-title"
             className="text-td-card-title text-ink font-semibold"
           >
-            일정 추가
+            {isEditMode ? "일정 수정" : "일정 추가"}
           </h2>
           <p className="text-td-caption text-ink-soft mt-td-xxs">
-            AI 추천 장소를 선택하거나, 직접 입력하세요.
+            {isEditMode
+              ? "이름, 시간, 카테고리 등을 수정하세요."
+              : "AI 추천 장소를 선택하거나, 직접 입력하세요."}
           </p>
         </header>
 
-        {/* AI 추천 카드 */}
-        {top5.length > 0 && (
+        {/* AI 추천 카드 (수정 모드에서는 숨김) */}
+        {!isEditMode && top5.length > 0 && (
           <div className="px-td-md pb-td-sm shrink-0">
             <p className="text-td-caption text-purple font-medium mb-td-xs flex items-center gap-1">
               <span className="material-symbols-outlined text-td-icon-sm" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
@@ -346,7 +375,7 @@ export function AddItemModal({
             onClick={handleSubmit as unknown as React.MouseEventHandler}
             className="flex-[2] py-2.5 bg-purple text-white rounded-lg text-td-body font-semibold hover:opacity-90 disabled:opacity-60 transition-opacity"
           >
-            {isPending ? "추가 중…" : "일정 추가"}
+            {isPending ? (isEditMode ? "수정 중…" : "추가 중…") : (isEditMode ? "일정 수정" : "일정 추가")}
           </button>
         </div>
       </div>

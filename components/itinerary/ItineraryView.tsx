@@ -27,6 +27,8 @@ import { setTripMode } from "@/actions/trip";
 import {
   addItineraryItem,
   reorderItineraryItems,
+  editItineraryItem,
+  removeItineraryItem,
 } from "@/actions/itinerary";
 import { AddItemModal } from "./AddItemModal";
 import type { DiscoverPlace } from "@/lib/types";
@@ -58,8 +60,9 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
   const [appliedLabel, setAppliedLabel] = useState<string | null>(null);
   const { toast, show: showToast } = useToast();
   const [isPending, startTransition] = useTransition();
-  // 사이클 10 — A2 드래그 + A5 자유 추가
+  // 사이클 10 — A2 드래그 + A5 자유 추가 + 수정/삭제
   const [addOpen, setAddOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<ItineraryItem | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   // 사이클 11a — M7 공유
@@ -325,6 +328,90 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
     });
   }
 
+  // ── 일정 수정 ────────────────────────────────────────
+  function handleStartEdit(item: ItineraryItem) {
+    setEditingItem(item);
+    setAddOpen(true);
+  }
+
+  function handleEditItem(input: {
+    dayIndex: number;
+    scheduledAt: string;
+    durationMinutes: number;
+    flexibility: ItineraryItem["flexibility"];
+    name: string;
+    category: ItineraryItem["category"];
+  }) {
+    if (!editingItem) return;
+    const itemId = editingItem.id;
+    setAddOpen(false);
+
+    // 낙관적 업데이트
+    const prevItems = items;
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === itemId ? { ...it, ...input } : it,
+      ),
+    );
+    setEditingItem(null);
+
+    startTransition(async () => {
+      const result = await editItineraryItem({
+        itemId,
+        tripId: trip.id,
+        name: input.name,
+        category: input.category,
+        scheduledAt: input.scheduledAt,
+        durationMinutes: input.durationMinutes,
+        flexibility: input.flexibility,
+      });
+
+      if (!result.ok) {
+        setItems(prevItems);
+        showToast(`수정 실패: ${result.code}`, { ms: 3000, variant: "danger" });
+        return;
+      }
+      if (result.demo) {
+        showToast(`'${input.name}' 수정 (데모 시뮬)`, { ms: 3000, variant: "info" });
+      } else {
+        showToast(`'${input.name}' 수정됨 (DB 영속화)`, { ms: 3000, variant: "success" });
+        router.refresh();
+      }
+    });
+  }
+
+  // ── 일정 삭제 ────────────────────────────────────────
+  function handleDeleteItem(item: ItineraryItem) {
+    const { ko } = (() => {
+      const parts = item.name.split(" (");
+      return { ko: parts[0] };
+    })();
+    if (!window.confirm(`'${ko}' 일정을 삭제하시겠습니까?`)) return;
+
+    // 낙관적 업데이트
+    const prevItems = items;
+    setItems((prev) => prev.filter((it) => it.id !== item.id));
+
+    startTransition(async () => {
+      const result = await removeItineraryItem({
+        itemId: item.id,
+        tripId: trip.id,
+      });
+
+      if (!result.ok) {
+        setItems(prevItems);
+        showToast(`삭제 실패: ${result.code}`, { ms: 3000, variant: "danger" });
+        return;
+      }
+      if (result.demo) {
+        showToast(`'${ko}' 삭제 (데모 시뮬)`, { ms: 3000, variant: "info" });
+      } else {
+        showToast(`'${ko}' 삭제됨`, { ms: 3000, variant: "success" });
+        router.refresh();
+      }
+    });
+  }
+
   function handleEnterTravelMode() {
     startTransition(async () => {
       // 데모 토글(수동) — boundaryHit은 의도적으로 미설정 (좌표 평가 없음).
@@ -440,6 +527,8 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
                 canCheckIn={isOnTrip}
                 onCheckIn={checkIn}
                 onUndoCheckIn={undoCheckIn}
+                onEdit={handleStartEdit}
+                onDelete={handleDeleteItem}
               />
             </div>
           );
@@ -492,9 +581,17 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
         trip={trip}
         defaultDayIndex={activeDay}
         suggestions={suggestions}
-        onClose={() => setAddOpen(false)}
-        onSubmit={handleAddItem}
+        onClose={() => { setAddOpen(false); setEditingItem(null); }}
+        onSubmit={editingItem ? handleEditItem : handleAddItem}
         isPending={isPending}
+        editItem={editingItem ? {
+          dayIndex: editingItem.dayIndex,
+          scheduledAt: editingItem.scheduledAt,
+          durationMinutes: editingItem.durationMinutes,
+          flexibility: editingItem.flexibility,
+          name: editingItem.name,
+          category: editingItem.category,
+        } : null}
       />
 
       <ShareModal

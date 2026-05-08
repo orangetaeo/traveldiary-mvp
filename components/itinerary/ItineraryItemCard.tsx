@@ -49,6 +49,9 @@ interface ItineraryItemCardProps {
   canCheckIn?: boolean;
   onCheckIn?: (id: string) => void;
   onUndoCheckIn?: (id: string) => void;
+  /** 일정 수정/삭제 콜백 */
+  onEdit?: (item: ItineraryItem) => void;
+  onDelete?: (item: ItineraryItem) => void;
 }
 
 export function ItineraryItemCard({
@@ -72,6 +75,8 @@ export function ItineraryItemCard({
   canCheckIn = false,
   onCheckIn,
   onUndoCheckIn,
+  onEdit,
+  onDelete,
 }: ItineraryItemCardProps) {
   const isBooked =
     item.flexibility === "booked" || item.flexibility === "fixed";
@@ -192,30 +197,58 @@ export function ItineraryItemCard({
           </button>
         )}
 
-        {/* 사이클 BLOCKER4 — 화살표 정렬 (모바일 터치 대응) */}
-        <div className="flex justify-end gap-td-xxs mt-td-xs">
-          <button
-            type="button"
-            disabled={isFirst}
-            onClick={(e) => { e.stopPropagation(); onMoveUp(item.id); }}
-            className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
-            aria-label="위로 이동"
-          >
-            <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
-              keyboard_arrow_up
-            </span>
-          </button>
-          <button
-            type="button"
-            disabled={isLast}
-            onClick={(e) => { e.stopPropagation(); onMoveDown(item.id); }}
-            className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
-            aria-label="아래로 이동"
-          >
-            <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
-              keyboard_arrow_down
-            </span>
-          </button>
+        {/* 사이클 BLOCKER4 — 화살표 정렬 + 수정/삭제 */}
+        <div className="flex justify-between mt-td-xs">
+          <div className="flex gap-td-xxs">
+            {onEdit && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onEdit(item); }}
+                className="p-1 rounded hover:bg-surface-soft transition-colors"
+                aria-label="수정"
+              >
+                <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
+                  edit
+                </span>
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onDelete(item); }}
+                className="p-1 rounded hover:bg-surface-soft transition-colors text-danger"
+                aria-label="삭제"
+              >
+                <span className="material-symbols-outlined text-td-icon" aria-hidden>
+                  delete
+                </span>
+              </button>
+            )}
+          </div>
+          <div className="flex gap-td-xxs">
+            <button
+              type="button"
+              disabled={isFirst}
+              onClick={(e) => { e.stopPropagation(); onMoveUp(item.id); }}
+              className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
+              aria-label="위로 이동"
+            >
+              <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
+                keyboard_arrow_up
+              </span>
+            </button>
+            <button
+              type="button"
+              disabled={isLast}
+              onClick={(e) => { e.stopPropagation(); onMoveDown(item.id); }}
+              className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
+              aria-label="아래로 이동"
+            >
+              <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
+                keyboard_arrow_down
+              </span>
+            </button>
+          </div>
         </div>
 
         {showEvidence && (
