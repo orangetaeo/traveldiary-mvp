@@ -24,6 +24,8 @@ import type {
   ShareCommentRow,
 } from "@/lib/repositories/shareComment.repository";
 import { REACTION_FULL_LABEL } from "@/lib/constants/reaction-constants";
+import { useToast } from "@/lib/hooks/useToast";
+import { Toast } from "@/components/ui/Toast";
 
 interface CommentSectionProps {
   syncKey: string;
@@ -55,6 +57,7 @@ export function CommentSection({
   const [error, setError] = useState<string | null>(null);
   const [clientUuid, setClientUuid] = useState("");
   const [isPending, startTransition] = useTransition();
+  const { toast, show: showToast } = useToast();
 
   // 클라이언트 마운트 후 — clientUuid + 저장된 nickname 채움
   useEffect(() => {
@@ -153,11 +156,12 @@ export function CommentSection({
         clientUuid,
       });
       if (!result.ok) {
-        setError("삭제 실패 — 본인 댓글만 삭제 가능");
+        showToast("삭제 실패 — 본인 댓글만 삭제 가능", { variant: "danger" });
         return;
       }
       const next = comments.filter((c) => c.id !== commentId);
       setComments(next);
+      showToast("댓글 삭제됨", { variant: "success" });
       // 데모 모드 LocalStorage 갱신
       if (commentId.startsWith("demo-")) persistDemoComments(next);
     });
@@ -294,6 +298,7 @@ export function CommentSection({
           })}
         </ul>
       )}
+      <Toast toast={toast} />
     </section>
   );
 }
