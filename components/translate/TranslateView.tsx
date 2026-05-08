@@ -90,11 +90,7 @@ function CapturingView({
           onShutter(); // 정적 시드 ResultsView로
         } else if (result.mode === "ok") {
           showToast(
-            `실 번역 ${result.items.length}건 (OCR ${
-              result.ocrCached ? "캐시" : "신선"
-            } · Claude ${result.claudeCached ? "캐시" : "신선"} · ${
-              result.totalMs
-            }ms)`,
+            `실 번역 ${result.items.length}건 (${result.totalMs}ms)`,
             { variant: "success" },
           );
           // 5b-5에선 결과를 sessionStorage에 저장 → 사이클 5b-5.5에서 ResultsView 통합

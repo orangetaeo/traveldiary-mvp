@@ -1,9 +1,9 @@
 "use server";
 
 /**
- * Translate Server Action — 사이클 5b-5 (ADR-019).
+ * Translate Server Action — Claude Vision 멀티모달 단일 파이프라인.
  *
- * 클라이언트가 Base64 이미지를 보내면 Vision OCR + Claude 번역 → MenuItem 배열 반환.
+ * 클라이언트가 Base64 이미지를 보내면 Claude Vision으로 OCR + 번역 + 알레르기 분석.
  * audit log "evidence.gathered" + metadata.source.
  */
 
@@ -23,34 +23,48 @@ export interface TranslateMenuPhotoInput {
 export async function translateMenuPhotoAction(
   input: TranslateMenuPhotoInput,
 ): Promise<MenuTranslationOutcome> {
-  const result = await translateMenuPhoto(input.imageBase64);
+  let result: MenuTranslationOutcome;
+  try {
+    result = await translateMenuPhoto(input.imageBase64);
+  } catch (err) {
+    console.error("[translateMenuPhotoAction] translateMenuPhoto threw", err);
+    return {
+      mode: "error",
+      stage: "vision",
+      code: "network",
+      message: err instanceof Error ? err.message : "알 수 없는 오류",
+      totalMs: 0,
+    };
+  }
 
-  // audit log: 진짜 호출(fresh fetch)일 때만 기록
-  const shouldAudit =
-    (result.mode === "ok" && (!result.ocrCached || !result.claudeCached)) ||
-    result.mode === "error" ||
-    result.mode === "no_text";
+  try {
+    const shouldAudit =
+      (result.mode === "ok" && !result.cached) ||
+      result.mode === "error" ||
+      result.mode === "no_text";
 
-  if (shouldAudit) {
-    await writeAuditLog({
-      actorId: await getActorId(),
-      action: "evidence.gathered",
-      resource: "MenuTranslation",
-      resourceId: input.contextId ?? "unknown",
-      after:
-        result.mode === "ok"
-          ? { itemCount: result.items.length }
-          : null,
-      metadata: {
-        source: "vision+claude",
-        mode: result.mode,
-        ocrCached: "ocrCached" in result ? result.ocrCached : undefined,
-        claudeCached: "claudeCached" in result ? result.claudeCached : undefined,
-        totalMs: "totalMs" in result ? result.totalMs : undefined,
-        stage: "stage" in result ? result.stage : undefined,
-        errorCode: "code" in result && result.mode === "error" ? result.code : undefined,
-      },
-    });
+    if (shouldAudit) {
+      await writeAuditLog({
+        actorId: await getActorId(),
+        action: "evidence.gathered",
+        resource: "MenuTranslation",
+        resourceId: input.contextId ?? "unknown",
+        after:
+          result.mode === "ok"
+            ? { itemCount: result.items.length }
+            : null,
+        metadata: {
+          source: "claude-vision",
+          mode: result.mode,
+          cached: "cached" in result ? result.cached : undefined,
+          totalMs: "totalMs" in result ? result.totalMs : undefined,
+          stage: "stage" in result ? result.stage : undefined,
+          errorCode: "code" in result && result.mode === "error" ? result.code : undefined,
+        },
+      });
+    }
+  } catch (auditErr) {
+    console.error("[translateMenuPhotoAction] audit log failed", auditErr);
   }
 
   return result;

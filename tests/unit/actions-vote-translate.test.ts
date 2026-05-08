@@ -272,8 +272,7 @@ describe("actions/translate — translateMenuPhotoAction", () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "ok",
       items: [{ name: "쌀국수" }],
-      ocrCached: false,
-      claudeCached: false,
+      cached: false,
       totalMs: 1200,
     });
     const { translateMenuPhotoAction } = await import("@/actions/translate");
@@ -295,8 +294,7 @@ describe("actions/translate — translateMenuPhotoAction", () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "ok",
       items: [{ name: "반미" }],
-      ocrCached: true,
-      claudeCached: true,
+      cached: true,
       totalMs: 50,
     });
     const { translateMenuPhotoAction } = await import("@/actions/translate");
@@ -307,7 +305,7 @@ describe("actions/translate — translateMenuPhotoAction", () => {
   it("error → audit 기록", async () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "error",
-      stage: "ocr",
+      stage: "vision",
       code: "api_error",
       totalMs: 300,
     });
@@ -320,7 +318,6 @@ describe("actions/translate — translateMenuPhotoAction", () => {
   it("no_text → audit 기록", async () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "no_text",
-      ocrCached: false,
       totalMs: 500,
     });
     const { translateMenuPhotoAction } = await import("@/actions/translate");
@@ -332,7 +329,7 @@ describe("actions/translate — translateMenuPhotoAction", () => {
   it("contextId 미전송 → resourceId 'unknown'", async () => {
     mockTranslateMenuPhoto.mockResolvedValue({
       mode: "error",
-      stage: "claude",
+      stage: "vision",
       code: "timeout",
       totalMs: 1000,
     });
