@@ -44,7 +44,7 @@ export default async function ChecklistPage({
         cityName={city?.name}
         initialDay={parseDayParam(searchParams.day, trip.nights)}
       />
-      <BottomNav active="itinerary" />
+      <BottomNav active="itinerary" itineraryTripId={trip.id} />
     </>
   );
 }

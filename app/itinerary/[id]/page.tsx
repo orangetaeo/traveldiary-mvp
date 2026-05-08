@@ -223,7 +223,7 @@ async function renderItinerary(
         />
       </main>
 
-      <BottomNav active="itinerary" />
+      <BottomNav active="itinerary" itineraryTripId={trip.id} />
     </div>
   );
 }

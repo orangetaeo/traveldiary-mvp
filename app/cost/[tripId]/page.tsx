@@ -43,7 +43,7 @@ export default async function CostPage({
         approxKrwRate={city?.payment.approxKrwRate ?? 1}
         initialDay={parseDayParam(searchParams.day, trip.nights)}
       />
-      <BottomNav active="itinerary" />
+      <BottomNav active="itinerary" itineraryTripId={trip.id} />
     </>
   );
 }
