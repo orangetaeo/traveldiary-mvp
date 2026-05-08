@@ -8,10 +8,6 @@
 import "server-only";
 
 import {
-  getEvidenceCache,
-  setEvidenceCache,
-} from "@/lib/repositories/evidence-cache.repository";
-import {
   assertQuota,
   recordExternalCall,
   QuotaExceededError,
@@ -24,7 +20,6 @@ import {
   recordSpend,
 } from "@/lib/autonomy/budget";
 import { getEnvKey } from "@/lib/utils/env";
-import { hashCacheKey } from "@/lib/utils/cache-key";
 
 // ── 타입 ─────────────────────────────────────────────────────────
 
@@ -61,9 +56,7 @@ export type ReceiptOcrOutcome =
 // ── 설정 ─────────────────────────────────────────────────────────
 
 const API_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
-const TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30일
-const PLATFORM = "claude.receipt";
+const MODEL = "claude-haiku-4-5-20251001";
 
 const SYSTEM_PROMPT = `당신은 여행자용 영수증 파싱 전문가입니다. 영수증 이미지를 정확히 읽어 비용 정보를 추출합니다.
 
@@ -98,18 +91,6 @@ export async function scanReceipt(imageBase64: string): Promise<ReceiptOcrOutcom
   const apiKey = getEnvKey("ANTHROPIC_API_KEY");
   if (!apiKey) return { mode: "demo" };
   const startedAt = Date.now();
-
-  // 캐시 확인 (이미지 전체 해시 기반)
-  const cacheKey = hashCacheKey(`receipt-v2:${imageBase64}`);
-  const cached = await getEvidenceCache<ParsedReceipt>(cacheKey, PLATFORM);
-  if (cached) {
-    return {
-      mode: "ok",
-      receipt: cached.data,
-      cached: true,
-      totalMs: Date.now() - startedAt,
-    };
-  }
 
   // 쿼터/예산 확인
   try {
@@ -226,13 +207,6 @@ export async function scanReceipt(imageBase64: string): Promise<ReceiptOcrOutcom
     parsed.date = parsed.date || "";
     parsed.items = Array.isArray(parsed.items) ? parsed.items : [];
     parsed.category = parsed.category || "other";
-
-    await setEvidenceCache({
-      placeId: cacheKey,
-      platform: PLATFORM,
-      data: parsed,
-      ttlMs: TTL_MS,
-    });
 
     return {
       mode: "ok",
