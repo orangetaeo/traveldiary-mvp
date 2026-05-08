@@ -87,16 +87,16 @@ describe("PlaceDiscoveryView", () => {
         verifiedCount={5}
       />,
     );
-    expect(html).toContain("전체");
     expect(html).toContain("음식");
     expect(html).toContain("관광");
+    expect(html).toContain("액티비티");
     expect(html).toContain("쇼핑");
-    expect(html).toContain("자연");
     expect(html).toContain("카페");
-    expect(html).toContain("어떤 곳을 찾으세요?");
+    expect(html).toContain("야간");
+    expect(html).toContain("어떤 종류를 찾으시나요?");
   });
 
-  it("badge ai/popular 렌더", () => {
+  it("badge ai + 하트(찜) 렌더", () => {
     const html = renderToStaticMarkup(
       <PlaceDiscoveryView
         tripId="demo-trip-phu-quoc"
@@ -106,8 +106,10 @@ describe("PlaceDiscoveryView", () => {
         verifiedCount={5}
       />,
     );
+    // 기본 카테고리 "음식" 필터 — food 카드 중 AI 뱃지 존재
     expect(html).toContain("AI");
-    expect(html).toContain("인기");
+    // 하트(찜) 아이콘
+    expect(html).toContain("favorite_border");
   });
 });
 

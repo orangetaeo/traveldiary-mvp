@@ -468,7 +468,7 @@ export interface RouteStop {
 }
 
 /** PlaceDiscoveryView — 장소 카테고리 */
-export type PlaceCategory = "food" | "spot" | "shopping" | "nature" | "cafe";
+export type PlaceCategory = "food" | "spot" | "shopping" | "nature" | "cafe" | "activity" | "nightlife";
 
 /** PlaceDiscoveryView — 탐색 장소 카드.
  *

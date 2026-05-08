@@ -119,10 +119,10 @@ describe("types.ts — union type 값 추출", () => {
     expect(values).toEqual(["travel", "companion", "system"]);
   });
 
-  it("PlaceCategory — 5값", () => {
+  it("PlaceCategory — 7값", () => {
     const values = extractUnionValues(TYPES_SRC, "PlaceCategory");
     expect(values.sort()).toEqual(
-      ["food", "spot", "shopping", "nature", "cafe"].sort(),
+      ["food", "spot", "shopping", "nature", "cafe", "activity", "nightlife"].sort(),
     );
   });
 });

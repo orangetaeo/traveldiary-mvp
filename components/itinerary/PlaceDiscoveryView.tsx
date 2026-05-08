@@ -6,7 +6,7 @@
  * Stitch screenId `8c4d688f50fd481e932c4501edaf8d6f` (AI 추천 장소 — 카테고리 우선) 기반.
  * 사용자 진단: 기존 가로 스크롤 캐러셀 → "스크롤 지옥 + 카드 정보 부족".
  * 새 흐름 3단계:
- *   1. 카테고리 그리드 (2열 6 카드: 전체/음식/관광/쇼핑/자연/카페)
+ *   1. 카테고리 그리드 (3열 6 카드: 음식/관광/액티비티/쇼핑/카페/야간)
  *   2. 필터 칩 (가까운 순 / 가격 낮은 순 / 평점 4.5+ / 한국 후기 있음 / 알레르기 제외)
  *   3. 풍부 정보 카드 그리드 (사진 + 뱃지 + 한국 후기 인용 + AI 이유)
  *
@@ -42,15 +42,16 @@ interface CategoryCard {
   key: CategoryKey;
   emoji: string;
   label: string;
+  isIcon?: boolean;
 }
 
 const CATEGORY_CARDS: CategoryCard[] = [
-  { key: "all", emoji: "🗂️", label: "전체" },
-  { key: "food", emoji: "🍜", label: "음식" },
-  { key: "spot", emoji: "🏛️", label: "관광" },
-  { key: "shopping", emoji: "🛍️", label: "쇼핑" },
-  { key: "nature", emoji: "🌿", label: "자연" },
-  { key: "cafe", emoji: "☕", label: "카페" },
+  { key: "food", emoji: "restaurant_menu", label: "음식", isIcon: true },
+  { key: "spot", emoji: "account_balance", label: "관광", isIcon: true },
+  { key: "activity", emoji: "directions_run", label: "액티비티", isIcon: true },
+  { key: "shopping", emoji: "shopping_bag", label: "쇼핑", isIcon: true },
+  { key: "cafe", emoji: "local_cafe", label: "카페", isIcon: true },
+  { key: "nightlife", emoji: "nightlife", label: "야간", isIcon: true },
 ];
 
 // ── Filter Chip ──────────────────────────────────────────────────────────
@@ -84,7 +85,8 @@ export function PlaceDiscoveryView({
   places,
   verifiedCount,
 }: Props) {
-  const [activeCategory, setActiveCategory] = useState<CategoryKey>("all");
+  const [activeCategory, setActiveCategory] = useState<CategoryKey>("food");
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [activeFilters, setActiveFilters] = useState<Set<FilterKey>>(new Set());
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -126,7 +128,12 @@ export function PlaceDiscoveryView({
   const filtered = useMemo(() => {
     let list = places;
     if (activeCategory !== "all") {
-      list = list.filter((p) => p.category === activeCategory);
+      // "activity" 선택 시 기존 "nature" 데이터도 포함 (BC 호환)
+      if (activeCategory === "activity") {
+        list = list.filter((p) => p.category === "activity" || p.category === "nature");
+      } else {
+        list = list.filter((p) => p.category === activeCategory);
+      }
     }
 
     // A4 Tier 2: 관련도 점수 기반 검색
@@ -177,6 +184,15 @@ export function PlaceDiscoveryView({
 
   function handleAdd(place: DiscoverPlace) {
     showToast(`"${place.name}" 일정에 추가됨 (데모)`, { variant: "success" });
+  }
+
+  function handleToggleFavorite(placeId: string) {
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (next.has(placeId)) next.delete(placeId);
+      else next.add(placeId);
+      return next;
+    });
   }
 
   return (
@@ -323,9 +339,9 @@ export function PlaceDiscoveryView({
         {/* 3. Category Grid */}
         <section className="px-td-md mt-td-md">
           <h2 className="text-td-card-title text-ink font-bold mb-td-sm">
-            어떤 곳을 찾으세요?
+            어떤 종류를 찾으시나요?
           </h2>
-          <div className="grid grid-cols-2 gap-td-sm">
+          <div className="grid grid-cols-3 gap-td-sm">
             {CATEGORY_CARDS.map((cat) => {
               const active = cat.key === activeCategory;
               return (
@@ -334,13 +350,23 @@ export function PlaceDiscoveryView({
                   type="button"
                   onClick={() => setActiveCategory(cat.key)}
                   aria-pressed={active ? "true" : "false"}
-                  className={`aspect-square bg-surface-card rounded-md flex flex-col items-center justify-center gap-td-xs transition-all active:scale-95 ${
+                  className={`relative aspect-square bg-surface-card rounded-md flex flex-col items-center justify-center gap-td-xs transition-all active:scale-95 ${
                     active
                       ? "border-2 border-purple shadow-sm"
                       : "border border-divider hover:border-purple/40"
                   }`}
                 >
-                  <span className="text-[40px]" aria-hidden>
+                  {active && (
+                    <span className="absolute top-1.5 left-1.5 w-5 h-5 bg-purple rounded-full flex items-center justify-center">
+                      <span className="material-symbols-outlined text-white text-[14px]" aria-hidden>check</span>
+                    </span>
+                  )}
+                  <span
+                    className={`material-symbols-outlined text-[36px] ${
+                      active ? "text-purple-deep" : "text-ink-mute"
+                    }`}
+                    aria-hidden
+                  >
                     {cat.emoji}
                   </span>
                   <span
@@ -410,6 +436,8 @@ export function PlaceDiscoveryView({
                   key={place.id}
                   place={place}
                   tripId={tripId}
+                  isFavorite={favorites.has(place.id)}
+                  onToggleFavorite={handleToggleFavorite}
                   onAdd={handleAdd}
                 />
               ))}
@@ -427,10 +455,14 @@ export function PlaceDiscoveryView({
 function PlaceResultCard({
   place,
   tripId,
+  isFavorite,
+  onToggleFavorite,
   onAdd,
 }: {
   place: DiscoverPlace;
   tripId: string;
+  isFavorite: boolean;
+  onToggleFavorite: (id: string) => void;
   onAdd: (p: DiscoverPlace) => void;
 }) {
   const showAi = place.badge === "ai" || !!place.aiReason;
@@ -464,23 +496,27 @@ function PlaceResultCard({
             </span>
           </div>
         )}
-        {showAi && (
+        {/* 카테고리 뱃지 (좌상단) */}
+        {showAi ? (
           <span
-            className="absolute top-2 right-2 bg-purple/90 text-white text-td-badge px-2 py-0.5 rounded-full font-bold"
+            className="absolute top-2 left-2 bg-purple/90 text-white text-td-badge px-2 py-0.5 rounded-full font-bold"
             aria-label="AI 추천"
           >
             AI ❤
           </span>
-        )}
-        {showPopular && (
+        ) : showPopular ? (
           <span
-            className="absolute top-2 right-2 bg-amber/90 text-white text-td-badge px-2 py-0.5 rounded-full font-bold"
+            className="absolute top-2 left-2 bg-amber/90 text-white text-td-badge px-2 py-0.5 rounded-full font-bold"
             aria-label="한국인 인기"
           >
             🇰🇷 인기
           </span>
+        ) : (
+          <span className="absolute top-2 left-2 bg-surface-card/80 backdrop-blur-sm text-ink text-td-badge px-2 py-0.5 rounded-full font-bold">
+            {categoryLabel(place.category)}
+          </span>
         )}
-        {place.koreanFoodFriendly && (
+        {place.koreanFoodFriendly && !showAi && !showPopular && (
           <span
             className="absolute top-2 left-2 bg-danger text-white text-td-badge px-2 py-0.5 rounded-full font-bold"
             aria-label="한식 메뉴 가능"
@@ -488,6 +524,17 @@ function PlaceResultCard({
             한식 OK
           </span>
         )}
+        {/* 하트(찜) 아이콘 (우상단) */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite(place.id); }}
+          aria-label={isFavorite ? "찜 해제" : "찜하기"}
+          className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-sm transition-colors hover:bg-white"
+        >
+          <span className={`material-symbols-outlined text-[20px] ${isFavorite ? "text-danger" : "text-ink-mute"}`} aria-hidden>
+            {isFavorite ? "favorite" : "favorite_border"}
+          </span>
+        </button>
       </div>
 
       {/* 본문 */}
@@ -535,8 +582,10 @@ function categoryLabel(category: PlaceCategory): string {
       food: "음식",
       spot: "관광",
       shopping: "쇼핑",
-      nature: "자연",
+      nature: "액티비티",
       cafe: "카페",
+      activity: "액티비티",
+      nightlife: "야간",
     } as Record<PlaceCategory, string>
   )[category];
 }
