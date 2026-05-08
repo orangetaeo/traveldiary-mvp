@@ -22,7 +22,7 @@ import { WeatherStrip } from "@/components/dashboard/WeatherStrip";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { TripDeleteButton } from "@/components/dashboard/TripDeleteButton";
 import { FocusScroller } from "@/components/dashboard/FocusScroller";
-import { getDemoTrip } from "@/lib/seed";
+import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { getCityBySlug } from "@/lib/seed/cities";
 import { getWeatherForecast } from "@/lib/seed/weather";
 import {
@@ -38,7 +38,9 @@ export async function generateMetadata({
 }: {
   params: { tripId: string };
 }): Promise<Metadata> {
-  const found = getDemoTrip(params.tripId);
+  // 2026-05-08 fix: getDemoTrip → resolveTripBundle (DB 우선 + 데모 fallback).
+  // 사용자 본인 trip ID 진입 시 메타데이터 누락 방지.
+  const found = await resolveTripBundle(params.tripId);
   if (!found) return { title: "여행 — TRAVELDIARY" };
   const { trip } = found;
   return {
@@ -61,7 +63,8 @@ export default async function TripDashboardPage({
   params: { tripId: string };
   searchParams?: { focus?: string };
 }) {
-  const found = getDemoTrip(params.tripId);
+  // 2026-05-08 fix: 데모 + DB 통합 lookup. 본인 trip 진입 시 404 방지.
+  const found = await resolveTripBundle(params.tripId);
   if (!found) notFound();
 
   const { trip, items } = found;
