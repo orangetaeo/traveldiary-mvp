@@ -18,8 +18,12 @@ export interface ClaimableTrip {
   destination: string;
   nights: number;
   startDate: string;
+  /** 종료 날짜 (날짜 범위 표시). 없으면 startDate만 표시. */
+  endDate?: string;
   itemCount: number;
   companions: number;
+  /** 여행지 대표 이미지. 없으면 placeholder. */
+  imageUrl?: string;
 }
 
 interface TripClaimModalProps {
@@ -27,6 +31,22 @@ interface TripClaimModalProps {
   userName: string;
   onClose: () => void;
   onClaim: (tripIds: string[]) => Promise<void>;
+}
+
+/** 날짜 표시: "2026.05.20~24" 형식 */
+function formatDateRange(start: string, end?: string): string {
+  const s = start.replace(/-/g, ".");
+  if (!end) return s;
+  const e = end.replace(/-/g, ".");
+  // 같은 연/월이면 일자만 표시
+  if (s.slice(0, 8) === e.slice(0, 8)) return `${s}~${e.slice(8)}`;
+  if (s.slice(0, 5) === e.slice(0, 5)) return `${s}~${e.slice(5)}`;
+  return `${s}~${e}`;
+}
+
+/** 동행 표시: 1 → "혼자", 2+ → "N명" */
+function companionLabel(n: number): string {
+  return n <= 1 ? "혼자" : `${n}명`;
 }
 
 export function TripClaimModal({
@@ -71,26 +91,42 @@ export function TripClaimModal({
       {/* sheet */}
       <div className="relative w-full max-w-md bg-surface-card rounded-t-xl sm:rounded-xl shadow-xl max-h-[85vh] flex flex-col animate-slide-up">
         {/* header */}
-        <div className="px-td-md pt-td-lg pb-td-sm border-b border-divider">
-          <div className="flex items-center gap-td-sm mb-td-xs">
+        <div className="px-td-md pt-td-lg pb-td-sm">
+          <div className="flex items-start justify-between mb-td-sm">
             <div className="w-10 h-10 rounded-full bg-purple-soft flex items-center justify-center">
               <span className="material-symbols-outlined text-purple text-td-icon-lg">
-                sync_alt
+                check_circle
               </span>
             </div>
-            <div>
-              <h2 className="text-td-card-title text-ink font-bold">
-                환영합니다, {userName}님!
-              </h2>
-              <p className="text-td-caption text-ink-soft">
-                기존 여행을 내 계정으로 가져올 수 있어요
-              </p>
-            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="닫기"
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-soft transition-colors"
+            >
+              <span className="material-symbols-outlined text-ink-mute text-[20px]">close</span>
+            </button>
+          </div>
+          <h2 className="text-td-title text-ink font-bold mb-td-xxs">
+            환영합니다, {userName}님!
+          </h2>
+          <p className="text-td-body text-ink-soft">
+            지금까지 이 기기에서 만든 여행 {trips.length}개를 계정으로 가져올까요?
+          </p>
+        </div>
+
+        {/* info banner */}
+        <div className="mx-td-md mb-td-sm rounded-md bg-surface-soft border border-divider px-td-sm py-td-xs">
+          <div className="flex items-start gap-td-xs">
+            <span className="material-symbols-outlined text-purple text-[18px] shrink-0 mt-0.5">info</span>
+            <p className="text-td-caption text-ink-soft leading-relaxed">
+              익명 모드 여행은 이 기기에서만 보였어요. 계정으로 가져오면 다른 기기에서도 동기화돼요.
+            </p>
           </div>
         </div>
 
         {/* trip list */}
-        <div className="flex-grow overflow-y-auto px-td-md py-td-sm space-y-td-sm">
+        <div className="flex-grow overflow-y-auto px-td-md py-td-xs space-y-td-sm">
           {trips.map((trip) => {
             const checked = selected.has(trip.id);
             return (
@@ -117,21 +153,41 @@ export function TripClaimModal({
                   )}
                 </div>
 
+                {/* thumbnail */}
+                <div className="w-16 h-16 rounded-md overflow-hidden bg-surface-soft shrink-0">
+                  {trip.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={trip.imageUrl}
+                      alt={trip.destination}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="material-symbols-outlined text-ink-mute text-[24px]" aria-hidden>
+                        flight_takeoff
+                      </span>
+                    </div>
+                  )}
+                </div>
+
                 {/* trip info */}
                 <div className="min-w-0 flex-grow">
-                  <p className="text-td-body font-medium text-ink">
-                    {trip.destination} {trip.nights}박 {trip.nights + 1}일
-                  </p>
-                  <div className="flex items-center gap-td-xs mt-td-xxs text-td-caption text-ink-soft">
-                    <span>{trip.itemCount}개 일정</span>
-                    <span aria-hidden>·</span>
-                    <span>{trip.startDate}</span>
-                    {trip.companions > 1 && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span>{trip.companions}명</span>
-                      </>
-                    )}
+                  <div className="flex items-center justify-between gap-td-xs">
+                    <p className="text-td-body font-bold text-ink truncate">
+                      {trip.destination} {trip.nights}박 {trip.nights + 1}일
+                    </p>
+                    <span className="shrink-0 text-td-badge font-bold text-purple-deep bg-purple-soft/60 px-2 py-0.5 rounded-full">
+                      {trip.itemCount} spots
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-td-xxs mt-1 text-td-caption text-ink-soft">
+                    <span className="material-symbols-outlined text-[14px]" aria-hidden>calendar_today</span>
+                    <span>{formatDateRange(trip.startDate, trip.endDate)}</span>
+                  </div>
+                  <div className="flex items-center gap-td-xxs mt-0.5 text-td-caption text-ink-soft">
+                    <span className="material-symbols-outlined text-[14px]" aria-hidden>group</span>
+                    <span>{companionLabel(trip.companions)}</span>
                   </div>
                 </div>
               </button>
@@ -140,31 +196,25 @@ export function TripClaimModal({
         </div>
 
         {/* actions */}
-        <div className="px-td-md py-td-md border-t border-divider space-y-td-sm">
+        <div className="px-td-md pt-td-sm pb-td-md space-y-td-xs">
           <button
             type="button"
             onClick={handleClaim}
             disabled={isPending || selected.size === 0}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-purple text-white font-semibold text-td-body hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full bg-purple text-white font-semibold text-td-body hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPending ? (
-              "가져오는 중..."
-            ) : (
-              <>
-                <span className="material-symbols-outlined text-td-icon">
-                  cloud_download
-                </span>
-                {selected.size}개 여행 가져오기
-              </>
-            )}
+            {isPending ? "가져오는 중..." : `선택한 ${selected.size}개 가져오기`}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 rounded-lg text-td-meta text-ink-soft hover:bg-surface-soft transition-colors"
+            className="w-full py-2.5 text-td-body text-ink-soft hover:text-ink transition-colors"
           >
-            나중에 할게요 (설정에서 가능)
+            지금은 안 할래요
           </button>
+          <p className="text-td-caption text-ink-mute text-center">
+            나중에 설정에서 언제든 가져올 수 있어요
+          </p>
         </div>
       </div>
 
