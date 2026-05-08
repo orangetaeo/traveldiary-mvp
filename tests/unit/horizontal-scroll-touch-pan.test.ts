@@ -24,7 +24,6 @@ const FILES = [
   "app/wrap-up/[tripId]/page.tsx",
   "app/trips/page.tsx",
   "app/itinerary/[id]/item/[itemId]/page.tsx",
-  "app/page.tsx",
   "app/city/[slug]/page.tsx",
   "components/recap/PostTripRecapView.tsx",
   "components/dashboard/WeatherStrip.tsx",
@@ -39,6 +38,9 @@ const FILES = [
   "components/checklist/ChecklistDoneFilter.tsx",
   "components/checklist/ChecklistCategoryFilter.tsx",
   "components/city/CityContextStrip.tsx",
+  // 홈 재설계 (2026-05-08) — 매직 모먼트 캐러셀 + 다중 trip 칩 selector
+  "components/home/MagicMomentsCarousel.tsx",
+  "components/home/DashboardHero.tsx",
 ];
 
 describe("가로 스크롤 컨테이너 — touch-pan-x + overscroll-x-contain 회귀 가드", () => {

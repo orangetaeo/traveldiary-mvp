@@ -77,7 +77,6 @@ export default async function HomePage({
         destinationCode: t.destinationCode,
         nights: t.nights,
         startDate: t.startDate.toISOString().slice(0, 10),
-        endDate: t.endDate.toISOString().slice(0, 10),
         itemCount: t._count.items,
         currentMode: t.currentMode,
       }));

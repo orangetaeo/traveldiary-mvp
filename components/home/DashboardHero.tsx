@@ -19,7 +19,6 @@ export interface OwnedTripSummary {
   destinationCode: string | null;
   nights: number;
   startDate: string; // YYYY-MM-DD
-  endDate: string; // YYYY-MM-DD
   itemCount: number;
   currentMode: string | null;
 }
