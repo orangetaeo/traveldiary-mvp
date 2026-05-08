@@ -100,6 +100,11 @@ const cacheRules = [
 
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb", // 영수증 이미지 base64 전송 허용
+    },
+  },
   async headers() {
     return [
       // 보안 헤더 — 모든 경로

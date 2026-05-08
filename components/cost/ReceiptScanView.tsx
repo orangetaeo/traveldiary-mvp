@@ -107,23 +107,42 @@ function CaptureStep({
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   function processFile(file: File) {
-    if (file.size > 10 * 1024 * 1024) {
-      setError("이미지가 너무 큽니다 (10MB 이내).");
+    if (file.size > 20 * 1024 * 1024) {
+      setError("이미지가 너무 큽니다 (20MB 이내).");
       return;
     }
     setError(null);
-    setStatusMsg("영수증 인식 중...");
+    setStatusMsg("이미지 처리 중...");
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      const base64 = dataUrl.split(",")[1] ?? "";
+    // 이미지를 Canvas로 리사이즈 후 전송 (최대 1600px, JPEG 80%)
+    const img = new Image();
+    img.onload = () => {
+      const MAX_DIM = 1600;
+      let { width, height } = img;
+      if (width > MAX_DIM || height > MAX_DIM) {
+        const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        setError("이미지를 처리할 수 없어요.");
+        setStatusMsg(null);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      const resizedDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+      const base64 = resizedDataUrl.split(",")[1] ?? "";
       if (!base64) {
         setError("이미지를 읽지 못했어요.");
         setStatusMsg(null);
         return;
       }
 
+      setStatusMsg("영수증 인식 중...");
       startTransition(async () => {
         try {
           const result = await scanReceiptAction({ imageBase64: base64, tripId });
@@ -133,7 +152,7 @@ function CaptureStep({
             setStatusMsg(null);
           } else if (result.mode === "ok") {
             setStatusMsg(null);
-            onResult(result.receipt, dataUrl);
+            onResult(result.receipt, resizedDataUrl);
           } else if (result.mode === "no_text") {
             setError("영수증에서 텍스트를 찾지 못했어요. 더 선명한 사진으로 다시 시도해주세요.");
             setStatusMsg(null);
@@ -141,13 +160,18 @@ function CaptureStep({
             setError(`인식 실패: ${result.stage} — ${result.code}${result.message ? ` (${result.message})` : ""}`);
             setStatusMsg(null);
           }
-        } catch {
-          setError("영수증 스캔 중 오류가 발생했어요. 아래 '직접 비용 입력하기'를 이용해주세요.");
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "";
+          setError(`영수증 스캔 중 오류가 발생했어요.${msg ? ` (${msg.slice(0, 100)})` : ""}`);
           setStatusMsg(null);
         }
       });
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => {
+      setError("이미지를 열 수 없어요. 다른 사진으로 시도해주세요.");
+      setStatusMsg(null);
+    };
+    img.src = URL.createObjectURL(file);
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
