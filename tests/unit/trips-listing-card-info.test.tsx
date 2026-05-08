@@ -15,33 +15,33 @@ import { renderToStaticMarkup } from "react-dom/server";
 import TripsPage from "@/app/trips/page";
 
 describe("Session ZZ+1 — TripCard 정보 구조 강화", () => {
-  it("D-Day 뱃지 노출 (data-testid='trip-card-dday' 최소 1건)", () => {
-    const html = renderToStaticMarkup(<TripsPage searchParams={{}} />);
+  it("D-Day 뱃지 노출 (data-testid='trip-card-dday' 최소 1건)", async () => {
+    const html = renderToStaticMarkup(await TripsPage({ searchParams: {} }));
     expect(html).toMatch(/data-testid="trip-card-dday"/);
   });
 
-  it("D-Day 라벨은 4 패턴 중 하나 매칭", () => {
-    const html = renderToStaticMarkup(<TripsPage searchParams={{}} />);
+  it("D-Day 라벨은 4 패턴 중 하나 매칭", async () => {
+    const html = renderToStaticMarkup(await TripsPage({ searchParams: {} }));
     // 시드 trip은 모두 startDate가 과거이므로 '여행 중' 또는 '여행 완료'
     // 미래 trip 추가 시 'D-N'/'출발 당일'도 매칭 (regex로 느슨하게)
     expect(html).toMatch(/D-\d+|출발 당일|여행 중 · D\+\d+|여행 완료/);
   });
 
-  it("출발일 + '출발' 라벨 + 'event' 아이콘 노출", () => {
-    const html = renderToStaticMarkup(<TripsPage searchParams={{}} />);
+  it("출발일 + '출발' 라벨 + 'event' 아이콘 노출", async () => {
+    const html = renderToStaticMarkup(await TripsPage({ searchParams: {} }));
     expect(html).toMatch(/\d+월 \d+일 \([일월화수목금토]\) 출발/);
     // material-symbols 아이콘
     expect(html).toContain(">event<");
   });
 
-  it("동행자 라벨 노출 ('group' 아이콘 + 4종 한국어 중 하나)", () => {
-    const html = renderToStaticMarkup(<TripsPage searchParams={{}} />);
+  it("동행자 라벨 노출 ('group' 아이콘 + 4종 한국어 중 하나)", async () => {
+    const html = renderToStaticMarkup(await TripsPage({ searchParams: {} }));
     expect(html).toContain(">group<");
     expect(html).toMatch(/혼자|친구와|가족과|그룹/);
   });
 
-  it("aria-label에 D-Day 라벨 포함 (스크린리더 컨텍스트)", () => {
-    const html = renderToStaticMarkup(<TripsPage searchParams={{}} />);
+  it("aria-label에 D-Day 라벨 포함 (스크린리더 컨텍스트)", async () => {
+    const html = renderToStaticMarkup(await TripsPage({ searchParams: {} }));
     // 예: aria-label="푸꾸옥 7박 8일 여행 대시보드 · 여행 중 · D+3"
     expect(html).toMatch(/aria-label="[^"]*여행 대시보드 · (D-\d+|출발 당일|여행 중 · D\+\d+|여행 완료)"/);
   });

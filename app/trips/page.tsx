@@ -24,6 +24,16 @@ import { BottomNav } from "@/components/ui/BottomNav";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ReceivedTripsSection } from "@/components/trips/ReceivedTripsSection";
 import {
+  OwnedTripsSection,
+  type OwnedTripCardData,
+} from "@/components/trips/OwnedTripsSection";
+import { sortTripsByPriority } from "@/lib/utils/trip-priority";
+import { todayISO } from "@/lib/seed/demo-date";
+import { getCurrentUserId } from "@/lib/auth/session";
+import { kakaoAvailable } from "@/lib/auth/kakao";
+import { jwtAvailable } from "@/lib/auth/jwt";
+import { prisma } from "@/lib/prisma";
+import {
   buildCards,
   applyFilter,
   parseFilter,
@@ -53,7 +63,7 @@ const FILTER_CHIPS: FilterChip[] = [
   { key: "coming-soon", label: "곧 출시" },
 ];
 
-export default function TripsPage({
+export default async function TripsPage({
   searchParams,
 }: {
   searchParams: { filter?: string };
@@ -67,6 +77,33 @@ export default function TripsPage({
     VN: applyFilter(allCards, "VN").length,
     "coming-soon": applyFilter(allCards, "coming-soon").length,
   };
+
+  // cap 7: 로그인 사용자 본인 trip 조회 + 우선순위 정렬 (cap 6 답습)
+  const oauthAvailable = kakaoAvailable() && jwtAvailable();
+  const currentUserId = oauthAvailable ? await getCurrentUserId() : null;
+  let ownedTrips: OwnedTripCardData[] = [];
+  if (currentUserId && prisma) {
+    try {
+      const owned = await prisma.trip.findMany({
+        where: { ownerId: currentUserId, deletedAt: null },
+        include: { _count: { select: { items: true } } },
+        orderBy: { startDate: "asc" },
+        take: 20,
+      });
+      const mapped: OwnedTripCardData[] = owned.map((t) => ({
+        id: t.id,
+        destination: t.destination,
+        destinationCode: t.destinationCode,
+        nights: t.nights,
+        startDate: t.startDate.toISOString().slice(0, 10),
+        itemCount: t._count.items,
+        currentMode: t.currentMode,
+      }));
+      ownedTrips = sortTripsByPriority(mapped, todayISO());
+    } catch {
+      // DB 오류 시 섹션 미표시 — 데모 카드는 그대로
+    }
+  }
 
   return (
     <div className="min-h-screen bg-surface text-ink pb-24">
@@ -100,6 +137,9 @@ export default function TripsPage({
             데모 일정 {listDemoTrips().length}건
           </p>
         </section>
+
+        {/* cap 7 — 로그인 사용자 본인 trip 우선 노출 (sortTripsByPriority 답습) */}
+        <OwnedTripsSection trips={ownedTrips} />
 
         {/* 옵션 K — 받은 여행 client island (LocalStorage + lookup) */}
         <ReceivedTripsSection />
