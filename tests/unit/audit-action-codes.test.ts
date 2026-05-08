@@ -63,6 +63,7 @@ const KNOWN_ACTION_CODES = new Set([
   "share.access",
   // comment
   "comment.create",
+  "comment.update",
   "comment.delete",
   // replan
   "replan.commit",

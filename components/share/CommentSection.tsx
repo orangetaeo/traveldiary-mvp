@@ -18,6 +18,7 @@ import {
 import {
   createCommentAction,
   deleteCommentAction,
+  editCommentAction,
 } from "@/actions/shareComment";
 import type {
   CommentReaction,
@@ -55,6 +56,8 @@ export function CommentSection({
   const [error, setError] = useState<string | null>(null);
   const [clientUuid, setClientUuid] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editBody, setEditBody] = useState("");
 
   // 클라이언트 마운트 후 — clientUuid + 저장된 nickname 채움
   useEffect(() => {
@@ -160,6 +163,44 @@ export function CommentSection({
       setComments(next);
       // 데모 모드 LocalStorage 갱신
       if (commentId.startsWith("demo-")) persistDemoComments(next);
+    });
+  }
+
+  function handleStartEdit(comment: ShareCommentRow) {
+    setEditingId(comment.id);
+    setEditBody(comment.body);
+    setError(null);
+  }
+
+  function handleCancelEdit() {
+    setEditingId(null);
+    setEditBody("");
+  }
+
+  async function handleSaveEdit(commentId: string) {
+    if (editBody.trim().length < 1 || editBody.trim().length > 200) {
+      setError("내용은 1~200자");
+      return;
+    }
+    startTransition(async () => {
+      const result = await editCommentAction({
+        syncKey,
+        commentId,
+        body: editBody.trim(),
+        clientUuid,
+      });
+      if (!result.ok) {
+        setError(result.message ?? "수정 실패");
+        return;
+      }
+      // optimistic update
+      const next = comments.map((c) =>
+        c.id === commentId ? { ...c, body: editBody.trim() } : c,
+      );
+      setComments(next);
+      if (commentId.startsWith("demo-")) persistDemoComments(next);
+      setEditingId(null);
+      setEditBody("");
     });
   }
 
@@ -274,11 +315,51 @@ export function CommentSection({
                     })}
                   </span>
                 </div>
-                <p className="text-td-meta text-ink-soft whitespace-pre-wrap">
-                  {c.body}
-                </p>
-                {mine && (
-                  <div className="flex justify-end mt-td-xxs">
+                {editingId === c.id ? (
+                  <div className="mt-td-xxs space-y-td-xxs">
+                    <textarea
+                      value={editBody}
+                      onChange={(e) => setEditBody(e.target.value)}
+                      maxLength={200}
+                      rows={3}
+                      className="w-full px-td-sm py-td-xs rounded-lg border border-divider text-td-meta resize-none"
+                      aria-label="댓글 수정"
+                      disabled={isPending}
+                    />
+                    <div className="flex justify-end gap-td-xs">
+                      <button
+                        type="button"
+                        onClick={handleCancelEdit}
+                        disabled={isPending}
+                        className="text-td-caption text-ink-mute hover:underline disabled:opacity-50"
+                      >
+                        취소
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveEdit(c.id)}
+                        disabled={isPending}
+                        className="text-td-caption text-purple font-medium hover:underline disabled:opacity-50"
+                      >
+                        {isPending ? "저장 중..." : "저장"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-td-meta text-ink-soft whitespace-pre-wrap">
+                    {c.body}
+                  </p>
+                )}
+                {mine && editingId !== c.id && (
+                  <div className="flex justify-end gap-td-xs mt-td-xxs">
+                    <button
+                      type="button"
+                      onClick={() => handleStartEdit(c)}
+                      disabled={isPending}
+                      className="text-td-caption text-ink-mute hover:underline disabled:opacity-50"
+                    >
+                      수정
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleDelete(c.id)}
