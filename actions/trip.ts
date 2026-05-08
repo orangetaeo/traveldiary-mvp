@@ -16,12 +16,13 @@ import {
   createTripWithSeedItinerary,
   createTripWithAiItems,
   updateTripMode,
+  softDeleteTrip,
   type CreateTripInput,
 } from "@/lib/repositories/trip.repository";
 import { DEMO_TRIP_ID } from "@/lib/seed";
 import { isDbConnected } from "@/lib/prisma";
 import { getActorId, getOwnerId } from "@/lib/auth/session";
-import { canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
+import { canWriteTrip, canWriteTripOrViaShareLink } from "@/lib/auth/authorize";
 import {
   generateItinerary,
   aiGenerationAvailable,
@@ -295,4 +296,50 @@ export async function claimAnonymousTrips(
     console.error("[trip.actions] claimAnonymousTrips failed", err);
     return { ok: false, claimed: 0 };
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// deleteTrip — Trip soft-delete (대시보드에서 여행 삭제)
+//
+// soft-delete (deletedAt = now). 기존 쿼리 모두 deletedAt: null 필터 →
+// cascade 불필요. ShareLink도 함께 revoke.
+// ═══════════════════════════════════════════════════════════════════
+
+export type DeleteTripResult =
+  | { ok: true; demo: true }
+  | { ok: true; demo: false }
+  | { ok: false; code: "forbidden" | "not_found" | "internal" };
+
+export async function deleteTrip(
+  tripId: string,
+): Promise<DeleteTripResult> {
+  if (!isDbConnected || tripId === DEMO_TRIP_ID) {
+    return { ok: true, demo: true };
+  }
+
+  if (!(await canWriteTrip(tripId))) {
+    return { ok: false, code: "forbidden" };
+  }
+
+  const deleted = await softDeleteTrip(tripId);
+  if (!deleted) {
+    return { ok: false, code: "not_found" };
+  }
+
+  await writeAuditLog({
+    actorId: await getActorId(),
+    action: "trip.delete",
+    resource: "Trip",
+    resourceId: tripId,
+    before: {
+      destination: deleted.destination,
+      nights: deleted.nights,
+    },
+    metadata: { source: "dashboard" },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/trips");
+
+  return { ok: true, demo: false };
 }
