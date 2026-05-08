@@ -187,16 +187,26 @@ export function CommentSection({
         className="bg-surface-card border border-divider rounded-md p-td-md mb-td-md space-y-td-xs"
       >
         <div className="flex gap-td-xs">
-          <input
-            type="text"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            placeholder="닉네임 (2~10자)"
-            maxLength={10}
-            className="px-td-sm py-td-xs rounded-lg border border-divider text-td-meta w-32 flex-shrink-0"
-            aria-label="닉네임"
-            disabled={disabled || isPending}
-          />
+          <div className="flex-shrink-0">
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              placeholder="닉네임 (2~10자)"
+              maxLength={10}
+              className="px-td-sm py-td-xs rounded-lg border border-divider text-td-meta w-32"
+              aria-label="닉네임"
+              aria-describedby="nickname-count"
+              disabled={disabled || isPending}
+            />
+            <p
+              id="nickname-count"
+              className={`text-[10px] text-right mt-0.5 ${nickname.length > 0 && nickname.length < 2 ? "text-danger" : "text-ink-mute"}`}
+              aria-live="polite"
+            >
+              {nickname.length}/10
+            </p>
+          </div>
           <select
             value={reaction ?? ""}
             onChange={(e) =>
@@ -225,8 +235,16 @@ export function CommentSection({
           rows={3}
           className="w-full px-td-sm py-td-xs rounded-lg border border-divider text-td-meta resize-none"
           aria-label="댓글 본문"
+          aria-describedby="comment-body-count"
           disabled={disabled || isPending}
         />
+        <p
+          id="comment-body-count"
+          className={`text-td-caption text-right ${body.length >= 180 ? "text-danger" : "text-ink-mute"}`}
+          aria-live="polite"
+        >
+          {body.length}/200
+        </p>
         {error && (
           <p className="text-td-caption text-danger" role="alert">
             {error}

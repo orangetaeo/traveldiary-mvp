@@ -135,28 +135,46 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         <section className="bg-surface-card border border-divider rounded-md p-td-md">
           <h2 className="text-td-card-title text-ink mb-td-sm">새 투표</h2>
           <form onSubmit={handleCreate} className="space-y-td-sm">
-            <input
-              type="text"
-              placeholder="질문 (예: 둘째날 저녁은 어디로?)"
-              value={draftQuestion}
-              onChange={(e) => setDraftQuestion(e.target.value)}
-              maxLength={120}
-              className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
-            />
-            {draftOptions.map((opt, i) => (
+            <div>
               <input
-                key={i}
                 type="text"
-                placeholder={`옵션 ${i + 1}`}
-                value={opt}
-                onChange={(e) => {
-                  const next = [...draftOptions];
-                  next[i] = e.target.value;
-                  setDraftOptions(next);
-                }}
-                maxLength={80}
-                className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft"
+                placeholder="질문 (예: 둘째날 저녁은 어디로?)"
+                value={draftQuestion}
+                onChange={(e) => setDraftQuestion(e.target.value)}
+                maxLength={120}
+                aria-label="투표 질문"
+                aria-describedby="vote-question-count"
+                className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
               />
+              <p
+                id="vote-question-count"
+                className={`text-td-caption text-right mt-0.5 ${draftQuestion.length >= 108 ? "text-danger" : "text-ink-mute"}`}
+                aria-live="polite"
+              >
+                {draftQuestion.length}/120
+              </p>
+            </div>
+            {draftOptions.map((opt, i) => (
+              <div key={i}>
+                <input
+                  type="text"
+                  placeholder={`옵션 ${i + 1}`}
+                  value={opt}
+                  onChange={(e) => {
+                    const next = [...draftOptions];
+                    next[i] = e.target.value;
+                    setDraftOptions(next);
+                  }}
+                  maxLength={80}
+                  aria-label={`옵션 ${i + 1}`}
+                  className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft"
+                />
+                {opt.length >= 72 && (
+                  <p className={`text-td-caption text-right mt-0.5 ${opt.length >= 72 ? "text-danger" : "text-ink-mute"}`}>
+                    {opt.length}/80
+                  </p>
+                )}
+              </div>
             ))}
             <div className="flex gap-td-sm">
               <button

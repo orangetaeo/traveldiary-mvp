@@ -238,15 +238,25 @@ export function AddCostForm({
         {isEditMode ? "비용 수정" : "비용 추가"}
       </h3>
       <form onSubmit={handleSubmit} className="space-y-td-sm">
-        <input
-          type="text"
-          placeholder="항목명 (예: 즈엉동 야시장 저녁)"
-          value={draftLabel}
-          onChange={(e) => setDraftLabel(e.target.value)}
-          className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
-          maxLength={50}
-          aria-label="항목명"
-        />
+        <div>
+          <input
+            type="text"
+            placeholder="항목명 (예: 즈엉동 야시장 저녁)"
+            value={draftLabel}
+            onChange={(e) => setDraftLabel(e.target.value)}
+            className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
+            maxLength={50}
+            aria-label="항목명"
+            aria-describedby="cost-label-count"
+          />
+          <p
+            id="cost-label-count"
+            className={`text-td-caption text-right mt-0.5 ${draftLabel.length >= 45 ? "text-danger" : "text-ink-mute"}`}
+            aria-live="polite"
+          >
+            {draftLabel.length}/50
+          </p>
+        </div>
         <div className="grid grid-cols-2 gap-td-sm">
           <label className="flex flex-col">
             <span className="text-td-caption text-ink-soft mb-1">KRW</span>
