@@ -3,7 +3,7 @@
 /**
  * Receipt OCR Server Action — 영수증 스캔 → 구조화 파싱.
  *
- * M4 translate.ts 패턴 답습. audit log "receipt.scanned".
+ * Claude Vision 멀티모달 단일 파이프라인. audit log "receipt.scanned".
  */
 
 import { writeAuditLog } from "@/lib/audit-log";
@@ -28,7 +28,7 @@ export async function scanReceiptAction(
     console.error("[scanReceiptAction] scanReceipt threw", err);
     return {
       mode: "error",
-      stage: "ocr",
+      stage: "vision",
       code: "network",
       message: err instanceof Error ? err.message : "알 수 없는 오류",
       totalMs: 0,
@@ -37,7 +37,7 @@ export async function scanReceiptAction(
 
   try {
     const shouldAudit =
-      (result.mode === "ok" && (!result.ocrCached || !result.parseCached)) ||
+      (result.mode === "ok" && !result.cached) ||
       result.mode === "error" ||
       result.mode === "no_text";
 
@@ -57,10 +57,9 @@ export async function scanReceiptAction(
               }
             : null,
         metadata: {
-          source: "vision+claude",
+          source: "claude-vision",
           mode: result.mode,
-          ocrCached: "ocrCached" in result ? result.ocrCached : undefined,
-          parseCached: "parseCached" in result ? result.parseCached : undefined,
+          cached: "cached" in result ? result.cached : undefined,
           totalMs: "totalMs" in result ? result.totalMs : undefined,
           stage: "stage" in result ? result.stage : undefined,
           errorCode: "code" in result && result.mode === "error" ? result.code : undefined,
