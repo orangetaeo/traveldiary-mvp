@@ -325,6 +325,41 @@ export async function bulkDeleteChecklistItems(
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// updateChecklistItem — 항목 텍스트 수정 (인라인 편집)
+// ═══════════════════════════════════════════════════════════════════
+
+export interface UpdateChecklistResult {
+  before: { text: string };
+  after: { text: string };
+  item: ChecklistItem;
+}
+
+export async function updateChecklistItem(
+  itemId: string,
+  text: string,
+): Promise<UpdateChecklistResult | "not_found" | null> {
+  if (!prisma) return null;
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.checklistItem.findUnique({ where: { id: itemId } });
+      if (!before) return "not_found" as const;
+      const after = await tx.checklistItem.update({
+        where: { id: itemId },
+        data: { text },
+      });
+      return {
+        before: { text: before.text },
+        after: { text: after.text },
+        item: rowToItem(after),
+      };
+    });
+  } catch (err) {
+    console.error("[checklist.repository] update failed", err);
+    return null;
+  }
+}
+
 export async function deleteChecklistItem(
   itemId: string,
 ): Promise<{ before: ChecklistItem } | "not_found" | null> {
