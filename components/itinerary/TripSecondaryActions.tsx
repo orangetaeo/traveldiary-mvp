@@ -84,6 +84,45 @@ export function TripSecondaryActions({
         </div>
       </div>
 
+      {/* 여행 후 정리 (Wrap-up) 진입점 */}
+      <div className="bg-surface-card border border-divider rounded-md p-td-md">
+        <p className="text-td-body font-semibold text-ink mb-td-xs">
+          여행 후 정리
+        </p>
+        <p className="text-td-meta text-ink-soft mb-td-sm">
+          사진 앨범 · 추억 리캡 · 비용 통계를 한눈에.
+        </p>
+        <div className="grid grid-cols-3 gap-td-sm">
+          <Link
+            href={`/wrap-up/${tripId}`}
+            className="flex items-center gap-1.5 text-td-meta font-semibold text-success-deep border border-success/40 rounded-md px-3 py-2 transition-colors hover:bg-success-soft"
+          >
+            <span className="material-symbols-outlined text-td-icon" aria-hidden>
+              auto_awesome
+            </span>
+            요약
+          </Link>
+          <Link
+            href={`/wrap-up/${tripId}/album`}
+            className="flex items-center gap-1.5 text-td-meta font-semibold text-purple-deep border border-purple/40 rounded-md px-3 py-2 transition-colors hover:bg-purple-soft"
+          >
+            <span className="material-symbols-outlined text-td-icon" aria-hidden>
+              photo_library
+            </span>
+            앨범
+          </Link>
+          <Link
+            href={`/wrap-up/${tripId}/recap`}
+            className="flex items-center gap-1.5 text-td-meta font-semibold text-amber-deep border border-amber/40 rounded-md px-3 py-2 transition-colors hover:bg-amber-soft"
+          >
+            <span className="material-symbols-outlined text-td-icon" aria-hidden>
+              movie
+            </span>
+            리캡
+          </Link>
+        </div>
+      </div>
+
       {/* M7 공유 + 일행 투표 진입점 (사이클 11a + E) */}
       <div className="bg-surface-card border border-divider rounded-md p-td-md">
         <p className="text-td-body font-semibold text-ink mb-td-xs">
