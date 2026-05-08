@@ -22,7 +22,7 @@ export function WeatherStrip({ forecast }: WeatherStripProps) {
       <h3 className="text-td-card-title text-ink mb-td-sm px-td-xs">
         날씨 예보
       </h3>
-      <div className="flex overflow-x-auto pb-td-sm gap-td-sm hide-scrollbar -mx-td-md px-td-md">
+      <div className="flex overflow-x-auto touch-pan-x overscroll-x-contain pb-td-sm gap-td-sm hide-scrollbar -mx-td-md px-td-md">
         {forecast.map((d) => (
           <div
             key={d.day}

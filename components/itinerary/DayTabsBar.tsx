@@ -22,7 +22,7 @@ export function DayTabsBar({
 }: DayTabsBarProps) {
   return (
     <nav
-      className="flex gap-td-xs overflow-x-auto pb-2 hide-scrollbar mb-td-md px-td-md"
+      className="flex gap-td-xs overflow-x-auto touch-pan-x overscroll-x-contain pb-2 hide-scrollbar mb-td-md px-td-md"
       aria-label="여행 일자"
     >
       {Array.from({ length: dayCount }, (_, i) => i).map((d) => {

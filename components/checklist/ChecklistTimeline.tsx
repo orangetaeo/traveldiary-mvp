@@ -32,7 +32,7 @@ export function ChecklistTimeline({ items }: Props) {
   });
 
   return (
-    <div className="flex items-start justify-between gap-0 overflow-x-auto hide-scrollbar py-td-xs">
+    <div className="flex items-start justify-between gap-0 overflow-x-auto touch-pan-x overscroll-x-contain hide-scrollbar py-td-xs">
       {bucketStats.map((s, i) => {
         const isEmpty = s.percent === -1;
         const isComplete = s.percent === 100;

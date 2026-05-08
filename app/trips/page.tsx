@@ -107,7 +107,7 @@ export default function TripsPage({
         {/* Sticky chip filter */}
         <nav
           aria-label="도시 필터"
-          className="sticky top-16 z-40 bg-surface-card/80 backdrop-blur-md px-4 py-3 flex gap-2 overflow-x-auto hide-scrollbar"
+          className="sticky top-16 z-40 bg-surface-card/80 backdrop-blur-md px-4 py-3 flex gap-2 overflow-x-auto touch-pan-x overscroll-x-contain hide-scrollbar"
         >
           {FILTER_CHIPS.map((chip) => {
             const isActive = chip.key === filter;

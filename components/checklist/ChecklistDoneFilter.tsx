@@ -50,7 +50,7 @@ export function ChecklistDoneFilter({ items, value, onChange }: Props) {
 
   return (
     <div
-      className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 -mx-td-md px-td-md"
+      className="flex gap-2 overflow-x-auto touch-pan-x overscroll-x-contain hide-scrollbar pb-1 -mx-td-md px-td-md"
       role="radiogroup"
       aria-label="완료 상태 필터"
     >
