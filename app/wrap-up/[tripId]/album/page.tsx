@@ -64,7 +64,13 @@ export default async function AlbumPage({
           <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
         <h1 className="text-sm font-semibold tracking-tight text-ink">사진 앨범</h1>
-        <div className="w-10" /> {/* spacer */}
+        <Link
+          href="/notifications"
+          className="p-2 rounded-full hover:bg-surface-soft transition-colors"
+          aria-label="알림"
+        >
+          <span className="material-symbols-outlined text-ink">notifications</span>
+        </Link>
       </header>
 
       {/* Hero */}
