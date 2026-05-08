@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { castVote, createVote } from "@/actions/vote";
+import { castVote, createVote, deleteVote } from "@/actions/vote";
 import type { Trip, Vote } from "@/lib/types";
 
 interface Props {
@@ -81,6 +81,29 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         router.refresh();
       } else {
         showToast("데모 모드 시뮬", { variant: "info" });
+      }
+    });
+  }
+
+  function handleDelete(voteId: string, question: string) {
+    if (!window.confirm(`'${question}' 투표를 삭제하시겠습니까?`)) return;
+
+    // 낙관적 삭제
+    const prevVotes = votes;
+    setVotes((prev) => prev.filter((v) => v.id !== voteId));
+
+    startTransition(async () => {
+      const result = await deleteVote({ voteId, tripId: trip.id });
+      if (!result.ok) {
+        setVotes(prevVotes);
+        showToast(`삭제 실패: ${result.code}`, { variant: "danger" });
+        return;
+      }
+      if (result.demo) {
+        showToast("삭제 (데모 시뮬)", { variant: "info" });
+      } else {
+        showToast("투표 삭제됨", { variant: "success" });
+        router.refresh();
       }
     });
   }
@@ -171,9 +194,21 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
                   key={vote.id}
                   className="bg-surface-card border border-divider rounded-md p-td-md"
                 >
-                  <h3 className="text-td-card-title text-ink mb-td-sm">
-                    {vote.question}
-                  </h3>
+                  <div className="flex justify-between items-start mb-td-sm">
+                    <h3 className="text-td-card-title text-ink">
+                      {vote.question}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(vote.id, vote.question)}
+                      className="p-1 rounded hover:bg-surface-soft transition-colors text-ink-mute hover:text-danger shrink-0"
+                      aria-label="투표 삭제"
+                    >
+                      <span className="material-symbols-outlined text-td-icon" aria-hidden>
+                        delete
+                      </span>
+                    </button>
+                  </div>
                   <ul className="space-y-td-xs">
                     {vote.options.map((opt, i) => {
                       const totalVoters = vote.options.reduce(

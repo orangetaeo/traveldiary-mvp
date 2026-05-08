@@ -71,6 +71,26 @@ export async function createVoteRow(
   }
 }
 
+export async function deleteVoteRow(
+  voteId: string,
+  tripId: string,
+): Promise<{ before: Vote } | "not_found" | null> {
+  if (!prisma) return null;
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const before = await tx.vote.findFirst({
+        where: { id: voteId, tripId },
+      });
+      if (!before) return "not_found" as const;
+      await tx.vote.delete({ where: { id: voteId } });
+      return { before: rowToVote(before) };
+    });
+  } catch (err) {
+    console.error("[vote.repository] delete failed", err);
+    return null;
+  }
+}
+
 /** 사용자 토글 — 같은 옵션 다시 클릭 시 표 회수, 다른 옵션은 자동 이동 */
 export async function castVoteToggle(
   voteId: string,
