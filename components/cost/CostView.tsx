@@ -228,13 +228,22 @@ export function CostView({
           </Link>
           <h1 className="text-lg font-bold text-ink tracking-tight">비용 관리</h1>
         </div>
-        <Link
-          href={`/trips/${trip.id}?focus=cost`}
-          aria-label="여행 대시보드 — 비용 카드 강조"
-          className="p-2 rounded-full text-ink-soft hover:text-ink hover:bg-surface-soft transition-colors"
-        >
-          <span className="material-symbols-outlined" aria-hidden>dashboard</span>
-        </Link>
+        <div className="flex items-center gap-1">
+          <Link
+            href={`/cost/${trip.id}/scan`}
+            aria-label="영수증 스캔"
+            className="p-2 rounded-full text-ink-soft hover:text-ink hover:bg-surface-soft transition-colors"
+          >
+            <span className="material-symbols-outlined" aria-hidden>document_scanner</span>
+          </Link>
+          <Link
+            href={`/trips/${trip.id}?focus=cost`}
+            aria-label="여행 대시보드 — 비용 카드 강조"
+            className="p-2 rounded-full text-ink-soft hover:text-ink hover:bg-surface-soft transition-colors"
+          >
+            <span className="material-symbols-outlined" aria-hidden>dashboard</span>
+          </Link>
+        </div>
       </header>
 
       <main className="max-w-xl mx-auto px-td-md">

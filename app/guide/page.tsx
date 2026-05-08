@@ -106,6 +106,32 @@ export default function GuidePage() {
           );
         })}
 
+        {/* 여행 회화 + 카메라 번역 바로가기 */}
+        <section className="px-4 mt-8 border-t border-divider pt-6 pb-2">
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              href="/phrases"
+              className="flex items-center gap-2 p-3 bg-surface-soft border border-divider rounded-md hover:border-purple/40 transition-colors"
+            >
+              <span className="material-symbols-outlined text-purple text-xl">translate</span>
+              <div>
+                <p className="text-td-meta font-bold text-ink">여행 회화</p>
+                <p className="text-td-caption text-ink-soft">베트남어 필수 표현</p>
+              </div>
+            </Link>
+            <Link
+              href="/translate"
+              className="flex items-center gap-2 p-3 bg-surface-soft border border-divider rounded-md hover:border-purple/40 transition-colors"
+            >
+              <span className="material-symbols-outlined text-purple text-xl">photo_camera</span>
+              <div>
+                <p className="text-td-meta font-bold text-ink">카메라 번역</p>
+                <p className="text-td-caption text-ink-soft">메뉴판 즉시 번역</p>
+              </div>
+            </Link>
+          </div>
+        </section>
+
         {/* SEO 보조 텍스트 */}
         <section className="px-4 mt-8 border-t border-divider pt-6">
           <h2 className="text-td-card-title text-ink mb-2">
