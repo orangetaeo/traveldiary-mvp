@@ -141,6 +141,9 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
               value={draftQuestion}
               onChange={(e) => setDraftQuestion(e.target.value)}
               maxLength={120}
+              required
+              aria-required="true"
+              aria-label="투표 질문"
               className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
             />
             {draftOptions.map((opt, i) => (
@@ -155,6 +158,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
                   setDraftOptions(next);
                 }}
                 maxLength={80}
+                aria-label={`옵션 ${i + 1}`}
                 className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft"
               />
             ))}
@@ -209,7 +213,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
                       </span>
                     </button>
                   </div>
-                  <ul className="space-y-td-xs">
+                  <ul className="space-y-td-xs" role="group" aria-label={`"${vote.question}" 투표 옵션`}>
                     {vote.options.map((opt, i) => {
                       const totalVoters = vote.options.reduce(
                         (s, o) => s + o.voters.length,

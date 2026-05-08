@@ -245,6 +245,8 @@ export function AddCostForm({
           onChange={(e) => setDraftLabel(e.target.value)}
           className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
           maxLength={50}
+          required
+          aria-required="true"
           aria-label="항목명"
         />
         <div className="grid grid-cols-2 gap-td-sm">
@@ -258,6 +260,7 @@ export function AddCostForm({
               className="px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft tabular-nums"
               min="0"
               step="100"
+              aria-describedby="amount-hint"
             />
           </label>
           <label className="flex flex-col">
@@ -271,10 +274,11 @@ export function AddCostForm({
               onChange={(e) => setDraftAmountLocal(e.target.value)}
               className="px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft tabular-nums"
               min="0"
+              aria-describedby="amount-hint"
             />
           </label>
         </div>
-        <p className="text-td-caption text-ink-mute">
+        <p id="amount-hint" className="text-td-caption text-ink-mute">
           💡 둘 중 하나만 입력하면 자동 변환됩니다.
         </p>
         <div className="grid grid-cols-3 gap-td-sm">

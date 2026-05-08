@@ -24,6 +24,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           href={googleMapsUrl(location, placeName)}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={`Google Maps에서 ${placeName} 경로 보기`}
           className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-purple/40 transition-colors"
         >
           <span
@@ -40,6 +41,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           href={kakaoMapUrl(location, placeName)}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={`카카오맵에서 ${placeName} 경로 보기`}
           className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-amber/40 transition-colors"
         >
           <span
@@ -56,6 +58,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           href={uberUrl(location, placeName)}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={`Uber로 ${placeName} 이동`}
           className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-ink/30 transition-colors"
         >
           <span
@@ -72,6 +75,7 @@ export function DirectionsGrid({ location, placeName }: DirectionsGridProps) {
           href={grabUrl(location, placeName)}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={`Grab으로 ${placeName} 이동`}
           className="flex flex-col items-center gap-1 p-td-sm bg-surface-card border border-divider rounded-md hover:border-success/40 transition-colors"
         >
           <span

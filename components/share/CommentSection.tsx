@@ -220,13 +220,26 @@ export function CommentSection({
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+              handleSubmit(e as unknown as React.FormEvent);
+            }
+          }}
           placeholder="의견을 남겨주세요 (최대 200자)"
           maxLength={200}
           rows={3}
           className="w-full px-td-sm py-td-xs rounded-lg border border-divider text-td-meta resize-none"
           aria-label="댓글 본문"
+          aria-describedby="comment-char-count"
           disabled={disabled || isPending}
         />
+        <p
+          id="comment-char-count"
+          className={`text-td-caption ${body.length >= 180 ? "text-danger" : "text-ink-mute"}`}
+          aria-live="polite"
+        >
+          {body.length}/200
+        </p>
         {error && (
           <p className="text-td-caption text-danger" role="alert">
             {error}
