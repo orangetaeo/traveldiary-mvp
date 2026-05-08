@@ -74,7 +74,7 @@ export default async function ItineraryItemPage({
   // 5단계 검증 종합 (사이클 L+N · ADR-029 + M · ADR-030 + E · ADR-031 통합)
   // 1·2·3·4·5단계 종합 + DB 영속화 + verifyPlace 결과(googleResult) 통합.
   const validationResult = await validateItemAction({ item, nextItem });
-  // 사이클 E (ADR-031) — verifyPlaceAction 호출 제거. validateItemResult.googleResult 사용.
+  // 사이클 E (ADR-031) — validateItemAction이 google 결과 통합 노출 (googleResult).
   const googleResult: VerifyPlaceResult =
     validationResult.mode === "ok"
       ? validationResult.googleResult

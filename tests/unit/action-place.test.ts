@@ -1,7 +1,7 @@
 /**
  * actions/place.ts 단위 테스트.
  *
- * verifyPlaceAction (deprecated) + validateItemAction — 5단계 종합 검증.
+ * validateItemAction — 5단계 종합 검증.
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
@@ -59,7 +59,7 @@ vi.mock("@/actions/place-cache-utils", () => ({
   deriveGoogleFromCache: () => ({ mode: "demo" }),
 }));
 
-import { verifyPlaceAction, validateItemAction } from "@/actions/place";
+import { validateItemAction } from "@/actions/place";
 
 const MOCK_ITEM = {
   id: "item-1",
@@ -78,79 +78,6 @@ const MOCK_ITEM = {
     lastChecked: new Date().toISOString(),
   },
 };
-
-// ═══════════════════════════════════════════════════════════════
-// verifyPlaceAction (deprecated)
-// ═══════════════════════════════════════════════════════════════
-
-describe("verifyPlaceAction", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockGetActorId.mockResolvedValue("user-1");
-    mockWriteAuditLog.mockResolvedValue(undefined);
-  });
-
-  it("verified + fresh → audit evidence.gathered", async () => {
-    mockVerifyPlace.mockResolvedValue({
-      mode: "verified",
-      placeExists: true,
-      operatingStatus: "open",
-      placeId: "ChIJ-abc",
-      rating: 4.5,
-      userRatingsTotal: 200,
-      cached: false,
-      fetchDurationMs: 150,
-    });
-
-    const r = await verifyPlaceAction({ itemId: "item-1", name: "미케 비치" });
-    expect(r.mode).toBe("verified");
-    expect(mockWriteAuditLog).toHaveBeenCalledOnce();
-    const log = mockWriteAuditLog.mock.calls[0][0];
-    expect(log.action).toBe("evidence.gathered");
-    expect(log.after.placeExists).toBe(true);
-  });
-
-  it("verified + cached → audit 미기록", async () => {
-    mockVerifyPlace.mockResolvedValue({
-      mode: "verified",
-      cached: true,
-    });
-
-    await verifyPlaceAction({ itemId: "item-1", name: "test" });
-    expect(mockWriteAuditLog).not.toHaveBeenCalled();
-  });
-
-  it("not_found + fresh → audit (placeExists=false)", async () => {
-    mockVerifyPlace.mockResolvedValue({
-      mode: "not_found",
-      placeExists: false,
-      cached: false,
-      fetchDurationMs: 100,
-    });
-
-    await verifyPlaceAction({ itemId: "item-1", name: "없는곳" });
-    const log = mockWriteAuditLog.mock.calls[0][0];
-    expect(log.after.placeExists).toBe(false);
-  });
-
-  it("error → audit error 기록", async () => {
-    mockVerifyPlace.mockResolvedValue({
-      mode: "error",
-      code: "network",
-      message: "timeout",
-    });
-
-    await verifyPlaceAction({ itemId: "item-1", name: "test" });
-    const log = mockWriteAuditLog.mock.calls[0][0];
-    expect(log.metadata.error).toBe("network");
-  });
-
-  it("demo → audit 미기록", async () => {
-    mockVerifyPlace.mockResolvedValue({ mode: "demo" });
-    await verifyPlaceAction({ itemId: "item-1", name: "test" });
-    expect(mockWriteAuditLog).not.toHaveBeenCalled();
-  });
-});
 
 // ═══════════════════════════════════════════════════════════════
 // validateItemAction
