@@ -286,18 +286,13 @@ export default function AdminIndexPage({ searchParams }: PageProps) {
               </div>
             ))}
           </div>
-          {/* 옵션 Y (2026-05-08) — 데드 button → disabled + "(준비 중)". 라이브 피드는 데모,
-              실 audit log 검색은 R1 사인오프 + ADR-046 audit log 집계 정책 게이트. */}
-          <button
-            type="button"
-            disabled
-            aria-disabled
-            aria-describedby="admin-demo-banner-heading"
-            className="w-full py-td-sm text-td-meta font-bold text-ink-mute opacity-60 rounded-md flex items-center justify-center gap-td-xxs cursor-not-allowed"
+          <Link
+            href={`/admin/logs${keyParam}`}
+            className="w-full py-td-sm text-td-meta font-bold text-purple hover:bg-purple-soft/30 transition-colors rounded-md flex items-center justify-center gap-td-xxs"
           >
-            모든 로그 보기 (준비 중)
+            모든 로그 보기
             <span className="material-symbols-outlined text-lg">chevron_right</span>
-          </button>
+          </Link>
         </section>
       </main>
     </div>

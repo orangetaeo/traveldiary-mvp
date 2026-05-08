@@ -33,10 +33,10 @@ export function ReceivedTripBanner({ onDismiss }: Props) {
       </span>
       <div className="flex-1 min-w-0">
         <p className="text-td-meta text-purple-deep font-bold">
-          내 목록에 추가됐어요
+          공유 받은 여행이 추가됐어요
         </p>
         <p className="text-td-caption text-purple-deep/80 mt-0.5">
-          다음에 다시 보고 싶다면 받은 여행 목록에서 찾을 수 있어요.
+          다음에 다시 보고 싶다면 공유 받은 여행 목록에서 찾을 수 있어요.
         </p>
         <Link
           href="/shared"
