@@ -15,12 +15,14 @@ interface ShareModalProps {
   onClose: () => void;
 }
 
+type CopyState = "idle" | "copied" | "error";
+
 export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
   const [isPending, startTransition] = useTransition();
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [demo, setDemo] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<CopyState>("idle");
   const [permission, setPermission] = useState<"view" | "edit">("view");
   const [downloading, setDownloading] = useState(false);
 
@@ -34,7 +36,7 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
     setShareUrl(null);
     setDemo(false);
     setError(null);
-    setCopied(false);
+    setCopyState("idle");
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -70,7 +72,7 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
     setShareUrl(null);
     setDemo(false);
     setError(null);
-    setCopied(false);
+    setCopyState("idle");
     setPermission(perm);
     startTransition(async () => {
       const result = await createShareLinkAction({ tripId, permission: perm });
@@ -94,15 +96,21 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
 
   if (!open) return null;
 
-  function handleCopy() {
+  async function handleCopy() {
     if (!shareUrl) return;
-    navigator.clipboard
-      .writeText(shareUrl)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
-      })
-      .catch(() => setError("복사 실패 — 직접 선택해 복사해주세요."));
+    if (typeof window === "undefined" || !navigator.clipboard?.writeText) {
+      setCopyState("error");
+      window.setTimeout(() => setCopyState("idle"), 2500);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopyState("copied");
+      window.setTimeout(() => setCopyState("idle"), 2500);
+    } catch {
+      setCopyState("error");
+      window.setTimeout(() => setCopyState("idle"), 2500);
+    }
   }
 
   async function handleStoryDownload() {
@@ -237,9 +245,18 @@ export function ShareModal({ open, tripId, onClose }: ShareModalProps) {
             <button
               type="button"
               onClick={handleCopy}
-              className="w-full py-2.5 bg-purple text-white rounded-lg text-td-body font-semibold hover:opacity-90 transition-opacity"
+              aria-live="polite"
+              className={`w-full py-2.5 rounded-lg text-td-body font-semibold hover:opacity-90 transition-opacity ${
+                copyState === "error"
+                  ? "bg-danger text-white"
+                  : "bg-purple text-white"
+              }`}
             >
-              {copied ? "✅ 복사됨" : "URL 복사"}
+              {copyState === "copied"
+                ? "✅ 복사됨"
+                : copyState === "error"
+                  ? "❌ 복사 실패 — 다시 시도"
+                  : "URL 복사"}
             </button>
             <button
               type="button"
