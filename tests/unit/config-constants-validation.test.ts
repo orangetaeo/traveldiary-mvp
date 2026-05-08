@@ -133,6 +133,32 @@ describe("next.config.js — 보안 헤더", () => {
 });
 
 /* ════════════════════════════════════════════
+ * next.config.js — CDN 캐시 헤더
+ * ════════════════════════════════════════════ */
+
+describe("next.config.js — CDN 캐시 헤더", () => {
+  it("_next/static 에셋에 immutable 장기 캐시 적용", () => {
+    expect(nextConfigSrc).toContain("/_next/static/:path*");
+    expect(nextConfigSrc).toContain("immutable");
+  });
+
+  it("OG 이미지 경로에 s-maxage + stale-while-revalidate 적용", () => {
+    expect(nextConfigSrc).toContain("/api/og/:path*");
+    expect(nextConfigSrc).toContain("s-maxage=86400");
+    expect(nextConfigSrc).toContain("stale-while-revalidate");
+  });
+
+  it("share 페이지에 짧은 CDN 캐시 + stale-while-revalidate 적용", () => {
+    expect(nextConfigSrc).toContain("/share/:path*");
+    expect(nextConfigSrc).toContain("s-maxage=300");
+  });
+
+  it("cacheRules 배열이 headers() 반환에 포함", () => {
+    expect(nextConfigSrc).toContain("...cacheRules");
+  });
+});
+
+/* ════════════════════════════════════════════
  * tailwind.config.ts — 디자인 토큰
  * ════════════════════════════════════════════ */
 
