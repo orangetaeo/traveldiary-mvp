@@ -95,6 +95,15 @@ function toDiscoverCategory(
     subCategory === "섬"
   )
     return "nature";
+  if (
+    subCategory === "투어" ||
+    subCategory === "체험" ||
+    subCategory === "워터파크" ||
+    subCategory === "놀이공원"
+  )
+    return "activity";
+  if (subCategory === "바/펍" || subCategory === "나이트라이프")
+    return "nightlife";
   if (category === "rest") return "spot";
   return category as PlaceCategory;
 }

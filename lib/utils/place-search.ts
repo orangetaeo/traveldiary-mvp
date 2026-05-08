@@ -16,6 +16,8 @@ const CATEGORY_KEYWORDS: Record<PlaceCategory, string[]> = {
   shopping: ["쇼핑", "마트", "시장", "shopping", "market"],
   nature: ["자연", "해변", "비치", "산", "공원", "nature", "beach", "park"],
   cafe: ["카페", "커피", "cafe", "coffee"],
+  activity: ["액티비티", "체험", "투어", "activity", "tour", "adventure"],
+  nightlife: ["야간", "바", "클럽", "나이트", "nightlife", "bar", "pub"],
 };
 
 // ── 초성 매핑 (한국어) ──────────────────────────────────────────────────

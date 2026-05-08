@@ -4,7 +4,7 @@
  * Stitch screenId 8c4d688f50fd481e932c4501edaf8d6f 매핑 결과 검증.
  *
  * 검증:
- *  - 카테고리 그리드 6 카드 (전체 + 음식/관광/쇼핑/자연/카페)
+ *  - 카테고리 그리드 6 카드 (음식/관광/액티비티/쇼핑/카페/야간)
  *  - 필터 칩 5개 (거리/가격/평점/한국후기/알레르기)
  *  - Context Bar: "{destination} · {N}곳 검증 완료"
  *  - 풍부 카드: enrichment 적용 시 한국 후기 인용 + AI 이유 + 한식 OK 뱃지 노출
@@ -48,7 +48,7 @@ const RICH_PLACE: DiscoverPlace = {
 const PLAIN_PLACE: DiscoverPlace = {
   id: "plain-1",
   name: "이름 없는 식당",
-  category: "spot",
+  category: "food",
   rating: 4.2,
   reviewCount: 50,
   distance: "차량 10분",
@@ -56,7 +56,7 @@ const PLAIN_PLACE: DiscoverPlace = {
 };
 
 describe("PlaceDiscoveryView 재설계 (디자인 갭 #1 U2)", () => {
-  it("카테고리 그리드 6 카드 + '어떤 곳을 찾으세요?' 헤더", () => {
+  it("카테고리 그리드 6 카드 + '어떤 종류를 찾으시나요?' 헤더", () => {
     const html = renderToStaticMarkup(
       <PlaceDiscoveryView
         tripId="t1"
@@ -66,19 +66,21 @@ describe("PlaceDiscoveryView 재설계 (디자인 갭 #1 U2)", () => {
         verifiedCount={2}
       />,
     );
-    expect(html).toContain("어떤 곳을 찾으세요?");
-    expect(html).toContain("🗂️");
-    expect(html).toContain("🍜");
-    expect(html).toContain("🏛️");
-    expect(html).toContain("🛍️");
-    expect(html).toContain("🌿");
-    expect(html).toContain("☕");
-    expect(html).toContain("전체");
+    expect(html).toContain("어떤 종류를 찾으시나요?");
+    // Material Symbols 아이콘
+    expect(html).toContain("restaurant_menu");
+    expect(html).toContain("account_balance");
+    expect(html).toContain("directions_run");
+    expect(html).toContain("shopping_bag");
+    expect(html).toContain("local_cafe");
+    expect(html).toContain("nightlife");
+    // 카테고리 레이블
     expect(html).toContain("음식");
     expect(html).toContain("관광");
+    expect(html).toContain("액티비티");
     expect(html).toContain("쇼핑");
-    expect(html).toContain("자연");
     expect(html).toContain("카페");
+    expect(html).toContain("야간");
   });
 
   it("필터 칩 5개 노출 (거리/가격/평점/한국후기/알레르기)", () => {
@@ -111,7 +113,7 @@ describe("PlaceDiscoveryView 재설계 (디자인 갭 #1 U2)", () => {
     expect(html).toContain("푸꾸옥 · 42곳 검증 완료");
   });
 
-  it("풍부 카드: 한국 후기 인용 + AI 이유 + 한식 OK 뱃지", () => {
+  it("풍부 카드: 한국 후기 인용 + AI 이유 + 하트(찜) 아이콘", () => {
     const html = renderToStaticMarkup(
       <PlaceDiscoveryView
         tripId="t1"
@@ -126,8 +128,10 @@ describe("PlaceDiscoveryView 재설계 (디자인 갭 #1 U2)", () => {
     expect(html).toContain("김민수");
     // AI 이유 뱃지
     expect(html).toContain("한국인 후기 4.6 + 알레르기 표기");
-    // 한식 OK 뱃지 (사진 좌상단)
-    expect(html).toContain("한식 OK");
+    // AI 뱃지 (좌상단 — badge:"ai"이므로 한식 OK 대신 AI 뱃지)
+    expect(html).toContain("AI");
+    // 하트(찜) 아이콘 (우상단)
+    expect(html).toContain("favorite_border");
     // 한국 후기 카운트
     expect(html).toContain("🇰🇷 87");
     // 가격 표시 (priceLevel=2 → ₩₩)

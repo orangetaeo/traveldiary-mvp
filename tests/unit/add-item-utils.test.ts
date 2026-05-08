@@ -53,8 +53,16 @@ describe("PLACE_TO_ITEM_CATEGORY", () => {
     expect(PLACE_TO_ITEM_CATEGORY.cafe).toBe("food");
   });
 
-  it("5개 PlaceCategory 전체 커버", () => {
-    expect(Object.keys(PLACE_TO_ITEM_CATEGORY)).toHaveLength(5);
+  it("activity → spot (축소 매핑)", () => {
+    expect(PLACE_TO_ITEM_CATEGORY.activity).toBe("spot");
+  });
+
+  it("nightlife → food (축소 매핑)", () => {
+    expect(PLACE_TO_ITEM_CATEGORY.nightlife).toBe("food");
+  });
+
+  it("7개 PlaceCategory 전체 커버", () => {
+    expect(Object.keys(PLACE_TO_ITEM_CATEGORY)).toHaveLength(7);
   });
 });
 
@@ -163,5 +171,13 @@ describe("suggestDuration", () => {
 
   it("nature → 120분", () => {
     expect(suggestDuration("nature")).toBe(120);
+  });
+
+  it("activity → 120분", () => {
+    expect(suggestDuration("activity")).toBe(120);
+  });
+
+  it("nightlife → 150분", () => {
+    expect(suggestDuration("nightlife")).toBe(150);
   });
 });

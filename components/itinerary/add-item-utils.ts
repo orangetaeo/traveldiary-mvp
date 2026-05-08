@@ -9,13 +9,15 @@ import type {
   PlaceCategory,
 } from "@/lib/types";
 
-/** PlaceCategory → ItemCategory 매핑 (nature→spot, cafe→food) */
+/** PlaceCategory → ItemCategory 매핑 (nature/activity→spot, cafe→food, nightlife→food) */
 export const PLACE_TO_ITEM_CATEGORY: Record<PlaceCategory, ItemCategory> = {
   food: "food",
   spot: "spot",
   shopping: "shopping",
   nature: "spot",
   cafe: "food",
+  activity: "spot",
+  nightlife: "food",
 };
 
 export const CATEGORY_OPTIONS: { id: ItemCategory; label: string; icon: string }[] = [
@@ -42,7 +44,9 @@ export function topSuggestions(
     .slice(0, limit);
 }
 
-/** PlaceCategory → 추천 소요시간 (분). 음식/카페=90, 그 외=120. */
+/** PlaceCategory → 추천 소요시간 (분). 음식/카페=90, 야간=150, 그 외=120. */
 export function suggestDuration(category: PlaceCategory): number {
-  return category === "food" || category === "cafe" ? 90 : 120;
+  if (category === "food" || category === "cafe") return 90;
+  if (category === "nightlife") return 150;
+  return 120;
 }
