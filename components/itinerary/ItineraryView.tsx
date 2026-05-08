@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { ReplanModal } from "./ReplanModal";
@@ -540,6 +541,15 @@ export function ItineraryView({ trip, initialItems, initialDay = 0, suggestions 
           onClick={() => setAddOpen(true)}
           emphasized={dayItems.length === 0}
         />
+
+        {/* AI 추천 장소 탐색 진입 */}
+        <Link
+          href={`/itinerary/${trip.id}/discover?day=${activeDay}`}
+          className="flex items-center justify-center gap-td-xs py-2.5 text-td-meta font-bold text-purple-deep hover:bg-purple-soft/30 rounded-md transition-colors"
+        >
+          <span className="material-symbols-outlined text-[18px]" aria-hidden>travel_explore</span>
+          AI 추천 장소 탐색
+        </Link>
       </div>
 
       {/* Replan + Travel Mode 진입점 */}
