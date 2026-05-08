@@ -37,10 +37,10 @@ export function TripClaimBanner({ trips, userName }: TripClaimBannerProps) {
         </span>
         <div className="min-w-0 flex-grow">
           <p className="text-td-meta font-medium text-ink">
-            이전에 만든 여행 {trips.length}개를 발견했어요
+            익명으로 만든 여행 {trips.length}개를 가져올 수 있어요
           </p>
           <p className="text-td-caption text-ink-soft">
-            내 계정으로 가져오면 어디서든 접근할 수 있어요
+            내 계정으로 옮기면 다른 기기에서도 이어서 작업할 수 있어요
           </p>
         </div>
         <span className="material-symbols-outlined text-ink-mute text-td-icon-sm shrink-0">

@@ -2,7 +2,7 @@
  * 도시 여행 가이드 목록 페이지 — 시나리오 C Phase C3.
  *
  * SEO 랜딩: "베트남 여행 가이드", "다낭 여행 코스" 등 검색 유입.
- * 각 도시의 curatedGuides를 카드로 나열 → /city/[slug]#curated로 링크.
+ * 각 도시의 curatedGuides를 카드로 나열 → /city/[slug]#guides로 링크.
  */
 
 import type { Metadata } from "next";
@@ -81,7 +81,7 @@ export default function GuidePage() {
                 {guides.map((guide) => (
                   <Link
                     key={guide.id}
-                    href={`/city/${city.slug}#curated`}
+                    href={`/city/${city.slug}#guides`}
                     className="block p-3 bg-surface-soft border border-divider rounded-md hover:border-purple/40 transition-colors"
                   >
                     <div className="flex items-start gap-3">

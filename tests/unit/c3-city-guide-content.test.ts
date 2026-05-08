@@ -107,8 +107,8 @@ describe("C3 — /guide SEO 목록 페이지", () => {
     expect(src).toContain("resolveCity");
   });
 
-  it("/city/[slug]#curated 링크", () => {
-    expect(src).toContain("#curated");
+  it("/city/[slug]#guides 링크", () => {
+    expect(src).toContain("#guides");
   });
 
   it("가이드 카드에 emoji + 단계 수 표시", () => {

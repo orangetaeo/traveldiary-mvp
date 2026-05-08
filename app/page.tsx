@@ -42,6 +42,7 @@ import {
 } from "@/components/home/DashboardHero";
 import { sortTripsByPriority } from "@/lib/utils/trip-priority";
 import { todayISO } from "@/lib/seed/demo-date";
+import { SplashOverlay } from "@/components/ui/SplashOverlay";
 
 export const metadata: Metadata = {
   title: "TRAVELDIARY — 베트남 자유여행 AI 동반자",
@@ -126,6 +127,7 @@ export default async function HomePage({
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
+      <SplashOverlay />
       <OrganizationJsonLd
         name="TRAVELDIARY"
         url="https://traveldiary-mvp-production.up.railway.app"
