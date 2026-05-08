@@ -95,7 +95,14 @@ export default async function TripDashboardPage({
             <span className="material-symbols-outlined">arrow_back</span>
           </Link>
           <h1 className="font-semibold text-lg text-ink">TravelDiary</h1>
-          <span className="w-10" aria-hidden />
+          {/* 옵션 Z (2026-05-08) — 빈 spacer → /notifications 진입 (TravelHome 옵션 U 답습). */}
+          <Link
+            href="/notifications"
+            aria-label="알림"
+            className="p-2 -mr-2 rounded-full text-ink-soft hover:text-ink hover:bg-surface-soft transition-colors"
+          >
+            <span className="material-symbols-outlined" aria-hidden>notifications</span>
+          </Link>
         </div>
       </header>
 
