@@ -159,6 +159,9 @@ export async function getDiscoverPlaces(
             p.photos?.length > 0
               ? getPlacePhotoUrl(p.photos[0])
               : undefined,
+          lat: p.lat,
+          lng: p.lng,
+          address: p.address,
         };
       });
   } catch (err) {

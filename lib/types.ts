@@ -495,6 +495,11 @@ export interface DiscoverPlace {
   aiReason?: string;
   /** 한식 OK 표시 (좌상단 빨강 뱃지) — U2 필터 "알레르기 제외" */
   koreanFoodFriendly?: boolean;
+  /** 좌표 — 일정 추가 시 사용 */
+  lat?: number;
+  lng?: number;
+  /** 주소 — 일정 추가 시 사용 */
+  address?: string;
 }
 
 /** NotificationListView — 알림 카테고리 */
