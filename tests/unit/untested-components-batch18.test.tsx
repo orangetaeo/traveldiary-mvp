@@ -662,6 +662,24 @@ describe("TravelHome", () => {
     expect(html).toContain(">dashboard<");
     expect(html).toContain(">대시보드<");
   });
+
+  // 2026-05-08 — strip "위로 올라가는 현상" fix: outer flex-col + strip mt-auto.
+  // 짧은 콘텐츠일 때 strip이 화면 중앙에 떠 있는 대신 fixed bottom bar 직전으로 anchor.
+  it("outer 컨테이너는 flex flex-col — 짧은 콘텐츠 시 strip mt-auto anchor 가능", () => {
+    const html = renderToStaticMarkup(
+      <TravelHome trip={TRAVEL_TRIP} items={TRAVEL_ITEMS} city={MOCK_CITY} />,
+    );
+    // outer div의 클래스에 min-h-screen + flex + flex-col + pb-32 모두 포함
+    expect(html).toMatch(/min-h-screen[^"]*flex[^"]*flex-col[^"]*pb-32/);
+  });
+
+  it("CityContextStrip wrapper — mt-auto pt-td-md (city prop 있을 때)", () => {
+    const html = renderToStaticMarkup(
+      <TravelHome trip={TRAVEL_TRIP} items={TRAVEL_ITEMS} city={MOCK_CITY} />,
+    );
+    // mt-td-md(기존)가 아닌 mt-auto + pt-td-md 조합으로 변경됐는지 검증
+    expect(html).toMatch(/class="mt-auto pt-td-md"[^>]*>[^<]*<div data-testid="city-strip"/);
+  });
 });
 
 // ─── 헬퍼 함수 단위 테스트 ───────────────────────────
