@@ -16,9 +16,18 @@ import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { resolveTripsByCityCode } from "@/lib/services/resolved-trip";
 import { EmergencyHeaderButton } from "@/components/city/EmergencyHeader";
 import { BottomNav } from "@/components/ui/BottomNav";
-import { CityTripCTA } from "@/components/city/CityTripCTA";
+import {
+  CityTripCTA,
+  type OwnedCityTrip,
+} from "@/components/city/CityTripCTA";
 import { ComingSoonCity } from "@/components/city/ComingSoonCity";
 import { EmergencyRow, PhraseCard, CuratedGuideCard } from "@/components/city/CityGuideCards";
+import { getCurrentUserId } from "@/lib/auth/session";
+import { kakaoAvailable } from "@/lib/auth/kakao";
+import { jwtAvailable } from "@/lib/auth/jwt";
+import { prisma } from "@/lib/prisma";
+import { dDay } from "@/lib/utils/item-display";
+import { todayISO } from "@/lib/seed/demo-date";
 
 interface ChipDef {
   id: string;
@@ -59,7 +68,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function CityPage({ params }: { params: { slug: string } }) {
+export default async function CityPage({ params }: { params: { slug: string } }) {
   // 사이클 H (ADR-032): resolveCity로 country 정규화 데이터 merge
   const city = resolveCity(params.slug);
   if (!city) notFound();
@@ -71,6 +80,46 @@ export default function CityPage({ params }: { params: { slug: string } }) {
 
   // 사이클 J (ADR-034): city → trip 역방향 CTA. 도시당 trip 0~N개 (현 시드는 0 또는 1)
   const trips = resolveTripsByCityCode(city.code);
+
+  // 2026-05-08: 사용자 본인 trip 조회 (같은 도시 destinationCode). 우선 노출 위해 필요.
+  const oauthAvailable = kakaoAvailable() && jwtAvailable();
+  const currentUserId = oauthAvailable ? await getCurrentUserId() : null;
+  let ownedTrips: OwnedCityTrip[] = [];
+  if (currentUserId && prisma) {
+    try {
+      const owned = await prisma.trip.findMany({
+        where: {
+          ownerId: currentUserId,
+          destinationCode: city.code,
+          deletedAt: null,
+        },
+        include: { _count: { select: { items: true } } },
+        orderBy: { startDate: "asc" },
+        take: 5,
+      });
+      const today = todayISO();
+      ownedTrips = owned.map((t) => {
+        const startDate = t.startDate.toISOString().slice(0, 10);
+        const dDayNum = dDay(startDate, today);
+        const dDayLabel =
+          dDayNum > 0
+            ? `D-${dDayNum}`
+            : dDayNum === 0
+            ? "출발 당일"
+            : `D+${-dDayNum}`;
+        return {
+          id: t.id,
+          nights: t.nights,
+          startDate,
+          itemCount: t._count.items,
+          currentMode: t.currentMode,
+          dDayLabel,
+        };
+      });
+    } catch {
+      // DB 오류 시 빈 배열 — 데모 추천 fallback
+    }
+  }
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-32">
@@ -143,7 +192,11 @@ export default function CityPage({ params }: { params: { slug: string } }) {
         </Link>
 
         {/* 사이클 J (ADR-034) — city→trip 역방향 CTA */}
-        <CityTripCTA trips={trips} cityName={city.name} />
+        <CityTripCTA
+          trips={trips}
+          cityName={city.name}
+          ownedTrips={ownedTrips}
+        />
 
         {/* Sticky chip row */}
         <nav
