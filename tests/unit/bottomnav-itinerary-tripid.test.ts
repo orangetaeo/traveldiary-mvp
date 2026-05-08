@@ -64,4 +64,15 @@ describe("Consumer — trip-scoped 페이지에서 itineraryTripId 전달", () =
       '<BottomNav active="itinerary" itineraryTripId={trip.id} />',
     );
   });
+
+  it("/itinerary/[id] — itineraryTripId={trip.id} 전달 (active 슬롯도 본인 trip 보존)", () => {
+    const ITINERARY = readFileSync(
+      resolve(process.cwd(), "app/itinerary/[id]/page.tsx"),
+      "utf-8",
+    );
+    // active 슬롯이지만 href는 여전히 클릭 시 이동 — 본인 trip 보존 필요
+    expect(ITINERARY).toContain(
+      '<BottomNav active="itinerary" itineraryTripId={trip.id} />',
+    );
+  });
 });
