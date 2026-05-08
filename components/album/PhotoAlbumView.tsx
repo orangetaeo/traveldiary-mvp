@@ -7,10 +7,11 @@
  * PostTripRecapView의 Moments 섹션을 발전시킨 독립 뷰.
  */
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addPhoto, editPhoto, removePhoto } from "@/actions/photo";
 import { PhotoLightbox } from "@/components/album/PhotoLightbox";
+import { compressImageToDataUrl } from "@/lib/utils/image-compress";
 import type { TripPhoto } from "@/lib/types";
 
 interface Props {
@@ -36,16 +37,22 @@ function groupByDay(photos: TripPhoto[]): Map<number, TripPhoto[]> {
   return map;
 }
 
+type AddMode = "file" | "url";
+
 export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
   const router = useRouter();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [addMode, setAddMode] = useState<AddMode>("file");
   const [url, setUrl] = useState("");
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [caption, setCaption] = useState("");
   const [dayIndex, setDayIndex] = useState<number | undefined>(undefined);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [optimisticHidden, setOptimisticHidden] = useState<Set<string>>(new Set());
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // 캡션 편집
   const [editingPhoto, setEditingPhoto] = useState<TripPhoto | null>(null);
@@ -62,21 +69,61 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
   const grouped = groupByDay(visiblePhotos);
   const dayKeys = Array.from(grouped.keys()).sort((a, b) => a - b);
 
-  const handleAdd = () => {
-    if (!url.trim()) return;
+  const resetAddForm = () => {
+    setShowAddModal(false);
+    setAddMode("file");
+    setUrl("");
+    setFilePreview(null);
+    setCaption("");
+    setDayIndex(undefined);
     setError("");
+    setIsCompressing(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleFileSelect = async (file: File) => {
+    setError("");
+    setIsCompressing(true);
+    try {
+      const result = await compressImageToDataUrl(file);
+      if (!result.ok) {
+        if (result.reason === "not_image") {
+          setError("이미지 파일만 추가할 수 있어요.");
+        } else {
+          setError("사진을 처리하지 못했어요. 다른 사진을 선택해 주세요.");
+        }
+        setFilePreview(null);
+        return;
+      }
+      setFilePreview(result.dataUrl);
+    } finally {
+      setIsCompressing(false);
+    }
+  };
+
+  const handleAdd = () => {
+    setError("");
+    const payloadUrl =
+      addMode === "file" ? filePreview?.trim() ?? "" : url.trim();
+    if (!payloadUrl) {
+      setError(
+        addMode === "file"
+          ? "사진을 먼저 선택해 주세요."
+          : "이미지 URL을 입력해 주세요.",
+      );
+      return;
+    }
+
     startTransition(async () => {
       const result = await addPhoto({
         tripId,
-        url: url.trim(),
+        url: payloadUrl,
         caption: caption.trim() || undefined,
         dayIndex,
       });
       if (result.ok) {
-        setShowAddModal(false);
-        setUrl("");
-        setCaption("");
-        setDayIndex(undefined);
+        resetAddForm();
+        if (!result.demo) router.refresh();
       } else {
         setError("저장에 실패했습니다. 다시 시도해주세요.");
       }
@@ -245,28 +292,116 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
         <div
           className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setShowAddModal(false);
+            if (e.target === e.currentTarget) resetAddForm();
           }}
         >
           <div
             role="dialog"
             aria-label="사진 추가"
-            className="bg-surface-card w-full max-w-lg rounded-t-xl p-td-md pb-8 animate-slide-up"
+            className="bg-surface-card w-full max-w-lg rounded-t-xl p-td-md pb-8 animate-slide-up max-h-[90vh] overflow-y-auto"
           >
             <h2 className="text-td-card-title font-bold text-ink mb-td-sm">
               사진 추가
             </h2>
 
-            <label className="block text-td-meta text-ink-soft mb-td-xxs">
-              이미지 URL
-            </label>
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com/photo.jpg"
-              className="w-full bg-surface-soft border border-divider rounded-md p-td-sm text-td-body mb-td-sm focus:ring-purple focus:border-purple"
-            />
+            {/* 모드 segmented control — 파일 / URL */}
+            <div
+              role="tablist"
+              aria-label="사진 추가 방식"
+              className="flex gap-1 p-1 bg-surface-soft rounded-md mb-td-sm"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={addMode === "file"}
+                onClick={() => {
+                  setAddMode("file");
+                  setError("");
+                }}
+                className={`flex-1 py-2 rounded text-td-meta font-semibold transition-colors ${
+                  addMode === "file"
+                    ? "bg-surface-card text-ink shadow-sm"
+                    : "text-ink-soft hover:text-ink"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[18px] align-middle mr-1" aria-hidden>
+                  photo_camera
+                </span>
+                촬영·앨범
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={addMode === "url"}
+                onClick={() => {
+                  setAddMode("url");
+                  setError("");
+                }}
+                className={`flex-1 py-2 rounded text-td-meta font-semibold transition-colors ${
+                  addMode === "url"
+                    ? "bg-surface-card text-ink shadow-sm"
+                    : "text-ink-soft hover:text-ink"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[18px] align-middle mr-1" aria-hidden>
+                  link
+                </span>
+                URL
+              </button>
+            </div>
+
+            {addMode === "file" ? (
+              <>
+                <label className="block text-td-meta text-ink-soft mb-td-xxs">
+                  사진 선택
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  aria-label="사진 파일 선택"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleFileSelect(file);
+                  }}
+                  className="block w-full text-td-meta text-ink-soft file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-td-meta file:font-semibold file:bg-purple-soft file:text-purple-deep hover:file:bg-purple-soft/80 mb-td-xxs"
+                />
+                <p className="text-td-caption text-ink-mute mb-td-sm">
+                  카메라 촬영 또는 갤러리·폴더에서 선택. 자동으로 1280px / 70%
+                  품질로 압축돼요.
+                </p>
+
+                {isCompressing && (
+                  <p className="text-td-caption text-ink-soft mb-td-sm">
+                    사진을 처리하고 있어요...
+                  </p>
+                )}
+
+                {filePreview && !isCompressing && (
+                  <div className="relative mb-td-sm rounded-md overflow-hidden border border-divider">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={filePreview}
+                      alt="추가할 사진 미리 보기"
+                      className="w-full max-h-64 object-contain bg-black/5"
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <label className="block text-td-meta text-ink-soft mb-td-xxs">
+                  이미지 URL
+                </label>
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://example.com/photo.jpg"
+                  className="w-full bg-surface-soft border border-divider rounded-md p-td-sm text-td-body mb-td-sm focus:ring-purple focus:border-purple"
+                />
+              </>
+            )}
 
             <label className="block text-td-meta text-ink-soft mb-td-xxs">
               설명 (선택)
@@ -299,13 +434,15 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
             </select>
 
             {error && (
-              <p className="text-td-caption text-coral mb-td-sm">{error}</p>
+              <p className="text-td-caption text-coral mb-td-sm" role="alert">
+                {error}
+              </p>
             )}
 
             <div className="flex gap-td-xs">
               <button
                 type="button"
-                onClick={() => setShowAddModal(false)}
+                onClick={resetAddForm}
                 className="flex-1 py-td-xs rounded-md border border-divider text-td-body font-semibold text-ink"
               >
                 취소
@@ -313,7 +450,11 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
               <button
                 type="button"
                 onClick={handleAdd}
-                disabled={!url.trim() || isPending}
+                disabled={
+                  isPending ||
+                  isCompressing ||
+                  (addMode === "file" ? !filePreview : !url.trim())
+                }
                 className="flex-1 py-td-xs rounded-md bg-purple text-white text-td-body font-semibold disabled:opacity-40"
               >
                 {isPending ? "추가 중..." : "추가"}
