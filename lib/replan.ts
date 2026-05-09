@@ -56,10 +56,16 @@ export function calculateAffectedRange(
 // 3옵션 생성
 // ═══════════════════════════════════════════════════════════════════
 
-interface ReplanResult {
+export interface ReplanResult {
   option: ReplanOption;
   /** 옵션 적용 시의 새 일정 배열 (원본은 변경 안 함) */
   itemsAfter: ItineraryItem[];
+  /**
+   * 강행 옵션 적용 시 충돌하는 booked/fixed 항목 (booked 우선 정렬).
+   * 추천/안전 옵션은 항상 빈 배열 — 충돌은 강행에서만 발생.
+   * ADR-045 (#36 ReplanConflictModal wiring) — 강행 클릭 시 사용자에게 경고 + 대안 제시.
+   */
+  conflicts: ItineraryItem[];
 }
 
 /**
@@ -127,6 +133,7 @@ function buildRecommendOption(
 
   return {
     itemsAfter,
+    conflicts: [],
     option: {
       id: "option-recommend",
       label: "추천",
@@ -178,6 +185,7 @@ function buildSafeOption(
 
   return {
     itemsAfter,
+    conflicts: [],
     option: {
       id: "option-safe",
       label: "안전",
@@ -235,8 +243,13 @@ function buildForceOption(
     });
   }
 
+  // ADR-045 — 강행은 booked > fixed 우선 정렬로 conflicts 채움.
+  // ReplanModal이 onApply 시 첫 conflict 1건을 ReplanConflictModal에 매핑.
+  const conflicts: ItineraryItem[] = [...bookedConflicts, ...fixedConflicts];
+
   return {
     itemsAfter,
+    conflicts,
     option: {
       id: "option-force",
       label: "강행",
