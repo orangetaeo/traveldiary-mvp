@@ -188,14 +188,21 @@ export function ReceiptCaptureStep({ tripId, onResult }: Props) {
       <main className="bg-surface-soft text-ink rounded-t-lg -mt-td-xs relative">
         <div className="max-w-md mx-auto px-td-md py-td-lg">
           {statusMsg && (
-            <div className="flex items-center gap-td-xs bg-purple-soft border border-purple/30 rounded-md p-td-sm mb-td-md">
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-center gap-td-xs bg-purple-soft border border-purple/30 rounded-md p-td-sm mb-td-md"
+            >
               <div className="w-5 h-5 border-2 border-purple/30 border-t-purple rounded-full animate-spin shrink-0" />
               <p className="text-td-body text-purple-deep font-medium">{statusMsg}</p>
             </div>
           )}
 
           {error && (
-            <div className="flex items-start gap-td-xs bg-danger-soft border border-danger/30 rounded-md p-td-sm mb-td-md">
+            <div
+              role="alert"
+              className="flex items-start gap-td-xs bg-danger-soft border border-danger/30 rounded-md p-td-sm mb-td-md"
+            >
               <span className="material-symbols-outlined text-danger text-lg shrink-0 mt-0.5" aria-hidden>error</span>
               <p className="text-td-body text-danger-deep">{error}</p>
             </div>
