@@ -15,6 +15,8 @@ export type AllergenCategory =
   | "조개"
   | "오징어"
   | "땅콩"
+  | "견과류"
+  | "대두"
   | "우유"
   | "계란"
   | "돼지고기"
@@ -38,10 +40,12 @@ export interface AllergenMatch {
 
 const KEYWORDS: Record<AllergenCategory, string[]> = {
   새우:    ["새우", "대하", "왕새우", "tôm", "shrimp", "prawn"],
-  갑각류:  ["새우", "게", "랍스터", "바닷가재", "tôm", "cua", "lobster", "ghẹ", "hùm"],
+  갑각류:  ["새우", "게", "랍스터", "바닷가재", "tôm", "cua", "lobster", "ghẹ", "hùm", "crustacean"],
   조개:    ["조개", "모시조개", "굴", "홍합", "nghêu", "sò", "hàu", "vẹm", "clam", "oyster", "mussel"],
   오징어:  ["오징어", "낙지", "문어", "mực", "bạch tuộc", "squid", "octopus"],
   땅콩:    ["땅콩", "đậu phộng", "lạc", "peanut"],
+  견과류:  ["견과류", "견과", "호두", "아몬드", "캐슈넛", "hạt điều", "nut", "walnut", "almond", "cashew"],
+  대두:    ["대두", "콩", "간장", "된장", "두부", "đậu nành", "nước tương", "đậu hũ", "soy", "soybean", "tofu"],
   우유:    ["우유", "치즈", "버터", "sữa", "phô mai", "bơ", "milk", "cheese", "butter"],
   계란:    ["계란", "달걀", "trứng", "egg"],
   돼지고기: ["돼지", "돈까스", "삼겹살", "thịt heo", "thịt lợn", "pork", "heo"],
@@ -49,7 +53,7 @@ const KEYWORDS: Record<AllergenCategory, string[]> = {
   닭고기:  ["닭고기", "치킨", "thịt gà", "gà", "chicken"],
   비건:    ["고기", "생선", "계란", "우유", "치즈", "thịt", "cá", "trứng", "sữa", "meat", "fish"],
   베지테리언: ["고기", "생선", "thịt", "cá", "meat", "fish"],
-  글루텐:  ["밀가루", "면", "빵", "bột mì", "bánh mì", "wheat", "flour"],
+  글루텐:  ["밀가루", "면", "빵", "bột mì", "bánh mì", "wheat", "flour", "gluten"],
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -62,6 +66,8 @@ const ALIASES: Record<string, AllergenCategory> = {
   "조개 알레르기": "조개",
   "오징어 알레르기": "오징어",
   "땅콩 알레르기": "땅콩",
+  "견과류 알레르기": "견과류",
+  "대두 알레르기": "대두",
   "우유 알레르기": "우유",
   "계란 알레르기": "계란",
   "돼지고기 안 먹음": "돼지고기",
@@ -71,6 +77,46 @@ const ALIASES: Record<string, AllergenCategory> = {
   베지테리언: "베지테리언",
   "글루텐 프리": "글루텐",
 };
+
+// ═══════════════════════════════════════════════════════════════════
+// API 알레르기 코드 → AllergenCategory 매핑
+// Claude API가 반환하는 영어 코드를 한국어 카테고리로 변환.
+// ═══════════════════════════════════════════════════════════════════
+
+const API_CODE_MAP: Record<string, AllergenCategory> = {
+  shrimp: "새우",
+  prawn: "새우",
+  crustacean: "갑각류",
+  lobster: "갑각류",
+  crab: "갑각류",
+  clam: "조개",
+  oyster: "조개",
+  mussel: "조개",
+  shellfish: "조개",
+  squid: "오징어",
+  octopus: "오징어",
+  peanut: "땅콩",
+  nut: "견과류",
+  tree_nut: "견과류",
+  soy: "대두",
+  soybean: "대두",
+  milk: "우유",
+  dairy: "우유",
+  egg: "계란",
+  pork: "돼지고기",
+  beef: "소고기",
+  chicken: "닭고기",
+  gluten: "글루텐",
+  wheat: "글루텐",
+};
+
+/**
+ * Claude API 영어 알레르기 코드 → AllergenCategory 변환.
+ * 매칭 실패 시 null (알 수 없는 코드는 안전하게 무시).
+ */
+export function mapApiAllergenCode(code: string): AllergenCategory | null {
+  return API_CODE_MAP[code.toLowerCase().trim()] ?? null;
+}
 
 export function normalizeExclude(input: string): AllergenCategory | null {
   const trimmed = input.trim();
@@ -154,6 +200,8 @@ export const ALLERGEN_CHIPS: AllergenChipItem[] = [
   { label: "갑각류 알레르기", raw: "갑각류 알레르기", severity: "danger", icon: "block" },
   { label: "조개 알레르기", raw: "조개 알레르기", severity: "danger", icon: "block" },
   { label: "땅콩 알레르기", raw: "땅콩 알레르기", severity: "danger", icon: "block" },
+  { label: "견과류 알레르기", raw: "견과류 알레르기", severity: "danger", icon: "block" },
+  { label: "대두 알레르기", raw: "대두 알레르기", severity: "danger", icon: "block" },
   { label: "우유 알레르기", raw: "우유 알레르기", severity: "danger", icon: "opacity" },
   { label: "돼지고기", raw: "돼지고기 안 먹음", severity: "danger", icon: "block" },
   { label: "비건", raw: "비건", severity: "danger", icon: "eco" },

@@ -8,6 +8,7 @@ import { AllergenFilterChips } from "@/components/allergen/AllergenFilterChips";
 import { useToast } from "@/lib/hooks/useToast";
 import {
   ALLERGEN_CHIPS,
+  mapApiAllergenCode,
   matchAllergens,
   type AllergenMatch,
 } from "@/lib/allergens";
@@ -267,7 +268,9 @@ function ResultsView({
         price: { vnd: 0, krw: 0 },
         koreanPopularity: 0,
         ingredients: [],
-        allergens: t.allergens as MenuItem["allergens"],
+        allergens: (t.allergens ?? [])
+          .map(mapApiAllergenCode)
+          .filter((c): c is NonNullable<typeof c> => c !== null),
       }));
       setLiveItems(items);
     } catch {
