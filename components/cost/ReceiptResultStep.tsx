@@ -79,7 +79,11 @@ export function ReceiptResultStep({ tripId, receipt, previewUrl, onRetake }: Pro
 
       <main className="max-w-md mx-auto px-td-md py-td-lg">
         {/* 성공 배지 */}
-        <div className="flex items-center gap-td-xs bg-success-soft border border-success/30 rounded-md p-td-sm mb-td-md">
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center gap-td-xs bg-success-soft border border-success/30 rounded-md p-td-sm mb-td-md"
+        >
           <span className="material-symbols-outlined text-success-deep text-lg" aria-hidden>check_circle</span>
           <p className="text-td-body text-success-deep font-medium">영수증 인식 완료</p>
         </div>
