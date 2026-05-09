@@ -42,7 +42,7 @@ function item(
  * ChecklistBucketList — onEdit 유무에 따른 수정 버튼
  * ════════════════════════════════════════════ */
 
-describe("ChecklistBucketList — 수정 버튼", () => {
+describe("ChecklistBucketList — 수정 버튼 (aria-label 항목명 포함)", () => {
   it("onEdit 미전달 시 수정 버튼 미노출", () => {
     const html = renderToStaticMarkup(
       <ChecklistBucketList
@@ -51,11 +51,11 @@ describe("ChecklistBucketList — 수정 버튼", () => {
         onDelete={NOOP}
       />,
     );
-    expect(html).not.toContain('aria-label="수정"');
-    expect(html).toContain('aria-label="삭제"');
+    expect(html).not.toMatch(/aria-label="item-a 수정"/);
+    expect(html).toContain('aria-label="item-a 삭제"');
   });
 
-  it("onEdit 전달 시 수정 버튼 aria-label 존재", () => {
+  it("onEdit 전달 시 수정 버튼 aria-label 존재 (item.text 포함)", () => {
     const html = renderToStaticMarkup(
       <ChecklistBucketList
         items={[item("a")]}
@@ -64,8 +64,8 @@ describe("ChecklistBucketList — 수정 버튼", () => {
         onEdit={NOOP}
       />,
     );
-    expect(html).toContain('aria-label="수정"');
-    expect(html).toContain('aria-label="삭제"');
+    expect(html).toContain('aria-label="item-a 수정"');
+    expect(html).toContain('aria-label="item-a 삭제"');
   });
 
   it("onEdit 전달 시 edit 아이콘 렌더", () => {
@@ -80,7 +80,7 @@ describe("ChecklistBucketList — 수정 버튼", () => {
     expect(html).toContain("edit");
   });
 
-  it("selectionMode=true → onEdit 전달해도 수정 버튼 미노출", () => {
+  it("selectionMode=true → onEdit 전달해도 수정/삭제 버튼 미노출", () => {
     const html = renderToStaticMarkup(
       <ChecklistBucketList
         items={[item("a")]}
@@ -92,11 +92,11 @@ describe("ChecklistBucketList — 수정 버튼", () => {
         onSelectToggle={NOOP}
       />,
     );
-    expect(html).not.toContain('aria-label="수정"');
-    expect(html).not.toContain('aria-label="삭제"');
+    expect(html).not.toMatch(/aria-label="item-a 수정"/);
+    expect(html).not.toMatch(/aria-label="item-a 삭제"/);
   });
 
-  it("여러 항목 → 각각 수정 + 삭제 버튼", () => {
+  it("여러 항목 → 각각 수정 + 삭제 버튼 (item.text별 고유 aria-label)", () => {
     const html = renderToStaticMarkup(
       <ChecklistBucketList
         items={[item("a"), item("b", { sortOrder: 1 }), item("c", { sortOrder: 2 })]}
@@ -105,10 +105,14 @@ describe("ChecklistBucketList — 수정 버튼", () => {
         onEdit={NOOP}
       />,
     );
-    const editCount = (html.match(/aria-label="수정"/g) || []).length;
-    const deleteCount = (html.match(/aria-label="삭제"/g) || []).length;
+    const editCount = (html.match(/aria-label="item-[abc] 수정"/g) || []).length;
+    const deleteCount = (html.match(/aria-label="item-[abc] 삭제"/g) || []).length;
     expect(editCount).toBe(3);
     expect(deleteCount).toBe(3);
+    // 항목별 고유 aria-label
+    expect(html).toContain('aria-label="item-a 수정"');
+    expect(html).toContain('aria-label="item-b 수정"');
+    expect(html).toContain('aria-label="item-c 수정"');
   });
 });
 

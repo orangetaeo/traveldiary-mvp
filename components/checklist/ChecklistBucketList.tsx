@@ -81,7 +81,7 @@ export function ChecklistBucketList({
                         type="button"
                         role="checkbox"
                         onClick={() => onSelectToggle?.(item)}
-                        aria-label={isSelected ? "선택 해제" : "선택"}
+                        aria-label={isSelected ? `${item.text} 선택 해제` : `${item.text} 선택`}
                         aria-checked={isSelected ? "true" : "false"}
                         className="mt-0.5 flex-shrink-0"
                       >
@@ -97,7 +97,7 @@ export function ChecklistBucketList({
                       <button
                         type="button"
                         onClick={() => onToggle(item)}
-                        aria-label={item.done ? "체크 해제" : "체크"}
+                        aria-label={item.done ? `${item.text} 체크 해제` : `${item.text} 체크`}
                         className="mt-0.5 flex-shrink-0"
                       >
                         <span
@@ -143,7 +143,7 @@ export function ChecklistBucketList({
                           type="button"
                           onClick={() => onMove(item, "up")}
                           disabled={!canMoveUp}
-                          aria-label="위로 이동"
+                          aria-label={`${item.text} 위로 이동`}
                           className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-9 w-9 flex items-center justify-center"
                         >
                           <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
@@ -154,7 +154,7 @@ export function ChecklistBucketList({
                           type="button"
                           onClick={() => onMove(item, "down")}
                           disabled={!canMoveDown}
-                          aria-label="아래로 이동"
+                          aria-label={`${item.text} 아래로 이동`}
                           className="text-ink-mute hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors h-9 w-9 flex items-center justify-center"
                         >
                           <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
@@ -169,7 +169,7 @@ export function ChecklistBucketList({
                           <button
                             type="button"
                             onClick={() => onEdit(item)}
-                            aria-label="수정"
+                            aria-label={`${item.text} 수정`}
                             className="opacity-70 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-purple transition-opacity w-9 h-9 flex items-center justify-center"
                           >
                             <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
@@ -180,7 +180,7 @@ export function ChecklistBucketList({
                         <button
                           type="button"
                           onClick={() => onDelete(item)}
-                          aria-label="삭제"
+                          aria-label={`${item.text} 삭제`}
                           className="opacity-70 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity w-9 h-9 flex items-center justify-center"
                         >
                           <span className="material-symbols-outlined text-td-icon" aria-hidden="true">
