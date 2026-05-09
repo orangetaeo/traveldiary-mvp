@@ -14,6 +14,7 @@ import { fetchShareLinkBySyncKey } from "@/lib/repositories/share.repository";
 import {
   createCommentRow,
   deleteCommentRow,
+  updateCommentRow,
   type CommentReaction,
   type CreateCommentResult,
   type ShareError,
@@ -114,6 +115,55 @@ export async function deleteCommentAction(
     resource: "ShareComment",
     resourceId: input.commentId,
     metadata: { syncKey: input.syncKey },
+  });
+
+  revalidatePath(`/share/${input.syncKey}`);
+  return { ok: true };
+}
+
+// ─── Edit ────────────────────────────────────────────────────────────
+
+export interface EditCommentActionInput {
+  syncKey: string;
+  commentId: string;
+  body: string;
+  clientUuid: string;
+}
+
+export async function editCommentAction(
+  input: EditCommentActionInput,
+): Promise<{ ok: boolean; code?: ShareError; message?: string }> {
+  if (!isDbConnected) return { ok: true };
+
+  const link = await fetchShareLinkBySyncKey(input.syncKey);
+  if (!link) return { ok: false, code: "not_found" };
+  const linkRow = link.link;
+  if (linkRow.revokedAt) return { ok: false, code: "revoked" };
+  if (linkRow.expiresAt && new Date(linkRow.expiresAt) < new Date()) {
+    return { ok: false, code: "expired" };
+  }
+
+  const actorId = await getActorId();
+
+  const result = await updateCommentRow({
+    commentId: input.commentId,
+    body: input.body,
+    clientUuid: input.clientUuid,
+    actorId,
+  });
+
+  if (!result.ok) return { ok: false, code: result.code, message: result.message };
+
+  await writeAuditLog({
+    actorId,
+    action: "comment.update",
+    resource: "ShareComment",
+    resourceId: input.commentId,
+    metadata: {
+      syncKey: input.syncKey,
+      bodyBefore: result.before.body,
+      bodyAfter: result.after.body,
+    },
   });
 
   revalidatePath(`/share/${input.syncKey}`);

@@ -199,6 +199,72 @@ export function canDeleteComment(
   return false;
 }
 
+// ─── Update ─────────────────────────────────────────────────────────
+
+export interface UpdateCommentInput {
+  commentId: string;
+  body: string;
+  clientUuid: string;
+  actorId?: string | null;
+}
+
+export type UpdateCommentResult =
+  | { ok: true; before: ShareCommentRow; after: ShareCommentRow }
+  | { ok: false; code: ShareError; message?: string };
+
+/** 본인 편집 OR 게이트 — canDeleteComment과 동일 로직. */
+export function canEditComment(
+  existing: { clientUuid: string; actorId: string | null },
+  input: { clientUuid: string; actorId?: string | null },
+): boolean {
+  if (existing.clientUuid === input.clientUuid) return true;
+  if (
+    existing.actorId !== null &&
+    input.actorId != null &&
+    existing.actorId === input.actorId
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export async function updateCommentRow(
+  input: UpdateCommentInput,
+): Promise<UpdateCommentResult> {
+  if (!prisma) return { ok: false, code: "internal" };
+
+  const bv = validateBody(input.body);
+  if (!bv.ok) return { ok: false, code: "validation", message: bv.error };
+
+  try {
+    const existing = await prisma.shareComment.findUnique({
+      where: { id: input.commentId },
+    });
+    if (!existing || existing.deletedAt) {
+      return { ok: false, code: "not_found" };
+    }
+    if (
+      !canEditComment(
+        { clientUuid: existing.clientUuid, actorId: existing.actorId },
+        { clientUuid: input.clientUuid, actorId: input.actorId ?? null },
+      )
+    ) {
+      return { ok: false, code: "forbidden" };
+    }
+    const before = rowToComment(existing);
+    const updated = await prisma.shareComment.update({
+      where: { id: input.commentId },
+      data: { body: escapeHtml(input.body.trim()) },
+    });
+    return { ok: true, before, after: rowToComment(updated) };
+  } catch (err) {
+    console.error("[shareComment.repository] update failed", err);
+    return { ok: false, code: "internal" };
+  }
+}
+
+// ─── Delete ─────────────────────────────────────────────────────────
+
 export async function deleteCommentRow(
   input: DeleteCommentInput,
 ): Promise<{ ok: boolean; code?: ShareError }> {
