@@ -27,7 +27,7 @@ export default function PhrasesPage() {
         >
           <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold tracking-tight text-ink ml-td-xs">
+        <h1 className="text-td-title font-bold tracking-tight text-ink ml-td-xs">
           베트남어 핵심 문장
         </h1>
       </header>

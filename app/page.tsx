@@ -151,7 +151,7 @@ export default async function HomePage({
           >
             <span className="material-symbols-outlined text-ink">menu</span>
           </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
+          <h1 className="text-td-title font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
         <LoginButton
           currentUserId={currentUserId}

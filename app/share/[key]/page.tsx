@@ -103,7 +103,7 @@ export default async function SharedTripPage({
           >
             <span className="material-symbols-outlined text-ink">home</span>
           </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">
+          <h1 className="text-td-title font-bold text-ink tracking-tight">
             공유 받은 여행
           </h1>
         </div>

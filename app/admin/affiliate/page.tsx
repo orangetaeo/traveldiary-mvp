@@ -304,7 +304,7 @@ function AffiliateHeader({ adminLink }: { adminLink: string }) {
         >
           <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold tracking-tight text-ink">어필리에이트</h1>
+        <h1 className="text-td-title font-bold tracking-tight text-ink">어필리에이트</h1>
         <span className="bg-amber-soft text-amber-deep text-td-caption px-2 py-0.5 rounded font-bold uppercase tracking-wider">
           Admin
         </span>
