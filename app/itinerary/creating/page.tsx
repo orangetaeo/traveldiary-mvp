@@ -104,11 +104,16 @@ function ItineraryCreatingInner() {
       {/* Progress bar */}
       <div className="mb-6">
         <div
+          role="progressbar"
+          aria-valuenow={done ? 100 : progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="일정 생성 진행"
           className="w-full bg-surface-soft h-[6px] rounded-full overflow-hidden"
-          aria-hidden="true"
         >
           <div
             className="h-full bg-purple rounded-full transition-all duration-500"
+            // eslint-disable-next-line react/forbid-dom-props -- 동적 width는 progressbar 필수
             style={{ width: `${done ? 100 : progress}%` }}
           />
         </div>
