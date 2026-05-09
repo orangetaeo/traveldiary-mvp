@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TravelHome } from "@/components/travel/TravelHome";
 import { resolveCityByCode } from "@/lib/seed/cities";
 import { resolveTripBundle } from "@/lib/repositories/trip.repository";
 import { calculateTravelDay } from "@/lib/mode-transition";
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const bundle = await resolveTripBundle(params.id);
+  if (!bundle) return { title: "여행 중" };
+  return {
+    title: `${bundle.trip.destination} 여행 중`,
+    description: `${bundle.trip.destination} 자유여행 — 오늘의 일정, 동선, 실시간 가이드.`,
+  };
+}
 
 /**
  * 여행 중 홈 (M2 매직 모먼트 LEVEL 1) — `/travel/[id]`

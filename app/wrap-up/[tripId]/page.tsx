@@ -6,9 +6,17 @@
  * E3: 앨범 CTA 추가
  */
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { resolveTrip } from "@/lib/services/resolved-trip";
+
+export function generateMetadata({ params }: { params: { tripId: string } }): Metadata {
+  return {
+    title: "여행 마무리",
+    description: "여행 리뷰, 비용 정산, 사진 앨범, 다음 여행지 추천.",
+  };
+}
 import { WrapUpReviewCard } from "@/components/wrap-up/WrapUpReviewCard";
 import { SettlementSummary } from "@/components/wrap-up/SettlementSummary";
 import { getNextCitySuggestions } from "@/lib/wrap-up/next-city-suggestions";
