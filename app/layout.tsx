@@ -47,6 +47,8 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        {/* Agoda Partner 사이트 소유권 검증 — partners.agoda.com 매뉴얼 검증 단계 */}
+        <meta name="agd-partner-manual-verification" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
         {/* L1: preconnect — 폰트 CDN 사전 연결 (LCP 개선) */}
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
