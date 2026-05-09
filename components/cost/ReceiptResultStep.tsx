@@ -96,6 +96,7 @@ export function ReceiptResultStep({ tripId, receipt, previewUrl, onRetake }: Pro
               src={previewUrl}
               alt="영수증 미리보기"
               className="w-full max-h-48 object-contain bg-surface-card"
+              loading="lazy"
             />
           </div>
         )}

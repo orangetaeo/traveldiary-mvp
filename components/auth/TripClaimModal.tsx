@@ -80,7 +80,7 @@ export function TripClaimModal({
   if (trips.length === 0) return null;
 
   return (
-    <div role="dialog" aria-label="내 여행 인계" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div role="dialog" aria-modal="true" aria-labelledby="trip-claim-modal-title" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       {/* backdrop */}
       <div
         className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
@@ -107,7 +107,7 @@ export function TripClaimModal({
               <span className="material-symbols-outlined text-ink-mute text-[20px]">close</span>
             </button>
           </div>
-          <h2 className="text-td-title text-ink font-bold mb-td-xxs">
+          <h2 id="trip-claim-modal-title" className="text-td-title text-ink font-bold mb-td-xxs">
             환영합니다, {userName}님!
           </h2>
           <p className="text-td-body text-ink-soft">
@@ -161,6 +161,7 @@ export function TripClaimModal({
                       src={trip.imageUrl}
                       alt={trip.destination}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">

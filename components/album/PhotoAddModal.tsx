@@ -162,16 +162,17 @@ export function PhotoAddModal({ tripId, totalDays, onClose, onPhotoAdded }: Prop
   return (
     <div
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="photo-add-modal-title"
       onClick={(e) => {
         if (e.target === e.currentTarget) resetAddForm();
       }}
     >
       <div
-        role="dialog"
-        aria-label="사진 추가"
         className="bg-surface-card w-full max-w-lg rounded-t-xl p-td-md pb-8 animate-slide-up max-h-[90vh] overflow-y-auto"
       >
-        <h2 className="text-td-card-title font-bold text-ink mb-td-sm">
+        <h2 id="photo-add-modal-title" className="text-td-card-title font-bold text-ink mb-td-sm">
           사진 추가
         </h2>
 
@@ -264,6 +265,7 @@ export function PhotoAddModal({ tripId, totalDays, onClose, onPhotoAdded }: Prop
                         src={preview}
                         alt={`추가할 사진 ${idx + 1}/${filePreviews.length}`}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                       <button
                         type="button"

@@ -239,12 +239,15 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
       {editingPhoto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-td-md"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="photo-caption-edit-title"
           onClick={(e) => {
             if (e.target === e.currentTarget) setEditingPhoto(null);
           }}
         >
           <div className="bg-surface-card border border-divider rounded-lg p-td-md w-full max-w-md shadow-lg">
-            <h3 className="text-td-card-title text-ink mb-td-sm">캡션 수정</h3>
+            <h3 id="photo-caption-edit-title" className="text-td-card-title text-ink mb-td-sm">캡션 수정</h3>
             <input
               type="text"
               value={editCaption}
@@ -290,10 +293,11 @@ export function PhotoAlbumView({ tripId, photos, totalDays }: Props) {
         >
           <div
             role="alertdialog"
-            aria-label="사진 삭제 확인"
+            aria-modal="true"
+            aria-labelledby="photo-delete-confirm-title"
             className="bg-surface-card w-full max-w-sm rounded-xl p-td-md"
           >
-            <h2 className="text-td-card-title font-bold text-ink mb-td-xxs">
+            <h2 id="photo-delete-confirm-title" className="text-td-card-title font-bold text-ink mb-td-xxs">
               사진을 삭제할까요?
             </h2>
             <p className="text-td-body text-ink-soft mb-td-md">

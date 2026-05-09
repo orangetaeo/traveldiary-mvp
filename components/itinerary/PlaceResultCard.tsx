@@ -61,6 +61,7 @@ export function PlaceResultCard({
             src={place.imageUrl}
             alt={place.name}
             className="w-full h-full object-cover"
+            loading="lazy"
             onError={(e) => {
               const parent = e.currentTarget.parentElement;
               if (parent) {

@@ -103,7 +103,7 @@ export function ProfileEditForm({ currentName, userEmail }: ProfileEditFormProps
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           role="dialog"
           aria-modal="true"
-          aria-label="프로필 편집"
+          aria-labelledby="profile-edit-modal-title"
         >
           {/* 백드롭 */}
           <div
@@ -115,7 +115,7 @@ export function ProfileEditForm({ currentName, userEmail }: ProfileEditFormProps
           {/* 모달 본체 */}
           <div className="relative bg-surface-card w-full max-w-md rounded-t-2xl sm:rounded-2xl p-6 shadow-xl animate-in slide-in-from-bottom-4 duration-200">
             <div className="flex justify-between items-center mb-5">
-              <h3 className="text-td-title font-bold text-ink">프로필 편집</h3>
+              <h3 id="profile-edit-modal-title" className="text-td-title font-bold text-ink">프로필 편집</h3>
               <button
                 type="button"
                 onClick={handleClose}
