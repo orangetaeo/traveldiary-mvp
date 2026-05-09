@@ -179,7 +179,7 @@ function DashboardHeader({ adminLink }: { adminLink: string }) {
         >
           <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold text-ink tracking-tight">
+        <h1 className="text-td-title font-bold text-ink tracking-tight">
           A/B 실험
         </h1>
         <span className="px-2 py-0.5 bg-surface-soft text-ink-soft text-td-badge font-bold rounded uppercase">

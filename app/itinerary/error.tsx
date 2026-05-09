@@ -26,7 +26,7 @@ export default function ItineraryError({ error, reset }: ErrorPageProps) {
   if (debugMode) {
     return (
       <div className="min-h-screen bg-surface-soft p-4 text-ink">
-        <h1 className="text-lg font-bold mb-2">[DEBUG] /itinerary error</h1>
+        <h1 className="text-td-title font-bold mb-2">[DEBUG] /itinerary error</h1>
         <p className="text-sm text-ink-soft mb-2">
           ?debug=1 — production sanitize된 정보. 진짜 stack은 Railway logs 또는
           F12 Console 참고.

@@ -60,7 +60,7 @@ export default async function ItineraryPage({
       const cause = err instanceof Error && err.cause ? String(err.cause) : "";
       return (
         <div className="min-h-screen bg-surface-soft p-4 text-ink">
-          <h1 className="text-lg font-bold mb-2">[DEBUG] ItineraryPage throw</h1>
+          <h1 className="text-td-title font-bold mb-2">[DEBUG] ItineraryPage throw</h1>
           <p className="text-sm text-ink-soft mb-2">
             URL에 <code>?debug=1</code> 추가 시에만 노출. 평상시엔 error.tsx 표시.
           </p>
@@ -120,7 +120,7 @@ async function renderItinerary(
           >
             <span className="material-symbols-outlined text-ink">arrow_back</span>
           </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
+          <h1 className="text-td-title font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
         <div className="flex items-center gap-td-xs">
           {/* 사이클 P (ADR-035) — 응급 빠른 액세스 */}
