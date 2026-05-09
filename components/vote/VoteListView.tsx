@@ -28,6 +28,13 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
   const [draftQuestion, setDraftQuestion] = useState("");
   const [draftOptions, setDraftOptions] = useState<string[]>(["", ""]);
 
+  const validOptionCount = draftOptions.filter((l) => l.trim().length > 0).length;
+  const isFormValid = draftQuestion.trim().length > 0 && validOptionCount >= 2;
+
+  function handleRemoveOption(index: number) {
+    setDraftOptions((prev) => prev.filter((_, i) => i !== index));
+  }
+
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     const labels = draftOptions
@@ -135,28 +142,60 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
         <section className="bg-surface-card border border-divider rounded-md p-td-md">
           <h2 className="text-td-card-title text-ink mb-td-sm">새 투표</h2>
           <form onSubmit={handleCreate} className="space-y-td-sm">
-            <input
-              type="text"
-              placeholder="질문 (예: 둘째날 저녁은 어디로?)"
-              value={draftQuestion}
-              onChange={(e) => setDraftQuestion(e.target.value)}
-              maxLength={120}
-              className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
-            />
-            {draftOptions.map((opt, i) => (
+            <div>
               <input
-                key={i}
                 type="text"
-                placeholder={`옵션 ${i + 1}`}
-                value={opt}
-                onChange={(e) => {
-                  const next = [...draftOptions];
-                  next[i] = e.target.value;
-                  setDraftOptions(next);
-                }}
-                maxLength={80}
-                className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft"
+                placeholder="질문 (예: 둘째날 저녁은 어디로?)"
+                value={draftQuestion}
+                onChange={(e) => setDraftQuestion(e.target.value)}
+                maxLength={120}
+                aria-label="투표 질문"
+                className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft focus:outline focus:outline-purple"
               />
+              <span
+                className={`block text-right text-td-caption mt-td-xxs ${
+                  draftQuestion.length >= 108 ? "text-danger" : "text-ink-mute"
+                }`}
+                aria-label="질문 글자 수"
+              >
+                {draftQuestion.length}/120
+              </span>
+            </div>
+            {draftOptions.map((opt, i) => (
+              <div key={i} className="flex items-center gap-td-xs">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    placeholder={`옵션 ${i + 1}`}
+                    value={opt}
+                    onChange={(e) => {
+                      const next = [...draftOptions];
+                      next[i] = e.target.value;
+                      setDraftOptions(next);
+                    }}
+                    maxLength={80}
+                    aria-label={`옵션 ${i + 1}`}
+                    className="w-full px-td-sm py-2 border border-divider rounded-md text-td-body bg-surface-soft"
+                  />
+                  <span
+                    className={`block text-right text-td-caption mt-td-xxs ${
+                      opt.length >= 72 ? "text-danger" : "text-ink-mute"
+                    }`}
+                  >
+                    {opt.length}/80
+                  </span>
+                </div>
+                {draftOptions.length > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveOption(i)}
+                    className="p-1 rounded hover:bg-surface-soft text-ink-mute hover:text-danger transition-colors shrink-0"
+                    aria-label={`옵션 ${i + 1} 삭제`}
+                  >
+                    <span className="material-symbols-outlined text-td-icon" aria-hidden>close</span>
+                  </button>
+                )}
+              </div>
             ))}
             <div className="flex gap-td-sm">
               <button
@@ -168,7 +207,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
               </button>
               <button
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || !isFormValid}
                 className="ml-auto px-td-md py-2 bg-purple text-white rounded-md text-td-meta font-semibold hover:opacity-90 disabled:opacity-60"
               >
                 {isPending ? "생성 중…" : "투표 생성"}
