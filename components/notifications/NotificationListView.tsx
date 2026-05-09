@@ -7,7 +7,7 @@
  * DB 미구현 단계 — 데모 시드 데이터 기반.
  */
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { COLOR_BG, COLOR_TEXT } from "@/lib/utils/color-mappings";
 import type { AppNotification, NotificationCategory } from "@/lib/types";
@@ -75,14 +75,25 @@ function formatRelativeTime(iso: string): string {
 
 export function NotificationListView({ notifications }: Props) {
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [items, setItems] = useState<AppNotification[]>(notifications);
 
   const filtered =
     filter === "all"
-      ? notifications
-      : notifications.filter((n) => n.category === filter);
+      ? items
+      : items.filter((n) => n.category === filter);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = items.filter((n) => !n.read).length;
   const groups = groupByTime(filtered);
+
+  const handleMarkAllRead = useCallback(() => {
+    setItems((prev) => prev.map((n) => (n.read ? n : { ...n, read: true })));
+  }, []);
+
+  const handleMarkOneRead = useCallback((id: string) => {
+    setItems((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    );
+  }, []);
 
   return (
     <div className="min-h-screen bg-surface-soft text-ink pb-24">
@@ -100,6 +111,16 @@ export function NotificationListView({ notifications }: Props) {
           <span className="ml-td-xs bg-purple text-white text-td-caption font-bold px-td-xs py-[1px] rounded-full min-w-[20px] text-center">
             {unreadCount}
           </span>
+        )}
+        {unreadCount > 0 && (
+          <button
+            type="button"
+            onClick={handleMarkAllRead}
+            className="ml-auto text-td-caption text-purple font-medium hover:underline"
+            aria-label="모두 읽음 처리"
+          >
+            모두 읽음
+          </button>
         )}
       </header>
 
@@ -138,7 +159,7 @@ export function NotificationListView({ notifications }: Props) {
                 </h2>
                 <ul className="space-y-td-sm">
                   {group.items.map((n) => (
-                    <NotificationCard key={n.id} notification={n} />
+                    <NotificationCard key={n.id} notification={n} onRead={handleMarkOneRead} />
                   ))}
                 </ul>
               </section>
@@ -152,10 +173,20 @@ export function NotificationListView({ notifications }: Props) {
 
 // ─── Card ──────────────────────────────────────
 
-function NotificationCard({ notification: n }: { notification: AppNotification }) {
+function NotificationCard({
+  notification: n,
+  onRead,
+}: {
+  notification: AppNotification;
+  onRead: (id: string) => void;
+}) {
   const cardClass = `relative flex gap-td-sm p-td-sm bg-surface-card border border-divider rounded-md transition-colors hover:bg-surface-soft cursor-pointer ${
     n.read ? "opacity-70" : ""
   }`;
+
+  function handleClick() {
+    if (!n.read) onRead(n.id);
+  }
 
   const inner = (
     <>
@@ -199,11 +230,11 @@ function NotificationCard({ notification: n }: { notification: AppNotification }
   return (
     <li className="list-none">
       {n.href ? (
-        <Link href={n.href} className={cardClass}>
+        <Link href={n.href} className={cardClass} onClick={handleClick}>
           {inner}
         </Link>
       ) : (
-        <div className={cardClass}>
+        <div className={cardClass} onClick={handleClick} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleClick(); }}>
           {inner}
         </div>
       )}
