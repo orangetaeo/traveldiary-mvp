@@ -126,7 +126,7 @@ export async function exportUserData(): Promise<DataExportResult> {
     await writeAuditLog({
       resource: "data_export",
       resourceId: ownerId,
-      action: "export",
+      action: "dataexport.export",
       actorId: actorId ?? "anonymous",
       metadata: {
         trips: trips.length,
