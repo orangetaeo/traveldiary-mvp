@@ -18,6 +18,11 @@ interface OtaInterstitialModalProps {
   price: string;
   discountLabel?: string;
   affiliateUrl: string;
+  /**
+   * 사용자가 "예약하기" 클릭 시 호출. 부재 시 기본 동작(window.open + onClose)으로 fallback —
+   * 기존 사용처 BC 유지. 부모에서 outgoing 마킹 등 부가 처리가 필요하면 prop으로 주입.
+   */
+  onProceed?: () => void;
 }
 
 export default function OtaInterstitialModal({
@@ -28,11 +33,16 @@ export default function OtaInterstitialModal({
   price,
   discountLabel,
   affiliateUrl,
+  onProceed,
 }: OtaInterstitialModalProps) {
   const handleProceed = useCallback(() => {
-    window.open(affiliateUrl, "_blank", "noopener,noreferrer");
+    if (onProceed) {
+      onProceed();
+    } else {
+      window.open(affiliateUrl, "_blank", "noopener,noreferrer");
+    }
     onClose();
-  }, [affiliateUrl, onClose]);
+  }, [affiliateUrl, onClose, onProceed]);
 
   // 드래그 dismiss
   const [dragY, setDragY] = useState(0);
