@@ -172,6 +172,7 @@ export function PostTripRecapView({
                   src={m.imageUrl}
                   alt={m.alt}
                   className="w-full h-auto object-cover"
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-full aspect-[4/3] bg-surface-soft flex items-center justify-center">
