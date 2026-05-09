@@ -127,7 +127,10 @@ describe("lib/utils/image-compress — 무결성", () => {
  * ════════════════════════════════════════════ */
 
 describe("PhotoAlbumView 소스 — 사진 추가 모드 wiring", () => {
-  const SRC = read("components/album/PhotoAlbumView.tsx");
+  const SRC = [
+    read("components/album/PhotoAlbumView.tsx"),
+    read("components/album/PhotoAddModal.tsx"),
+  ].join("\n");
 
   it("compressImageToDataUrl import", () => {
     expect(SRC).toMatch(
@@ -173,7 +176,10 @@ describe("PhotoAlbumView 소스 — 사진 추가 모드 wiring", () => {
 });
 
 describe("PhotoAlbumView UI — 사진 추가 모달 segmented control", () => {
-  const SRC = read("components/album/PhotoAlbumView.tsx");
+  const SRC = [
+    read("components/album/PhotoAlbumView.tsx"),
+    read("components/album/PhotoAddModal.tsx"),
+  ].join("\n");
 
   it('role="tablist" + aria-label="사진 추가 방식"', () => {
     expect(SRC).toContain('role="tablist"');
