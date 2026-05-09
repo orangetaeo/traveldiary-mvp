@@ -6,7 +6,13 @@
  * BLOCKER 7: 실 OTA 연동 전까지 mock 데이터 사용.
  */
 
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "예약 확인",
+  description: "OTA 예약 완료 확인 및 일정 연동.",
+};
 
 interface PageProps {
   params: { bookingId: string };

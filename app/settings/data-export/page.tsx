@@ -6,7 +6,13 @@
  * 다운로드 시 audit log에 30일간 기록 (ADR-046).
  */
 
+import type { Metadata } from "next";
 import { PlaceholderShell } from "@/components/common/PlaceholderShell";
+
+export const metadata: Metadata = {
+  title: "데이터 내보내기",
+  description: "내 여행 데이터를 JSON 파일로 다운로드합니다.",
+};
 import { DataExportButton } from "@/components/settings/DataExportButton";
 
 const INCLUDED_DATA: { label: string; sub: string }[] = [

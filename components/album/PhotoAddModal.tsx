@@ -257,7 +257,7 @@ export function PhotoAddModal({ tripId, totalDays, onClose, onPhotoAdded }: Prop
                 <div className="grid grid-cols-3 gap-td-xxs">
                   {filePreviews.map((preview, idx) => (
                     <div
-                      key={idx}
+                      key={preview}
                       className="relative aspect-square rounded-md overflow-hidden border border-divider bg-black/5"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}

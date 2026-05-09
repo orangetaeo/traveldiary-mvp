@@ -36,6 +36,23 @@ import {
   CATEGORY_GRADIENT,
 } from "@/lib/utils/item-display";
 import type { Evidence } from "@/lib/types";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string; itemId: string };
+}): Promise<Metadata> {
+  const bundle = await resolveTripBundle(params.id);
+  const item =
+    bundle?.items.find((it) => it.id === params.itemId) ??
+    getDemoItem(params.id, params.itemId);
+  if (!item) return { title: "장소 상세" };
+  return {
+    title: item.name,
+    description: `${item.name} — 위치, 추천 근거, 검증 결과, OTA 가격 비교.`,
+  };
+}
 
 export default async function ItineraryItemPage({
   params,
