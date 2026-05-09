@@ -395,7 +395,7 @@ export function ChecklistView({ trip, initialItems, cityName, initialDay }: Prop
           >
             <span className="material-symbols-outlined text-ink">arrow_back</span>
           </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">
+          <h1 className="text-td-title font-bold text-ink tracking-tight">
             D-Day 체크리스트
           </h1>
         </div>

@@ -131,7 +131,7 @@ export function DayRouteMapView({
         >
           <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold text-ink tracking-tight">
+        <h1 className="text-td-title font-bold text-ink tracking-tight">
           Day {dayIndex + 1} 동선
         </h1>
         <div className="flex flex-col items-end">

@@ -259,7 +259,7 @@ export function PlaceDiscoveryView({
           >
             <span className="material-symbols-outlined text-ink">arrow_back</span>
           </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">
+          <h1 className="text-td-title font-bold text-ink tracking-tight">
             AI 추천 장소
           </h1>
         </div>

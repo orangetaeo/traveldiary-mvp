@@ -95,7 +95,7 @@ export function NotificationListView({ notifications }: Props) {
         >
           <span className="material-symbols-outlined text-ink">arrow_back</span>
         </Link>
-        <h1 className="text-lg font-bold text-ink tracking-tight">알림</h1>
+        <h1 className="text-td-title font-bold text-ink tracking-tight">알림</h1>
         {unreadCount > 0 && (
           <span className="ml-td-xs bg-purple text-white text-td-caption font-bold px-td-xs py-[1px] rounded-full min-w-[20px] text-center">
             {unreadCount}
