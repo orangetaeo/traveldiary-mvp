@@ -9,10 +9,10 @@ import path from "node:path";
 import { describe, it, expect } from "vitest";
 
 describe("C3 — /city/[slug] 신규 섹션 (visa/utilities/weather)", () => {
-  const src = fs.readFileSync(
-    path.resolve("app/city/[slug]/page.tsx"),
-    "utf-8",
-  );
+  const src = [
+    fs.readFileSync(path.resolve("app/city/[slug]/page.tsx"), "utf-8"),
+    fs.readFileSync(path.resolve("components/city/CityGuideSections.tsx"), "utf-8"),
+  ].join("\n");
 
   it("visa 섹션 존재", () => {
     expect(src).toContain('id="visa"');
@@ -44,7 +44,7 @@ describe("C3 — /city/[slug] 신규 섹션 (visa/utilities/weather)", () => {
   });
 
   it("시즌 + 평균 기온 표시", () => {
-    expect(src).toContain("city.weather.season");
+    expect(src).toContain("weather.season");
     expect(src).toContain("avgTempC");
   });
 });
