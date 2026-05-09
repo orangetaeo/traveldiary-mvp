@@ -51,10 +51,10 @@ describe("PhotoAlbumView — 다중 파일 선택 UI", () => {
 });
 
 describe("PhotoAlbumView 소스 — 다중 파일 wiring", () => {
-  const SRC = fs.readFileSync(
-    path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"),
-    "utf-8",
-  );
+  const SRC = [
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"), "utf-8"),
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAddModal.tsx"), "utf-8"),
+  ].join("\n");
 
   it("input에 multiple 속성", () => {
     expect(SRC).toMatch(/<input[\s\S]*?type="file"[\s\S]*?multiple/);
@@ -104,7 +104,9 @@ describe("PhotoAlbumView 소스 — 다중 파일 wiring", () => {
   });
 
   it("부분 성공도 router.refresh (성공한 사진은 갤러리에 노출)", () => {
-    expect(SRC).toMatch(/succeeded\s*>\s*0\s*&&\s*!demoEncountered[\s\S]*?router\.refresh/);
+    // PhotoAddModal은 onPhotoAdded 콜백, 부모가 router.refresh로 연결
+    expect(SRC).toMatch(/succeeded\s*>\s*0\s*&&\s*!demoEncountered/);
+    expect(SRC).toMatch(/onPhotoAdded|router\.refresh/);
   });
 
   it("URL 모드는 단일 (기존 동작 보존)", () => {
@@ -123,10 +125,10 @@ describe("PhotoAlbumView 소스 — 다중 파일 wiring", () => {
 });
 
 describe("PhotoAlbumView 소스 — 미리보기 grid + progress UI", () => {
-  const SRC = fs.readFileSync(
-    path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"),
-    "utf-8",
-  );
+  const SRC = [
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"), "utf-8"),
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAddModal.tsx"), "utf-8"),
+  ].join("\n");
 
   it("미리보기 grid (grid-cols-3 + aspect-square)", () => {
     expect(SRC).toContain("grid-cols-3");
@@ -169,10 +171,10 @@ describe("PhotoAlbumView 소스 — 미리보기 grid + progress UI", () => {
 });
 
 describe("PhotoAlbumView 소스 — 추가 버튼 라벨 동적", () => {
-  const SRC = fs.readFileSync(
-    path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"),
-    "utf-8",
-  );
+  const SRC = [
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"), "utf-8"),
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAddModal.tsx"), "utf-8"),
+  ].join("\n");
 
   it("진행 중 라벨 \"추가 중 N/M\"", () => {
     expect(SRC).toMatch(/추가 중 \$\{uploadProgress\.current\}\/\$\{uploadProgress\.total\}/);
@@ -193,10 +195,10 @@ describe("PhotoAlbumView 소스 — 추가 버튼 라벨 동적", () => {
 });
 
 describe("PhotoAlbumView 소스 — a11y 정정", () => {
-  const SRC = fs.readFileSync(
-    path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"),
-    "utf-8",
-  );
+  const SRC = [
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"), "utf-8"),
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAddModal.tsx"), "utf-8"),
+  ].join("\n");
 
   it('aria-selected는 명시적 string ("true"/"false")', () => {
     expect(SRC).toContain('aria-selected={addMode === "file" ? "true" : "false"}');

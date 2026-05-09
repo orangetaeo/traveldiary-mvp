@@ -136,10 +136,10 @@ describe("PhotoAlbumView — 사진 추가 버튼 회귀", () => {
  * ════════════════════════════════════════════ */
 
 describe("PhotoAlbumView 소스 — removePhoto wiring", () => {
-  const SRC = fs.readFileSync(
-    path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"),
-    "utf-8",
-  );
+  const SRC = [
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAlbumView.tsx"), "utf-8"),
+    fs.readFileSync(path.resolve(__dirname, "../../components/album/PhotoAddModal.tsx"), "utf-8"),
+  ].join("\n");
 
   it("removePhoto를 actions/photo에서 import", () => {
     expect(SRC).toMatch(/import\s+\{[^}]*removePhoto[^}]*\}\s+from\s+"@\/actions\/photo"/);
