@@ -22,6 +22,7 @@ import {
   EXCHANGE_KRW_SAMPLES,
 } from "@/lib/constants/koreanPaymentGuide";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { ExchangeCalculator } from "@/components/payment/ExchangeCalculator";
 import { listDemoTrips } from "@/lib/seed";
 import { findActiveTripByCity } from "@/lib/services/payment-trip-link";
 
@@ -115,7 +116,14 @@ export default function CityPaymentPage({
           </p>
         </section>
 
-        {/* 환전 환산 카드 */}
+        {/* 직접 입력 환전 계산기 (양방향 KRW ↔ 현지통화) */}
+        <ExchangeCalculator
+          rate={rate}
+          currency={city.payment.currency}
+          symbol={symbol}
+        />
+
+        {/* 환전 환산 카드 — 자주 쓰는 단위 빠른 참조 */}
         <section
           aria-labelledby="exchange-calc-heading"
           className="bg-purple-soft border-l-4 border-purple p-4 rounded-lg shadow-sm"
