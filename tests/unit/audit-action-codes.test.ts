@@ -82,6 +82,8 @@ const KNOWN_ACTION_CODES = new Set([
   "vote.delete",
   // user (프로필 편집)
   "user.update_profile",
+  // data export (GDPR)
+  "dataexport.export",
 ]);
 
 /* ════════════════════════════════════════════
@@ -176,8 +178,8 @@ describe("audit action 코드 리소스 분류", () => {
     codesByResource.get(resource)!.push(code);
   }
 
-  it("15개 리소스 그룹 존재", () => {
-    expect(codesByResource.size).toBe(15);
+  it("16개 리소스 그룹 존재", () => {
+    expect(codesByResource.size).toBe(16);
   });
 
   it("checklist 리소스에 5개 이상 action", () => {

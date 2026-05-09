@@ -70,7 +70,7 @@ describe("action 인증/권한 패턴", () => {
   // 외부 API 전용 / audit-only action은 면제 (DB 의존 0)
   const WRITE_ACTIONS = ACTION_FILES.filter(
     (f) =>
-      !["evidence.ts", "affiliate.ts", "translate.ts", "ota-booking-confirm.ts", "receipt.ts", "user.ts"].includes(f.name),
+      !["evidence.ts", "affiliate.ts", "translate.ts", "ota-booking-confirm.ts", "receipt.ts", "user.ts", "data-export.ts"].includes(f.name),
   );
 
   it.each(WRITE_ACTIONS.map((f) => [f.name, f.src]))(
@@ -115,8 +115,8 @@ describe("action 데모 모드 fallback", () => {
  * ════════════════════════════════════════════ */
 
 describe("action 파일 목록", () => {
-  it("17개 action 파일 존재 (추가 시 패턴 검증 대상)", () => {
-    expect(ACTION_FILES.length).toBe(17);
+  it("18개 action 파일 존재 (추가 시 패턴 검증 대상)", () => {
+    expect(ACTION_FILES.length).toBe(18);
   });
 
   it("알려진 action 파일 전체 등록", () => {
@@ -125,6 +125,7 @@ describe("action 파일 목록", () => {
       "affiliate.ts",
       "checklist.ts",
       "cost.ts",
+      "data-export.ts",
       "evidence.ts",
       "itinerary.ts",
       "ota-booking-confirm.ts",
