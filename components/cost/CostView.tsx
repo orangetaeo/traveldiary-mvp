@@ -226,7 +226,7 @@ export function CostView({
           >
             <span className="material-symbols-outlined text-ink">arrow_back</span>
           </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">비용 관리</h1>
+          <h1 className="text-td-title font-bold text-ink tracking-tight">비용 관리</h1>
         </div>
         <div className="flex items-center gap-1">
           <Link

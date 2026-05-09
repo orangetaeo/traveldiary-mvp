@@ -45,22 +45,22 @@ describe("FilterChip", () => {
     expect(html).toContain("bg-purple");
   });
 
-  it("variant=danger 비활성 → danger 테두리", () => {
+  it("variant=danger 비활성 → danger-deep 테두리 (Stitch)", () => {
     const html = renderToStaticMarkup(
       <FilterChip variant="danger">알레르기</FilterChip>,
     );
-    expect(html).toContain("border-danger");
-    expect(html).not.toContain("bg-danger text-white");
+    expect(html).toContain("border-danger-deep");
+    expect(html).toContain("text-danger-deep");
   });
 
-  it("variant=danger + active → danger 강조 배경", () => {
+  it("variant=danger + active → danger-soft 배경 (Stitch)", () => {
     const html = renderToStaticMarkup(
       <FilterChip variant="danger" active>
         알레르기
       </FilterChip>,
     );
-    expect(html).toContain("bg-danger");
-    expect(html).toContain("text-white");
+    expect(html).toContain("bg-danger-soft");
+    expect(html).toContain("text-danger-deep");
   });
 });
 

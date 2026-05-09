@@ -119,7 +119,7 @@ export function VoteListView({ trip, initialVotes, currentUserId }: Props) {
           >
             <span className="material-symbols-outlined text-ink">arrow_back</span>
           </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">일행 투표</h1>
+          <h1 className="text-td-title font-bold text-ink tracking-tight">일행 투표</h1>
         </div>
         <Link
           href={`/trips/${trip.id}?focus=vote`}

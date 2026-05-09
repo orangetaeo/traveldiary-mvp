@@ -19,7 +19,7 @@ export function ComingSoonCity({ city }: { city: City }) {
           >
             <span className="material-symbols-outlined text-ink">arrow_back</span>
           </Link>
-          <h1 className="text-lg font-bold text-ink tracking-tight">TravelDiary</h1>
+          <h1 className="text-td-title font-bold text-ink tracking-tight">TravelDiary</h1>
         </div>
       </header>
 

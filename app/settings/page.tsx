@@ -77,7 +77,7 @@ export default function SettingsPage() {
         >
           <span className="material-symbols-outlined text-ink">arrow_back</span>
         </button>
-        <h1 className="text-lg font-bold tracking-tight text-ink ml-td-xs">설정</h1>
+        <h1 className="text-td-title font-bold tracking-tight text-ink ml-td-xs">설정</h1>
       </header>
 
       <main className="max-w-md mx-auto px-td-md py-td-md space-y-td-lg">
