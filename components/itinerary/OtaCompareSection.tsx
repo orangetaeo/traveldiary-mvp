@@ -1,26 +1,34 @@
 "use client";
 
 /**
- * OTA Compare Section — 사이클 12a M8 (ADR-025).
+ * OTA Compare Section — 사이클 12a M8 (ADR-025) + #35 Interstitial wiring (D 카테고리).
  *
  * Item Detail 페이지에 인라인. 매칭 OtaOffer 있을 때만 노출.
- * 클릭 → trackAffiliateClick Server Action → window.open redirect.
+ * 클릭 → trackAffiliateClick(audit log) → OtaInterstitialModal 표시
+ * → "예약하기" 클릭 시 setOtaOutgoing + window.open. "돌아가기" 시 외부 이동 X.
  */
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { OtaOffer } from "@/lib/types";
 import { trackAffiliateClick } from "@/actions/affiliate";
 import { OTA_LABEL, OTA_TONE } from "@/lib/constants/ota-constants";
 import { setOtaOutgoing } from "@/lib/ota/outgoing";
 import { OtaReentryConfirmBar } from "./OtaReentryConfirmBar";
+import { OtaInterstitialModal } from "@/components/modals";
 
 interface OtaCompareSectionProps {
   itemId: string;
   offers: OtaOffer[];
 }
 
+interface PendingInterstitial {
+  offer: OtaOffer;
+  redirectUrl: string;
+}
+
 export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
   const [isPending, startTransition] = useTransition();
+  const [interstitial, setInterstitial] = useState<PendingInterstitial | null>(null);
 
   if (offers.length === 0) return null;
 
@@ -36,18 +44,45 @@ export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
         priceKrw: offer.priceKrw,
         baseUrl: offer.url,
       });
-      // 사이클 5 (G8) — 외부 이동 직전 outgoing 마킹 (reentry confirm bar 트리거)
-      setOtaOutgoing({
-        itemId,
-        offerId: offer.id,
-        ota: offer.ota,
-        priceKrw: offer.priceKrw,
-      });
-      window.open(result.redirectUrl, "_blank", "noopener");
+      // 클릭 자체는 audit log에 기록됨 (trackAffiliateClick).
+      // 외부 이동 + outgoing 마킹은 사용자가 interstitial에서 "예약하기"를 누른 시점에만.
+      setInterstitial({ offer, redirectUrl: result.redirectUrl });
     });
   }
 
+  function handleProceed() {
+    if (!interstitial) return;
+    const { offer, redirectUrl } = interstitial;
+    // 사이클 5 (G8) — 외부 이동 직전 outgoing 마킹 (reentry confirm bar 트리거)
+    setOtaOutgoing({
+      itemId,
+      offerId: offer.id,
+      ota: offer.ota,
+      priceKrw: offer.priceKrw,
+    });
+    window.open(redirectUrl, "_blank", "noopener,noreferrer");
+  }
+
+  function buildInterstitialProps() {
+    if (!interstitial) return null;
+    const { offer, redirectUrl } = interstitial;
+    const discount =
+      offer.originalPriceKrw && offer.originalPriceKrw > offer.priceKrw
+        ? Math.round((1 - offer.priceKrw / offer.originalPriceKrw) * 100)
+        : null;
+    return {
+      provider: OTA_LABEL[offer.ota],
+      productName: offer.title,
+      price: `${offer.priceKrw.toLocaleString()}원`,
+      discountLabel: discount ? `-${discount}%` : undefined,
+      affiliateUrl: redirectUrl,
+    };
+  }
+
+  const interstitialProps = buildInterstitialProps();
+
   return (
+    <>
     <section className="px-td-md py-td-sm">
       <div className="flex items-center justify-between mb-td-sm">
         <h3 className="text-td-card-title text-ink">예약 가격 비교 (M8)</h3>
@@ -145,5 +180,20 @@ export function OtaCompareSection({ itemId, offers }: OtaCompareSectionProps) {
         이 링크를 통해 예약하면 TravelDiary가 소정의 수수료를 받습니다. 사용자 부담 추가 비용은 없습니다.
       </p>
     </section>
+
+    {/* #35 OTA Affiliate Interstitial — 외부 redirect 직전 안내 모달 (Stitch 904155d4...) */}
+    {interstitialProps && (
+      <OtaInterstitialModal
+        open={interstitial !== null}
+        onClose={() => setInterstitial(null)}
+        provider={interstitialProps.provider}
+        productName={interstitialProps.productName}
+        price={interstitialProps.price}
+        discountLabel={interstitialProps.discountLabel}
+        affiliateUrl={interstitialProps.affiliateUrl}
+        onProceed={handleProceed}
+      />
+    )}
+    </>
   );
 }
