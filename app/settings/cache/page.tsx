@@ -96,7 +96,7 @@ export default function SettingsCachePage() {
       <button
         type="button"
         disabled
-        aria-disabled
+        aria-disabled="true"
         className="w-full rounded-md bg-ink/30 text-surface-card font-bold py-td-sm cursor-not-allowed"
       >
         캐시 삭제 (준비 중)

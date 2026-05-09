@@ -277,7 +277,7 @@ export default async function AffiliateDashboard({ searchParams }: PageProps) {
               <button
                 type="button"
                 disabled
-                aria-disabled
+                aria-disabled="true"
                 className="w-full md:w-auto px-td-lg py-td-sm bg-ink/40 text-white rounded-md text-td-body font-bold cursor-not-allowed"
               >
                 CSV 내보내기 (준비 중)
