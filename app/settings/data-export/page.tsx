@@ -1,14 +1,13 @@
 /**
- * 데이터 내보내기 placeholder shell — Stitch 시안 `f8d3d50e` 매핑.
+ * 데이터 내보내기 — 사용자 데이터 JSON 다운로드.
  *
- * 정식 export 기능은 GDPR 컴플라이언스 + BLOCKER 7 사업자 등록 후
- * 사용자(법무·운영) 결정 영역. 본 라우트는 settings 데드 링크 청소 +
- * 사용자 권리 가시화 + audit log 기록 정책 명시까지만.
- *
- * 박제 패턴 답습: components/common/PlaceholderShell (사이클 U-shell-dry).
+ * GDPR 개인정보보호법에 따른 사용자 데이터 이동 권리.
+ * Server Action으로 데이터 수집 → 클라이언트 JSON 다운로드.
+ * 다운로드 시 audit log에 30일간 기록 (ADR-046).
  */
 
 import { PlaceholderShell } from "@/components/common/PlaceholderShell";
+import { DataExportButton } from "@/components/settings/DataExportButton";
 
 const INCLUDED_DATA: { label: string; sub: string }[] = [
   { label: "내 trip 목록", sub: "여행 단위 메타" },
@@ -44,8 +43,8 @@ export default function DataExportPage() {
       iconName="download"
       iconVariant="solid-purple"
       note={{
-        title: "정식 다운로드 기능 준비 중",
-        body: "상용 출시(BLOCKER 7 사업자 등록 + GDPR 컴플라이언스 검토) 전까지 위 항목 범위가 적용됩니다. 정식 다운로드는 출시 시점에 활성화되며 다운로드 시 audit log에 30일간 기록됩니다 (ADR-046).",
+        title: "데이터 보호 안내",
+        body: "다운로드되는 JSON 파일에는 내 여행 정보만 포함됩니다. 다른 사용자 정보나 시스템 데이터는 포함되지 않으며, 다운로드 기록은 30일간 audit log에 보관됩니다 (ADR-046).",
       }}
     >
       <section aria-labelledby="included-heading" className="mb-td-md">
@@ -102,20 +101,7 @@ export default function DataExportPage() {
       </section>
 
       <section className="mb-td-md">
-        <button
-          type="button"
-          disabled
-          aria-disabled="true"
-          className="w-full h-14 bg-ink/30 text-white rounded-md font-bold flex items-center justify-center gap-td-xs cursor-not-allowed"
-        >
-          <span className="material-symbols-outlined text-xl" aria-hidden>
-            download
-          </span>
-          <span>JSON 파일로 다운로드</span>
-          <span className="ml-td-xs text-td-caption font-normal opacity-90">
-            (준비 중)
-          </span>
-        </button>
+        <DataExportButton />
       </section>
 
       <p className="text-td-caption text-ink-mute text-center leading-relaxed mb-td-md">

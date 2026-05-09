@@ -22,7 +22,6 @@ const __dirname = dirname(__filename);
 const REPO_ROOT = resolve(__dirname, "../..");
 
 const FILES = [
-  "app/settings/cache/page.tsx",
   "app/settings/account-link/page.tsx",
   "app/admin/affiliate/page.tsx",
   "app/admin/funnel/page.tsx",

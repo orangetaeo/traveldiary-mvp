@@ -1,22 +1,17 @@
 /**
- * 캐시 삭제 placeholder 페이지 — 사이클 U-deadlinks (2026-05-07).
+ * 캐시 삭제 페이지 — localStorage/sessionStorage td-* 키 삭제.
  *
- * settings 데드 링크 청소 박제 답습. 정식 캐시 삭제 액션은
- * (1) Service Worker cache.delete (PWA 도입 후), (2) localStorage
- * 부분 청소(td-* 키 한정), (3) IndexedDB 청소 — 사용자 데이터 영향
- * 영역이라 R1 사인오프 + ADR 필요. 본 사이클은 placeholder shell만.
- *
- * server component (정적 마크업).
- *
- * 사이클 U-shell-dry: PlaceholderShell DRY 추출 답습 (chrome 위임).
+ * PWA Service Worker cache는 향후 도입 시 추가.
+ * 사용자 DB 데이터(trip/일정/비용/체크리스트)는 영향 없음.
  */
 
 import type { Metadata } from "next";
 import { PlaceholderShell } from "@/components/common/PlaceholderShell";
+import { CacheClearButton } from "@/components/settings/CacheClearButton";
 
 export const metadata: Metadata = {
   title: "캐시 삭제 — TRAVELDIARY",
-  description: "TravelDiary 앱 캐시 삭제 가이드 (정식 출시 시점 활성).",
+  description: "TravelDiary 앱 캐시를 삭제합니다.",
 };
 
 const ITEMS = [
@@ -39,8 +34,8 @@ export default function SettingsCachePage() {
       iconName="cached"
       iconVariant="soft-purple"
       note={{
-        title: "준비 중",
-        body: "실제 캐시 삭제 액션은 PWA Service Worker 도입 + R1 사인오프 후 활성됩니다. 그 전까지는 브라우저 설정에서 사이트 데이터를 직접 비우실 수 있습니다.",
+        title: "참고",
+        body: "삭제하면 일부 페이지에서 외부 API 응답이 다시 로드됩니다. 내 여행/일정/비용/체크리스트 데이터는 서버에 안전하게 보관되어 영향 없습니다.",
       }}
     >
       <section
@@ -93,14 +88,7 @@ export default function SettingsCachePage() {
         </ul>
       </section>
 
-      <button
-        type="button"
-        disabled
-        aria-disabled="true"
-        className="w-full rounded-md bg-ink/30 text-surface-card font-bold py-td-sm cursor-not-allowed"
-      >
-        캐시 삭제 (준비 중)
-      </button>
+      <CacheClearButton />
     </PlaceholderShell>
   );
 }
