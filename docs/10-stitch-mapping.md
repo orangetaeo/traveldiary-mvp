@@ -1,6 +1,6 @@
 # Stitch ↔ 코드 매핑
 
-> **목적**: Google Stitch에서 만든 TravelDiary Design System의 55개 화면과 현재 코드(`app/`)를 1:1 매핑하고, 디자인 토큰 갭과 신규 페이지 로드맵을 정리합니다.
+> **목적**: Google Stitch에서 만든 TravelDiary Design System의 65개 화면과 현재 코드(`app/`)를 1:1 매핑하고, 디자인 토큰 갭과 신규 페이지 로드맵을 정리합니다.
 > **작성**: 2026-04-30 · 사이클 5b 준비 단계 · 옵션 A (인벤토리 + 매핑 표만, 코드 변경 0)
 > **다음 단계**: 옵션 B (디자인 토큰 정렬) → 옵션 C (시범 화면 풀 매핑)
 
@@ -203,6 +203,19 @@
 | 56 | `b199aee93287416badee4d9086dd29b2` | Mode Transition Welcome (Pretendard) — D-Day 전환 환영 | 390×1768 | M2 | G5 — 자동 전환 후 1회 표시 (LocalStorage) |
 | 57 | `66261b1482b94e7ca850f697c9c57b3c` | Mode Transition Skip Reason (Pretendard) — 모드 전환 거부 사유 | 390×1768 | M2 | G6 — 사용자 명시 거부 sheet (5 옵션 + textarea 200자) |
 
+### 2.21 디자인 갭 해소 8종 (Phase 7 세션 D — 2026-05-09)
+
+| # | screenId | title | size | 코드 매핑 | 비고 |
+|---|----------|-------|------|----------|------|
+| 58 | `69072b18fdee436296f72acdd19d831f` | Morning Briefing — 모닝 브리핑 (Pretendard) | 390×1768 | `/morning/[tripId]` | On-trip 아침 요약 |
+| 59 | `c389873963894d0c819c40692eea88bc` | 영수증 OCR 스캔 — Receipt Scan Viewfinder | 390×884 | `/cost/[tripId]/scan` | Claude Vision OCR 2-step |
+| 60 | `0d86bb66696a4d499a7bccc8baa7d48a` | 여행 사진 앨범 (Photo Album) | 390×1360 | `/wrap-up/[tripId]/album` | 날짜별 masonry grid |
+| 61 | `d87c21e056f8409685c3b47ccebbd52f` | 여행 추억 리캡 (Trip Recap) | 390×1536 | `/wrap-up/[tripId]/recap` | AI 여행 요약 + 통계 |
+| 62 | `dbfac85529d74ac997b65f4db5c2dae4` | 장소 탐색 — Place Discovery | 390×1234 | `/itinerary/[id]/discover` | 카테고리별 AI 추천 장소 |
+| 63 | `17359fce0da14b51a0cf0d5120a50e87` | Day 2 동선 지도 스크린 | 390×884 | `/itinerary/[id]/map` | 일일 동선 + 타임라인 |
+| 64 | `8f5cc70b921542f79d7db084e224a8f2` | 베트남어 핵심 문장 — Essential Phrases | 390×1616 | `/phrases` | 14문장 카테고리별 + TTS |
+| 65 | `070783079d6f4e75b183f21a3f141b26` | 로그인 및 환영 — Login Welcome | 390×884 | `/login` | 카카오 OAuth + 게스트 진입 |
+
 ---
 
 ## 3. 코드 ↔ Stitch 매핑
@@ -212,8 +225,16 @@
 | 코드 페이지 | Stitch 화면 (정답 한국어) | M# | 사이클 | variant 분기 |
 |------------|--------------------------|----|-------|------------|
 | [app/page.tsx](../app/page.tsx) | #3 Home (Pre-trip) - Pretendard ✅ | — | 5b | 적용 완료 (2026-04-30) |
-| [app/onboarding/page.tsx](../app/onboarding/page.tsx) | (Stitch에 없음) | — | — | Stitch 신규 설계 필요 |
-| [app/itinerary/creating/page.tsx](../app/itinerary/creating/page.tsx) | (Stitch에 없음) | — | — | 로딩 화면 — Stitch 신규 설계 필요 |
+| [app/morning/[tripId]/page.tsx](../app/morning/[tripId]/page.tsx) | #58 Morning Briefing — 모닝 브리핑 ✅ | M2 | 세션 D | On-trip 아침 요약 (2026-05-09) |
+| [app/cost/[tripId]/scan/page.tsx](../app/cost/[tripId]/scan/page.tsx) | #59 영수증 OCR 스캔 ✅ | M6 | 세션 D | Claude Vision 2-step (2026-05-09) |
+| [app/wrap-up/[tripId]/album/page.tsx](../app/wrap-up/[tripId]/album/page.tsx) | #60 여행 사진 앨범 ✅ | — | 세션 D | 날짜별 masonry grid (2026-05-09) |
+| [app/wrap-up/[tripId]/recap/page.tsx](../app/wrap-up/[tripId]/recap/page.tsx) | #61 여행 추억 리캡 ✅ | — | 세션 D | AI 여행 요약 (2026-05-09) |
+| [app/itinerary/[id]/discover/page.tsx](../app/itinerary/[id]/discover/page.tsx) | #62 장소 탐색 ✅ | — | 세션 D | 카테고리별 AI 추천 (2026-05-09) |
+| [app/itinerary/[id]/map/page.tsx](../app/itinerary/[id]/map/page.tsx) | #63 동선 지도 ✅ | — | 세션 D | 일일 동선 타임라인 (2026-05-09) |
+| [app/phrases/page.tsx](../app/phrases/page.tsx) | #64 베트남어 핵심 문장 ✅ | M4 | 세션 D | 14문장 + TTS (2026-05-09) |
+| [app/login/page.tsx](../app/login/page.tsx) | #65 로그인 환영 ✅ | — | 세션 D | 카카오 OAuth (2026-05-09) |
+| [app/onboarding/page.tsx](../app/onboarding/page.tsx) | #37 Onboarding (Pretendard) ✅ | — | 세션 A | 4-step wizard |
+| [app/itinerary/creating/page.tsx](../app/itinerary/creating/page.tsx) | #46 Itinerary Creating (Pretendard) ✅ | — | 세션 A | 로딩 화면 |
 | [app/itinerary/[id]/page.tsx](../app/itinerary/[id]/page.tsx) | #7 Itinerary Home / #8 Itinerary (On-trip) ✅ | — | 5b | data-travel-mode로 자동 색 swap (2026-04-30) |
 | [app/itinerary/[id]/item/[itemId]/page.tsx](../app/itinerary/[id]/item/[itemId]/page.tsx) | #9 Place Detail & Evidence + #11 Item Detail Pretendard ✅ | M1 | 5b | 통합 적용 (2026-04-30). M8 OTA는 사이클 12 |
 | [app/travel/[id]/page.tsx](../app/travel/[id]/page.tsx) | #5 Home (On-trip) - Pretendard ✅ | M2 | 5b | 적용 완료 (2026-04-30). City Strip은 사이클 8 |
@@ -337,3 +358,4 @@
 | 2026-05-05 | Phase 7 | 화면 인벤토리 22→55개 확장. Admin 6 + Permission 2 + Settings 1 + Wrap-up 1 + Booking 1 + Extension 3 + Session A 10 + Session B 6 + 기타 3. 3 세션 병렬 매핑. |
 | 2026-05-06 | 사이클 1 (G5/G6) | Mode Transition User UX 2종 추가 (#56 Welcome + #57 Skip Reason). 사용자 흐름 갭 10 중 1번 해소. ModeTransitionWelcome + ModeTransitionSkipSheet 컴포넌트 + ModeTransitionSkipReason enum +3 (user_postponed_for_now / user_confused_ui / user_other) + userNote 화이트리스트 (200자, ADR-017 §C 답습). |
 | 2026-05-09 | Phase 7 세션 B | Session B 컴포넌트 6종 Stitch 정합 검증 완료. Toast(#47)·EmptyState(#48)·ErrorState(#49)·EvidencePanel(#50) 이미 정합. FilterChip(#51) icon prop + Stitch 색상 정렬. ImpactDisplay(#52) danger 4톤 + 헤더·compact·CTA 변형 추가. |
+| 2026-05-09 | Phase 7 세션 D | 디자인 갭 해소 8종 신규 생성 (#58~#65). Morning Briefing / Receipt Scan / Photo Album / Trip Recap / Place Discovery / Day Route Map / Phrases / Login. TravelDiary Narrative 디자인 시스템 적용 완료. 총 화면 수 57→65개. |
