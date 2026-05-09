@@ -261,23 +261,23 @@ describe("Session X cap 2 (A2) — 도착 체크인 시각/뱃지", () => {
   });
 });
 
-describe("사이클 BLOCKER4 — 화살표 정렬 버튼", () => {
-  it("기본 — 위/아래 화살표 버튼 2개 존재", () => {
+describe("사이클 BLOCKER4 — 화살표 정렬 버튼 (aria-label 항목명 포함, 도착 체크인 답습)", () => {
+  it("기본 — 위/아래 화살표 버튼 2개 존재 + aria-label에 항목명(ko) 포함", () => {
     const html = renderToStaticMarkup(
       <ItineraryItemCard item={makeItem()} {...BASE_PROPS} />,
     );
     expect(html).toContain("keyboard_arrow_up");
     expect(html).toContain("keyboard_arrow_down");
-    expect(html).toContain('aria-label="위로 이동"');
-    expect(html).toContain('aria-label="아래로 이동"');
+    expect(html).toContain('aria-label="사오비치 위로 이동"');
+    expect(html).toContain('aria-label="사오비치 아래로 이동"');
   });
 
   it("isFirst=true → 위 버튼 disabled, 아래 버튼 enabled", () => {
     const html = renderToStaticMarkup(
       <ItineraryItemCard item={makeItem()} {...BASE_PROPS} isFirst={true} isLast={false} />,
     );
-    const upBtnTag = html.match(/<button[^>]*aria-label="위로 이동"[^>]*>/)?.[0] ?? "";
-    const downBtnTag = html.match(/<button[^>]*aria-label="아래로 이동"[^>]*>/)?.[0] ?? "";
+    const upBtnTag = html.match(/<button[^>]*aria-label="사오비치 위로 이동"[^>]*>/)?.[0] ?? "";
+    const downBtnTag = html.match(/<button[^>]*aria-label="사오비치 아래로 이동"[^>]*>/)?.[0] ?? "";
     // disabled="" 속성 (CSS class 'disabled:...'와 구분)
     expect(upBtnTag).toContain('disabled=""');
     expect(downBtnTag).not.toContain('disabled=""');
@@ -287,8 +287,8 @@ describe("사이클 BLOCKER4 — 화살표 정렬 버튼", () => {
     const html = renderToStaticMarkup(
       <ItineraryItemCard item={makeItem()} {...BASE_PROPS} isFirst={false} isLast={true} />,
     );
-    const downBtnTag = html.match(/<button[^>]*aria-label="아래로 이동"[^>]*>/)?.[0] ?? "";
-    const upBtnTag = html.match(/<button[^>]*aria-label="위로 이동"[^>]*>/)?.[0] ?? "";
+    const downBtnTag = html.match(/<button[^>]*aria-label="사오비치 아래로 이동"[^>]*>/)?.[0] ?? "";
+    const upBtnTag = html.match(/<button[^>]*aria-label="사오비치 위로 이동"[^>]*>/)?.[0] ?? "";
     expect(downBtnTag).toContain('disabled=""');
     expect(upBtnTag).not.toContain('disabled=""');
   });
@@ -297,8 +297,8 @@ describe("사이클 BLOCKER4 — 화살표 정렬 버튼", () => {
     const html = renderToStaticMarkup(
       <ItineraryItemCard item={makeItem()} {...BASE_PROPS} isFirst={true} isLast={true} />,
     );
-    const upBtnTag = html.match(/<button[^>]*aria-label="위로 이동"[^>]*>/)?.[0] ?? "";
-    const downBtnTag = html.match(/<button[^>]*aria-label="아래로 이동"[^>]*>/)?.[0] ?? "";
+    const upBtnTag = html.match(/<button[^>]*aria-label="사오비치 위로 이동"[^>]*>/)?.[0] ?? "";
+    const downBtnTag = html.match(/<button[^>]*aria-label="사오비치 아래로 이동"[^>]*>/)?.[0] ?? "";
     expect(upBtnTag).toContain('disabled=""');
     expect(downBtnTag).toContain('disabled=""');
   });

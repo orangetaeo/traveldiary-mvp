@@ -131,12 +131,12 @@ describe("ItineraryItemCard — edit/delete 버튼", () => {
     expect(cardSrc).toContain("onDelete?: (item: ItineraryItem) => void");
   });
 
-  it("수정 버튼 aria-label", () => {
-    expect(cardSrc).toContain('aria-label="수정"');
+  it("수정 버튼 aria-label — 항목명(ko) 포함 (도착 체크인 답습)", () => {
+    expect(cardSrc).toMatch(/aria-label=\{`\$\{ko\} 수정`\}/);
   });
 
-  it("삭제 버튼 aria-label", () => {
-    expect(cardSrc).toContain('aria-label="삭제"');
+  it("삭제 버튼 aria-label — 항목명(ko) 포함 (도착 체크인 답습)", () => {
+    expect(cardSrc).toMatch(/aria-label=\{`\$\{ko\} 삭제`\}/);
   });
 
   it("edit 아이콘 사용", () => {

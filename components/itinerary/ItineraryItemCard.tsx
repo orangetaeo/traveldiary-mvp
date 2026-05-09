@@ -205,7 +205,7 @@ export function ItineraryItemCard({
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onEdit(item); }}
                 className="p-1 rounded hover:bg-surface-soft transition-colors"
-                aria-label="수정"
+                aria-label={`${ko} 수정`}
               >
                 <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
                   edit
@@ -217,7 +217,7 @@ export function ItineraryItemCard({
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onDelete(item); }}
                 className="p-1 rounded hover:bg-surface-soft transition-colors text-danger"
-                aria-label="삭제"
+                aria-label={`${ko} 삭제`}
               >
                 <span className="material-symbols-outlined text-td-icon" aria-hidden>
                   delete
@@ -231,7 +231,7 @@ export function ItineraryItemCard({
               disabled={isFirst}
               onClick={(e) => { e.stopPropagation(); onMoveUp(item.id); }}
               className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
-              aria-label="위로 이동"
+              aria-label={`${ko} 위로 이동`}
             >
               <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
                 keyboard_arrow_up
@@ -242,7 +242,7 @@ export function ItineraryItemCard({
               disabled={isLast}
               onClick={(e) => { e.stopPropagation(); onMoveDown(item.id); }}
               className="p-1 rounded hover:bg-surface-soft disabled:opacity-30 transition-colors"
-              aria-label="아래로 이동"
+              aria-label={`${ko} 아래로 이동`}
             >
               <span className="material-symbols-outlined text-td-icon text-ink-soft" aria-hidden>
                 keyboard_arrow_down
