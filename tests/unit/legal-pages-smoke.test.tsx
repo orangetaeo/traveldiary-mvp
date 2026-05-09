@@ -105,14 +105,15 @@ describe("/legal/oss placeholder 페이지 — 사이클 U-deadlinks", () => {
     expect(html).toContain("정식 문서 준비 중");
   });
 
-  it("핵심 의존성 가시화 — Next/React/TypeScript/Tailwind/Prisma/shadcn", () => {
+  it("핵심 의존성 가시화 — Next/React/TypeScript/Tailwind/Prisma/jose/pg", () => {
     const html = renderToStaticMarkup(<OssLicensesPage />);
     expect(html).toContain("Next.js 14");
     expect(html).toContain("React 18");
     expect(html).toContain("TypeScript 5");
     expect(html).toContain("Tailwind CSS 3");
     expect(html).toContain("Prisma 7");
-    expect(html).toContain("shadcn/ui");
+    expect(html).toContain("jose");
+    expect(html).toContain("pg");
   });
 
   it("라이선스 키워드 — MIT / Apache 2.0", () => {

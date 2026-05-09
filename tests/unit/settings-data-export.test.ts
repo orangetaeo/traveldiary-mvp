@@ -49,17 +49,14 @@ describe("/settings/data-export — placeholder shell", () => {
     expect(src).toContain("시스템 메타데이터");
   });
 
-  it("placeholder 명시 (BLOCKER 7 + GDPR + audit log)", () => {
-    expect(src).toContain("정식 다운로드 기능 준비 중");
-    expect(src).toContain("BLOCKER 7");
+  it("데이터 보호 안내 노트 + audit log 정책", () => {
+    expect(src).toContain("데이터 보호 안내");
     expect(src).toContain("GDPR");
     expect(src).toContain("ADR-046");
   });
 
-  it("다운로드 버튼 disabled (placeholder)", () => {
-    expect(src).toContain("disabled");
-    expect(src).toContain('aria-disabled="true"');
-    expect(src).toContain("준비 중");
+  it("DataExportButton 컴포넌트 포함 (실행 가능)", () => {
+    expect(src).toContain("DataExportButton");
   });
 
   it("audit log 30일 기록 정책 명시", () => {

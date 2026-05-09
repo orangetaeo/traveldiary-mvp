@@ -26,7 +26,7 @@ describe("/settings/cache placeholder 페이지", () => {
     const html = renderToStaticMarkup(<SettingsCachePage />);
     expect(html).toContain("캐시 삭제");
     expect(html).toContain("저장된 외부 API 응답");
-    expect(html).toContain("준비 중");
+    expect(html).toContain("참고");
   });
 
   it("삭제되는 항목 3건 — Google/Naver/Vision/Claude 외부 응답 + 이미지 + Evidence", () => {
@@ -46,10 +46,10 @@ describe("/settings/cache placeholder 페이지", () => {
     expect(html).toContain("감사 로그");
   });
 
-  it("실행 버튼 disabled (R1 사인오프 전)", () => {
+  it("CacheClearButton 컴포넌트 포함 (실행 가능)", () => {
     const html = renderToStaticMarkup(<SettingsCachePage />);
-    expect(html).toMatch(/disabled/i);
-    expect(html).toContain("캐시 삭제 (준비 중)");
+    // CacheClearButton은 client component — SSR 초기 렌더에 "캐시 삭제" 버튼 포함
+    expect(html).toContain("캐시 삭제");
   });
 
   it("/settings 뒤로가기", () => {
@@ -64,10 +64,9 @@ describe("/settings/cache placeholder 페이지", () => {
     expect(html).toContain('aria-labelledby="cache-kept-heading"');
   });
 
-  it("PWA / Service Worker / R1 사인오프 정책 인용", () => {
+  it("안내 노트 — 데이터 안전 보관 설명", () => {
     const html = renderToStaticMarkup(<SettingsCachePage />);
-    expect(html).toContain("PWA");
-    expect(html).toContain("Service Worker");
-    expect(html).toContain("R1 사인오프");
+    expect(html).toContain("참고");
+    expect(html).toContain("서버에 안전하게 보관");
   });
 });

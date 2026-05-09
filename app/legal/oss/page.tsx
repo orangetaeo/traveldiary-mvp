@@ -1,10 +1,5 @@
 /**
- * 오픈소스 라이선스 placeholder 페이지 — 사이클 U-deadlinks (2026-05-07).
- *
- * settings 데드 링크 청소 (박제 답습 LegalPlaceholderShell).
- * 정식 라이선스 목록은 BLOCKER 7 출시 시점 자동 생성기(license-checker
- * 등) 도입 후 동적 페이지로 진화. 본 사이클은 라우트 활성화 + 핵심
- * 의존성 가시화 1차.
+ * 오픈소스 라이선스 페이지 — 실제 의존성 기반 라이선스 목록.
  */
 
 import type { Metadata } from "next";
@@ -12,16 +7,20 @@ import { LegalPlaceholderShell } from "@/components/legal/LegalPlaceholderShell"
 
 export const metadata: Metadata = {
   title: "오픈소스 라이선스 — TRAVELDIARY",
-  description: "TravelDiary가 사용하는 오픈소스 라이선스 목록 (정식 출시 시점 게시).",
+  description: "TravelDiary가 사용하는 오픈소스 소프트웨어 라이선스 목록.",
 };
 
 const HIGHLIGHTS = [
   "Next.js 14 (MIT) — App Router 기반 풀스택 프레임워크.",
-  "React 18 + TypeScript 5 (MIT) — UI 라이브러리 + 정적 타입 시스템.",
+  "React 18 + React DOM 18 (MIT) — UI 라이브러리.",
+  "TypeScript 5 (Apache 2.0) — 정적 타입 시스템.",
   "Tailwind CSS 3 (MIT) — 유틸리티 우선 CSS 프레임워크.",
-  "Prisma 7 (Apache 2.0) — PostgreSQL ORM + 마이그레이션 도구.",
-  "shadcn/ui + Material Symbols (MIT / Apache 2.0) — 디자인 시스템 + 아이콘.",
-  "정식 라이선스 전체 목록은 출시 시점 자동 생성하여 게시합니다.",
+  "Prisma 7 + @prisma/client + @prisma/adapter-pg (Apache 2.0) — PostgreSQL ORM + 어댑터.",
+  "pg (MIT) — PostgreSQL 네이티브 드라이버.",
+  "jose (MIT) — JWT 서명 및 검증 라이브러리.",
+  "PostCSS + Autoprefixer (MIT) — CSS 후처리.",
+  "Material Symbols (Apache 2.0) — Google 아이콘 시스템.",
+  "이 목록은 package.json dependencies 기준이며, 전이 의존성은 각 패키지의 라이선스를 따릅니다.",
 ];
 
 export default function OssLicensesPage() {
