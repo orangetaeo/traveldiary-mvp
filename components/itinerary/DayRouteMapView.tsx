@@ -1,10 +1,13 @@
 "use client";
 
 /**
- * DayRouteMapView — 일일 동선 지도 풀스크린 (Stitch 디자인 적용).
+ * DayRouteMapView — 일일 동선 지도 풀스크린 (Stitch 디자인 + Google Maps Embed).
  *
- * 지도 배경 + 번호 핀 + SVG 루트 라인 + 하단 타임라인 카드 스크롤.
- * 실 지도 API 미연동 단계 — 플레이스홀더 배경 + 상대 좌표 핀.
+ * Google Maps Embed v1 Directions iframe을 풀스크린 배경으로 표시 (ADR-028 답습).
+ * NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY 미설정 시 안내 텍스트 폴백.
+ * 헤더 + 하단 timeline + "길찾기 시작" CTA는 항상 표시.
+ *
+ * 좌표는 클라이언트 iframe 내부에서만 사용 — 서버 미전송 (ADR-017 답습).
  */
 
 import { useState } from "react";
@@ -25,18 +28,19 @@ interface Props {
 
 // ─── Helpers ────────────────────────────────────
 
-/** 좌표 우선, 없으면 장소명으로 Google Maps Directions URL 생성 (A1) */
+/** 좌표 우선, 없으면 장소명으로 Google Maps URL param 생성 (A1 답습) */
 function stopToParam(stop: RouteStop): string {
   if (stop.lat != null && stop.lng != null) return `${stop.lat},${stop.lng}`;
   return stop.name;
 }
 
+/** 외부 Google Maps 길찾기 URL (CTA 클릭 시 새 탭) */
 function buildDirectionsUrl(stops: RouteStop[]): string {
   if (stops.length === 0) return "https://www.google.com/maps";
   const origin = stopToParam(stops[0]);
   const dest = stopToParam(stops[stops.length - 1]);
   const base = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}`;
-  // 중간 경유지 (최대 8개 — Google Maps URL 제한)
+  // 중간 경유지 (Google Maps URL 제한 8개)
   if (stops.length > 2) {
     const waypoints = stops
       .slice(1, -1)
@@ -46,6 +50,28 @@ function buildDirectionsUrl(stops: RouteStop[]): string {
     return `${base}&waypoints=${encodeURIComponent(waypoints)}`;
   }
   return base;
+}
+
+/**
+ * Google Maps Embed v1 Directions iframe URL (ADR-028 패턴).
+ * Embed API: waypoints 최대 9개.
+ */
+function buildEmbedDirectionsUrl(stops: RouteStop[], apiKey: string): string {
+  const params = new URLSearchParams({
+    key: apiKey,
+    origin: stopToParam(stops[0]),
+    destination: stopToParam(stops[stops.length - 1]),
+    mode: "driving",
+  });
+  if (stops.length > 2) {
+    const waypoints = stops
+      .slice(1, -1)
+      .slice(0, 9)
+      .map(stopToParam)
+      .join("|");
+    params.set("waypoints", waypoints);
+  }
+  return `https://www.google.com/maps/embed/v1/directions?${params.toString()}`;
 }
 
 // ─── Component ─────────────────────────────────
@@ -63,63 +89,41 @@ export function DayRouteMapView({
       : 0,
   );
 
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY;
+  const hasKey = Boolean(apiKey);
+  const showEmbed = hasKey && stops.length >= 2;
+
   return (
     <div className="fixed inset-0 bg-surface-soft flex flex-col overflow-hidden">
-      {/* Map Background */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-blue-50 via-green-50/30 to-surface-soft">
-        {/* Placeholder pattern for map area */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }} />
-      </div>
-
-      {/* SVG Route Line */}
-      <svg
-        className="absolute inset-0 w-full h-full z-10 pointer-events-none"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
-        <polyline
-          points={stops.map((s) => `${s.pinX},${s.pinY}`).join(" ")}
-          fill="none"
-          className="text-purple"
-          stroke="currentColor"
-          strokeWidth="0.5"
-          strokeDasharray="1.5,1.5"
-          opacity="0.6"
+      {/* Map Background — Google Maps Embed iframe 또는 placeholder */}
+      {showEmbed ? (
+        <iframe
+          src={buildEmbedDirectionsUrl(stops, apiKey!)}
+          title={`Day ${dayIndex + 1} 동선 지도`}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+          className="absolute inset-0 w-full h-full z-0 border-0"
         />
-      </svg>
-
-      {/* Map Pins */}
-      {stops.map((stop, idx) => (
-        <button
-          key={stop.id}
-          onClick={() => setActiveIdx(idx)}
-          className="absolute z-20 flex flex-col items-center gap-0.5 -translate-x-1/2 -translate-y-1/2"
-          style={{ left: `${stop.pinX}%`, top: `${stop.pinY}%` }}
-        >
-          {/* Ping animation for active */}
-          {idx === activeIdx && (
-            <div className="absolute w-10 h-10 rounded-full bg-accent/20 animate-ping" />
-          )}
-          <div
-            className={`relative z-10 flex items-center justify-center rounded-full border-2 border-white shadow-md ${
-              idx === activeIdx
-                ? "w-10 h-10 bg-accent text-white"
-                : "w-8 h-8 bg-purple text-white"
-            }`}
-          >
-            <span className="text-td-meta font-bold">{stop.order}</span>
-          </div>
-          <div className="bg-surface-card/90 backdrop-blur-sm px-1.5 py-0.5 rounded shadow-sm border border-divider">
-            <p className="text-td-caption text-ink font-medium whitespace-nowrap">
-              {stop.name.length > 6 ? stop.name.slice(0, 6) + "…" : stop.name}
+      ) : (
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-blue-50 via-green-50/30 to-surface-soft flex items-center justify-center">
+          <div className="text-center px-td-md">
+            <span
+              className="material-symbols-outlined text-ink-mute text-[48px] mb-td-xs"
+              aria-hidden
+            >
+              map
+            </span>
+            <p className="text-td-body text-ink-soft">
+              {!hasKey
+                ? "지도 키가 곧 연결될 예정입니다."
+                : "지도에 표시할 일정이 부족합니다."}
             </p>
           </div>
-        </button>
-      ))}
+        </div>
+      )}
 
-      {/* Gradient fade at bottom */}
+      {/* Gradient fade at bottom — timeline 카드 가독성 */}
       <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-surface-soft via-surface-soft/80 to-transparent z-10 pointer-events-none" />
 
       {/* Header Overlay */}
