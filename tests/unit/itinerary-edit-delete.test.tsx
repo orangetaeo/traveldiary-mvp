@@ -212,9 +212,9 @@ describe("ItineraryView — edit/delete 핸들러", () => {
     expect(viewSrc).toContain("prev.map");
   });
 
-  it("handleDeleteItem 함수 — confirm + 낙관적 삭제", () => {
+  it("handleDeleteItem 함수 — ConfirmDialog + 낙관적 삭제", () => {
     expect(viewSrc).toContain("function handleDeleteItem");
-    expect(viewSrc).toContain("window.confirm");
+    expect(viewSrc).toContain("ConfirmDialog");
     expect(viewSrc).toContain("prev.filter");
   });
 

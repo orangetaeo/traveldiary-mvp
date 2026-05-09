@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/lib/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { addCost, deleteCost, settleCost, updateCost } from "@/actions/cost";
 import type { CostEntry, CostStatus, Trip } from "@/lib/types";
 import { SettlementCard } from "./SettlementCard";
@@ -45,6 +46,7 @@ export function CostView({
   const [isPending, startTransition] = useTransition();
   const { toast, show: showToast } = useToast();
   const [editingEntry, setEditingEntry] = useState<CostEntry | null>(null);
+  const [deletingEntry, setDeletingEntry] = useState<CostEntry | null>(null);
 
   function handleAdd(input: {
     label: string;
@@ -193,14 +195,18 @@ export function CostView({
   }
 
   function handleDelete(entry: CostEntry) {
-    if (!confirm(`"${entry.label}" 비용을 삭제할까요?`)) return;
+    setDeletingEntry(entry);
+  }
 
+  function handleConfirmDelete() {
+    if (!deletingEntry) return;
+    const entry = deletingEntry;
+    setDeletingEntry(null);
     setEntries((prev) => prev.filter((e) => e.id !== entry.id));
 
     startTransition(async () => {
       const result = await deleteCost({ id: entry.id, tripId: trip.id });
       if (!result.ok) {
-        // 롤백
         setEntries((prev) => [entry, ...prev]);
         showToast(`삭제 실패: ${result.code}`, { variant: "danger" });
         return;
@@ -289,6 +295,16 @@ export function CostView({
       </main>
 
       <Toast toast={toast} />
+      <ConfirmDialog
+        open={!!deletingEntry}
+        title="비용 삭제"
+        description={`"${deletingEntry?.label ?? ""}" 비용을 삭제할까요?`}
+        confirmLabel="삭제"
+        pendingLabel="삭제 중…"
+        icon="delete_forever"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeletingEntry(null)}
+      />
     </div>
   );
 }
