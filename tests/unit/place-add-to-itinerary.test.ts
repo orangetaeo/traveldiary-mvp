@@ -8,10 +8,10 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const VIEW_SRC = readFileSync(
-  resolve(__dirname, "../../components/itinerary/PlaceDiscoveryView.tsx"),
-  "utf-8",
-);
+const VIEW_SRC = [
+  readFileSync(resolve(__dirname, "../../components/itinerary/PlaceDiscoveryView.tsx"), "utf-8"),
+  readFileSync(resolve(__dirname, "../../components/itinerary/PlaceResultCard.tsx"), "utf-8"),
+].join("\n");
 
 const TYPES_SRC = readFileSync(
   resolve(__dirname, "../../lib/types.ts"),

@@ -13,6 +13,7 @@ import {
   normalizeExclude,
   matchAllergens,
   buildWarning,
+  mapApiAllergenCode,
   ALLERGEN_CHIPS,
 } from "@/lib/allergens";
 import type { AllergenMatch } from "@/lib/allergens";
@@ -194,8 +195,8 @@ describe("buildWarning", () => {
  * ════════════════════════════════════════════ */
 
 describe("ALLERGEN_CHIPS", () => {
-  it("7개 칩 존재", () => {
-    expect(ALLERGEN_CHIPS).toHaveLength(7);
+  it("9개 칩 존재 (견과류·대두 추가)", () => {
+    expect(ALLERGEN_CHIPS).toHaveLength(9);
   });
 
   it("모든 칩에 raw + label 존재", () => {
@@ -223,5 +224,48 @@ describe("ALLERGEN_CHIPS", () => {
       expect(chip.icon).toBeDefined();
       expect(chip.icon!.length).toBeGreaterThan(0);
     }
+  });
+});
+
+/* ════════════════════════════════════════════
+ * mapApiAllergenCode — Claude API 영어 코드 → 한국어 카테고리
+ * ════════════════════════════════════════════ */
+
+describe("mapApiAllergenCode", () => {
+  it("주요 API 코드 → 올바른 AllergenCategory", () => {
+    expect(mapApiAllergenCode("shrimp")).toBe("새우");
+    expect(mapApiAllergenCode("crustacean")).toBe("갑각류");
+    expect(mapApiAllergenCode("peanut")).toBe("땅콩");
+    expect(mapApiAllergenCode("nut")).toBe("견과류");
+    expect(mapApiAllergenCode("soy")).toBe("대두");
+    expect(mapApiAllergenCode("milk")).toBe("우유");
+    expect(mapApiAllergenCode("egg")).toBe("계란");
+    expect(mapApiAllergenCode("gluten")).toBe("글루텐");
+    expect(mapApiAllergenCode("pork")).toBe("돼지고기");
+    expect(mapApiAllergenCode("beef")).toBe("소고기");
+    expect(mapApiAllergenCode("chicken")).toBe("닭고기");
+  });
+
+  it("대소문자 무시", () => {
+    expect(mapApiAllergenCode("SHRIMP")).toBe("새우");
+    expect(mapApiAllergenCode("Soy")).toBe("대두");
+  });
+
+  it("공백 트림", () => {
+    expect(mapApiAllergenCode("  milk  ")).toBe("우유");
+  });
+
+  it("알 수 없는 코드 → null", () => {
+    expect(mapApiAllergenCode("unknown")).toBeNull();
+    expect(mapApiAllergenCode("")).toBeNull();
+  });
+
+  it("동의어 코드도 매핑", () => {
+    expect(mapApiAllergenCode("prawn")).toBe("새우");
+    expect(mapApiAllergenCode("dairy")).toBe("우유");
+    expect(mapApiAllergenCode("soybean")).toBe("대두");
+    expect(mapApiAllergenCode("tree_nut")).toBe("견과류");
+    expect(mapApiAllergenCode("wheat")).toBe("글루텐");
+    expect(mapApiAllergenCode("shellfish")).toBe("조개");
   });
 });
