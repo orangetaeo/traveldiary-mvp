@@ -289,6 +289,33 @@ function ResultsView({
     onRetake();
   }
 
+  // 카카오톡 공유 — Web Share API 우선 + 카카오 sharer URL fallback
+  // (KakaoShareButton 답습 — 신규 의존성 0)
+  async function handleKakaoShare() {
+    if (typeof window === "undefined") return;
+    const url = tripId
+      ? `${window.location.origin}/trips/${tripId}`
+      : window.location.href;
+    const text = liveItems
+      ? `메뉴 번역 결과 — ${annotated.length}개 항목${
+          dangerCount > 0 ? `, 알레르기 위험 ${dangerCount}건 감지` : ""
+        }`
+      : "메뉴 번역 데모 — 베트남 여행 함께 가요?";
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ url, text });
+        return;
+      } catch (err) {
+        if ((err as DOMException)?.name === "AbortError") return;
+      }
+    }
+    const sharerUrl = `https://sharer.kakao.com/talk/friends/picker/link?url=${encodeURIComponent(
+      url,
+    )}&text=${encodeURIComponent(text)}`;
+    window.open(sharerUrl, "_blank", "noopener,noreferrer");
+  }
+
   const sourceMenu = liveItems ?? phuQuocMenu;
 
   const annotated = useMemo(() => {
@@ -422,6 +449,8 @@ function ResultsView({
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 max-w-[420px] w-full p-td-md bg-surface-card/95 backdrop-blur-md border-t border-divider z-50">
         <button
           type="button"
+          onClick={handleKakaoShare}
+          aria-label="카카오톡으로 메뉴 번역 공유"
           className="w-full flex items-center justify-center gap-td-xs px-td-lg py-3 bg-surface-card border border-divider text-ink rounded-full text-td-body font-bold transition-all active:scale-[0.98] shadow-sm hover:bg-surface-soft"
         >
           <span className="material-symbols-outlined text-amber">share</span>
