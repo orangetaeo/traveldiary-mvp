@@ -133,7 +133,7 @@ export default function SettingsAccountLinkPage() {
       <button
         type="button"
         disabled
-        aria-disabled
+        aria-disabled="true"
         className="w-full rounded-md bg-ink/30 text-surface-card font-bold py-td-sm cursor-not-allowed"
       >
         계정 연결 (준비 중)

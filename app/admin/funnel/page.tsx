@@ -210,7 +210,7 @@ export default async function FunnelDashboard({ searchParams }: PageProps) {
               <button
                 type="button"
                 disabled
-                aria-disabled
+                aria-disabled="true"
                 className="w-full md:w-auto px-td-lg py-td-sm bg-ink/40 text-white rounded-md text-td-body font-bold flex items-center justify-center gap-td-xs cursor-not-allowed"
               >
                 <span className="material-symbols-outlined text-td-icon-lg">download</span>
