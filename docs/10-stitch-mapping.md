@@ -336,3 +336,4 @@
 | 2026-04-30 | 5b | 옵션 C #2~#10 일괄 적용 — Item Detail / Itinerary / Travel On-trip / Translate 2-step / Replan Modal. Stitch 22개 중 11개 한국어 정답 화면이 모두 코드에 매핑 (#7 OTA, #11 Share는 사이클 12/11 보류) |
 | 2026-05-05 | Phase 7 | 화면 인벤토리 22→55개 확장. Admin 6 + Permission 2 + Settings 1 + Wrap-up 1 + Booking 1 + Extension 3 + Session A 10 + Session B 6 + 기타 3. 3 세션 병렬 매핑. |
 | 2026-05-06 | 사이클 1 (G5/G6) | Mode Transition User UX 2종 추가 (#56 Welcome + #57 Skip Reason). 사용자 흐름 갭 10 중 1번 해소. ModeTransitionWelcome + ModeTransitionSkipSheet 컴포넌트 + ModeTransitionSkipReason enum +3 (user_postponed_for_now / user_confused_ui / user_other) + userNote 화이트리스트 (200자, ADR-017 §C 답습). |
+| 2026-05-09 | Phase 7 세션 B | Session B 컴포넌트 6종 Stitch 정합 검증 완료. Toast(#47)·EmptyState(#48)·ErrorState(#49)·EvidencePanel(#50) 이미 정합. FilterChip(#51) icon prop + Stitch 색상 정렬. ImpactDisplay(#52) danger 4톤 + 헤더·compact·CTA 변형 추가. |

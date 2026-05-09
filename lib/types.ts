@@ -151,7 +151,7 @@ export interface ReplanOption {
 export interface ReplanImpact {
   key: string;
   value: string;
-  tone: "positive" | "negative" | "neutral";
+  tone: "positive" | "negative" | "danger" | "neutral";
 }
 
 // ═══════════════════════════════════════════════════════════

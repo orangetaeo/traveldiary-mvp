@@ -52,20 +52,28 @@ describe("FilterChip", () => {
     expect(html).toContain("선택됨");
   });
 
-  it("active + danger → bg-danger 강조 스타일", () => {
+  it("active + danger → bg-danger-soft + text-danger-deep (Stitch 시안)", () => {
     const html = renderToStaticMarkup(
       <FilterChip active variant="danger">위험</FilterChip>,
     );
-    expect(html).toContain("bg-danger");
-    expect(html).toContain("text-white");
+    expect(html).toContain("bg-danger-soft");
+    expect(html).toContain("text-danger-deep");
   });
 
-  it("inactive + danger → border-danger", () => {
+  it("inactive + danger → border-danger-deep + text-danger-deep", () => {
     const html = renderToStaticMarkup(
       <FilterChip variant="danger">알레르기</FilterChip>,
     );
-    expect(html).toContain("border-danger");
-    expect(html).not.toContain("bg-danger text-white");
+    expect(html).toContain("border-danger-deep");
+    expect(html).toContain("text-danger-deep");
+  });
+
+  it("icon prop → material-symbols-outlined 렌더링", () => {
+    const html = renderToStaticMarkup(
+      <FilterChip icon="block">아이콘 칩</FilterChip>,
+    );
+    expect(html).toContain("material-symbols-outlined");
+    expect(html).toContain("block");
   });
 
   it("button 엘리먼트 렌더링", () => {
@@ -122,6 +130,14 @@ describe("ImpactDisplay", () => {
     expect(html).toContain("거리");
   });
 
+  it("danger 톤 → danger 클래스 (Stitch 4톤)", () => {
+    const html = renderToStaticMarkup(
+      <ImpactDisplay impacts={[{ key: "입장", value: "마감", tone: "danger" }]} />,
+    );
+    expect(html).toContain("bg-danger");
+    expect(html).toContain("text-danger-deep");
+  });
+
   it("Stitch 시안 매칭 — 행 사이 border-b + dot w-2 + tabular-nums", () => {
     const html = renderToStaticMarkup(
       <ImpactDisplay
@@ -135,5 +151,31 @@ describe("ImpactDisplay", () => {
     expect(html).toContain("last:border-b-0");
     expect(html).toContain("w-2 h-2");
     expect(html).toContain("tabular-nums");
+  });
+
+  it("showHeader → 헤더 + Live Replan 배지", () => {
+    const html = renderToStaticMarkup(
+      <ImpactDisplay
+        impacts={[{ key: "시간", value: "-10분", tone: "positive" }]}
+        showHeader
+      />,
+    );
+    expect(html).toContain("예상 변경 요약");
+    expect(html).toContain("Live Replan");
+  });
+
+  it("compact → 영향 N건 확인 요약", () => {
+    const html = renderToStaticMarkup(
+      <ImpactDisplay
+        impacts={[
+          { key: "A", value: "1", tone: "positive" },
+          { key: "B", value: "2", tone: "negative" },
+        ]}
+        compact
+      />,
+    );
+    expect(html).toContain("영향 2건 확인");
+    expect(html).toContain("상세보기");
+    expect(html).not.toContain("border-b");
   });
 });
