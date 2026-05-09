@@ -118,6 +118,7 @@ export function PlaceResultCard({
           type="button"
           onClick={(e) => { e.stopPropagation(); onToggleFavorite(place.id); }}
           aria-label={isFavorite ? "찜 해제" : "찜하기"}
+          aria-pressed={isFavorite ? "true" : "false"}
           className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-sm transition-colors hover:bg-white"
         >
           <span className={`material-symbols-outlined text-[20px] ${isFavorite ? "text-danger" : "text-ink-mute"}`} aria-hidden>

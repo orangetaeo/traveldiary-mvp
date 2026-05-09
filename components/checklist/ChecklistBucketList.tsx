@@ -98,6 +98,7 @@ export function ChecklistBucketList({
                         type="button"
                         onClick={() => onToggle(item)}
                         aria-label={item.done ? `${item.text} 체크 해제` : `${item.text} 체크`}
+                        aria-pressed={item.done ? "true" : "false"}
                         className="mt-0.5 flex-shrink-0"
                       >
                         <span
