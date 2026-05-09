@@ -12,7 +12,7 @@ import {
   getWrapUpHighlights,
   highlightSubtitle,
 } from "@/lib/wrap-up/highlight-suggestions";
-import type { ItineraryItem, ItemCategory } from "@/lib/types";
+import type { ItineraryItem } from "@/lib/types";
 
 function makeItem(overrides: Partial<ItineraryItem>): ItineraryItem {
   return {
