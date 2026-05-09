@@ -167,6 +167,7 @@ export default function OtaInterstitialModal({
         {/* CTAs — 항상 보임 */}
         <div className="shrink-0 space-y-td-xs pt-td-sm">
           <button
+            type="button"
             onClick={handleProceed}
             className="w-full py-td-sm rounded-md bg-purple text-white text-td-body font-bold transition-opacity hover:opacity-90 flex items-center justify-center gap-td-xxs"
           >
@@ -174,6 +175,7 @@ export default function OtaInterstitialModal({
             <span className="material-symbols-outlined text-lg">open_in_new</span>
           </button>
           <button
+            type="button"
             onClick={onClose}
             className="w-full py-td-sm rounded-md border border-divider text-td-body font-semibold text-ink hover:bg-surface-soft transition-colors"
           >

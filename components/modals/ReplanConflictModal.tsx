@@ -106,6 +106,7 @@ export default function ReplanConflictModal({
         {/* Resolution Options */}
         <div className="space-y-td-xs">
           <button
+            type="button"
             onClick={onKeepA}
             className="w-full py-td-xs rounded-md bg-purple text-white text-td-body font-semibold transition-opacity hover:opacity-90 flex items-center justify-center gap-td-xxs"
           >
@@ -113,6 +114,7 @@ export default function ReplanConflictModal({
             &ldquo;{conflictA.name}&rdquo; 유지
           </button>
           <button
+            type="button"
             onClick={onKeepB}
             className="w-full py-td-xs rounded-md border-2 border-purple text-purple text-td-body font-semibold transition-colors hover:bg-purple-soft flex items-center justify-center gap-td-xxs"
           >
@@ -120,6 +122,7 @@ export default function ReplanConflictModal({
             &ldquo;{conflictB.name}&rdquo; 유지
           </button>
           <button
+            type="button"
             onClick={onKeepBoth}
             className="w-full py-td-xs rounded-md border border-divider text-td-body font-semibold text-ink hover:bg-surface-soft transition-colors flex items-center justify-center gap-td-xxs"
           >
@@ -130,6 +133,7 @@ export default function ReplanConflictModal({
 
         {/* Close */}
         <button
+          type="button"
           onClick={onClose}
           className="absolute top-td-sm right-td-sm p-1 rounded-full hover:bg-surface-soft transition-colors"
           aria-label="닫기"
