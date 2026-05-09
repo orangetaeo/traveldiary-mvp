@@ -61,7 +61,7 @@ function OnboardingInner() {
   const [destination, setDestination] = useState("푸꾸옥");
 
   // Step 3: 기간·일행
-  const [startDate] = useState(getDefaultStartDate);
+  const [startDate, setStartDate] = useState(getDefaultStartDate);
   const [nights, setNights] = useState(4);
   const [companion, setCompanion] = useState<string>("friends");
 
@@ -135,6 +135,8 @@ function OnboardingInner() {
         )}
         {step === 3 && (
           <Step3
+            startDate={startDate}
+            setStartDate={setStartDate}
             startDateLabel={formatStartDateKo(startDate)}
             nights={nights}
             setNights={setNights}
@@ -304,6 +306,8 @@ function Step2({
 // ─── Step 3 ──────────────────────────────────
 
 function Step3({
+  startDate,
+  setStartDate,
   startDateLabel,
   nights,
   setNights,
@@ -312,6 +316,8 @@ function Step3({
   onBack,
   onNext,
 }: {
+  startDate: string;
+  setStartDate: (d: string) => void;
   startDateLabel: string;
   nights: number;
   setNights: (n: number) => void;
@@ -330,23 +336,39 @@ function Step3({
       <div className="space-y-td-lg flex-1">
         {/* 기간 */}
         <div className="flex gap-td-sm">
-          <div className="flex-1 bg-surface-soft border border-divider rounded-md p-td-sm">
-            <p className="text-td-meta text-ink-soft mb-td-xxs">출발일</p>
-            <p className="text-td-card-title">{startDateLabel}</p>
-          </div>
+          <label className="flex-1 bg-surface-soft border border-divider rounded-md p-td-sm cursor-pointer focus-within:ring-2 focus-within:ring-purple">
+            <span className="block text-td-meta text-ink-soft mb-td-xxs">출발일</span>
+            <span className="block text-td-card-title">{startDateLabel}</span>
+            <input
+              type="date"
+              value={startDate}
+              min={getTodayIso()}
+              onChange={(e) => setStartDate(e.target.value || getDefaultStartDate())}
+              aria-label="출발일 선택"
+              className="sr-only"
+            />
+          </label>
           <div className="flex-1 bg-surface-soft border border-divider rounded-md p-td-sm flex flex-col justify-between">
             <p className="text-td-meta text-ink-soft mb-td-xxs">숙박</p>
             <div className="flex items-center justify-between">
               <button
-                className="material-symbols-outlined text-ink-soft text-lg"
+                type="button"
+                aria-label={`숙박 줄이기 (현재 ${nights}박)`}
+                disabled={nights <= 1}
                 onClick={() => setNights(Math.max(1, nights - 1))}
+                className="material-symbols-outlined text-ink-soft text-lg disabled:opacity-40"
               >
                 remove
               </button>
-              <span className="text-td-card-title">{nights}박</span>
+              <span className="text-td-card-title" aria-live="polite">
+                {nights}박
+              </span>
               <button
-                className="material-symbols-outlined text-accent text-lg"
+                type="button"
+                aria-label={`숙박 늘리기 (현재 ${nights}박)`}
+                disabled={nights >= 30}
                 onClick={() => setNights(Math.min(30, nights + 1))}
+                className="material-symbols-outlined text-accent text-lg disabled:opacity-40"
               >
                 add
               </button>
@@ -484,6 +506,11 @@ function getDefaultStartDate(): string {
   const d = new Date();
   d.setDate(d.getDate() + 7);
   return d.toISOString().slice(0, 10);
+}
+
+/** 오늘 ISO date (YYYY-MM-DD) — 출발일 input min 제약 */
+function getTodayIso(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 
