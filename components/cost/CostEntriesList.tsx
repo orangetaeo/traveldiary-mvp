@@ -84,7 +84,7 @@ export function CostEntriesList({ entries, onDelete, onEdit }: Props) {
                   <button
                     type="button"
                     onClick={() => onEdit(entry)}
-                    aria-label="수정"
+                    aria-label={`${entry.label} 수정`}
                     className="opacity-70 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-purple transition-opacity"
                   >
                     <span className="material-symbols-outlined text-td-icon">
@@ -95,7 +95,7 @@ export function CostEntriesList({ entries, onDelete, onEdit }: Props) {
                 <button
                   type="button"
                   onClick={() => onDelete(entry)}
-                  aria-label="삭제"
+                  aria-label={`${entry.label} 삭제`}
                   className="opacity-70 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 text-ink-mute hover:text-danger transition-opacity"
                 >
                   <span className="material-symbols-outlined text-td-icon">

@@ -45,21 +45,21 @@ function entry(
  * CostEntriesList — onEdit 유무에 따른 수정 버튼
  * ════════════════════════════════════════════ */
 
-describe("CostEntriesList — 수정 버튼", () => {
+describe("CostEntriesList — 수정 버튼 (aria-label 항목명 포함)", () => {
   it("onEdit 미전달 시 수정 버튼 미노출", () => {
     const html = renderToStaticMarkup(
       <CostEntriesList entries={[entry("a")]} onDelete={NOOP} />,
     );
-    expect(html).not.toContain('aria-label="수정"');
-    expect(html).toContain('aria-label="삭제"');
+    expect(html).not.toMatch(/aria-label="entry-a 수정"/);
+    expect(html).toContain('aria-label="entry-a 삭제"');
   });
 
-  it("onEdit 전달 시 수정 버튼 aria-label 존재", () => {
+  it("onEdit 전달 시 수정 버튼 aria-label 존재 (entry.label 포함)", () => {
     const html = renderToStaticMarkup(
       <CostEntriesList entries={[entry("a")]} onDelete={NOOP} onEdit={NOOP} />,
     );
-    expect(html).toContain('aria-label="수정"');
-    expect(html).toContain('aria-label="삭제"');
+    expect(html).toContain('aria-label="entry-a 수정"');
+    expect(html).toContain('aria-label="entry-a 삭제"');
   });
 
   it("onEdit 전달 시 edit 아이콘 렌더", () => {
@@ -73,11 +73,11 @@ describe("CostEntriesList — 수정 버튼", () => {
     const html = renderToStaticMarkup(
       <CostEntriesList entries={[]} onDelete={NOOP} onEdit={NOOP} />,
     );
-    expect(html).not.toContain('aria-label="수정"');
+    expect(html).not.toMatch(/aria-label="[^"]* 수정"/);
     expect(html).toContain("아직 입력된 비용이 없어요");
   });
 
-  it("여러 entry → 각각 수정 + 삭제 버튼", () => {
+  it("여러 entry → 각각 수정 + 삭제 버튼 (entry.label별 고유 aria-label)", () => {
     const html = renderToStaticMarkup(
       <CostEntriesList
         entries={[entry("a"), entry("b"), entry("c")]}
@@ -85,10 +85,14 @@ describe("CostEntriesList — 수정 버튼", () => {
         onEdit={NOOP}
       />,
     );
-    const editCount = (html.match(/aria-label="수정"/g) || []).length;
-    const deleteCount = (html.match(/aria-label="삭제"/g) || []).length;
+    const editCount = (html.match(/aria-label="entry-[abc] 수정"/g) || []).length;
+    const deleteCount = (html.match(/aria-label="entry-[abc] 삭제"/g) || []).length;
     expect(editCount).toBe(3);
     expect(deleteCount).toBe(3);
+    // entry.label별 고유 aria-label 검증
+    expect(html).toContain('aria-label="entry-a 수정"');
+    expect(html).toContain('aria-label="entry-b 수정"');
+    expect(html).toContain('aria-label="entry-c 수정"');
   });
 });
 

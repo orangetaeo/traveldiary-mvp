@@ -114,10 +114,12 @@ describe("사이클 NN — CostEntriesList", () => {
     expect(html).toContain("VND");
   });
 
-  it("삭제 버튼 aria-label", () => {
+  it("삭제 버튼 aria-label — 항목명(entry.label) 포함 (도착 체크인 답습)", () => {
     const html = renderToStaticMarkup(
       <CostEntriesList entries={[entry("a")]} onDelete={NOOP} />,
     );
-    expect(html).toContain('aria-label="삭제"');
+    expect(html).toContain('aria-label="entry-a 삭제"');
+    // 정적 'aria-label="삭제"'는 부재
+    expect(html).not.toContain('aria-label="삭제"');
   });
 });
