@@ -82,6 +82,16 @@ function OnboardingInner() {
     );
   };
 
+  const addCustomExclude = (raw: string) => {
+    const value = raw.trim().slice(0, 30);
+    if (!value) return;
+    if (EXCLUDES.includes(value)) return; // preset과 중복 시 무시
+    setExcludes((prev) => (prev.includes(value) ? prev : [...prev, value]));
+  };
+  const removeCustomExclude = (value: string) => {
+    setExcludes((prev) => prev.filter((x) => x !== value));
+  };
+
   const [isPending, startTransition] = useTransition();
 
   const handleFinish = () => {
@@ -154,6 +164,8 @@ function OnboardingInner() {
             setPace={setPace}
             excludes={excludes}
             toggleExclude={toggleExclude}
+            addCustomExclude={addCustomExclude}
+            removeCustomExclude={removeCustomExclude}
             onBack={() => setStep(3)}
             onFinish={handleFinish}
             isPending={isPending}
@@ -413,6 +425,8 @@ function Step4({
   setPace,
   excludes,
   toggleExclude,
+  addCustomExclude,
+  removeCustomExclude,
   onBack,
   onFinish,
   isPending,
@@ -423,10 +437,20 @@ function Step4({
   setPace: (p: string) => void;
   excludes: string[];
   toggleExclude: (e: string) => void;
+  addCustomExclude: (raw: string) => void;
+  removeCustomExclude: (value: string) => void;
   onBack: () => void;
   onFinish: () => void;
   isPending: boolean;
 }) {
+  const [customInput, setCustomInput] = useState("");
+  const customExcludes = excludes.filter((e) => !EXCLUDES.includes(e));
+  const handleAddCustom = () => {
+    const value = customInput.trim();
+    if (!value) return;
+    addCustomExclude(value);
+    setCustomInput("");
+  };
   return (
     <>
       <button className="flex items-center text-td-body text-ink-soft mb-td-sm" onClick={onBack}>
@@ -475,7 +499,52 @@ function Step4({
                 {e}
               </Chip>
             ))}
+            {customExcludes.map((e) => (
+              <span
+                key={e}
+                className="inline-flex items-center gap-1 px-td-sm py-td-xxs rounded-full text-td-meta bg-danger-soft text-danger-deep border border-danger/30"
+              >
+                {e}
+                <button
+                  type="button"
+                  onClick={() => removeCustomExclude(e)}
+                  aria-label={`기피 항목 ${e} 제거`}
+                  className="ml-0.5 -mr-1 w-5 h-5 rounded-full hover:bg-danger/15 flex items-center justify-center"
+                >
+                  <span className="material-symbols-outlined text-[14px]" aria-hidden>close</span>
+                </button>
+              </span>
+            ))}
           </div>
+          <div className="mt-td-sm flex items-stretch gap-td-xs">
+            <input
+              type="text"
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value.slice(0, 30))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddCustom();
+                }
+              }}
+              placeholder="직접 추가 (예: 호두 알레르기)"
+              maxLength={30}
+              aria-label="사용자 정의 기피 항목 입력"
+              className="flex-1 bg-surface-soft border border-divider rounded-md px-td-sm py-2 text-td-body focus:ring-2 focus:ring-purple focus:border-transparent outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleAddCustom}
+              disabled={!customInput.trim()}
+              aria-label="기피 항목 추가"
+              className="px-td-md rounded-md bg-purple text-white text-td-body font-semibold disabled:opacity-40"
+            >
+              추가
+            </button>
+          </div>
+          <p className="text-td-caption text-ink-mute mt-td-xxs">
+            본인 알레르기·식이 제한을 직접 입력해서 일정에서 제외할 수 있어요.
+          </p>
         </div>
       </div>
 
