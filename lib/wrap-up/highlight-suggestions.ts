@@ -25,6 +25,8 @@ const CATEGORY_SUBTITLE: Record<ItemCategory, string> = {
   food: "기억에 남은 식사",
   spot: "다녀온 명소",
   shopping: "기념이 된 쇼핑",
+  stay: "묵은 숙소",
+  wellness: "받은 마사지",
   rest: "쉼이 있던 순간",
 };
 

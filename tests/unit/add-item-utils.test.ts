@@ -71,10 +71,10 @@ describe("PLACE_TO_ITEM_CATEGORY", () => {
  * ════════════════════════════════════════════ */
 
 describe("CATEGORY_OPTIONS", () => {
-  it("4개 ItemCategory 옵션", () => {
-    expect(CATEGORY_OPTIONS).toHaveLength(4);
+  it("6개 ItemCategory 옵션 — stay/wellness 추가 (ADR-050)", () => {
+    expect(CATEGORY_OPTIONS).toHaveLength(6);
     expect(CATEGORY_OPTIONS.map((o) => o.id)).toEqual([
-      "food", "spot", "shopping", "rest",
+      "food", "spot", "shopping", "stay", "wellness", "rest",
     ]);
   });
 
@@ -83,6 +83,18 @@ describe("CATEGORY_OPTIONS", () => {
       expect(opt.label).toBeTruthy();
       expect(opt.icon).toBeTruthy();
     }
+  });
+
+  it("stay/wellness 아이콘 매핑 (ADR-050)", () => {
+    const stay = CATEGORY_OPTIONS.find((o) => o.id === "stay");
+    const wellness = CATEGORY_OPTIONS.find((o) => o.id === "wellness");
+    expect(stay).toEqual({ id: "stay", label: "숙소", icon: "hotel" });
+    expect(wellness).toEqual({ id: "wellness", label: "마사지", icon: "spa" });
+  });
+
+  it("rest 라벨 '기타 휴식'으로 변경 (ADR-050)", () => {
+    const rest = CATEGORY_OPTIONS.find((o) => o.id === "rest");
+    expect(rest?.label).toBe("기타 휴식");
   });
 });
 

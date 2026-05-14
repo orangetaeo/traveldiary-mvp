@@ -63,9 +63,9 @@ describe("types.ts — union type 값 추출", () => {
     expect(values).toEqual(["pre-travel", "in-travel", "post-travel"]);
   });
 
-  it("ItemCategory — 4값", () => {
+  it("ItemCategory — 6값 (ADR-050: stay/wellness 신설)", () => {
     const values = extractUnionValues(TYPES_SRC, "ItemCategory");
-    expect(values).toEqual(["food", "spot", "shopping", "rest"]);
+    expect(values).toEqual(["food", "spot", "shopping", "stay", "wellness", "rest"]);
   });
 
   it("ItemFlexibility — 3값", () => {

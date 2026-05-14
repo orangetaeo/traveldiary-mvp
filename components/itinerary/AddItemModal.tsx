@@ -301,13 +301,20 @@ export function AddItemModal({
 
           <div className="flex flex-col">
             <span className="text-td-caption text-ink-soft mb-1">카테고리</span>
-            <div className="grid grid-cols-4 gap-td-xs">
+            {/* ADR-050: 6 칩 가로 스크롤 (mobile 360px 대응, 사이클 BB touch-pan-x 패턴 답습) */}
+            <div
+              className="flex gap-td-xs overflow-x-auto touch-pan-x overscroll-x-contain pb-1"
+              role="radiogroup"
+              aria-label="카테고리 선택"
+            >
               {CATEGORY_OPTIONS.map((c) => (
                 <button
                   key={c.id}
                   type="button"
+                  role="radio"
+                  aria-checked={category === c.id ? "true" : "false"}
                   onClick={() => setCategory(c.id)}
-                  className={`flex flex-col items-center gap-1 py-td-xs rounded-lg border text-td-caption transition-colors ${
+                  className={`flex flex-col items-center gap-1 py-td-xs px-td-sm shrink-0 min-w-[72px] rounded-lg border text-td-caption transition-colors ${
                     category === c.id
                       ? "border-purple bg-purple-soft text-purple-deep font-bold"
                       : "border-divider text-ink-soft hover:border-purple/40"

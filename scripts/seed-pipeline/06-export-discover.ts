@@ -46,20 +46,24 @@ interface RefinedPlace {
   zone: string;
 }
 
-// DiscoverPlace 카테고리 매핑
+// DiscoverPlace 카테고리 매핑 (ADR-050: rest→spot 강제 매핑 해제, stay/wellness 신설)
 const CATEGORY_MAP: Record<string, string> = {
   "카페": "cafe",
   "food": "food",
   "spot": "spot",
   "shopping": "shopping",
-  "rest": "spot", // rest는 discover에서 보여줄 필요 적음, spot으로 매핑
+  "stay": "stay",        // ADR-050: 호텔/리조트/게스트하우스
+  "wellness": "wellness", // ADR-050: 스파/마사지/뷰티
+  "rest": "rest",        // ADR-050: 본 카테고리 유지 (spot 강제 매핑 해제)
 };
 
 function toDiscoverCategory(category: string, subCategory: string): string {
   if (subCategory === "카페") return "cafe";
   if (subCategory === "공원/정원" || subCategory === "해변" || subCategory === "폭포" || subCategory === "섬") return "nature";
-  if (category === "rest" && (subCategory === "스파/마사지" || subCategory === "뷰티")) return "spot";
-  if (category === "rest") return "spot"; // 숙소/리조트 → spot으로
+  // ADR-050: subCategory 기반 정확 분기 (rest→spot 강제 매핑 해제)
+  if (subCategory === "스파/마사지" || subCategory === "뷰티" || subCategory === "마사지") return "wellness";
+  if (subCategory === "숙소" || subCategory === "리조트" || subCategory === "호텔" || subCategory === "게스트하우스") return "stay";
+  if (category === "rest") return "rest"; // 보존 (공원·산책 등 폴백)
   return category;
 }
 
