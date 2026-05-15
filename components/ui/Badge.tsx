@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-type BadgeTone = "info" | "amber" | "danger" | "success" | "neutral";
+type BadgeTone = "info" | "amber" | "danger" | "success" | "neutral" | "accent";
 
 interface BadgeProps {
   tone?: BadgeTone;
@@ -24,6 +24,7 @@ export function Badge({ tone = "neutral", children, className = "" }: BadgeProps
     danger: "bg-danger-soft text-danger-deep",
     success: "bg-success-soft text-success-deep",
     neutral: "bg-surface-soft text-ink-soft",
+    accent: "bg-accent-soft text-accent-deep",
   };
 
   return (

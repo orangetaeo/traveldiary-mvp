@@ -63,26 +63,32 @@ export function parseDayParam(raw: string | undefined, nights: number): number |
   return n;
 }
 
-/** 카테고리 → 한국어 라벨 */
+/** 카테고리 → 한국어 라벨 (ADR-050: 6 항목) */
 export const CATEGORY_LABEL: Record<string, string> = {
   food: "음식점",
   spot: "관광",
   shopping: "쇼핑",
-  rest: "휴식",
+  stay: "숙소",
+  wellness: "마사지",
+  rest: "기타 휴식",
 };
 
-/** 카테고리 → Material Symbols 아이콘 */
+/** 카테고리 → Material Symbols 아이콘 (ADR-050: 6 항목) */
 export const CATEGORY_ICON: Record<string, string> = {
   food: "restaurant",
   spot: "photo_camera",
   shopping: "shopping_bag",
+  stay: "hotel",
+  wellness: "spa",
   rest: "bed",
 };
 
-/** 카테고리 → 히어로 그라디언트 */
+/** 카테고리 → 히어로 그라디언트 (ADR-050: 6 항목) */
 export const CATEGORY_GRADIENT: Record<string, string> = {
   food: "bg-gradient-to-br from-accent to-amber-deep",
   spot: "bg-gradient-to-br from-purple to-purple-deep",
   shopping: "bg-gradient-to-br from-amber to-accent-deep",
+  stay: "bg-gradient-to-br from-success to-success-deep",
+  wellness: "bg-gradient-to-br from-accent to-accent-deep",
   rest: "bg-gradient-to-br from-success-deep to-purple-deep",
 };

@@ -386,7 +386,7 @@ model Place {
   name            String   @db.VarChar(200) // 한글 우선
   nameLocal       String?  @db.VarChar(200) // 현지어
 
-  category        String   // "food" | "spot" | "shopping" | "rest"
+  category        String   // ADR-050: "food" | "spot" | "shopping" | "stay" | "wellness" | "rest"
   subCategory     String?  // "카페", "해변", "야시장" 등
 
   lat             Float

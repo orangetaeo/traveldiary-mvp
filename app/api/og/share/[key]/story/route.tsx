@@ -16,10 +16,13 @@ import type { ItineraryItem, ItemCategory } from "@/lib/types";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/** ADR-050: 6 카테고리 */
 const CATEGORY_EMOJI: Record<ItemCategory, string> = {
   food: "🍜",
   spot: "🏛️",
   shopping: "🛍️",
+  stay: "🏨",
+  wellness: "💆",
   rest: "☕",
 };
 
@@ -27,6 +30,8 @@ const CATEGORY_LABEL: Record<ItemCategory, string> = {
   food: "음식",
   spot: "관광",
   shopping: "쇼핑",
+  stay: "숙소",
+  wellness: "마사지",
   rest: "휴식",
 };
 

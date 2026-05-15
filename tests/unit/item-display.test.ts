@@ -101,18 +101,22 @@ describe("flexibilityKr", () => {
 });
 
 describe("카테고리 상수", () => {
-  it("CATEGORY_LABEL 4종", () => {
-    expect(Object.keys(CATEGORY_LABEL)).toEqual(["food", "spot", "shopping", "rest"]);
+  it("CATEGORY_LABEL 6종 (ADR-050: stay/wellness 신설)", () => {
+    expect(Object.keys(CATEGORY_LABEL)).toEqual([
+      "food", "spot", "shopping", "stay", "wellness", "rest",
+    ]);
   });
 
-  it("CATEGORY_ICON 4종", () => {
+  it("CATEGORY_ICON 6종", () => {
     expect(CATEGORY_ICON.food).toBe("restaurant");
     expect(CATEGORY_ICON.spot).toBe("photo_camera");
+    expect(CATEGORY_ICON.stay).toBe("hotel");
+    expect(CATEGORY_ICON.wellness).toBe("spa");
   });
 
-  it("CATEGORY_GRADIENT 4종", () => {
+  it("CATEGORY_GRADIENT 6종", () => {
     expect(CATEGORY_GRADIENT.food).toContain("bg-gradient");
-    expect(Object.keys(CATEGORY_GRADIENT)).toHaveLength(4);
+    expect(Object.keys(CATEGORY_GRADIENT)).toHaveLength(6);
   });
 });
 

@@ -38,7 +38,14 @@ export interface Trip {
 // ITINERARY ITEM — DAG 노드
 // ═══════════════════════════════════════════════════════════
 
-export type ItemCategory = "food" | "spot" | "shopping" | "rest";
+/** ADR-050: 4 → 6 확장 (stay/wellness 신설, rest 의미 좁힘 — "기타 휴식") */
+export type ItemCategory =
+  | "food"      // 음식점 (cafe·nightlife 흡수)
+  | "spot"      // 관광 (nature·activity 흡수)
+  | "shopping"  // 쇼핑
+  | "stay"      // 숙소 (호텔·리조트·게스트하우스 — ADR-050)
+  | "wellness"  // 마사지 (스파·뷰티 — ADR-050)
+  | "rest";     // 기타 휴식 (카페 외 공원·산책 등 폴백)
 export type ItemFlexibility = "fixed" | "flexible" | "booked";
 
 export interface ItineraryItem {

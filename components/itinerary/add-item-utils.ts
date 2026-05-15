@@ -20,11 +20,14 @@ export const PLACE_TO_ITEM_CATEGORY: Record<PlaceCategory, ItemCategory> = {
   nightlife: "food",
 };
 
+/** ADR-050: 4 → 6 칩 확장. AddItemModal에서 `touch-pan-x` 가로 스크롤 필수 (mobile 360px). */
 export const CATEGORY_OPTIONS: { id: ItemCategory; label: string; icon: string }[] = [
   { id: "food", label: "음식점", icon: "restaurant" },
   { id: "spot", label: "관광", icon: "photo_camera" },
   { id: "shopping", label: "쇼핑", icon: "shopping_bag" },
-  { id: "rest", label: "휴식", icon: "bed" },
+  { id: "stay", label: "숙소", icon: "hotel" },
+  { id: "wellness", label: "마사지", icon: "spa" },
+  { id: "rest", label: "기타 휴식", icon: "bed" },
 ];
 
 export const FLEXIBILITY_OPTIONS: { id: ItemFlexibility; label: string }[] = [
